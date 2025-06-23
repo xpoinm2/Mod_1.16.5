@@ -83,12 +83,12 @@ public class ClientEventHandler {
             AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF5555FF);
             AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF0000FF);
             String text = "Thirst: " + thirst + "/100";
-            ms.push();
+            ms.pushPose();
             ms.scale(0.5f, 0.5f, 1f);
             float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
             float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
             font.draw(ms, text, tx, ty, 0xFFFFFF);
-            ms.pop();
+            ms.popPose();
 
             // Усталость (оранжевый)
             by += spacing;
@@ -97,12 +97,12 @@ public class ClientEventHandler {
             AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFFFAA55);
             AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFFFF5500);
             text = "Fatigue: " + fatigue + "/100";
-            ms.push();
+            ms.popPose();
             ms.scale(0.5f, 0.5f, 1f);
             tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
             ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
             font.draw(ms, text, tx, ty, 0xFFFFFF);
-            ms.pop();
+            ms.popPose();
 
             // Болезнь (зелёный)
             by += spacing;
@@ -111,12 +111,12 @@ public class ClientEventHandler {
             AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFAAFFAA);
             AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF00AA00);
             text = "Disease: " + disease + "/100";
-            ms.push();
+            ms.pushPose();
             ms.scale(0.5f, 0.5f, 1f);
             tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
             ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
             font.draw(ms, text, tx, ty, 0xFFFFFF);
-            ms.pop();
+            ms.popPose();
         });
 
 // 3) Раньше тут рисовался зелёный человечек. Теперь ничего не рисуем
