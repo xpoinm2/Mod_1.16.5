@@ -3,14 +3,16 @@ package com.example.examplemod.client;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.client.screen.WaterChoiceScreen;    // ← ваш экран выбора воды
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraft.util.ActionResultType;
+
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.client.event.InputEvent.ClickInputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -21,21 +23,28 @@ import net.minecraftforge.fml.common.Mod;
 )
 public class ClientInteractionHandler {
 
-    /** При ПКМ по воде пустой рукой открываем экран выбора */
+    /** При нажатии ПКМ без предмета по воде открываем экран выбора */
     @SubscribeEvent
-    public static void onRightClickBlock(RightClickBlock ev) {
-        World world = ev.getWorld();
-        if (!world.isClientSide()) return;
-        if (!ev.getPlayer().getItemInHand(ev.getHand()).isEmpty()) return;
+    public static void onRightClick(ClickInputEvent ev) {
+        if (!ev.isUseItem() || ev.isCanceled()) return;
 
-        BlockPos pos = ev.getPos();
+        Minecraft mc = Minecraft.getInstance();
+        ClientPlayerEntity player = mc.player;
+        if (player == null || !player.getMainHandItem().isEmpty()) return;
+
+        RayTraceResult hit = mc.hitResult;
+        if (hit == null || hit.getType() != RayTraceResult.Type.BLOCK) return;
+
+        BlockPos pos = ((BlockRayTraceResult) hit).getBlockPos();
+        World world = player.level;
         FluidState fs = world.getFluidState(pos);
         // accept both source and flowing water blocks
+        // accept both source and flowing water blocks
         if (fs.is(FluidTags.WATER)) {
-            // открываем ваш WaterChoiceScreen
-            Minecraft.getInstance().setScreen(new WaterChoiceScreen());
+            mc.setScreen(new WaterChoiceScreen());
+            ev.setSwingHand(false); // don't swing animation
             ev.setCanceled(true);
-            ev.setCancellationResult(ActionResultType.SUCCESS);
+
         }
     }
 
