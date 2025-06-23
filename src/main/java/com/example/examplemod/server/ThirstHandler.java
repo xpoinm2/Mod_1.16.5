@@ -119,11 +119,11 @@ public class ThirstHandler {
 
     public static void onMixWater(ServerPlayerEntity player) {
         LOGGER.info("onMixWater: нажата кнопка «Перемешать» игроком {}", player.getName().getString());
-        int thirst = Math.min(100, getStat(player, KEY_THIRST, 40) + 20);
-        setStat(player, KEY_THIRST, thirst);
+        int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + 3);
+        setStat(player, KEY_FATIGUE, fatigue);
         ModNetworkHandler.CHANNEL.send(
                 PacketDistributor.PLAYER.with(() -> player),
-                new SyncStatsPacket(thirst, getStat(player, KEY_FATIGUE, 0))
+                new SyncStatsPacket(getStat(player, KEY_THIRST, 40), fatigue)
         );
     }
 }
