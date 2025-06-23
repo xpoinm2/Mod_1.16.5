@@ -86,8 +86,8 @@ public class ThirstHandler {
     }
 
     @SubscribeEvent
-    public static void onDrinkStop(LivingEntityUseItemEvent.Stop event) {
-        LOGGER.info("onDrinkStop: {} использует {}",
+    public static void onDrinkFinish(LivingEntityUseItemEvent.Finish event) {
+        LOGGER.info("onDrinkFinish: {} использует {}",
                 event.getEntity().getName().getString(),
                 event.getItem().getItem().getRegistryName()
         );
@@ -97,14 +97,11 @@ public class ThirstHandler {
             ServerPlayerEntity player = (ServerPlayerEntity) event.getEntity();
             int thirst = Math.max(0, getStat(player, KEY_THIRST, 40) - 20);
             setStat(player, KEY_THIRST, thirst);
-            player.inventory.add(new ItemStack(Items.GLASS_BOTTLE));
             LOGGER.info("  -> новая жажда = {}", thirst);
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
                     new SyncStatsPacket(thirst, getStat(player, KEY_FATIGUE, 0))
             );
-            // Отменяем дальнейшую стандартную обработку
-            event.setCanceled(true);
         }
     }
 
