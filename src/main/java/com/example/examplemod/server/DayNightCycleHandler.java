@@ -16,7 +16,7 @@ public class DayNightCycleHandler {
         ServerWorld world = (ServerWorld) event.world;
         long time = world.getDayTime();
         long dayTime = time % 24000L;
-        if (dayTime < 12000L && time % 2L == 0L) {
+        if (dayTime < 12000L && world.getGameTime() % 2L == 0L) {
             world.setDayTime(time - 1);
         }
     }
