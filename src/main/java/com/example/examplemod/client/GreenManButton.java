@@ -6,16 +6,15 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
 
 public class GreenManButton extends Button {
+    // Теперь кнопка рисует небольшое красное сердечко
     private static final int[][] SHAPE = {
-            {0,0,1,1,1,0,0},
+            {0,1,0,0,0,1,0},
+            {1,1,1,0,1,1,1},
+            {1,1,1,1,1,1,1},
+            {1,1,1,1,1,1,1},
             {0,1,1,1,1,1,0},
             {0,0,1,1,1,0,0},
-            {0,0,0,1,0,0,0},
-            {0,0,1,1,1,0,0},
-            {0,1,0,1,0,1,0},
-            {0,0,0,1,0,0,0},
-            {0,0,1,0,1,0,0},
-            {0,1,0,0,0,1,0}
+            {0,0,0,1,0,0,0}
     };
 
     public GreenManButton(int x, int y, int w, int h, ITextComponent t, IPressable p) {
@@ -32,7 +31,7 @@ public class GreenManButton extends Button {
     // Вынесли отрисовку самой фигуры в отдельный приватный метод
     private static void drawShape(MatrixStack ms, int startX, int startY) {
         int ps    = 2;
-        int color = 0xFF00FF00;
+        int color = 0xFFFF0000; // красный цвет сердечка
         for (int r = 0; r < SHAPE.length; r++) {
             for (int c = 0; c < SHAPE[r].length; c++) {
                 if (SHAPE[r][c] == 1) {
@@ -44,8 +43,8 @@ public class GreenManButton extends Button {
         }
     }
 
-    /** Статический метод для оверлея — рисует человечка в произвольной точке */
-    public static void drawPixelMan(MatrixStack ms, int x, int y) {
+    /** Статический метод — рисует сердечко в произвольной точке */
+    public static void drawHeart(MatrixStack ms, int x, int y) {
         // x,y — верхний левый угол формы
         drawShape(ms, x, y);
     }
