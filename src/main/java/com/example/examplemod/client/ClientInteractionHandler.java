@@ -33,7 +33,8 @@ public class ClientInteractionHandler {
         if (player == null || !player.getMainHandItem().isEmpty()) return;
 
         double reach = mc.gameMode.getPickRange();
-        RayTraceResult res = player.pick(reach, 0.0F, false);
+        // true -> raytrace should stop on fluids so we can detect water
+        RayTraceResult res = player.pick(reach, 0.0F, true);
         if (res.getType() != RayTraceResult.Type.BLOCK) return;
 
         BlockPos pos = ((BlockRayTraceResult) res).getBlockPos();
