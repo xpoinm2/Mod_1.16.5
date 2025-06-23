@@ -1,13 +1,14 @@
 // === FILE src/main/java/com/example/examplemod/ModItems.java
 package com.example.examplemod;
 
-import net.minecraft.item.Food;
+
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import com.example.examplemod.item.HealingItem;
 
 
 public class ModItems {
@@ -19,9 +20,7 @@ public class ModItems {
 
     // Целебный предмет: при использовании лечит 2 сердца
     public static final RegistryObject<Item> HEALING_ITEM = ITEMS.register("healing_item",
-            () -> new Item(new Item.Properties()
-                    .food(new Food.Builder().nutrition(4).saturationMod(0.3f).build())
-                    .tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new HealingItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
