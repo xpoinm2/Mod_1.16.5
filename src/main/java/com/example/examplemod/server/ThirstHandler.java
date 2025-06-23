@@ -15,9 +15,13 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +30,9 @@ public class ThirstHandler {
     private static final Logger LOGGER     = LogManager.getLogger();
     private static final String KEY_THIRST = "thirst";
     private static final String KEY_FATIGUE= "fatigue";
+
+    private static final Map<UUID, double[]> LAST_POS = new HashMap<>();
+    private static final Map<UUID, Double> RUN_DIST = new HashMap<>();
 
     private static CompoundNBT getStatsTag(PlayerEntity player) {
         CompoundNBT root = player.getPersistentData();
@@ -45,6 +52,15 @@ public class ThirstHandler {
 
     private static void setStat(PlayerEntity player, String key, int value) {
         getStatsTag(player).putInt(key, value);
+    }
+
+    private static boolean isFishItem(ItemStack stack) {
+        return stack.getItem() == Items.COD ||
+                stack.getItem() == Items.SALMON ||
+                stack.getItem() == Items.PUFFERFISH ||
+                stack.getItem() == Items.TROPICAL_FISH ||
+                stack.getItem() == Items.COOKED_COD ||
+                stack.getItem() == Items.COOKED_SALMON;
     }
 
     @SubscribeEvent
@@ -83,6 +99,39 @@ public class ThirstHandler {
     @SubscribeEvent
     public static void onLogout(PlayerLoggedOutEvent event) {
         LOGGER.info("onLogout: игрок {} вышел", event.getPlayer().getName().getString());
+        UUID id = event.getPlayer().getUUID();
+        LAST_POS.remove(id);
+        RUN_DIST.remove(id);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (!(event.player instanceof ServerPlayerEntity)) return;
+        ServerPlayerEntity player = (ServerPlayerEntity) event.player;
+        UUID id = player.getUUID();
+
+        double[] prev = LAST_POS.computeIfAbsent(id, u -> new double[]{player.getX(), player.getZ()});
+        double dx = player.getX() - prev[0];
+        double dz = player.getZ() - prev[1];
+        prev[0] = player.getX();
+        prev[1] = player.getZ();
+
+        if (!player.isSprinting()) return;
+
+        double dist = Math.sqrt(dx * dx + dz * dz);
+        double total = RUN_DIST.getOrDefault(id, 0.0) + dist;
+        if (total >= 100.0) {
+            int steps = (int) (total / 100.0);
+            total -= steps * 100.0;
+            int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + steps * 5);
+            setStat(player, KEY_FATIGUE, fatigue);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(getStat(player, KEY_THIRST, 40), fatigue)
+            );
+        }
+        RUN_DIST.put(id, total);
     }
 
     @SubscribeEvent
@@ -93,8 +142,9 @@ public class ThirstHandler {
         );
         if (!(event.getEntity() instanceof ServerPlayerEntity)) return;
         ItemStack stack = event.getItem();
+        ServerPlayerEntity player = (ServerPlayerEntity) event.getEntity();
         if (stack.getItem() == Items.POTION && PotionUtils.getPotion(stack) == Potions.WATER) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getEntity();
+
             int thirst = Math.max(0, getStat(player, KEY_THIRST, 40) - 20);
             setStat(player, KEY_THIRST, thirst);
 
@@ -103,7 +153,15 @@ public class ThirstHandler {
                     PacketDistributor.PLAYER.with(() -> player),
                     new SyncStatsPacket(thirst, getStat(player, KEY_FATIGUE, 0))
             );
+        } else if (isFishItem(stack)) {
+            int thirst = Math.min(100, getStat(player, KEY_THIRST, 40) + 15);
+            setStat(player, KEY_THIRST, thirst);
 
+            LOGGER.info("  -> новая жажда = {}", thirst);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(thirst, getStat(player, KEY_FATIGUE, 0))
+            );
         }
     }
 
