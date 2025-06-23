@@ -51,10 +51,18 @@ public class ClientEventHandler {
         FontRenderer font = mc.font;
 
         // Позиция оверлея
-        int x0 = 10, y0 = 10;
+        int x0 = 0, y0 = 0;
 
-        // Полупрозрачный фон
-        AbstractGui.fill(ms, x0, y0, x0 + 100, y0 + 60, 0xAA000000);
+        // Черный фон размером 150x150
+        AbstractGui.fill(ms, x0, y0, x0 + 150, y0 + 150, 0xFF000000);
+
+        int mx = ev.getMouseX();
+        int my = ev.getMouseY();
+
+        // Размеры полосок
+        int w = Math.round(80 / 1.5f); // полоски стали меньше
+        int h = Math.round(8  / 1.5f);
+        int spacing = Math.round(16 / 1.5f);
 
         // Получаем статы
         mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
@@ -62,33 +70,44 @@ public class ClientEventHandler {
             int fatigue = stats.getFatigue();
             int disease = stats.getDisease();
 
-            int w = 80, h = 8;
+
             int bx = x0 + 10;
             int by = y0 + 10;
 
             // Жажда (синяя)
             int filled = thirst * w / 100;
+            // рамка
+            AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
             AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF5555FF);
             AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF0000FF);
-            font.draw(ms, "Thirst: " + thirst, bx, by - 10, 0xFFFFFF);
+            if (mx >= bx && mx <= bx + w && my >= by && my <= by + h) {
+                font.draw(ms, "Thirst: " + thirst + "/100", bx, by - 10, 0xFFFFFF);
+            }
 
             // Усталость (оранжевый)
-            by += 16;
+            by += spacing;
             filled = fatigue * w / 100;
+            AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
             AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFFFAA55);
             AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFFFF5500);
-            font.draw(ms, "Fatigue: " + fatigue, bx, by - 10, 0xFFFFFF);
+            if (mx >= bx && mx <= bx + w && my >= by && my <= by + h) {
+                font.draw(ms, "Fatigue: " + fatigue + "/100", bx, by - 10, 0xFFFFFF);
+            }
 
             // Болезнь (зелёный)
-            by += 16;
+            by += spacing;
             filled = disease * w / 100;
+            AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
             AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFAAFFAA);
             AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF00AA00);
-            font.draw(ms, "Disease: " + disease, bx, by - 10, 0xFFFFFF);
+            if (mx >= bx && mx <= bx + w && my >= by && my <= by + h) {
+                font.draw(ms, "Disease: " + disease + "/100", bx, by - 10, 0xFFFFFF);
+            }
         });
 
-        // 3) Рисуем пиксельного человечка внизу оверлея
-        GreenManButton.drawPixelMan(ms, x0 + 5, y0 + 36);
+        // 3) Рисуем пиксельного человечка чуть ниже полосок
+        int manY = y0 + 10 + (h + spacing) * 2 + h + 10;
+        GreenManButton.drawPixelMan(ms, x0 + 5, manY);
     }
 
     // 4) Закрытие оверлея по ESC
