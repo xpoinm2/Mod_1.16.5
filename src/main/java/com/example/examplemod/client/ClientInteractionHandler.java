@@ -5,6 +5,7 @@ import com.example.examplemod.client.screen.WaterChoiceScreen;    // ← ваш 
 import net.minecraft.client.Minecraft;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.util.ActionResultType;
@@ -29,7 +30,8 @@ public class ClientInteractionHandler {
 
         BlockPos pos = ev.getPos();
         FluidState fs = world.getFluidState(pos);
-        if (fs.getType() == Fluids.WATER) {
+        // accept both source and flowing water blocks
+        if (fs.is(FluidTags.WATER)) {
             // открываем ваш WaterChoiceScreen
             Minecraft.getInstance().setScreen(new WaterChoiceScreen());
             ev.setCanceled(true);
