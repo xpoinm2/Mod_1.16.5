@@ -12,9 +12,11 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.potion.Potions;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +35,7 @@ public class ThirstHandler {
 
     private static final Map<UUID, double[]> LAST_POS = new HashMap<>();
     private static final Map<UUID, Double> RUN_DIST = new HashMap<>();
+    private static final Map<UUID, Integer> JUMP_COUNT = new HashMap<>();
 
     private static CompoundNBT getStatsTag(PlayerEntity player) {
         CompoundNBT root = player.getPersistentData();
@@ -102,6 +105,7 @@ public class ThirstHandler {
         UUID id = event.getPlayer().getUUID();
         LAST_POS.remove(id);
         RUN_DIST.remove(id);
+        JUMP_COUNT.remove(id);
     }
 
     @SubscribeEvent
@@ -133,6 +137,37 @@ public class ThirstHandler {
         }
         RUN_DIST.put(id, total);
     }
+
+    @SubscribeEvent
+    public static void onPlayerJump(LivingJumpEvent event) {
+        if (!(event.getEntityLiving() instanceof ServerPlayerEntity)) return;
+        ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
+        UUID id = player.getUUID();
+        int count = JUMP_COUNT.getOrDefault(id, 0) + 1;
+        if (count >= 20) {
+            count = 0;
+            int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + 3);
+            setStat(player, KEY_FATIGUE, fatigue);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(getStat(player, KEY_THIRST, 40), fatigue)
+            );
+        }
+        JUMP_COUNT.put(id, count);
+    }
+
+    @SubscribeEvent
+    public static void onAttackEntity(AttackEntityEvent event) {
+        if (!(event.getPlayer() instanceof ServerPlayerEntity)) return;
+        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+        int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + 1);
+        setStat(player, KEY_FATIGUE, fatigue);
+        ModNetworkHandler.CHANNEL.send(
+                PacketDistributor.PLAYER.with(() -> player),
+                new SyncStatsPacket(getStat(player, KEY_THIRST, 40), fatigue)
+        );
+    }
+
 
     @SubscribeEvent
     public static void onDrinkFinish(LivingEntityUseItemEvent.Finish event) {
