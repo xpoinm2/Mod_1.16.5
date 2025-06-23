@@ -97,7 +97,7 @@ public class ClientEventHandler {
             AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFFFAA55);
             AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFFFF5500);
             text = "Fatigue: " + fatigue + "/100";
-            ms.popPose();
+            ms.pushPose();
             ms.scale(0.5f, 0.5f, 1f);
             tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
             ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
