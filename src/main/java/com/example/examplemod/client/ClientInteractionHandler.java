@@ -32,10 +32,11 @@ public class ClientInteractionHandler {
         ClientPlayerEntity player = mc.player;
         if (player == null || !player.getMainHandItem().isEmpty()) return;
 
-        RayTraceResult hit = mc.hitResult;
-        if (hit == null || hit.getType() != RayTraceResult.Type.BLOCK) return;
+        double reach = mc.gameMode.getPickRange();
+        RayTraceResult res = player.pick(reach, 0.0F, false);
+        if (res.getType() != RayTraceResult.Type.BLOCK) return;
 
-        BlockPos pos = ((BlockRayTraceResult) hit).getBlockPos();
+        BlockPos pos = ((BlockRayTraceResult) res).getBlockPos();
         World world = player.level;
         FluidState fs = world.getFluidState(pos);
         // accept both source and flowing water blocks
