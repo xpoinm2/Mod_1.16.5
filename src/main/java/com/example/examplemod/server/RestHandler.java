@@ -106,6 +106,13 @@ public class RestHandler {
 
         Info info = REST.get(id);
         if (info == null) return;
+
+        if ((info.type == Type.SIT || info.type == Type.LIE) && player.isShiftKeyDown()) {
+            REST.remove(id);
+            player.setForcedPose(null);
+            return;
+        }
+
         info.ticks++;
         switch (info.type) {
             case SIT:
