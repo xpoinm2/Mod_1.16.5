@@ -33,9 +33,12 @@ public class ThirstHandler {
     private static final String KEY_THIRST = "thirst";
     private static final String KEY_FATIGUE= "fatigue";
 
-    private static final Map<UUID, double[]> LAST_POS = new HashMap<>();
-    private static final Map<UUID, Double> RUN_DIST = new HashMap<>();
-    private static final Map<UUID, Integer> JUMP_COUNT = new HashMap<>();
+    private static final Map<UUID, double[]> LAST_POS   = new HashMap<>();
+    private static final Map<UUID, Double>   RUN_DIST   = new HashMap<>();
+    private static final Map<UUID, Integer>  JUMP_COUNT = new HashMap<>();
+    private static final Map<UUID, Integer>  STILL_TICKS= new HashMap<>();
+
+    private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
 
     private static CompoundNBT getStatsTag(PlayerEntity player) {
         CompoundNBT root = player.getPersistentData();
@@ -106,6 +109,7 @@ public class ThirstHandler {
         LAST_POS.remove(id);
         RUN_DIST.remove(id);
         JUMP_COUNT.remove(id);
+        STILL_TICKS.remove(id);
     }
 
     @SubscribeEvent
@@ -115,11 +119,30 @@ public class ThirstHandler {
         ServerPlayerEntity player = (ServerPlayerEntity) event.player;
         UUID id = player.getUUID();
 
-        double[] prev = LAST_POS.computeIfAbsent(id, u -> new double[]{player.getX(), player.getZ()});
+        double[] prev = LAST_POS.computeIfAbsent(id, u -> new double[]{player.getX(), player.getY(), player.getZ()});
         double dx = player.getX() - prev[0];
-        double dz = player.getZ() - prev[1];
+        double dy = player.getY() - prev[1];
+        double dz = player.getZ() - prev[2];
         prev[0] = player.getX();
-        prev[1] = player.getZ();
+        prev[1] = player.getY();
+        prev[2] = player.getZ();
+
+        double distSqAll = dx * dx + dy * dy + dz * dz;
+        if (distSqAll < 0.0001D) {
+            int ticks = STILL_TICKS.getOrDefault(id, 0) + 1;
+            if (ticks >= TICKS_PER_HOUR) {
+                ticks -= TICKS_PER_HOUR;
+                int fatigue = Math.max(0, getStat(player, KEY_FATIGUE, 0) - 5);
+                setStat(player, KEY_FATIGUE, fatigue);
+                ModNetworkHandler.CHANNEL.send(
+                        PacketDistributor.PLAYER.with(() -> player),
+                        new SyncStatsPacket(getStat(player, KEY_THIRST, 40), fatigue)
+                );
+            }
+            STILL_TICKS.put(id, ticks);
+        } else {
+            STILL_TICKS.put(id, 0);
+        }
 
         if (!player.isSprinting()) return;
 

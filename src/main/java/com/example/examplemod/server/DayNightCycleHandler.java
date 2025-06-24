@@ -16,8 +16,17 @@ public class DayNightCycleHandler {
         ServerWorld world = (ServerWorld) event.world;
         long time = world.getDayTime();
         long dayTime = time % 24000L;
-        if (dayTime < 12000L && world.getGameTime() % 2L == 0L) {
-            world.setDayTime(time - 1);
+
+        if (dayTime < 12000L) {
+            // Day: slow down to last 16 real minutes (5/8 speed)
+            if (world.getGameTime() % 8L < 3L) {
+                world.setDayTime(time - 1);
+            }
+        } else {
+            // Night: speed up to last 8 real minutes (5/4 speed)
+            if (world.getGameTime() % 4L == 0L) {
+                world.setDayTime(time + 1);
+            }
         }
     }
 }
