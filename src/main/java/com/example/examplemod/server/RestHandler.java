@@ -8,6 +8,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import java.lang.reflect.Method;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -68,6 +69,15 @@ public class RestHandler {
         );
     }
 
+    private static void setMarker(ArmorStandEntity stand, boolean value) {
+        try {
+            Method m = ArmorStandEntity.class.getDeclaredMethod("setMarker", boolean.class);
+            m.setAccessible(true);
+            m.invoke(stand, value);
+        } catch (Exception ignored) {
+        }
+    }
+
     public static void startSitting(ServerPlayerEntity player) {
         UUID id = player.getUUID();
         Info current = REST.get(id);
@@ -85,7 +95,7 @@ public class RestHandler {
             seat.setInvisible(true);
             seat.setNoGravity(true);
             seat.setInvulnerable(true);
-            seat.setMarker(true);
+            setMarker(seat, true);
             seat.setPos(player.getX(), player.getY() - 0.5, player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
@@ -112,7 +122,7 @@ public class RestHandler {
             seat.setInvisible(true);
             seat.setNoGravity(true);
             seat.setInvulnerable(true);
-            seat.setMarker(true);
+            setMarker(seat, true);
             seat.setPos(player.getX(), player.getY() - 1.3, player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
