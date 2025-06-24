@@ -5,7 +5,7 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.item.minecart.MinecartEntity;
+import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
@@ -80,11 +80,12 @@ public class RestHandler {
         }
 
         Info info = new Info(Type.SIT);
-        MinecartEntity seat = EntityType.MINECART.create(player.level);
+        ArmorStandEntity seat = EntityType.ARMOR_STAND.create(player.level);
         if (seat != null) {
             seat.setInvisible(true);
             seat.setNoGravity(true);
             seat.setInvulnerable(true);
+            seat.setMarker(true);
             seat.setPos(player.getX(), player.getY() - 0.5, player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
@@ -95,8 +96,29 @@ public class RestHandler {
     }
 
     public static void startLying(ServerPlayerEntity player) {
+        UUID id = player.getUUID();
+        Info current = REST.get(id);
+        if (current != null && current.type == Type.LIE) {
+            if (player.isPassenger()) player.stopRiding();
+            if (current.seat != null) current.seat.remove();
+            REST.remove(id);
+            player.setForcedPose(null);
+            return;
+        }
+
         Info info = new Info(Type.LIE);
-        REST.put(player.getUUID(), info);
+        ArmorStandEntity seat = EntityType.ARMOR_STAND.create(player.level);
+        if (seat != null) {
+            seat.setInvisible(true);
+            seat.setNoGravity(true);
+            seat.setInvulnerable(true);
+            seat.setMarker(true);
+            seat.setPos(player.getX(), player.getY() - 1.3, player.getZ());
+            player.level.addFreshEntity(seat);
+            player.startRiding(seat, false);
+            info.seat = seat;
+        }
+        REST.put(id, info);
         player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
     }
 
@@ -131,15 +153,19 @@ public class RestHandler {
         Info info = REST.get(id);
         if (info == null) return;
 
-        if (info.type == Type.SIT && info.seat != null) {
+        if ((info.type == Type.SIT || info.type == Type.LIE) && info.seat != null) {
             if (!player.isPassenger() || player.getVehicle() != info.seat) {
                 info.seat.remove();
                 REST.remove(id);
                 player.setForcedPose(null);
                 return;
             }
-        } else if (info.type == Type.LIE) {
+        }
+
+        if (info.type == Type.LIE) {
             if (player.isShiftKeyDown()) {
+                if (player.isPassenger()) player.stopRiding();
+                if (info.seat != null) info.seat.remove();
                 REST.remove(id);
                 player.setForcedPose(null);
                 return;
