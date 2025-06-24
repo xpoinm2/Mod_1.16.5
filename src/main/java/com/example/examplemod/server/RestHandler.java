@@ -5,6 +5,8 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,6 +30,7 @@ public class RestHandler {
         Type type;
         int ticks;
         int remaining;
+        ArmorStandEntity seat;
         Info(Type t) { this.type = t; }
     }
 
@@ -66,8 +69,18 @@ public class RestHandler {
 
     public static void startSitting(ServerPlayerEntity player) {
         Info info = new Info(Type.SIT);
+        ArmorStandEntity seat = EntityType.ARMOR_STAND.create(player.level);
+        if (seat != null) {
+            seat.setInvisible(true);
+            seat.setMarker(true);
+            seat.setNoGravity(true);
+            seat.setPos(player.getX(), player.getY(), player.getZ());
+            player.level.addFreshEntity(seat);
+            player.startRiding(seat, false);
+            info.seat = seat;
+        }
         REST.put(player.getUUID(), info);
-        player.setForcedPose(net.minecraft.entity.Pose.CROUCHING);
+
     }
 
     public static void startLying(ServerPlayerEntity player) {
@@ -107,7 +120,13 @@ public class RestHandler {
         Info info = REST.get(id);
         if (info == null) return;
 
-        if ((info.type == Type.SIT || info.type == Type.LIE) && player.isShiftKeyDown()) {
+        if (info.type == Type.SIT && info.seat != null) {
+            if (!player.isPassengerOfSameEntity(info.seat)) {
+                info.seat.remove();
+                REST.remove(id);
+                return;
+            }
+        } else if (info.type == Type.LIE && player.isShiftKeyDown()) {
             REST.remove(id);
             player.setForcedPose(null);
             return;
