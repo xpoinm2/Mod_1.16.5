@@ -72,8 +72,8 @@ public class RestHandler {
         ArmorStandEntity seat = EntityType.ARMOR_STAND.create(player.level);
         if (seat != null) {
             seat.setInvisible(true);
-            seat.setMarker(true);
             seat.setNoGravity(true);
+            seat.setInvulnerable(true);
             seat.setPos(player.getX(), player.getY(), player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
@@ -121,7 +121,7 @@ public class RestHandler {
         if (info == null) return;
 
         if (info.type == Type.SIT && info.seat != null) {
-            if (!player.isPassengerOfSameEntity(info.seat)) {
+            if (!player.isPassenger() || player.getVehicle() != info.seat) {
                 info.seat.remove();
                 REST.remove(id);
                 return;
