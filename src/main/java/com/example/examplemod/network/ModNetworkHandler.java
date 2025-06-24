@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
+import com.example.examplemod.network.ActivityPacket;
+
 /**
  * Централизованная регистрация наших сетевых пакетов.
  */
@@ -47,6 +49,13 @@ public class ModNetworkHandler {
                 SyncStatsPacket::encode,
                 SyncStatsPacket::decode,
                 SyncStatsPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                ActivityPacket.class,
+                ActivityPacket::encode,
+                ActivityPacket::decode,
+                ActivityPacket::handle
         );
     }
 }

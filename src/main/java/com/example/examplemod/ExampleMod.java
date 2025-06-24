@@ -5,6 +5,7 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
+import com.example.examplemod.server.RestHandler;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -37,6 +38,7 @@ public class ExampleMod {
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("ExampleMod common setup");
         MinecraftForge.EVENT_BUS.register(ThirstHandler.class);
+        MinecraftForge.EVENT_BUS.register(RestHandler.class);
     }
 
     /** Клиентская инициализация (регистрируем обработку кликов по воде) */
