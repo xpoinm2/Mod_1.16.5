@@ -5,7 +5,8 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.entity.item.minecart.MinecartEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.event.TickEvent;
@@ -30,7 +31,7 @@ public class RestHandler {
         Type type;
         int ticks;
         int remaining;
-        ArmorStandEntity seat;
+        Entity seat;
         Info(Type t) { this.type = t; }
     }
 
@@ -68,18 +69,28 @@ public class RestHandler {
     }
 
     public static void startSitting(ServerPlayerEntity player) {
+        UUID id = player.getUUID();
+        Info current = REST.get(id);
+        if (current != null && current.type == Type.SIT) {
+            if (player.isPassenger()) player.stopRiding();
+            if (current.seat != null) current.seat.remove();
+            REST.remove(id);
+            player.setForcedPose(null);
+            return;
+        }
+
         Info info = new Info(Type.SIT);
-        ArmorStandEntity seat = EntityType.ARMOR_STAND.create(player.level);
+        MinecartEntity seat = EntityType.MINECART.create(player.level);
         if (seat != null) {
             seat.setInvisible(true);
             seat.setNoGravity(true);
             seat.setInvulnerable(true);
-            seat.setPos(player.getX(), player.getY(), player.getZ());
+            seat.setPos(player.getX(), player.getY() - 0.5, player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
             info.seat = seat;
         }
-        REST.put(player.getUUID(), info);
+        REST.put(id, info);
 
     }
 
@@ -124,12 +135,18 @@ public class RestHandler {
             if (!player.isPassenger() || player.getVehicle() != info.seat) {
                 info.seat.remove();
                 REST.remove(id);
+                player.setForcedPose(null);
                 return;
             }
-        } else if (info.type == Type.LIE && player.isShiftKeyDown()) {
-            REST.remove(id);
-            player.setForcedPose(null);
-            return;
+        } else if (info.type == Type.LIE) {
+            if (player.isShiftKeyDown()) {
+                REST.remove(id);
+                player.setForcedPose(null);
+                return;
+            }
+            player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
+        } else if (info.type == Type.SLEEP) {
+            player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
         }
 
         info.ticks++;
