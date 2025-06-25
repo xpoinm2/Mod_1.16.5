@@ -115,14 +115,16 @@ public class RestHandler {
 
         if (player.isSleeping()) {
             int t = BED_TICKS.getOrDefault(id, 0) + 1;
-            if (t >= TICKS_PER_HOUR) {
-                t -= TICKS_PER_HOUR;
-                reduceFatigue(player, 10);
-            }
+
             BED_TICKS.put(id, t);
             return;
-        } else {
+        } else if (BED_TICKS.containsKey(id)) {
             BED_TICKS.remove(id);
+            setStat(player, KEY_FATIGUE, 0);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(getStat(player, KEY_THIRST, 40), 0)
+            );
         }
 
         Info info = REST.get(id);

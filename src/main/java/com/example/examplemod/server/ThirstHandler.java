@@ -37,8 +37,11 @@ public class ThirstHandler {
     private static final Map<UUID, Double>   RUN_DIST   = new HashMap<>();
     private static final Map<UUID, Integer>  JUMP_COUNT = new HashMap<>();
     private static final Map<UUID, Integer>  STILL_TICKS= new HashMap<>();
+    private static final Map<UUID, Integer>  HOUR_TICKS = new HashMap<>();
+    private static final Map<UUID, Integer>  SWIM_TICKS = new HashMap<>();
 
     private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
+    private static final int TICKS_PER_15MIN = TICKS_PER_HOUR / 4;
 
     private static CompoundNBT getStatsTag(PlayerEntity player) {
         CompoundNBT root = player.getPersistentData();
@@ -110,6 +113,8 @@ public class ThirstHandler {
         RUN_DIST.remove(id);
         JUMP_COUNT.remove(id);
         STILL_TICKS.remove(id);
+        HOUR_TICKS.remove(id);
+        SWIM_TICKS.remove(id);
     }
 
     @SubscribeEvent
@@ -118,6 +123,38 @@ public class ThirstHandler {
         if (!(event.player instanceof ServerPlayerEntity)) return;
         ServerPlayerEntity player = (ServerPlayerEntity) event.player;
         UUID id = player.getUUID();
+        // Every in-game hour increase thirst and fatigue by 2
+        int ht = HOUR_TICKS.getOrDefault(id, 0) + 1;
+        if (ht >= TICKS_PER_HOUR) {
+            ht -= TICKS_PER_HOUR;
+            int thirst = Math.min(100, getStat(player, KEY_THIRST, 40) + 2);
+            int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + 2);
+            setStat(player, KEY_THIRST, thirst);
+            setStat(player, KEY_FATIGUE, fatigue);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(thirst, fatigue)
+            );
+        }
+        HOUR_TICKS.put(id, ht);
+
+        // Swimming fatigue gain
+        if (player.isInWater()) {
+            int st = SWIM_TICKS.getOrDefault(id, 0) + 1;
+            if (st >= TICKS_PER_15MIN) {
+                st -= TICKS_PER_15MIN;
+                int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + 5);
+                setStat(player, KEY_FATIGUE, fatigue);
+                ModNetworkHandler.CHANNEL.send(
+                        PacketDistributor.PLAYER.with(() -> player),
+                        new SyncStatsPacket(getStat(player, KEY_THIRST, 40), fatigue)
+                );
+            }
+            SWIM_TICKS.put(id, st);
+        } else {
+            SWIM_TICKS.remove(id);
+        }
+
 
         double[] prev = LAST_POS.computeIfAbsent(id, u -> new double[]{player.getX(), player.getY(), player.getZ()});
         double dx = player.getX() - prev[0];

@@ -6,6 +6,7 @@ import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
+import com.example.examplemod.server.BlockBreakHandler;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -39,6 +40,7 @@ public class ExampleMod {
         LOGGER.info("ExampleMod common setup");
         MinecraftForge.EVENT_BUS.register(ThirstHandler.class);
         MinecraftForge.EVENT_BUS.register(RestHandler.class);
+        MinecraftForge.EVENT_BUS.register(BlockBreakHandler.class);
     }
 
     /** Клиентская инициализация (регистрируем обработку кликов по воде) */
