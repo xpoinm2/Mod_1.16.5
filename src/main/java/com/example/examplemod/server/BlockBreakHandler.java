@@ -57,11 +57,10 @@ public class BlockBreakHandler {
 
         // 2) Получаем состояние блока
         BlockState state = event.getState();
-        // 3) Если это любой лог или листья по тегам
-        if (state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES)) {
+        // 3) Если это лог и в руке ничего нет — отменяем ломание
+        if (state.is(BlockTags.LOGS)) {
             ItemStack held = player.getItemInHand(Hand.MAIN_HAND);
-            // 5) Если в руках не топор — отменяем ломание
-            if (!(held.getItem() instanceof AxeItem)) {
+            if (held.isEmpty()) {
                 event.setCanceled(true);
             }
         }
