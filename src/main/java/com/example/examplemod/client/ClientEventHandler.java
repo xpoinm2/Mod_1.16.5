@@ -155,14 +155,6 @@ public class ClientEventHandler {
         int mouseX = ev.getMouseX();
         int mouseY = ev.getMouseY();
 
-        int x0 = 0, y0 = 0;
-        float baseW = 80 / 1.5f;
-        float baseH = 8  / 1.5f;
-        float baseSpacing = 16 / 1.5f;
-        int w = Math.round(baseW * 1.25f);
-        int h = Math.round(baseH * 1.25f);
-        int spacing = Math.round(baseSpacing * 1.25f);
-
         int bx = x0 + 10;
         int by = y0 + 10;
 
