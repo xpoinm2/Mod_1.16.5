@@ -23,6 +23,13 @@ import org.lwjgl.glfw.GLFW;
 public class ClientEventHandler {
     private static boolean overlayOpen = false;
     private static boolean healthWindow = false;
+    // Cached overlay geometry for mouse handling
+    private static int lastOverlayX;
+    private static int lastOverlayY;
+    private static int lastOverlaySpacing;
+    private static int lastOverlayW;
+    private static int lastOverlayH;
+
 
     // 1) Кнопка с сердечком в инвентаре
     @SubscribeEvent
@@ -152,32 +159,12 @@ public class ClientEventHandler {
             ms.popPose();
         }
 
-        int mouseX = ev.getMouseX();
-        int mouseY = ev.getMouseY();
-
-        int bx = x0 + 10;
-        int by = y0 + 10;
-
-        if (!healthWindow) {
-            by += spacing * 3;
-            int btnX = bx;
-            int btnY = by;
-            int btnW = w;
-            int btnH = h * 2;
-            if (mouseX >= btnX && mouseX <= btnX + btnW && mouseY >= btnY && mouseY <= btnY + btnH) {
-                healthWindow = true;
-                ev.setCanceled(true);
-            }
-        } else {
-            int ax = x0 + 5;
-            int ay = y0 + 5;
-            int aw = 20;
-            int ah = 20;
-            if (mouseX >= ax && mouseX <= ax + aw && mouseY >= ay && mouseY <= ay + ah) {
-                healthWindow = false;
-                ev.setCanceled(true);
-            }
-        }
+        // save bounds for mouse click handler
+        lastOverlayX = x0;
+        lastOverlayY = y0;
+        lastOverlaySpacing = spacing;
+        lastOverlayW = w;
+        lastOverlayH = h;
     }
 
     // 3.5) Обработка кликов по кнопке "Здоровье" и стрелке назад
@@ -185,7 +172,32 @@ public class ClientEventHandler {
     public static void onMouseClicked(GuiScreenEvent.MouseClickedEvent.Pre ev) {
         if (!overlayOpen || !(ev.getGui() instanceof InventoryScreen)) return;
 
-// 3) Раньше тут рисовался зелёный человечек. Теперь ничего не рисуем
+        double mouseX = ev.getMouseX();
+        double mouseY = ev.getMouseY();
+
+        int bx = lastOverlayX + 10;
+        int by = lastOverlayY + 10;
+
+        if (!healthWindow) {
+            by += lastOverlaySpacing * 3;
+            int btnX = bx;
+            int btnY = by;
+            int btnW = lastOverlayW;
+            int btnH = lastOverlayH * 2;
+            if (mouseX >= btnX && mouseX <= btnX + btnW && mouseY >= btnY && mouseY <= btnY + btnH) {
+                healthWindow = true;
+                ev.setCanceled(true);
+            }
+        } else {
+            int ax = lastOverlayX + 5;
+            int ay = lastOverlayY + 5;
+            int aw = 20;
+            int ah = 20;
+            if (mouseX >= ax && mouseX <= ax + aw && mouseY >= ay && mouseY <= ay + ah) {
+                healthWindow = false;
+                ev.setCanceled(true);
+            }
+        }
     }
 
     // 4) Закрытие оверлея по ESC
