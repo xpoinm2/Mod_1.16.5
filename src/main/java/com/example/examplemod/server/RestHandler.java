@@ -96,7 +96,8 @@ public class RestHandler {
             seat.setNoGravity(true);
             seat.setInvulnerable(true);
             setMarker(seat, true);
-            seat.setPos(player.getX(), player.getY() - 0.5, player.getZ());
+            // Raise the rider by half a block so the model doesn't sink into the ground
+            seat.setPos(player.getX(), player.getY(), player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
             info.seat = seat;
@@ -123,7 +124,9 @@ public class RestHandler {
             seat.setNoGravity(true);
             seat.setInvulnerable(true);
             setMarker(seat, true);
-            seat.setPos(player.getX(), player.getY() - 1.3, player.getZ());
+            // Raise the rider by half a block compared to the previous value
+            // to avoid clipping through the terrain when lying down
+            seat.setPos(player.getX(), player.getY() - 0.8, player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
             info.seat = seat;
@@ -138,6 +141,8 @@ public class RestHandler {
         Info info = new Info(Type.SLEEP);
         info.remaining = hours * TICKS_PER_HOUR;
         REST.put(player.getUUID(), info);
+        // Slightly raise the player to prevent suffocation when changing pose
+        player.teleportTo(player.getX(), player.getY() + 0.5, player.getZ());
         player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
     }
 
