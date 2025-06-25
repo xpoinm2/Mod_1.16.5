@@ -60,6 +60,8 @@ public class ClientEventHandler {
         MatrixStack ms = ev.getMatrixStack();
         Minecraft mc = Minecraft.getInstance();
         FontRenderer font = mc.font;
+        double mouseX = ev.getMouseX();
+        double mouseY = ev.getMouseY();
 
         // Позиция оверлея
         int x0 = 0, y0 = 0;
@@ -92,13 +94,15 @@ public class ClientEventHandler {
                 AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
                 AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF5555FF);
                 AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF0000FF);
-                String text = "Thirst: " + thirst + "/100";
-                ms.pushPose();
-                ms.scale(0.5f, 0.5f, 1f);
-                float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-                float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-                font.draw(ms, text, tx, ty, 0xFFFFFF);
-                ms.popPose();
+                if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
+                    String text = "Жажда: " + thirst + "/100";
+                    ms.pushPose();
+                    ms.scale(0.5f, 0.5f, 1f);
+                    float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
+                    float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
+                    font.draw(ms, text, tx, ty, 0xFFFFFF);
+                    ms.popPose();
+                }
 
                 // Усталость (оранжевый)
                 by += spacing;
@@ -106,13 +110,15 @@ public class ClientEventHandler {
                 AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
                 AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFFFAA55);
                 AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFFFF5500);
-                text = "Fatigue: " + fatigue + "/100";
-                ms.pushPose();
-                ms.scale(0.5f, 0.5f, 1f);
-                tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-                ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-                font.draw(ms, text, tx, ty, 0xFFFFFF);
-                ms.popPose();
+                if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
+                    String text = "Усталость: " + fatigue + "/100";
+                    ms.pushPose();
+                    ms.scale(0.5f, 0.5f, 1f);
+                    float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
+                    float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
+                    font.draw(ms, text, tx, ty, 0xFFFFFF);
+                    ms.popPose();
+                }
 
                 // Болезнь (зелёный)
                 by += spacing;
@@ -120,13 +126,15 @@ public class ClientEventHandler {
                 AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
                 AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFAAFFAA);
                 AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF00AA00);
-                text = "Disease: " + disease + "/100";
-                ms.pushPose();
-                ms.scale(0.5f, 0.5f, 1f);
-                tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-                ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-                font.draw(ms, text, tx, ty, 0xFFFFFF);
-                ms.popPose();
+                if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
+                    String text = "Болезнь: " + disease + "/100";
+                    ms.pushPose();
+                    ms.scale(0.5f, 0.5f, 1f);
+                    float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
+                    float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
+                    font.draw(ms, text, tx, ty, 0xFFFFFF);
+                    ms.popPose();
+                }
 
                 // Кнопка "Здоровье"
                 by += spacing;
@@ -138,8 +146,8 @@ public class ClientEventHandler {
                 AbstractGui.fill(ms, btnX, btnY, btnX + btnW, btnY + btnH, 0xFF333333);
                 ms.pushPose();
                 ms.scale(0.5f, 0.5f, 1f);
-                tx = (btnX + (btnW - font.width("Здоровье") * 0.5f) / 2f) * 2f;
-                ty = (btnY + (btnH - font.lineHeight * 0.5f) / 2f) * 2f;
+                float tx = (btnX + (btnW - font.width("Здоровье") * 0.5f) / 2f) * 2f;
+                float ty = (btnY + (btnH - font.lineHeight * 0.5f) / 2f) * 2f;
                 font.draw(ms, "Здоровье", tx, ty, 0xFFFF0000);
                 ms.popPose();
             });
