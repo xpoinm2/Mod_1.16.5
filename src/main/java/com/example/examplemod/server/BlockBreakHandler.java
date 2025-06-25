@@ -4,13 +4,16 @@ package com.example.examplemod.server;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.BlockTags;
+import net.minecraftforge.common.Tags;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
@@ -64,6 +67,24 @@ public class BlockBreakHandler {
                 event.setCanceled(true);
             }
         }
+
+        // 3.1) Если это камень/булыжник и в руке ничего нет — отменяем ломание
+        if (player.getMainHandItem().isEmpty() && (
+                state.is(BlockTags.BASE_STONE_OVERWORLD) ||
+                        state.is(BlockTags.BASE_STONE_NETHER) ||
+                        state.is(Tags.Blocks.COBBLESTONE) ||
+                        state.is(Tags.Blocks.STONE)
+        )) {
+            event.setCanceled(true);
+        }
+
+        // 3.2) Если это листва — с шансом 50% дропаем палку
+        if (state.is(BlockTags.LEAVES)) {
+            if (world.random.nextFloat() < 0.5f) {
+                Block.popResource(world, event.getPos(), new ItemStack(Items.STICK));
+            }
+        }
+
 
         // Fatigue when digging with bare hands
         if (player.getMainHandItem().isEmpty()) {
