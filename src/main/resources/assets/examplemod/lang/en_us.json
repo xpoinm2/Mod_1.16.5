@@ -1,4 +1,5 @@
 {
   "itemGroup.examplemod": "Example Mod",
-  "item.examplemod.healing_item": "Healing Potion"
+  "item.examplemod.healing_item": "Healing Potion",
+  "item.examplemod.pebble": "Pebble"
 }

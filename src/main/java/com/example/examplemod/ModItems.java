@@ -22,6 +22,10 @@ public class ModItems {
     public static final RegistryObject<Item> HEALING_ITEM = ITEMS.register("healing_item",
             () -> new HealingItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Камешек: простой предмет
+    public static final RegistryObject<Item> PEBBLE = ITEMS.register("pebble",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }
