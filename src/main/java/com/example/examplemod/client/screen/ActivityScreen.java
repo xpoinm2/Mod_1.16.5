@@ -24,13 +24,11 @@ public class ActivityScreen extends Screen {
         int y = (this.height / 2) - BTN_H - 5;
         this.addButton(new ExtendedButton(x, y, BTN_W, BTN_H,
                 new StringTextComponent("Сесть"), btn -> {
-            ModNetworkHandler.CHANNEL.sendToServer(new ActivityPacket(ActivityPacket.TYPE_SIT, 0));
+            ModNetworkHandler.CHANNEL.sendToServer(new ActivityPacket());
             Minecraft.getInstance().setScreen(null);
         }));
-        this.addButton(new ExtendedButton(x, y + BTN_H + 5, BTN_W, BTN_H,
-                new StringTextComponent("Лечь"), btn -> {
-            Minecraft.getInstance().setScreen(new SleepChoiceScreen());
-        }));
+
+// The old "Лечь" option is removed, only sitting is available
         super.init();
     }
 

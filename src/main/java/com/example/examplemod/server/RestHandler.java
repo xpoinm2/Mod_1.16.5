@@ -26,12 +26,11 @@ public class RestHandler {
 
     private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
 
-    private enum Type { SIT, LIE, SLEEP }
+    private enum Type { SIT }
 
     private static class Info {
         Type type;
         int ticks;
-        int remaining;
         Entity seat;
         Info(Type t) { this.type = t; }
     }
@@ -97,53 +96,14 @@ public class RestHandler {
             seat.setInvulnerable(true);
             setMarker(seat, true);
             // Raise the rider by half a block so the model doesn't sink into the ground
-            seat.setPos(player.getX(), player.getY(), player.getZ());
+            // Slightly lower the rider so the pose looks more natural
+            seat.setPos(player.getX(), player.getY() - 0.1, player.getZ());
             player.level.addFreshEntity(seat);
             player.startRiding(seat, false);
             info.seat = seat;
         }
         REST.put(id, info);
 
-    }
-
-    public static void startLying(ServerPlayerEntity player) {
-        UUID id = player.getUUID();
-        Info current = REST.get(id);
-        if (current != null && current.type == Type.LIE) {
-            if (player.isPassenger()) player.stopRiding();
-            if (current.seat != null) current.seat.remove();
-            REST.remove(id);
-            player.setForcedPose(null);
-            return;
-        }
-
-        Info info = new Info(Type.LIE);
-        ArmorStandEntity seat = EntityType.ARMOR_STAND.create(player.level);
-        if (seat != null) {
-            seat.setInvisible(true);
-            seat.setNoGravity(true);
-            seat.setInvulnerable(true);
-            setMarker(seat, true);
-            // Raise the rider by half a block compared to the previous value
-            // to avoid clipping through the terrain when lying down
-            seat.setPos(player.getX(), player.getY() - 0.8, player.getZ());
-            player.level.addFreshEntity(seat);
-            player.startRiding(seat, false);
-            info.seat = seat;
-        }
-        REST.put(id, info);
-        player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
-    }
-
-    public static void startSleeping(ServerPlayerEntity player, int hours) {
-        if (hours < 1 || hours > 8) return;
-        if (getStat(player, KEY_FATIGUE, 0) < 50) return;
-        Info info = new Info(Type.SLEEP);
-        info.remaining = hours * TICKS_PER_HOUR;
-        REST.put(player.getUUID(), info);
-        // Slightly raise the player to prevent suffocation when changing pose
-        player.teleportTo(player.getX(), player.getY() + 0.5, player.getZ());
-        player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
     }
 
     @SubscribeEvent
@@ -168,7 +128,7 @@ public class RestHandler {
         Info info = REST.get(id);
         if (info == null) return;
 
-        if ((info.type == Type.SIT || info.type == Type.LIE) && info.seat != null) {
+        if (info.type == Type.SIT && info.seat != null) {
             if (!player.isPassenger() || player.getVehicle() != info.seat) {
                 info.seat.remove();
                 REST.remove(id);
@@ -177,44 +137,10 @@ public class RestHandler {
             }
         }
 
-        if (info.type == Type.LIE) {
-            if (player.isShiftKeyDown()) {
-                if (player.isPassenger()) player.stopRiding();
-                if (info.seat != null) info.seat.remove();
-                REST.remove(id);
-                player.setForcedPose(null);
-                return;
-            }
-            player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
-        } else if (info.type == Type.SLEEP) {
-            player.setForcedPose(net.minecraft.entity.Pose.SLEEPING);
-        }
-
         info.ticks++;
-        switch (info.type) {
-            case SIT:
-                if (info.ticks >= TICKS_PER_HOUR / 4) {
-                    info.ticks -= TICKS_PER_HOUR / 4;
-                    reduceFatigue(player, 5);
-                }
-                break;
-            case LIE:
-                if (info.ticks >= TICKS_PER_HOUR / 6) {
-                    info.ticks -= TICKS_PER_HOUR / 6;
-                    reduceFatigue(player, 5);
-                }
-                break;
-            case SLEEP:
-                info.remaining--;
-                if (info.ticks >= TICKS_PER_HOUR) {
-                    info.ticks -= TICKS_PER_HOUR;
-                    reduceFatigue(player, 10);
-                }
-                if (info.remaining <= 0) {
-                    REST.remove(id);
-                    player.setForcedPose(null);
-                }
-                break;
+        if (info.type == Type.SIT && info.ticks >= TICKS_PER_HOUR / 4) {
+            info.ticks -= TICKS_PER_HOUR / 4;
+            reduceFatigue(player, 5);
         }
     }
 }
