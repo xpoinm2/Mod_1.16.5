@@ -22,6 +22,7 @@ import org.lwjgl.glfw.GLFW;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ClientEventHandler {
     private static boolean overlayOpen = false;
+    private static boolean healthWindow = false;
 
     // 1) Кнопка с сердечком в инвентаре
     @SubscribeEvent
@@ -37,7 +38,10 @@ public class ClientEventHandler {
                 top + 2,
                 16, 20,
                 StringTextComponent.EMPTY,
-                b -> overlayOpen = !overlayOpen
+                b -> {
+                    overlayOpen = !overlayOpen;
+                    if (!overlayOpen) healthWindow = false;
+                }
         );
         ev.addWidget(btn);
     }
@@ -66,58 +70,128 @@ public class ClientEventHandler {
         int h = Math.round(baseH * 1.25f);
         int spacing = Math.round(baseSpacing * 1.25f);
 
-        // Получаем статы
-        mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
-            int thirst  = stats.getThirst();
-            int fatigue = stats.getFatigue();
-            int disease = stats.getDisease();
+        if (!healthWindow) {
+            // Получаем статы и рисуем полоски
+            mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
+                int thirst  = stats.getThirst();
+                int fatigue = stats.getFatigue();
+                int disease = stats.getDisease();
 
+                int bx = x0 + 10;
+                int by = y0 + 10;
 
-            int bx = x0 + 10;
-            int by = y0 + 10;
+                // Жажда (синяя)
+                int filled = thirst * w / 100;
+                AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
+                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF5555FF);
+                AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF0000FF);
+                String text = "Thirst: " + thirst + "/100";
+                ms.pushPose();
+                ms.scale(0.5f, 0.5f, 1f);
+                float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
+                float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
+                font.draw(ms, text, tx, ty, 0xFFFFFF);
+                ms.popPose();
 
-            // Жажда (синяя)
-            int filled = thirst * w / 100;
-            // рамка
-            AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
-            AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF5555FF);
-            AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF0000FF);
-            String text = "Thirst: " + thirst + "/100";
+                // Усталость (оранжевый)
+                by += spacing;
+                filled = fatigue * w / 100;
+                AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
+                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFFFAA55);
+                AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFFFF5500);
+                text = "Fatigue: " + fatigue + "/100";
+                ms.pushPose();
+                ms.scale(0.5f, 0.5f, 1f);
+                tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
+                ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
+                font.draw(ms, text, tx, ty, 0xFFFFFF);
+                ms.popPose();
+
+                // Болезнь (зелёный)
+                by += spacing;
+                filled = disease * w / 100;
+                AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
+                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFAAFFAA);
+                AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF00AA00);
+                text = "Disease: " + disease + "/100";
+                ms.pushPose();
+                ms.scale(0.5f, 0.5f, 1f);
+                tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
+                ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
+                font.draw(ms, text, tx, ty, 0xFFFFFF);
+                ms.popPose();
+
+                // Кнопка "Здоровье"
+                by += spacing;
+                int btnX = bx;
+                int btnY = by;
+                int btnW = w;
+                int btnH = h * 2;
+                AbstractGui.fill(ms, btnX - 1, btnY - 1, btnX + btnW + 1, btnY + btnH + 1, 0xFFFFFF00);
+                AbstractGui.fill(ms, btnX, btnY, btnX + btnW, btnY + btnH, 0xFF333333);
+                ms.pushPose();
+                ms.scale(0.5f, 0.5f, 1f);
+                tx = (btnX + (btnW - font.width("Здоровье") * 0.5f) / 2f) * 2f;
+                ty = (btnY + (btnH - font.lineHeight * 0.5f) / 2f) * 2f;
+                font.draw(ms, "Здоровье", tx, ty, 0xFFFF0000);
+                ms.popPose();
+            });
+        } else {
+            // Пустое окно со стрелкой назад
+            int ax = x0 + 5;
+            int ay = y0 + 5;
+            int aw = 20;
+            int ah = 20;
+            AbstractGui.fill(ms, ax - 1, ay - 1, ax + aw + 1, ay + ah + 1, 0xFFFFFF00);
+            AbstractGui.fill(ms, ax, ay, ax + aw, ay + ah, 0xFF333333);
             ms.pushPose();
             ms.scale(0.5f, 0.5f, 1f);
-            float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-            float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-            font.draw(ms, text, tx, ty, 0xFFFFFF);
+            float tx = (ax + (aw - font.width("<") * 0.5f) / 2f) * 2f;
+            float ty = (ay + (ah - font.lineHeight * 0.5f) / 2f) * 2f;
+            font.draw(ms, "<", tx, ty, 0xFFFFFFFF);
             ms.popPose();
+        }
 
-            // Усталость (оранжевый)
-            by += spacing;
-            filled = fatigue * w / 100;
-            AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
-            AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFFFAA55);
-            AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFFFF5500);
-            text = "Fatigue: " + fatigue + "/100";
-            ms.pushPose();
-            ms.scale(0.5f, 0.5f, 1f);
-            tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-            ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-            font.draw(ms, text, tx, ty, 0xFFFFFF);
-            ms.popPose();
+        int mouseX = ev.getMouseX();
+        int mouseY = ev.getMouseY();
 
-            // Болезнь (зелёный)
-            by += spacing;
-            filled = disease * w / 100;
-            AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
-            AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFAAFFAA);
-            AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF00AA00);
-            text = "Disease: " + disease + "/100";
-            ms.pushPose();
-            ms.scale(0.5f, 0.5f, 1f);
-            tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-            ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-            font.draw(ms, text, tx, ty, 0xFFFFFF);
-            ms.popPose();
-        });
+        int x0 = 0, y0 = 0;
+        float baseW = 80 / 1.5f;
+        float baseH = 8  / 1.5f;
+        float baseSpacing = 16 / 1.5f;
+        int w = Math.round(baseW * 1.25f);
+        int h = Math.round(baseH * 1.25f);
+        int spacing = Math.round(baseSpacing * 1.25f);
+
+        int bx = x0 + 10;
+        int by = y0 + 10;
+
+        if (!healthWindow) {
+            by += spacing * 3;
+            int btnX = bx;
+            int btnY = by;
+            int btnW = w;
+            int btnH = h * 2;
+            if (mouseX >= btnX && mouseX <= btnX + btnW && mouseY >= btnY && mouseY <= btnY + btnH) {
+                healthWindow = true;
+                ev.setCanceled(true);
+            }
+        } else {
+            int ax = x0 + 5;
+            int ay = y0 + 5;
+            int aw = 20;
+            int ah = 20;
+            if (mouseX >= ax && mouseX <= ax + aw && mouseY >= ay && mouseY <= ay + ah) {
+                healthWindow = false;
+                ev.setCanceled(true);
+            }
+        }
+    }
+
+    // 3.5) Обработка кликов по кнопке "Здоровье" и стрелке назад
+    @SubscribeEvent
+    public static void onMouseClicked(GuiScreenEvent.MouseClickedEvent.Pre ev) {
+        if (!overlayOpen || !(ev.getGui() instanceof InventoryScreen)) return;
 
 // 3) Раньше тут рисовался зелёный человечек. Теперь ничего не рисуем
     }
@@ -128,6 +202,7 @@ public class ClientEventHandler {
         if (!overlayOpen || !(ev.getGui() instanceof InventoryScreen)) return;
         if (ev.getKeyCode() == GLFW.GLFW_KEY_ESCAPE) {
             overlayOpen = false;
+            healthWindow = false;
             ev.setCanceled(true);
         }
     }
