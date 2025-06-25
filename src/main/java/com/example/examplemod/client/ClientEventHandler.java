@@ -66,11 +66,6 @@ public class ClientEventHandler {
         // Позиция оверлея
         int x0 = 0, y0 = 0;
 
-        // Черный фон размером 150x150 с зелёной рамкой 2 пикселя
-        AbstractGui.fill(ms, x0, y0, x0 + 150, y0 + 150, 0xFF00FF00); // рамка
-        AbstractGui.fill(ms, x0 + 2, y0 + 2, x0 + 148, y0 + 148, 0xFF000000);
-
-
         // Размеры полосок
         float baseW = 80 / 1.5f;
         float baseH = 8  / 1.5f;
@@ -124,7 +119,7 @@ public class ClientEventHandler {
                 by += spacing;
                 filled = disease * w / 100;
                 AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
-                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFAAFFAA);
+                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF88CC88);
                 AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF00AA00);
                 if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
                     String text = "Болезнь: " + disease + "/100";
