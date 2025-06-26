@@ -38,6 +38,12 @@ public class StatsCommands {
                         .then(Commands.literal("disease")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
                                         .executes(ctx -> setDisease(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
+                        .then(Commands.literal("hunger")
+                                .then(Commands.argument("value", IntegerArgumentType.integer(0, 20))
+                                        .executes(ctx -> setHunger(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
+                        .then(Commands.literal("health")
+                                .then(Commands.argument("value", IntegerArgumentType.integer(0, 20))
+                                        .executes(ctx -> setHealth(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
         );
     }
 
@@ -92,6 +98,21 @@ public class StatsCommands {
         setStat(player, KEY_DISEASE, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setDisease(value));
         ctx.getSource().sendSuccess(new StringTextComponent("Disease set to " + value), true);
+        return 1;
+    }
+
+    private static int setHunger(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
+        player.getFoodData().setFoodLevel(value);
+        ctx.getSource().sendSuccess(new StringTextComponent("Hunger set to " + value), true);
+        return 1;
+    }
+
+    private static int setHealth(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
+        float clamped = Math.min(player.getMaxHealth(), Math.max(0, value));
+        player.setHealth(clamped);
+        ctx.getSource().sendSuccess(new StringTextComponent("Health set to " + value), true);
         return 1;
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
+import com.example.examplemod.client.screen.DiseasesScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,6 +28,8 @@ public class HealthScreen extends Screen {
         int x0 = 5;
         int y0 = 5;
         this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF, b -> this.minecraft.setScreen(parent)));
+        this.addButton(new FramedButton(x0 + 15, y0 + 100, 120, 20, "Болезни", 0xFFFFFF00, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new DiseasesScreen(this))));
         super.init();
     }
 
@@ -61,6 +64,17 @@ public class HealthScreen extends Screen {
             drawBar(ms, bx, y2, w, h, stats.getDisease(), 0xFF88CC88, 0xFF00AA00);
             if (mouseX >= bx && mouseX <= bx + w && mouseY >= y2 && mouseY <= y2 + h) {
                 drawValue(ms, "Болезнь: " + stats.getDisease() + "/100", bx, y2, w, h);
+            }
+
+            int y3 = by + spacing * 3;
+            float health = Minecraft.getInstance().player.getHealth();
+            float maxHealth = Minecraft.getInstance().player.getMaxHealth();
+            int bloodVal = (int)(health / maxHealth * 100);
+            drawBar(ms, bx, y3, w, h, bloodVal, 0xFFCC5555, 0xFF880000);
+            if (mouseX >= bx && mouseX <= bx + w && mouseY >= y3 && mouseY <= y3 + h) {
+                float liters = 5f * health / maxHealth;
+                String text = String.format("Кровь: %.2f/5 л", liters);
+                drawValue(ms, text, bx, y3, w, h);
             }
         });
 
