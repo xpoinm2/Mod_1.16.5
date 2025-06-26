@@ -4,20 +4,50 @@ import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.Hand;
 import net.minecraftforge.common.Tags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.PacketDistributor;
+import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.network.SyncStatsPacket;
 
 /**
  * Gives the player a sharp pebble when they left click any stone block.
  */
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PebbleSharpenHandler {
+
+    private static final String KEY_FATIGUE = "fatigue";
+    private static final String KEY_THIRST = "thirst";
+
+    private static CompoundNBT getStatsTag(PlayerEntity player) {
+        CompoundNBT root = player.getPersistentData();
+        if (!root.contains(PlayerEntity.PERSISTED_NBT_TAG)) {
+            root.put(PlayerEntity.PERSISTED_NBT_TAG, new CompoundNBT());
+        }
+        return root.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
+    }
+
+    private static int getStat(PlayerEntity player, String key, int def) {
+        CompoundNBT stats = getStatsTag(player);
+        if (!stats.contains(key)) {
+            stats.putInt(key, def);
+        }
+        return stats.getInt(key);
+    }
+
+    private static void setStat(PlayerEntity player, String key, int value) {
+        getStatsTag(player).putInt(key, value);
+    }
+
 
 
     @SubscribeEvent
@@ -30,25 +60,25 @@ public class PebbleSharpenHandler {
         BlockState state = world.getBlockState(pos);
         if (!isStone(state)) return;
 
-        // consume one pebble from the player's inventory
-        ItemStack pebbleStack = ItemStack.EMPTY;
-        for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-            ItemStack invStack = player.inventory.getItem(i);
-            if (invStack.getItem() == ModItems.PEBBLE.get() && !invStack.isEmpty()) {
-                pebbleStack = invStack;
-                break;
+        ItemStack held = player.getItemInHand(event.getHand());
+        if (held.getItem() != ModItems.PEBBLE.get()) return;
+
+        int dmg = held.getDamageValue() + 1;
+        held.setDamageValue(dmg);
+
+
+        if (dmg >= held.getMaxDamage()) {
+            player.setItemInHand(event.getHand(), new ItemStack(ModItems.SHARP_PEBBLE.get()));
+
+            int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + 5);
+            setStat(player, KEY_FATIGUE, fatigue);
+            if (player instanceof ServerPlayerEntity) {
+                ServerPlayerEntity sp = (ServerPlayerEntity) player;
+                ModNetworkHandler.CHANNEL.send(
+                        PacketDistributor.PLAYER.with(() -> sp),
+                        new SyncStatsPacket(getStat(sp, KEY_THIRST, 40), fatigue)
+                );
             }
-        }
-
-        if (pebbleStack.isEmpty()) return;
-
-        pebbleStack.shrink(1);
-
-        ItemStack stack = new ItemStack(ModItems.SHARP_PEBBLE.get());
-        if (!player.addItem(stack)) {
-            // drop at block position if inventory full
-            BlockPos dropPos = pos.relative(event.getFace());
-            net.minecraft.block.Block.popResource(world, dropPos, stack);
         }
     }
 

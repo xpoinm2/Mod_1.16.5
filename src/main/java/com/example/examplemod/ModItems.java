@@ -24,7 +24,9 @@ public class ModItems {
 
     // Камешек: простой предмет
     public static final RegistryObject<Item> PEBBLE = ITEMS.register("pebble",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new Item(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .durability(20)));
 
     // Острый камешек: получается при обработке обычного камешка
     public static final RegistryObject<Item> SHARP_PEBBLE = ITEMS.register("sharp_pebble",
