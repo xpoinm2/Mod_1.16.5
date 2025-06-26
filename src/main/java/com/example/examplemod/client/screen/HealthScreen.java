@@ -47,8 +47,21 @@ public class HealthScreen extends Screen {
 
         Minecraft.getInstance().player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
             drawBar(ms, bx, by, w, h, stats.getThirst(), 0xFF5555FF, 0xFF0000FF);
-            drawBar(ms, bx, by + spacing, w, h, stats.getFatigue(), 0xFFFFAA55, 0xFFFF5500);
-            drawBar(ms, bx, by + spacing * 2, w, h, stats.getDisease(), 0xFF88CC88, 0xFF00AA00);
+            if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
+                drawValue(ms, "Жажда: " + stats.getThirst() + "/100", bx, by, w, h);
+            }
+
+            int y1 = by + spacing;
+            drawBar(ms, bx, y1, w, h, stats.getFatigue(), 0xFFFFAA55, 0xFFFF5500);
+            if (mouseX >= bx && mouseX <= bx + w && mouseY >= y1 && mouseY <= y1 + h) {
+                drawValue(ms, "Усталость: " + stats.getFatigue() + "/100", bx, y1, w, h);
+            }
+
+            int y2 = by + spacing * 2;
+            drawBar(ms, bx, y2, w, h, stats.getDisease(), 0xFF88CC88, 0xFF00AA00);
+            if (mouseX >= bx && mouseX <= bx + w && mouseY >= y2 && mouseY <= y2 + h) {
+                drawValue(ms, "Болезнь: " + stats.getDisease() + "/100", bx, y2, w, h);
+            }
         });
 
         super.render(ms, mouseX, mouseY, pt);
@@ -60,6 +73,16 @@ public class HealthScreen extends Screen {
         AbstractGui.fill(ms, x, y, x + w, y + h, bg);
         AbstractGui.fill(ms, x, y, x + filled, y + h, fg);
     }
+
+    private void drawValue(MatrixStack ms, String text, int x, int y, int w, int h) {
+        ms.pushPose();
+        ms.scale(0.5f, 0.5f, 1f);
+        float tx = (x + (w - this.font.width(text) * 0.5f) / 2f) * 2f;
+        float ty = (y + (h - this.font.lineHeight * 0.5f) / 2f) * 2f;
+        this.font.draw(ms, text, tx, ty, 0xFFFFFF);
+        ms.popPose();
+    }
+
 
     @Override
     public void onClose() {
