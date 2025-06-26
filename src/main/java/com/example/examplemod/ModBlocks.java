@@ -58,7 +58,7 @@ public class ModBlocks {
                     }
                 }
             }
-            return ActionResultType.succeed(world.isClientSide);
+            return ActionResultType.sidedSuccess(world.isClientSide);
         }
 
         @Override
