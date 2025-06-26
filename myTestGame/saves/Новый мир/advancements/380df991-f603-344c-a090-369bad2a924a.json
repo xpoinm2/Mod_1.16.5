@@ -1,44 +1,45 @@
 {
   "minecraft:recipes/transportation/acacia_boat": {
     "criteria": {
-      "in_water": "2025-06-26 15:16:50 +0300"
+      "in_water": "2025-06-26 16:36:05 +0300"
     },
     "done": true
   },
   "minecraft:recipes/transportation/oak_boat": {
     "criteria": {
-      "in_water": "2025-06-26 15:16:50 +0300"
+      "in_water": "2025-06-26 16:36:05 +0300"
     },
     "done": true
   },
   "minecraft:recipes/transportation/dark_oak_boat": {
     "criteria": {
-      "in_water": "2025-06-26 15:16:50 +0300"
+      "in_water": "2025-06-26 16:36:05 +0300"
     },
     "done": true
   },
   "minecraft:recipes/transportation/birch_boat": {
     "criteria": {
-      "in_water": "2025-06-26 15:16:50 +0300"
+      "in_water": "2025-06-26 16:36:05 +0300"
     },
     "done": true
   },
   "minecraft:recipes/transportation/jungle_boat": {
     "criteria": {
-      "in_water": "2025-06-26 15:16:50 +0300"
+      "in_water": "2025-06-26 16:36:05 +0300"
     },
     "done": true
   },
   "minecraft:recipes/transportation/spruce_boat": {
     "criteria": {
-      "in_water": "2025-06-26 15:16:50 +0300"
+      "in_water": "2025-06-26 16:36:05 +0300"
     },
     "done": true
   },
   "minecraft:adventure/adventuring_time": {
     "criteria": {
-      "minecraft:desert": "2025-06-26 15:16:54 +0300",
-      "minecraft:plains": "2025-06-26 15:15:27 +0300"
+      "minecraft:forest": "2025-06-26 16:35:37 +0300",
+      "minecraft:swamp": "2025-06-26 16:35:49 +0300",
+      "minecraft:plains": "2025-06-26 16:36:06 +0300"
     },
     "done": false
   },

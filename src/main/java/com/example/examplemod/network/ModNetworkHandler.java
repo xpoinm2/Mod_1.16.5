@@ -8,6 +8,7 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import com.example.examplemod.network.ActivityPacket;
+import com.example.examplemod.network.OpenCraftingPacket;
 
 /**
  * Централизованная регистрация наших сетевых пакетов.
@@ -58,6 +59,13 @@ public class ModNetworkHandler {
                 ActivityPacket::encode,
                 ActivityPacket::decode,
                 ActivityPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                OpenCraftingPacket.class,
+                OpenCraftingPacket::encode,
+                OpenCraftingPacket::decode,
+                OpenCraftingPacket::handle
         );
     }
 }

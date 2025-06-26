@@ -9,11 +9,14 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.network.OpenCraftingPacket;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -39,7 +42,7 @@ public class ClientEventHandler {
         int left = (gui.width - gui.getXSize()) / 2;
         int top  = (gui.height - gui.getYSize()) / 2;
 
-        // Вставляем нашу кнопку
+        // Вставляем кнопку для оверлея
         Button btn = new GreenManButton(
                 left + gui.getXSize() - 19, // немного левее
                 top + 2,
@@ -51,6 +54,16 @@ public class ClientEventHandler {
                 }
         );
         ev.addWidget(btn);
+
+        // Кнопка "Создание" для открытия верстака
+        ev.addWidget(new ExtendedButton(
+                left + 10,
+                top + 2,
+                70,
+                20,
+                new StringTextComponent("\u0421\u043e\u0437\u0434\u0430\u043d\u0438\u0435"),
+                b -> ModNetworkHandler.CHANNEL.sendToServer(new OpenCraftingPacket())
+        ));
     }
 
     // 2) Отрисовка HUD-оверлея
