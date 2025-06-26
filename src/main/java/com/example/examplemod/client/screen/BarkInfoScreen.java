@@ -36,15 +36,22 @@ public class BarkInfoScreen extends Screen {
         fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
         drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
 
-        int tx = x0 + 10;
-        int ty = y0 + 30;
-        int lh = this.font.lineHeight + 2;
+        float scale = 0.75f;
+        float inv = 1f / scale;
+        ms.pushPose();
+        ms.scale(scale, scale, 1f);
+
+        float tx = (x0 + 10) * inv;
+        float ty = (y0 + 30) * inv;
+        float lh = (this.font.lineHeight + 2) * inv;
 
         this.font.draw(ms, "1. Возьмите острый камешек", tx, ty, 0xFFFFFF);
         ty += lh;
         this.font.draw(ms, "2. Ударьте по бревну", tx, ty, 0xFFFFFF);
         ty += lh;
         this.font.draw(ms, "   чтобы получить кору", tx, ty, 0xFFFFFF);
+
+        ms.popPose();
 
         super.render(ms, mouseX, mouseY, pt);
     }

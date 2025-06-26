@@ -3,6 +3,7 @@ package com.example.examplemod;
 import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModCreativeTabs;
+import com.example.examplemod.ModBlocks;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
@@ -34,6 +35,7 @@ public class ExampleMod {
         // 2) Подписываемся на жизненный цикл загрузки модов
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.register(modBus);
+        ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);

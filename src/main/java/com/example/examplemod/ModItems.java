@@ -36,6 +36,20 @@ public class ModItems {
     public static final RegistryObject<Item> BARK = ITEMS.register("bark",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Малина: еда, восстанавливающая небольшое количество голода
+    public static final RegistryObject<Item> RASPBERRY = ITEMS.register("raspberry",
+            () -> new Item(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .food(new net.minecraft.item.Food.Builder()
+                            .nutrition(1) // 0.5 icons; closest to 0.2
+                            .saturationMod(0.2f)
+                            .build())));
+
+    // Предмет для куста малины
+    public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }

@@ -3,5 +3,7 @@
   "item.examplemod.healing_item": "Healing Potion",
   "item.examplemod.pebble": "Pebble",
   "item.examplemod.sharp_pebble": "Sharp Pebble",
-  "item.examplemod.bark": "Bark"
+  "item.examplemod.bark": "Bark",
+  "item.examplemod.raspberry": "Raspberry",
+  "block.examplemod.raspberry_bush": "Raspberry Bush"
 }
