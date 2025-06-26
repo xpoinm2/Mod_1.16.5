@@ -30,6 +30,20 @@ public class PebbleSharpenHandler {
         BlockState state = world.getBlockState(pos);
         if (!isStone(state)) return;
 
+        // consume one pebble from the player's inventory
+        ItemStack pebbleStack = ItemStack.EMPTY;
+        for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+            ItemStack invStack = player.inventory.getItem(i);
+            if (invStack.getItem() == ModItems.PEBBLE.get() && !invStack.isEmpty()) {
+                pebbleStack = invStack;
+                break;
+            }
+        }
+
+        if (pebbleStack.isEmpty()) return;
+
+        pebbleStack.shrink(1);
+
         ItemStack stack = new ItemStack(ModItems.SHARP_PEBBLE.get());
         if (!player.addItem(stack)) {
             // drop at block position if inventory full

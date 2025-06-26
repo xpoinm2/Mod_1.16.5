@@ -76,9 +76,11 @@ public class HealthScreen extends Screen {
 
     private void drawValue(MatrixStack ms, String text, int x, int y, int w, int h) {
         ms.pushPose();
-        ms.scale(0.5f, 0.5f, 1f);
-        float tx = (x + (w - this.font.width(text) * 0.5f) / 2f) * 2f;
-        float ty = (y + (h - this.font.lineHeight * 0.5f) / 2f) * 2f;
+        float scale = 0.75f; // 1.5x larger than before
+        ms.scale(scale, scale, 1f);
+        float inv = 1f / scale;
+        float tx = (x + (w - this.font.width(text) * scale) / 2f) * inv;
+        float ty = (y + (h - this.font.lineHeight * scale) / 2f) * inv;
         this.font.draw(ms, text, tx, ty, 0xFFFFFF);
         ms.popPose();
     }
