@@ -4,6 +4,7 @@ import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModCreativeTabs;
+import com.example.examplemod.capability.CapabilityHandler;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
@@ -40,6 +41,7 @@ public class ExampleMod {
     /** Серверная и общая инициализация (регистрируем ThirstHandler) */
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("ExampleMod common setup");
+        CapabilityHandler.registerCapabilities();
         MinecraftForge.EVENT_BUS.register(ThirstHandler.class);
         MinecraftForge.EVENT_BUS.register(RestHandler.class);
         MinecraftForge.EVENT_BUS.register(BlockBreakHandler.class);

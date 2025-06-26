@@ -12,15 +12,17 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CapabilityHandler {
 
-    @SubscribeEvent
-    public static void onRegisterCapabilities(FMLCommonSetupEvent event) {
+    /**
+     * Register the {@link IPlayerStats} capability. This method is invoked
+     * from the mod's common setup phase.
+     */
+    public static void registerCapabilities() {
         CapabilityManager.INSTANCE.register(
                 IPlayerStats.class,
                 new PlayerStatsStorage(),
