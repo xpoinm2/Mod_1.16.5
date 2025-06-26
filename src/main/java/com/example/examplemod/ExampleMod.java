@@ -7,6 +7,7 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
+import com.example.examplemod.server.PebbleSharpenHandler;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -45,6 +46,8 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(BlockBreakHandler.class);
         // Register handler responsible for pebble spawning
         MinecraftForge.EVENT_BUS.register(PebbleSpawnHandler.class);
+        // Register handler that upgrades pebbles when mining stone
+        MinecraftForge.EVENT_BUS.register(PebbleSharpenHandler.class);
 
     }
 
