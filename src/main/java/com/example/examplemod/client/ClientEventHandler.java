@@ -1,40 +1,19 @@
 package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.capability.IPlayerStats;
-import com.example.examplemod.capability.PlayerStatsProvider;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.example.examplemod.client.screen.PlayerInterfaceScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import com.example.examplemod.network.ModNetworkHandler;
-import com.example.examplemod.network.OpenCraftingPacket;
-import org.lwjgl.glfw.GLFW;
 
-/**
- * Клиентский оверлей и кнопка в инвентаре
- */
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ClientEventHandler {
-    private static boolean overlayOpen = false;
-    private static boolean healthWindow = false;
-    // Cached overlay geometry for mouse handling
-    private static int lastOverlayX;
-    private static int lastOverlayY;
-    private static int lastOverlaySpacing;
-    private static int lastOverlayW;
-    private static int lastOverlayH;
 
-
-    // 1) Кнопка с сердечком в инвентаре
     @SubscribeEvent
     public static void onGuiInit(GuiScreenEvent.InitGuiEvent.Post ev) {
         if (!(ev.getGui() instanceof InventoryScreen)) return;
@@ -42,188 +21,13 @@ public class ClientEventHandler {
         int left = (gui.width - gui.getXSize()) / 2;
         int top  = (gui.height - gui.getYSize()) / 2;
 
-        // Вставляем кнопку для оверлея
         Button btn = new GreenManButton(
-                left + gui.getXSize() - 19, // немного левее
+                left + gui.getXSize() - 19,
                 top + 2,
                 16, 20,
                 StringTextComponent.EMPTY,
-                b -> {
-                    overlayOpen = !overlayOpen;
-                    if (!overlayOpen) healthWindow = false;
-                }
+                b -> Minecraft.getInstance().setScreen(new PlayerInterfaceScreen(gui))
         );
         ev.addWidget(btn);
-
-        // Кнопка "Создание" для открытия верстака
-        ev.addWidget(new ExtendedButton(
-                left + 10,
-                top + 2,
-                70,
-                20,
-                new StringTextComponent("\u0421\u043e\u0437\u0434\u0430\u043d\u0438\u0435"),
-                b -> ModNetworkHandler.CHANNEL.sendToServer(new OpenCraftingPacket())
-        ));
-    }
-
-    // 2) Отрисовка HUD-оверлея
-    @SubscribeEvent
-    public static void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post ev) {
-        if (!overlayOpen || !(ev.getGui() instanceof InventoryScreen)) return;
-        MatrixStack ms = ev.getMatrixStack();
-        Minecraft mc = Minecraft.getInstance();
-        FontRenderer font = mc.font;
-        double mouseX = ev.getMouseX();
-        double mouseY = ev.getMouseY();
-
-        // Позиция оверлея
-        int x0 = 0, y0 = 0;
-
-        // Размеры полосок
-        float baseW = 80 / 1.5f;
-        float baseH = 8  / 1.5f;
-        float baseSpacing = 16 / 1.5f;
-        int w = Math.round(baseW * 1.25f);    // полоски увеличены
-        int h = Math.round(baseH * 1.25f);
-        int spacing = Math.round(baseSpacing * 1.25f);
-
-        if (!healthWindow) {
-            // Получаем статы и рисуем полоски
-            mc.player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
-                int thirst  = stats.getThirst();
-                int fatigue = stats.getFatigue();
-                int disease = stats.getDisease();
-
-                int bx = x0 + 10;
-                int by = y0 + 10;
-
-                // Жажда (синяя)
-                int filled = thirst * w / 100;
-                AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
-                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF5555FF);
-                AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF0000FF);
-                if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
-                    String text = "Жажда: " + thirst + "/100";
-                    ms.pushPose();
-                    ms.scale(0.5f, 0.5f, 1f);
-                    float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-                    float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-                    font.draw(ms, text, tx, ty, 0xFFFFFF);
-                    ms.popPose();
-                }
-
-                // Усталость (оранжевый)
-                by += spacing;
-                filled = fatigue * w / 100;
-                AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
-                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFFFFAA55);
-                AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFFFF5500);
-                if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
-                    String text = "Усталость: " + fatigue + "/100";
-                    ms.pushPose();
-                    ms.scale(0.5f, 0.5f, 1f);
-                    float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-                    float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-                    font.draw(ms, text, tx, ty, 0xFFFFFF);
-                    ms.popPose();
-                }
-
-                // Болезнь (зелёный)
-                by += spacing;
-                filled = disease * w / 100;
-                AbstractGui.fill(ms, bx - 1, by - 1, bx + w + 1, by + h + 1, 0xFFFFFF00);
-                AbstractGui.fill(ms, bx, by, bx + w, by + h, 0xFF88CC88);
-                AbstractGui.fill(ms, bx, by, bx + filled, by + h, 0xFF00AA00);
-                if (mouseX >= bx && mouseX <= bx + w && mouseY >= by && mouseY <= by + h) {
-                    String text = "Болезнь: " + disease + "/100";
-                    ms.pushPose();
-                    ms.scale(0.5f, 0.5f, 1f);
-                    float tx = (bx + (w - font.width(text) * 0.5f) / 2f) * 2f;
-                    float ty = (by + (h - font.lineHeight * 0.5f) / 2f) * 2f;
-                    font.draw(ms, text, tx, ty, 0xFFFFFF);
-                    ms.popPose();
-                }
-
-                // Кнопка "Здоровье"
-                by += spacing;
-                int btnX = bx;
-                int btnY = by;
-                int btnW = w;
-                int btnH = h * 2;
-                AbstractGui.fill(ms, btnX - 1, btnY - 1, btnX + btnW + 1, btnY + btnH + 1, 0xFFFFFF00);
-                AbstractGui.fill(ms, btnX, btnY, btnX + btnW, btnY + btnH, 0xFF333333);
-                ms.pushPose();
-                ms.scale(0.5f, 0.5f, 1f);
-                float tx = (btnX + (btnW - font.width("Здоровье") * 0.5f) / 2f) * 2f;
-                float ty = (btnY + (btnH - font.lineHeight * 0.5f) / 2f) * 2f;
-                font.draw(ms, "Здоровье", tx, ty, 0xFFFF0000);
-                ms.popPose();
-            });
-        } else {
-            // Пустое окно со стрелкой назад
-            int ax = x0 + 5;
-            int ay = y0 + 5;
-            int aw = 20;
-            int ah = 20;
-            AbstractGui.fill(ms, ax - 1, ay - 1, ax + aw + 1, ay + ah + 1, 0xFFFFFF00);
-            AbstractGui.fill(ms, ax, ay, ax + aw, ay + ah, 0xFF333333);
-            ms.pushPose();
-            ms.scale(0.5f, 0.5f, 1f);
-            float tx = (ax + (aw - font.width("<") * 0.5f) / 2f) * 2f;
-            float ty = (ay + (ah - font.lineHeight * 0.5f) / 2f) * 2f;
-            font.draw(ms, "<", tx, ty, 0xFFFFFFFF);
-            ms.popPose();
-        }
-
-        // save bounds for mouse click handler
-        lastOverlayX = x0;
-        lastOverlayY = y0;
-        lastOverlaySpacing = spacing;
-        lastOverlayW = w;
-        lastOverlayH = h;
-    }
-
-    // 3.5) Обработка кликов по кнопке "Здоровье" и стрелке назад
-    @SubscribeEvent
-    public static void onMouseClicked(GuiScreenEvent.MouseClickedEvent.Pre ev) {
-        if (!overlayOpen || !(ev.getGui() instanceof InventoryScreen)) return;
-
-        double mouseX = ev.getMouseX();
-        double mouseY = ev.getMouseY();
-
-        int bx = lastOverlayX + 10;
-        int by = lastOverlayY + 10;
-
-        if (!healthWindow) {
-            by += lastOverlaySpacing * 3;
-            int btnX = bx;
-            int btnY = by;
-            int btnW = lastOverlayW;
-            int btnH = lastOverlayH * 2;
-            if (mouseX >= btnX && mouseX <= btnX + btnW && mouseY >= btnY && mouseY <= btnY + btnH) {
-                healthWindow = true;
-                ev.setCanceled(true);
-            }
-        } else {
-            int ax = lastOverlayX + 5;
-            int ay = lastOverlayY + 5;
-            int aw = 20;
-            int ah = 20;
-            if (mouseX >= ax && mouseX <= ax + aw && mouseY >= ay && mouseY <= ay + ah) {
-                healthWindow = false;
-                ev.setCanceled(true);
-            }
-        }
-    }
-
-    // 4) Закрытие оверлея по ESC
-    @SubscribeEvent
-    public static void onKeyPressed(GuiScreenEvent.KeyboardKeyPressedEvent ev) {
-        if (!overlayOpen || !(ev.getGui() instanceof InventoryScreen)) return;
-        if (ev.getKeyCode() == GLFW.GLFW_KEY_ESCAPE) {
-            overlayOpen = false;
-            healthWindow = false;
-            ev.setCanceled(true);
-        }
     }
 }
