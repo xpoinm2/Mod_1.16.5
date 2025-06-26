@@ -1,6 +1,7 @@
 package com.example.examplemod.world;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.ModBlocks;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -11,8 +12,8 @@ import net.minecraft.world.gen.feature.BlockClusterFeatureConfig.Builder;
 import net.minecraft.world.gen.foliageplacer.BushFoliagePlacer;
 import net.minecraft.world.gen.placement.Placement;
 import net.minecraft.world.gen.placement.ChanceConfig;
-import net.minecraft.world.gen.feature.SimpleBlockStateProvider;
-import net.minecraft.world.gen.feature.SimpleBlockPlacer;
+import net.minecraft.world.gen.blockstateprovider.SimpleBlockStateProvider;
+import net.minecraft.world.gen.blockplacer.SimpleBlockPlacer;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
