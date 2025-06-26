@@ -2,5 +2,6 @@
   "itemGroup.examplemod": "Example Mod",
   "item.examplemod.healing_item": "Healing Potion",
   "item.examplemod.pebble": "Pebble",
-  "item.examplemod.sharp_pebble": "Sharp Pebble"
+  "item.examplemod.sharp_pebble": "Sharp Pebble",
+  "item.examplemod.bark": "Bark"
 }

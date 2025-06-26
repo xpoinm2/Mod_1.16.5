@@ -16,6 +16,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import com.example.examplemod.server.PebbleSpawnHandler;
+import com.example.examplemod.server.BarkStripHandler;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -48,6 +49,8 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(PebbleSpawnHandler.class);
         // Register handler that upgrades pebbles when mining stone
         MinecraftForge.EVENT_BUS.register(PebbleSharpenHandler.class);
+        // Register handler that strips logs and drops bark
+        MinecraftForge.EVENT_BUS.register(BarkStripHandler.class);
 
     }
 
