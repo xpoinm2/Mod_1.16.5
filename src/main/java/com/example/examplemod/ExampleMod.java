@@ -16,6 +16,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import com.example.examplemod.server.PebbleSpawnHandler;
 import com.example.examplemod.server.BarkStripHandler;
 
@@ -60,5 +62,6 @@ public class ExampleMod {
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
+        RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
     }
 }
