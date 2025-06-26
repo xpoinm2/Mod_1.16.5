@@ -4,6 +4,7 @@ import com.example.examplemod.client.FramedButton;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
+import com.example.examplemod.client.screen.HiddenValuesScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -28,6 +29,8 @@ public class InfoScreen extends Screen {
                 b -> this.minecraft.setScreen(new SystemInfoScreen(this))));
         this.addButton(new FramedButton(x0 + 15, y0 + 70, 120, 20, "Крафты и механики", 0xFFFFFF00, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new CraftInfoScreen(this))));
+        this.addButton(new FramedButton(x0 + 15, y0 + 100, 120, 20, "Скрытые значения", 0xFFFFFF00, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new HiddenValuesScreen(this))));
         super.init();
     }
 

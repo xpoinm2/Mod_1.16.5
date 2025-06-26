@@ -58,6 +58,7 @@ public class CapabilityHandler {
                     newStats.setThirst(oldStats.getThirst());
                     newStats.setFatigue(oldStats.getFatigue());
                     newStats.setDisease(oldStats.getDisease());
+                    newStats.setBlood(oldStats.getBlood());
                 })
         );
     }

@@ -8,4 +8,6 @@ public interface IPlayerStats {
     void setFatigue(int v);
     int  getDisease();
     void setDisease(int v);
+    int  getBlood();
+    void setBlood(int v);
 }

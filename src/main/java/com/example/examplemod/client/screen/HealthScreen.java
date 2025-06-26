@@ -28,7 +28,7 @@ public class HealthScreen extends Screen {
         int x0 = 5;
         int y0 = 5;
         this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF, b -> this.minecraft.setScreen(parent)));
-        this.addButton(new FramedButton(x0 + 15, y0 + 100, 120, 20, "Болезни", 0xFFFFFF00, 0xFFFF0000,
+        this.addButton(new FramedButton(x0 + 10, y0 + 100, 120, 20, "Болезни", 0xFFFFFF00, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new DiseasesScreen(this))));
         super.init();
     }
@@ -67,12 +67,10 @@ public class HealthScreen extends Screen {
             }
 
             int y3 = by + spacing * 3;
-            float health = Minecraft.getInstance().player.getHealth();
-            float maxHealth = Minecraft.getInstance().player.getMaxHealth();
-            int bloodVal = (int)(health / maxHealth * 100);
+            int bloodVal = stats.getBlood();
             drawBar(ms, bx, y3, w, h, bloodVal, 0xFFCC5555, 0xFF880000);
             if (mouseX >= bx && mouseX <= bx + w && mouseY >= y3 && mouseY <= y3 + h) {
-                float liters = 5f * health / maxHealth;
+                float liters = 5f * bloodVal / 100f;
                 String text = String.format("Кровь: %.2f/5 л", liters);
                 drawValue(ms, text, bx, y3, w, h);
             }

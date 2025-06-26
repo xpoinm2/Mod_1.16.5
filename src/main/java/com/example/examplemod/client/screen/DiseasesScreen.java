@@ -36,22 +36,7 @@ public class DiseasesScreen extends Screen {
         fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
         drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
 
-        float scale = 0.75f;
-        float inv = 1f / scale;
-        ms.pushPose();
-        ms.scale(scale, scale, 1f);
-
-        float tx = (x0 + 10) * inv;
-        float ty = (y0 + 30) * inv;
-        float lh = (this.font.lineHeight + 2) * inv;
-
-        this.font.draw(ms, "Простуда", tx, ty, 0xFFFFFF);
-        ty += lh;
-        this.font.draw(ms, "Грипп", tx, ty, 0xFFFFFF);
-        ty += lh;
-        this.font.draw(ms, "Отравление", tx, ty, 0xFFFFFF);
-
-        ms.popPose();
+// Контент временно отсутствует
 
         super.render(ms, mouseX, mouseY, pt);
     }
