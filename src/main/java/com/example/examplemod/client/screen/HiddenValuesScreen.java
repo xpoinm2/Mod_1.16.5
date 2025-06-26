@@ -74,7 +74,10 @@ public class HiddenValuesScreen extends Screen {
             passwordField.render(ms, mouseX, mouseY, pt);
         } else {
             long time = this.minecraft.level.getDayTime();
-            String text = "Игровое время: " + time;
+            long dayTime = time % 24000L;
+            int hour = (int) ((dayTime / 1000L + 6) % 24);
+            int minute = (int) ((dayTime % 1000L) * 60L / 1000L);
+            String text = String.format("Игровое время: %02d:%02d", hour, minute);
             this.font.draw(ms, text, x0 + 10, y0 + 40, 0xFFFFFF);
         }
 
