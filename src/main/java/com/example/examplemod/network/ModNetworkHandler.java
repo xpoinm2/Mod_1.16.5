@@ -14,12 +14,23 @@ import com.example.examplemod.network.ActivityPacket;
  */
 public class ModNetworkHandler {
     private static final String PROTOCOL_VERSION = "1";
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(ExampleMod.MODID, "main"),
-            () -> PROTOCOL_VERSION,
-            PROTOCOL_VERSION::equals,
-            PROTOCOL_VERSION::equals
-    );
+    public static SimpleChannel CHANNEL;
+
+    /**
+     * Initialize the channel if it hasn't been created yet. This
+     * should be called before the registration phase is closed.
+     */
+    private static void setupChannel() {
+        if (CHANNEL == null) {
+            CHANNEL = NetworkRegistry.newSimpleChannel(
+                    new ResourceLocation(ExampleMod.MODID, "main"),
+                    () -> PROTOCOL_VERSION,
+                    PROTOCOL_VERSION::equals,
+                    PROTOCOL_VERSION::equals
+            );
+        }
+    }
+
 
     private static int packetId = 0;
 
@@ -28,6 +39,9 @@ public class ModNetworkHandler {
     }
 
     public static void register() {
+        // Ensure the channel exists before registering packets
+        setupChannel();
+
         // сюда вписываем все пакеты, которые у вас есть
         CHANNEL.registerMessage(
                 nextId(),
@@ -57,5 +71,6 @@ public class ModNetworkHandler {
                 ActivityPacket::decode,
                 ActivityPacket::handle
         );
+
     }
 }
