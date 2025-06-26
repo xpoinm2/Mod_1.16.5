@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class StatsCommands {
@@ -60,7 +61,7 @@ public class StatsCommands {
         return stats.getInt(key);
     }
 
-    private static int setThirst(CommandContext<CommandSource> ctx, int value) {
+    private static int setThirst(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
         setStat(player, KEY_THIRST, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setThirst(value));
@@ -73,7 +74,7 @@ public class StatsCommands {
         return 1;
     }
 
-    private static int setFatigue(CommandContext<CommandSource> ctx, int value) {
+    private static int setFatigue(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
         setStat(player, KEY_FATIGUE, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setFatigue(value));
@@ -86,7 +87,7 @@ public class StatsCommands {
         return 1;
     }
 
-    private static int setDisease(CommandContext<CommandSource> ctx, int value) {
+    private static int setDisease(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
         setStat(player, KEY_DISEASE, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setDisease(value));
