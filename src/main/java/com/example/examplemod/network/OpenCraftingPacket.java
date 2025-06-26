@@ -4,7 +4,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.WorkbenchContainer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.inventory.IWorldPosCallable;
+import net.minecraft.world.IWorldPosCallable;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraft.inventory.container.INamedContainerProvider;
