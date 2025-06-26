@@ -36,9 +36,14 @@ public class SystemInfoScreen extends Screen {
         fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
         drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
 
-        int tx = x0 + 10;
-        int ty = y0 + 30;
-        int lh = this.font.lineHeight + 2;
+        float scale = 0.5f;
+        float inv = 1f / scale;
+        ms.pushPose();
+        ms.scale(scale, scale, 1f);
+
+        float tx = (x0 + 10) * inv;
+        float ty = (y0 + 30) * inv;
+        float lh = (this.font.lineHeight + 2) * inv;
 
         this.font.draw(ms, "Каждый игровой час: +2 жажды и усталости", tx, ty, 0xFFFFFF);
         ty += lh;
@@ -67,6 +72,8 @@ public class SystemInfoScreen extends Screen {
         this.font.draw(ms, "Отдых сидя 15 мин: -5 усталости", tx, ty, 0xFFFFFF);
         ty += lh;
         this.font.draw(ms, "Полный сон: усталость = 0", tx, ty, 0xFFFFFF);
+
+        ms.popPose();
 
         super.render(ms, mouseX, mouseY, pt);
     }

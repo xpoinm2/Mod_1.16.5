@@ -4,19 +4,17 @@ import com.example.examplemod.client.FramedButton;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
-import com.example.examplemod.client.screen.SharpPebbleInfoScreen;
-import com.example.examplemod.client.screen.BarkInfoScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class CraftInfoScreen extends Screen {
+public class SharpPebbleInfoScreen extends Screen {
     private static final int WIDTH = 150;
-    private static final int HEIGHT = 150;
+    private static final int HEIGHT = 100;
     private final Screen parent;
 
-    public CraftInfoScreen(Screen parent) {
-        super(new StringTextComponent("Крафты и механики"));
+    public SharpPebbleInfoScreen(Screen parent) {
+        super(new StringTextComponent("Острый камешек"));
         this.parent = parent;
     }
 
@@ -26,10 +24,6 @@ public class CraftInfoScreen extends Screen {
         int y0 = 5;
         this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
-        this.addButton(new FramedButton(x0 + 15, y0 + 40, 120, 20, "Острый камешек", 0xFFFFFF00, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new SharpPebbleInfoScreen(this))));
-        this.addButton(new FramedButton(x0 + 15, y0 + 70, 120, 20, "Кора", 0xFFFFFF00, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new BarkInfoScreen(this))));
         super.init();
     }
 
@@ -41,6 +35,17 @@ public class CraftInfoScreen extends Screen {
         fill(ms, x0 - 1, y0 - 1, x0 + WIDTH + 1, y0 + HEIGHT + 1, 0xFF00FF00);
         fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
         drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
+
+        int tx = x0 + 10;
+        int ty = y0 + 30;
+        int lh = this.font.lineHeight + 2;
+
+        this.font.draw(ms, "1. Подберите камешек", tx, ty, 0xFFFFFF);
+        ty += lh;
+        this.font.draw(ms, "2. Ударяйте им по камню", tx, ty, 0xFFFFFF);
+        ty += lh;
+        this.font.draw(ms, "   пока он не станет острым", tx, ty, 0xFFFFFF);
+
         super.render(ms, mouseX, mouseY, pt);
     }
 
