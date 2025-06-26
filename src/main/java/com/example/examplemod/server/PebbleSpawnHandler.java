@@ -15,8 +15,8 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PebbleSpawnHandler {
-    // approx 1 pebble per 90x90 area
-    private static final double SPAWN_CHANCE = 256.0 / 2700.0;
+    // increased chance (1.5x compared to previous value)
+    private static final double SPAWN_CHANCE = 384.0 / 2700.0;
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
@@ -34,11 +34,8 @@ public class PebbleSpawnHandler {
         // Spawn in all biomes except desert
         if (category != Biome.Category.DESERT) {
             int y = world.getHeight(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z);
-            ItemEntity entity = new ItemEntity(world, x + 0.5, y + 0.0625, z + 0.5,
+            ItemEntity entity = new ItemEntity(world, x + 0.5, y, z + 0.5,
                     new ItemStack(ModItems.PEBBLE.get()));
-            entity.setNoGravity(true);
-            entity.setPickUpDelay(32767);
-            entity.setExtendedLifetime();
             world.addFreshEntity(entity);
         }
     }

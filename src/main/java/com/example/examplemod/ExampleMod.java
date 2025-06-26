@@ -15,7 +15,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import com.example.examplemod.server.PebbleSpawnHandler;
-import com.example.examplemod.server.PebblePickupHandler;
+
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,9 +43,9 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(ThirstHandler.class);
         MinecraftForge.EVENT_BUS.register(RestHandler.class);
         MinecraftForge.EVENT_BUS.register(BlockBreakHandler.class);
-        // Register handlers responsible for pebble spawning and pickup
+        // Register handler responsible for pebble spawning
         MinecraftForge.EVENT_BUS.register(PebbleSpawnHandler.class);
-        MinecraftForge.EVENT_BUS.register(PebblePickupHandler.class);
+
     }
 
     /** Клиентская инициализация (регистрируем обработку кликов по воде) */
