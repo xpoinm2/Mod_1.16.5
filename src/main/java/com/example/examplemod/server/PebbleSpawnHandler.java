@@ -1,8 +1,9 @@
 package com.example.examplemod.server;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.ModBlocks;
-import net.minecraft.block.BlockState;
+import com.example.examplemod.ModItems;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -27,16 +28,17 @@ public class PebbleSpawnHandler {
 
         int x = chunk.getPos().getMinBlockX() + world.random.nextInt(16);
         int z = chunk.getPos().getMinBlockZ() + world.random.nextInt(16);
-        int y = world.getHeight(Heightmap.Type.WORLD_SURFACE, x, z);
-        BlockPos pos = new BlockPos(x, y, z);
-
-        Biome biome = world.getBiome(pos);
-        if (biome.getBiomeCategory() == Biome.Category.DESERT) return;
-
-        BlockPos ground = pos.below();
-        BlockState state = world.getBlockState(ground);
-        if (state.getMaterial().isSolid() && world.isEmptyBlock(pos)) {
-            world.setBlock(pos, ModBlocks.PEBBLE_BLOCK.get().defaultBlockState(), 3);
+        BlockPos pos = new BlockPos(x, 0, z);
+        Biome.Category category = world.getBiome(pos).getBiomeCategory();
+        if (category == Biome.Category.FOREST || category == Biome.Category.JUNGLE ||
+                category == Biome.Category.SWAMP || category == Biome.Category.ICY) {
+            int y = world.getHeight(Heightmap.Type.WORLD_SURFACE, x, z);
+            ItemEntity entity = new ItemEntity(world, x + 0.5, y + 0.0625, z + 0.5,
+                    new ItemStack(ModItems.PEBBLE.get()));
+            entity.setNoGravity(true);
+            entity.setPickUpDelay(32767);
+            entity.setExtendedLifetime();
+            world.addFreshEntity(entity);
         }
     }
 }
