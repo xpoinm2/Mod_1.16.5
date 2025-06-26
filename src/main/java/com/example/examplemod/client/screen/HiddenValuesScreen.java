@@ -40,10 +40,26 @@ public class HiddenValuesScreen extends Screen {
     private void checkPassword() {
         if ("1234".equals(passwordField.getValue())) {
             unlocked = true;
-            this.clearWidgets();
+            clearWidgets();
             this.init();
         }
     }
+
+    /**
+     * Remove all widgets from this screen.
+     * <p>
+     * Forge's {@code Screen} class in 1.16.5 does not expose a helper for
+     * clearing the widget lists.  The method below mimics the behaviour of the
+     * later {@code clearWidgets()} utility by wiping both the {@code buttons}
+     * and {@code children} collections.  This allows the screen to be
+     * reinitialised without leaving orphaned widgets behind when the password is
+     * entered correctly.
+     */
+    private void clearWidgets() {
+        this.buttons.clear();
+        this.children.clear();
+    }
+
 
     @Override
     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
