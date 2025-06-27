@@ -1,0 +1,12 @@
+{
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:desert": "2025-06-27 14:31:22 +0300",
+      "minecraft:savanna_plateau": "2025-06-27 14:32:06 +0300",
+      "minecraft:river": "2025-06-27 14:31:21 +0300",
+      "minecraft:savanna": "2025-06-27 14:30:41 +0300"
+    },
+    "done": false
+  },
+  "DataVersion": 2586
+}
