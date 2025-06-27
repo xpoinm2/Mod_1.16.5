@@ -3,6 +3,7 @@ package com.example.examplemod.capability;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
+import com.example.examplemod.network.SyncColdPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -47,6 +48,10 @@ public class CapabilityHandler {
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
                     new SyncStatsPacket(stats.getThirst(), stats.getFatigue())
+            );
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncColdPacket(stats.getCold())
             );
         });
     }

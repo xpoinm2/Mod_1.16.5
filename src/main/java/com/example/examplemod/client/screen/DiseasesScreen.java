@@ -1,6 +1,8 @@
 package com.example.examplemod.client.screen;
 
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.capability.IPlayerStats;
+import com.example.examplemod.capability.PlayerStatsProvider;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
@@ -36,7 +38,15 @@ public class DiseasesScreen extends Screen {
         fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
         drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
 
-// Контент временно отсутствует
+        this.minecraft.player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
+            float scale = 0.75f;
+            float inv = 1f / scale;
+            ms.pushPose();
+            ms.scale(scale, scale, 1f);
+            String txt = String.format("простуда - %d%%", stats.getCold());
+            this.font.draw(ms, txt, (x0 + 10) * inv, (y0 + 40) * inv, 0xFFFFFF);
+            ms.popPose();
+        });
 
         super.render(ms, mouseX, mouseY, pt);
     }

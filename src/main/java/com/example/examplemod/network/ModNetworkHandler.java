@@ -9,6 +9,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import com.example.examplemod.network.ActivityPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
+import com.example.examplemod.network.SyncColdPacket;
 
 /**
  * Централизованная регистрация наших сетевых пакетов.
@@ -52,6 +53,13 @@ public class ModNetworkHandler {
                 SyncStatsPacket::encode,
                 SyncStatsPacket::decode,
                 SyncStatsPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                SyncColdPacket.class,
+                SyncColdPacket::encode,
+                SyncColdPacket::decode,
+                SyncColdPacket::handle
         );
         CHANNEL.registerMessage(
                 nextId(),
