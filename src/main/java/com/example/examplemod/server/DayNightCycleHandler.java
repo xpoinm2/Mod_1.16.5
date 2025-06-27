@@ -17,7 +17,8 @@ public class DayNightCycleHandler {
         long time = world.getDayTime();
         long dayTime = time % 24000L;
 
-        if (dayTime < 12000L) {
+        // Treat the first 16 in-game hours (0-16000 ticks) as day time.
+        if (dayTime < 16000L) {
             // Day: slow down to last 16 real minutes (5/8 speed)
             if (world.getGameTime() % 8L < 3L) {
                 world.setDayTime(time - 1);
