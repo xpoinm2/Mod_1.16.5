@@ -10,7 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
-import net.minecraft.network.PacketDistributor;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 public class ElderberryItem extends Item {
     public ElderberryItem(Properties properties) {
