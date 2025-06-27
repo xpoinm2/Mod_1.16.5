@@ -132,12 +132,13 @@ public class HiddenValuesScreen extends Screen {
             int minute = (int) ((dayTime % 1000L) * 60L / 1000L);
             String text = String.format("Игровое время: %02d:%02d", hour, minute);
             this.font.draw(ms, text, x0 + 10, y0 + 40, 0xFFFFFF);
-        }
+
 
         PlayerEntity player = this.minecraft.player;
         int temp = getAmbientTemperature(player);
         String tempText = String.format("Температура: %d C", temp);
         this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
+    }
 
         super.render(ms, mouseX, mouseY, pt);
     }
