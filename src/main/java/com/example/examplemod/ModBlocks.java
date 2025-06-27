@@ -26,6 +26,11 @@ public class ModBlocks {
     public static final RegistryObject<Block> RASPBERRY_BUSH = BLOCKS.register("raspberry_bush",
             RaspberryBushBlock::new);
 
+    // Куст бузины чёрной
+    public static final RegistryObject<Block> ELDERBERRY_BUSH = BLOCKS.register("elderberry_bush",
+            ElderberryBushBlock::new);
+
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }
@@ -69,6 +74,48 @@ public class ModBlocks {
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.RASPBERRY_BUSH.get());
+        }
+    }
+
+    // === Класс блока куста бузины чёрной ===
+    public static class ElderberryBushBlock extends SweetBerryBushBlock {
+        public static final IntegerProperty CLICKS = RaspberryBushBlock.CLICKS;
+
+        public ElderberryBushBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.SWEET_BERRY_BUSH));
+            this.registerDefaultState(this.stateDefinition.any().setValue(CLICKS, 0).setValue(AGE, 3));
+        }
+
+        @Override
+        protected void createBlockStateDefinition(StateContainer.Builder<Block, net.minecraft.block.BlockState> builder) {
+            super.createBlockStateDefinition(builder);
+            builder.add(CLICKS);
+        }
+
+        @Override
+        public ActionResultType use(net.minecraft.block.BlockState state, World world, BlockPos pos,
+                                    PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+            if (!world.isClientSide) {
+                int clicks = state.getValue(CLICKS);
+                if (clicks < 10) {
+                    Block.popResource(world, pos, new ItemStack(ModItems.ELDERBERRY.get(), 3));
+                    world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
+                    if (clicks + 1 >= 10) {
+                        world.removeBlock(pos, false);
+                    }
+                }
+            }
+            return ActionResultType.sidedSuccess(world.isClientSide);
+        }
+
+        @Override
+        public boolean isRandomlyTicking(net.minecraft.block.BlockState state) {
+            return false;
+        }
+
+        @Override
+        public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
+            return new ItemStack(ModItems.ELDERBERRY_BUSH.get());
         }
     }
 }

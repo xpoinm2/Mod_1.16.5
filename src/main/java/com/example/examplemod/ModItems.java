@@ -11,6 +11,7 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import com.example.examplemod.item.HealingItem;
+import com.example.examplemod.item.ElderberryItem;
 
 
 public class ModItems {
@@ -48,9 +49,24 @@ public class ModItems {
                             .effect(() -> new EffectInstance(Effects.MOVEMENT_SPEED, 40, 0), 1.0f)
                             .build())));
 
+    // Бузина: снижает простуду на 1%% при поедании
+    public static final RegistryObject<Item> ELDERBERRY = ITEMS.register("elderberry",
+            () -> new ElderberryItem(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .food(new net.minecraft.item.Food.Builder()
+                            .nutrition(1)
+                            .saturationMod(0.1f)
+                            .build())));
+
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Предмет для куста бузины
+    public static final RegistryObject<Item> ELDERBERRY_BUSH = ITEMS.register("elderberry_bush",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.ELDERBERRY_BUSH.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {
