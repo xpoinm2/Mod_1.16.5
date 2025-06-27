@@ -5,6 +5,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -60,6 +63,56 @@ public class HiddenValuesScreen extends Screen {
         this.children.clear();
     }
 
+    private int getAmbientTemperature(PlayerEntity player) {
+        if (player == null) return 0;
+        World world = player.level;
+
+        // Dimensions take precedence over biome categories
+        if (world.dimension() == World.NETHER) {
+            return 666;
+        }
+        if (world.dimension() == World.END) {
+            return -666;
+        }
+
+        Biome biome = world.getBiome(player.blockPosition());
+        Biome.Category cat = biome.getBiomeCategory();
+
+        switch (cat) {
+            case PLAINS:
+                return 23;
+            case DESERT:
+            case MESA:
+                return 37;
+            case SAVANNA:
+                return 30;
+            case FOREST:
+                return 17;
+            case JUNGLE:
+                return 30;
+            case SWAMP:
+                return -13;
+            case TAIGA:
+                return -25;
+            case EXTREME_HILLS:
+                return -10;
+            case ICY:
+                return -40;
+            case BEACH:
+            case RIVER:
+                return 10;
+            case OCEAN:
+                return 6;
+            case MUSHROOM:
+                return 0;
+            case NETHER:
+                return 666;
+            case THEEND:
+                return -666;
+            default:
+                return 0;
+        }
+    }
 
     @Override
     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
@@ -80,6 +133,11 @@ public class HiddenValuesScreen extends Screen {
             String text = String.format("Игровое время: %02d:%02d", hour, minute);
             this.font.draw(ms, text, x0 + 10, y0 + 40, 0xFFFFFF);
         }
+
+        PlayerEntity player = this.minecraft.player;
+        int temp = getAmbientTemperature(player);
+        String tempText = String.format("Температура: %d C", temp);
+        this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
 
         super.render(ms, mouseX, mouseY, pt);
     }
