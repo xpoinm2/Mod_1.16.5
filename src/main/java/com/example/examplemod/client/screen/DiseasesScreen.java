@@ -45,6 +45,8 @@ public class DiseasesScreen extends Screen {
             ms.scale(scale, scale, 1f);
             String txt = String.format("простуда - %d%%", stats.getCold());
             this.font.draw(ms, txt, (x0 + 10) * inv, (y0 + 40) * inv, 0xFFFFFF);
+            String txt2 = String.format("переохлаждение - %d%%", stats.getHypothermia());
+            this.font.draw(ms, txt2, (x0 + 10) * inv, (y0 + 55) * inv, 0xFFFFFF);
             ms.popPose();
         });
 

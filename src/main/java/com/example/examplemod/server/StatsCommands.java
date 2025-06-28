@@ -5,6 +5,7 @@ import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import com.example.examplemod.network.SyncColdPacket;
+import com.example.examplemod.network.SyncHypothermiaPacket;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,6 +26,7 @@ public class StatsCommands {
     private static final String KEY_FATIGUE = "fatigue";
     private static final String KEY_DISEASE = "disease";
     private static final String KEY_COLD = "cold";
+    private static final String KEY_HYPOTHERMIA = "hypothermia";
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
@@ -43,6 +45,9 @@ public class StatsCommands {
                         .then(Commands.literal("cold")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
                                         .executes(ctx -> setCold(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
+                        .then(Commands.literal("hypothermia")
+                                .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
+                                        .executes(ctx -> setHypothermia(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
                         .then(Commands.literal("hunger")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 20))
                                         .executes(ctx -> setHunger(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
@@ -115,6 +120,18 @@ public class StatsCommands {
                 new SyncColdPacket(value)
         );
         ctx.getSource().sendSuccess(new StringTextComponent("Cold set to " + value), true);
+        return 1;
+    }
+
+    private static int setHypothermia(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
+        setStat(player, KEY_HYPOTHERMIA, value);
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setHypothermia(value));
+        ModNetworkHandler.CHANNEL.send(
+                PacketDistributor.PLAYER.with(() -> player),
+                new SyncHypothermiaPacket(value)
+        );
+        ctx.getSource().sendSuccess(new StringTextComponent("Hypothermia set to " + value), true);
         return 1;
     }
 

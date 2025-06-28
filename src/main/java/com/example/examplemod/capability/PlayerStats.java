@@ -6,6 +6,7 @@ public class PlayerStats implements IPlayerStats {
     private int fatigue = 40;
     private int disease = 0;
     private int cold    = 0;
+    private int hypothermia = 0;
     private int blood   = 100;
 
     @Override public int  getThirst()        { return thirst; }
@@ -16,6 +17,8 @@ public class PlayerStats implements IPlayerStats {
     @Override public void setDisease(int v)  { this.disease = v; }
     @Override public int  getCold()          { return cold; }
     @Override public void setCold(int v)     { this.cold = v; }
+    @Override public int  getHypothermia()   { return hypothermia; }
+    @Override public void setHypothermia(int v) { this.hypothermia = v; }
     @Override public int  getBlood()         { return blood; }
     @Override public void setBlood(int v)    { this.blood = v; }
 }
