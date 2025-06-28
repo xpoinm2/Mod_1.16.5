@@ -11,6 +11,7 @@ import com.example.examplemod.network.ActivityPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
 import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
+import com.example.examplemod.network.SyncVirusPacket;
 
 /**
  * Централизованная регистрация наших сетевых пакетов.
@@ -68,6 +69,13 @@ public class ModNetworkHandler {
                 SyncColdPacket::encode,
                 SyncColdPacket::decode,
                 SyncColdPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                SyncVirusPacket.class,
+                SyncVirusPacket::encode,
+                SyncVirusPacket::decode,
+                SyncVirusPacket::handle
         );
         CHANNEL.registerMessage(
                 nextId(),

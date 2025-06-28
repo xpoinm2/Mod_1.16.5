@@ -12,6 +12,7 @@ public class PlayerStatsStorage implements IStorage<IPlayerStats> {
         tag.putInt("Thirst",  stats.getThirst());
         tag.putInt("Fatigue", stats.getFatigue());
         tag.putInt("Disease", stats.getDisease());
+        tag.putInt("Virus",   stats.getVirus());
         tag.putInt("Cold",    stats.getCold());
         tag.putInt("Hypothermia", stats.getHypothermia());
         tag.putInt("Blood",   stats.getBlood());
@@ -24,6 +25,7 @@ public class PlayerStatsStorage implements IStorage<IPlayerStats> {
         stats.setThirst( tag.getInt("Thirst") );
         stats.setFatigue(tag.getInt("Fatigue"));
         stats.setDisease(tag.getInt("Disease"));
+        stats.setVirus(  tag.getInt("Virus"));
         stats.setCold(   tag.getInt("Cold"));
         stats.setHypothermia(tag.getInt("Hypothermia"));
         stats.setBlood(  tag.getInt("Blood"));

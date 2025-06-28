@@ -6,6 +6,7 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
+import com.example.examplemod.network.SyncVirusPacket;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,6 +26,7 @@ public class StatsCommands {
     private static final String KEY_THIRST = "thirst";
     private static final String KEY_FATIGUE = "fatigue";
     private static final String KEY_DISEASE = "disease";
+    private static final String KEY_VIRUS = "virus";
     private static final String KEY_COLD = "cold";
     private static final String KEY_HYPOTHERMIA = "hypothermia";
 
@@ -42,6 +44,9 @@ public class StatsCommands {
                         .then(Commands.literal("disease")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
                                         .executes(ctx -> setDisease(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
+                        .then(Commands.literal("virus")
+                                .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
+                                        .executes(ctx -> setVirus(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
                         .then(Commands.literal("cold")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
                                         .executes(ctx -> setCold(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
@@ -108,6 +113,18 @@ public class StatsCommands {
         setStat(player, KEY_DISEASE, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setDisease(value));
         ctx.getSource().sendSuccess(new StringTextComponent("Disease set to " + value), true);
+        return 1;
+    }
+
+    private static int setVirus(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
+        setStat(player, KEY_VIRUS, value);
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setVirus(value));
+        ModNetworkHandler.CHANNEL.send(
+                PacketDistributor.PLAYER.with(() -> player),
+                new SyncVirusPacket(value)
+        );
+        ctx.getSource().sendSuccess(new StringTextComponent("Virus set to " + value), true);
         return 1;
     }
 

@@ -11,6 +11,7 @@ import com.example.examplemod.server.BlockBreakHandler;
 import com.example.examplemod.server.PebbleSharpenHandler;
 import com.example.examplemod.server.ColdHandler;
 import com.example.examplemod.server.HypothermiaHandler;
+import com.example.examplemod.server.VirusHandler;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -53,6 +54,7 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(BlockBreakHandler.class);
         MinecraftForge.EVENT_BUS.register(ColdHandler.class);
         MinecraftForge.EVENT_BUS.register(HypothermiaHandler.class);
+        MinecraftForge.EVENT_BUS.register(VirusHandler.class);
         // Register handler responsible for pebble spawning
         MinecraftForge.EVENT_BUS.register(PebbleSpawnHandler.class);
         // Register handler that upgrades pebbles when mining stone
