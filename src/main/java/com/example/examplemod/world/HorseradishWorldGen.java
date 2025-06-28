@@ -29,14 +29,14 @@ public class HorseradishWorldGen {
                 new SimpleBlockStateProvider(ModBlocks.HORSERADISH_PLANT.get().defaultBlockState()),
                 SimpleBlockPlacer.INSTANCE)).tries(8).build();
         PATCH = Feature.RANDOM_PATCH.configured(config)
-                .decorated(Placement.CHANCE.configured(new ChanceConfig(1)));
+                .decorated(Placement.CHANCE.configured(new ChanceConfig(3)));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE, ExampleMod.MODID + ":horseradish_patch", PATCH);
     }
 
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
-        ResourceLocation name = event.getName();
-        if (name != null && (name.equals(Biomes.PLAINS.getRegistryName()) || name.equals(Biomes.SUNFLOWER_PLAINS.getRegistryName()))) {
+        Biome.Category cat = event.getCategory();
+        if (cat == Biome.Category.PLAINS) {
             ensureFeature();
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
         }
