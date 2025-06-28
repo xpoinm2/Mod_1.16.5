@@ -12,5 +12,8 @@
   "block.examplemod.cranberry_bush": "Cranberry Bush",
   "item.examplemod.angelica_root": "Angelica Root",
   "block.examplemod.angelica": "Angelica",
-  "item.examplemod.angelica": "Angelica"
+  "item.examplemod.angelica": "Angelica",
+  "item.examplemod.horseradish": "Horseradish",
+  "block.examplemod.horseradish_plant": "Horseradish Plant",
+  "item.examplemod.horseradish_plant": "Horseradish Plant"
 }

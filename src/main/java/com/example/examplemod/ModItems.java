@@ -13,6 +13,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import com.example.examplemod.item.HealingItem;
 import com.example.examplemod.item.ElderberryItem;
 import com.example.examplemod.item.AngelicaRootItem;
+import com.example.examplemod.item.HorseradishItem;
 
 
 public class ModItems {
@@ -79,6 +80,16 @@ public class ModItems {
                             .alwaysEat()
                             .build())));
 
+    // Хрен: снижает показатель вирусов на 5%, голод не восстанавливает
+    public static final RegistryObject<Item> HORSERADISH = ITEMS.register("horseradish",
+            () -> new HorseradishItem(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .food(new net.minecraft.item.Food.Builder()
+                            .nutrition(0)
+                            .saturationMod(0.0f)
+                            .alwaysEat()
+                            .build())));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
@@ -97,6 +108,11 @@ public class ModItems {
     // Предмет для дягеля
     public static final RegistryObject<Item> ANGELICA = ITEMS.register("angelica",
             () -> new net.minecraft.item.BlockItem(ModBlocks.ANGELICA.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Предмет для растения хрена
+    public static final RegistryObject<Item> HORSERADISH_PLANT = ITEMS.register("horseradish_plant",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.HORSERADISH_PLANT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {

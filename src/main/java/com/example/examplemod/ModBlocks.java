@@ -38,6 +38,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> ANGELICA = BLOCKS.register("angelica",
             AngelicaBlock::new);
 
+    // Растение хрена
+    public static final RegistryObject<Block> HORSERADISH_PLANT = BLOCKS.register("horseradish_plant",
+            HorseradishPlantBlock::new);
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }
@@ -204,6 +208,18 @@ public class ModBlocks {
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.ANGELICA_ROOT.get());
+        }
+    }
+
+    // === Класс растения хрена ===
+    public static class HorseradishPlantBlock extends net.minecraft.block.BushBlock {
+        public HorseradishPlantBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.FERN));
+        }
+
+        @Override
+        public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
+            return new ItemStack(ModItems.HORSERADISH.get());
         }
     }
 }
