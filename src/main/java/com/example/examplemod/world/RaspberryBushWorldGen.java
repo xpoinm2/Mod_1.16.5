@@ -31,7 +31,7 @@ public class RaspberryBushWorldGen {
                 new SimpleBlockStateProvider(ModBlocks.RASPBERRY_BUSH.get().defaultBlockState()),
                 SimpleBlockPlacer.INSTANCE)).tries(8).build();
         PATCH = Feature.RANDOM_PATCH.configured(config)
-                .decorated(Placement.CHANCE.configured(new ChanceConfig(1)));
+                .decorated(Placement.CHANCE.configured(new ChanceConfig(3)));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE, ExampleMod.MODID + ":raspberry_patch", PATCH);
     }
 
