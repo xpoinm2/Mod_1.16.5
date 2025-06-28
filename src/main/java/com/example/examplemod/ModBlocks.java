@@ -42,6 +42,8 @@ public class ModBlocks {
     public static class RaspberryBushBlock extends SweetBerryBushBlock {
         public static final IntegerProperty CLICKS = IntegerProperty.create("clicks", 0, 10);
 
+        private static final int REGROW_TICKS = 24000 * 5; // 5 in-game days
+
         public RaspberryBushBlock() {
             super(AbstractBlock.Properties.copy(Blocks.SWEET_BERRY_BUSH));
             this.registerDefaultState(this.stateDefinition.any().setValue(CLICKS, 0).setValue(AGE, 3));
@@ -62,6 +64,7 @@ public class ModBlocks {
                     Block.popResource(world, pos, new ItemStack(ModItems.RASPBERRY.get(), 3));
                     if (clicks + 1 >= 10) {
                         world.setBlock(pos, state.setValue(CLICKS, clicks + 1).setValue(AGE, 1), 2);
+                        world.getBlockTicks().scheduleTick(pos, this, REGROW_TICKS);
                     } else {
                         world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
                     }
@@ -69,7 +72,12 @@ public class ModBlocks {
             }
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
-
+        @Override
+        public void tick(net.minecraft.block.BlockState state, net.minecraft.world.server.ServerWorld world, BlockPos pos, java.util.Random random) {
+            if (state.getValue(AGE) == 1 && state.getValue(CLICKS) >= 10) {
+                world.setBlock(pos, state.setValue(AGE, 3).setValue(CLICKS, 0), 2);
+            }
+        }
         @Override
         public boolean isRandomlyTicking(net.minecraft.block.BlockState state) {
             return false; // не растет
@@ -84,6 +92,7 @@ public class ModBlocks {
     // === Класс блока куста бузины чёрной ===
     public static class ElderberryBushBlock extends SweetBerryBushBlock {
         public static final IntegerProperty CLICKS = RaspberryBushBlock.CLICKS;
+        private static final int REGROW_TICKS = 24000 * 5;
 
         public ElderberryBushBlock() {
             super(AbstractBlock.Properties.copy(Blocks.SWEET_BERRY_BUSH));
@@ -106,6 +115,7 @@ public class ModBlocks {
 
                     if (clicks + 1 >= 10) {
                         world.setBlock(pos, state.setValue(CLICKS, clicks + 1).setValue(AGE, 1), 2);
+                        world.getBlockTicks().scheduleTick(pos, this, REGROW_TICKS);
                     } else {
                         world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
                     }
@@ -118,6 +128,12 @@ public class ModBlocks {
         public boolean isRandomlyTicking(net.minecraft.block.BlockState state) {
             return false;
         }
+        @Override
+        public void tick(net.minecraft.block.BlockState state, net.minecraft.world.server.ServerWorld world, BlockPos pos, java.util.Random random) {
+            if (state.getValue(AGE) == 1 && state.getValue(CLICKS) >= 10) {
+                world.setBlock(pos, state.setValue(AGE, 3).setValue(CLICKS, 0), 2);
+            }
+        }
 
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
@@ -128,6 +144,7 @@ public class ModBlocks {
     // === Класс блока куста клюквы ===
     public static class CranberryBushBlock extends SweetBerryBushBlock {
         public static final IntegerProperty CLICKS = RaspberryBushBlock.CLICKS;
+        private static final int REGROW_TICKS = 24000 * 5;
 
         public CranberryBushBlock() {
             super(AbstractBlock.Properties.copy(Blocks.SWEET_BERRY_BUSH));
@@ -149,6 +166,7 @@ public class ModBlocks {
                     Block.popResource(world, pos, new ItemStack(ModItems.CRANBERRY.get(), 3));
                     if (clicks + 1 >= 10) {
                         world.setBlock(pos, state.setValue(CLICKS, clicks + 1).setValue(AGE, 1), 2);
+                        world.getBlockTicks().scheduleTick(pos, this, REGROW_TICKS);
                     } else {
                         world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
                     }
@@ -161,7 +179,12 @@ public class ModBlocks {
         public boolean isRandomlyTicking(net.minecraft.block.BlockState state) {
             return false;
         }
-
+        @Override
+        public void tick(net.minecraft.block.BlockState state, net.minecraft.world.server.ServerWorld world, BlockPos pos, java.util.Random random) {
+            if (state.getValue(AGE) == 1 && state.getValue(CLICKS) >= 10) {
+                world.setBlock(pos, state.setValue(AGE, 3).setValue(CLICKS, 0), 2);
+            }
+        }
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.CRANBERRY_BUSH.get());
