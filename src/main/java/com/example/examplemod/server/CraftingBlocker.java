@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.Mod;
  * Отменяет все vanilla-рецепты (namespace == "minecraft") в момент крафта.
  */
 
+@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CraftingBlocker {
     @SubscribeEvent
     public static void onItemCrafted(ItemCraftedEvent ev) {
