@@ -29,7 +29,7 @@ public class HorseradishWorldGen {
                 new SimpleBlockStateProvider(ModBlocks.HORSERADISH_PLANT.get().defaultBlockState()),
                 SimpleBlockPlacer.INSTANCE)).tries(8).build();
         PATCH = Feature.RANDOM_PATCH.configured(config)
-                .decorated(Placement.CHANCE.configured(new ChanceConfig(3)));
+                .decorated(Placement.CHANCE.configured(new ChanceConfig(1)));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE, ExampleMod.MODID + ":horseradish_patch", PATCH);
     }
 
