@@ -34,7 +34,11 @@ public class GingerPlantWorldGen {
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         Biome.Category cat = event.getCategory();
-        if (cat == Biome.Category.JUNGLE || cat == Biome.Category.SAVANNA) {
+        if (cat == Biome.Category.JUNGLE) {
+            ensureFeature();
+            event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
+        }
+        if (cat == Biome.Category.SAVANNA) {
             ensureFeature();
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
         }
