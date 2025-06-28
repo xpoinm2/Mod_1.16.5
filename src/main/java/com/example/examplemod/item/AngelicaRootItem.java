@@ -24,7 +24,7 @@ public class AngelicaRootItem extends Item {
             EffectInstance poison = player.getEffect(Effects.POISON);
             if (poison != null) {
                 int duration = Math.max(0, poison.getDuration() - 100);
-                player.addEffect(new EffectInstance(Effects.POISON, duration, poison.getAmplifier(), poison.isAmbient(), poison.isVisible(), poison.showIcon));
+                player.addEffect(new EffectInstance(Effects.POISON, duration, poison.getAmplifier(), poison.isAmbient(), poison.isVisible(), poison.showIcon()));
             }
         }
         return result;
