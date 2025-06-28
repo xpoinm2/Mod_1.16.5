@@ -2,11 +2,9 @@ package com.example.examplemod.world;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModBlocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.BlockClusterFeatureConfig;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
@@ -35,8 +33,8 @@ public class AngelicaWorldGen {
 
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
-        ResourceLocation name = event.getName();
-        if (name != null && (name.equals(Biomes.SWAMP.getRegistryName()) || name.equals(Biomes.SWAMP_HILLS.getRegistryName()))) {
+        Biome.Category cat = event.getCategory();
+        if (cat == Biome.Category.SWAMP) {
             ensureFeature();
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
         }
