@@ -1,7 +1,8 @@
 package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.client.screen.MainPageScreen;
+import com.example.examplemod.client.screen.PlayerInterfaceScreen;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,7 +32,8 @@ class MainPageKeyPressHandler {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
         if (MainPageKeyHandler.MAIN_PAGE_KEY.consumeClick()) {
-            Minecraft.getInstance().setScreen(new MainPageScreen());
+            Minecraft mc = Minecraft.getInstance();
+            mc.setScreen(new PlayerInterfaceScreen(new InventoryScreen(mc.player)));
         }
     }
 }
