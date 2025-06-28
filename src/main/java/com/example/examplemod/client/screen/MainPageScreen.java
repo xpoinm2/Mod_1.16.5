@@ -30,3 +30,4 @@ public class MainPageScreen extends Screen {
     public void onClose() {
         this.minecraft.setScreen(null);
     }
+}
