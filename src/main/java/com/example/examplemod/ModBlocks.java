@@ -57,9 +57,10 @@ public class ModBlocks {
                 int clicks = state.getValue(CLICKS);
                 if (clicks < 10) {
                     Block.popResource(world, pos, new ItemStack(ModItems.RASPBERRY.get(), 3));
-                    world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
                     if (clicks + 1 >= 10) {
-                        world.removeBlock(pos, false);
+                        world.setBlock(pos, state.setValue(CLICKS, clicks + 1).setValue(AGE, 1), 2);
+                    } else {
+                        world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
                     }
                 }
             }
@@ -99,9 +100,11 @@ public class ModBlocks {
                 int clicks = state.getValue(CLICKS);
                 if (clicks < 10) {
                     Block.popResource(world, pos, new ItemStack(ModItems.ELDERBERRY.get(), 3));
-                    world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
+
                     if (clicks + 1 >= 10) {
-                        world.removeBlock(pos, false);
+                        world.setBlock(pos, state.setValue(CLICKS, clicks + 1).setValue(AGE, 1), 2);
+                    } else {
+                        world.setBlock(pos, state.setValue(CLICKS, clicks + 1), 2);
                     }
                 }
             }
