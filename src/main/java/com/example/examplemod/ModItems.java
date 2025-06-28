@@ -58,6 +58,15 @@ public class ModItems {
                             .saturationMod(0.1f)
                             .build())));
 
+    // Клюква: при поедании даёт эффект ускорения добычи
+    public static final RegistryObject<Item> CRANBERRY = ITEMS.register("cranberry",
+            () -> new Item(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .food(new net.minecraft.item.Food.Builder()
+                            .nutrition(1)
+                            .saturationMod(0.2f)
+                            .effect(() -> new EffectInstance(Effects.DIG_SPEED, 40, 0), 1.0f)
+                            .build())));
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
@@ -67,6 +76,11 @@ public class ModItems {
     // Предмет для куста бузины
     public static final RegistryObject<Item> ELDERBERRY_BUSH = ITEMS.register("elderberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.ELDERBERRY_BUSH.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Предмет для куста клюквы
+    public static final RegistryObject<Item> CRANBERRY_BUSH = ITEMS.register("cranberry_bush",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.CRANBERRY_BUSH.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {

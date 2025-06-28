@@ -7,5 +7,7 @@
   "item.examplemod.raspberry": "Raspberry",
   "block.examplemod.raspberry_bush": "Raspberry Bush",
   "item.examplemod.elderberry": "Elderberry",
-  "block.examplemod.elderberry_bush": "Black Elder Bush"
+  "block.examplemod.elderberry_bush": "Black Elder Bush",
+  "item.examplemod.cranberry": "Cranberry",
+  "block.examplemod.cranberry_bush": "Cranberry Bush"
 }
