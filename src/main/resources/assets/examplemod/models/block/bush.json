@@ -1,6 +1,6 @@
 {
   "parent": "block/cross",
   "textures": {
-    "cross": "examplemod:block/Bush"
+    "cross": "examplemod:block/bush"
   }
 }
