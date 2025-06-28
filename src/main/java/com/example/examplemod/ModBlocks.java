@@ -34,6 +34,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> CRANBERRY_BUSH = BLOCKS.register("cranberry_bush",
             CranberryBushBlock::new);
 
+    // Дягель
+    public static final RegistryObject<Block> ANGELICA = BLOCKS.register("angelica",
+            AngelicaBlock::new);
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }
@@ -188,6 +192,18 @@ public class ModBlocks {
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.CRANBERRY_BUSH.get());
+        }
+    }
+
+    // === Класс блока дягеля ===
+    public static class AngelicaBlock extends net.minecraft.block.BushBlock {
+        public AngelicaBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.FERN));
+        }
+
+        @Override
+        public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
+            return new ItemStack(ModItems.ANGELICA_ROOT.get());
         }
     }
 }

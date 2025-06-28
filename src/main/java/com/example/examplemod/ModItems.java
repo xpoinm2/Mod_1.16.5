@@ -12,6 +12,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import com.example.examplemod.item.HealingItem;
 import com.example.examplemod.item.ElderberryItem;
+import com.example.examplemod.item.AngelicaRootItem;
 
 
 public class ModItems {
@@ -68,6 +69,16 @@ public class ModItems {
                             .effect(() -> new EffectInstance(Effects.DIG_SPEED, 40, 0), 1.0f)
                             .build())));
 
+    // Корень дягеля: снижает длительность отравления на 5 секунд, голод не восстанавливает
+    public static final RegistryObject<Item> ANGELICA_ROOT = ITEMS.register("angelica_root",
+            () -> new AngelicaRootItem(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .food(new net.minecraft.item.Food.Builder()
+                            .nutrition(0)
+                            .saturationMod(0.0f)
+                            .alwaysEat()
+                            .build())));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
@@ -81,6 +92,11 @@ public class ModItems {
     // Предмет для куста клюквы
     public static final RegistryObject<Item> CRANBERRY_BUSH = ITEMS.register("cranberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.CRANBERRY_BUSH.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Предмет для дягеля
+    public static final RegistryObject<Item> ANGELICA = ITEMS.register("angelica",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.ANGELICA.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {
