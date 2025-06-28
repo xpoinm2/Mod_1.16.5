@@ -47,6 +47,8 @@ public class DiseasesScreen extends Screen {
             this.font.draw(ms, txt, (x0 + 10) * inv, (y0 + 40) * inv, 0xFFFFFF);
             String txt2 = String.format("переохлаждение - %d%%", stats.getHypothermia());
             this.font.draw(ms, txt2, (x0 + 10) * inv, (y0 + 55) * inv, 0xFFFFFF);
+            String txt3 = String.format("вирусы - %d%%", stats.getVirus());
+            this.font.draw(ms, txt3, (x0 + 10) * inv, (y0 + 70) * inv, 0xFFFFFF);
             ms.popPose();
         });
 
