@@ -14,6 +14,7 @@ import com.example.examplemod.item.HealingItem;
 import com.example.examplemod.item.ElderberryItem;
 import com.example.examplemod.item.AngelicaRootItem;
 import com.example.examplemod.item.HorseradishItem;
+import com.example.examplemod.item.GingerItem;
 
 
 public class ModItems {
@@ -90,6 +91,16 @@ public class ModItems {
                             .alwaysEat()
                             .build())));
 
+    // Имбирь: снижает переохлаждение на 1%, голод не восстанавливает
+    public static final RegistryObject<Item> GINGER = ITEMS.register("ginger",
+            () -> new GingerItem(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .food(new net.minecraft.item.Food.Builder()
+                            .nutrition(0)
+                            .saturationMod(0.0f)
+                            .alwaysEat()
+                            .build())));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
@@ -113,6 +124,11 @@ public class ModItems {
     // Предмет для растения хрена
     public static final RegistryObject<Item> HORSERADISH_PLANT = ITEMS.register("horseradish_plant",
             () -> new net.minecraft.item.BlockItem(ModBlocks.HORSERADISH_PLANT.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Предмет для растения имбиря
+    public static final RegistryObject<Item> GINGER_PLANT = ITEMS.register("ginger_plant",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.GINGER_PLANT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {

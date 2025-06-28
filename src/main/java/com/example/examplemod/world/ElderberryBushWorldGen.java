@@ -33,7 +33,7 @@ public class ElderberryBushWorldGen {
 
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
-        if (event.getCategory() == Biome.Category.FOREST) {
+        if (event.getCategory() == Biome.Category.FOREST || event.getCategory() == Biome.Category.TAIGA) {
             ensureFeature();
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
         }

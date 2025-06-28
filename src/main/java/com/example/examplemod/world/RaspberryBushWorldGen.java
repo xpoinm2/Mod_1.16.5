@@ -37,7 +37,7 @@ public class RaspberryBushWorldGen {
 
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
-        if (event.getCategory() == Biome.Category.PLAINS) {
+        if (event.getCategory() == Biome.Category.PLAINS || event.getCategory() == Biome.Category.EXTREME_HILLS) {
             ensureFeature();
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
         }
