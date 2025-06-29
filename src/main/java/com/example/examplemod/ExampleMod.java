@@ -61,8 +61,6 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(PebbleSharpenHandler.class);
         // Register handler that strips logs and drops bark
         MinecraftForge.EVENT_BUS.register(BarkStripHandler.class);
-        // Спавн тутовика на деревьях
-        MinecraftForge.EVENT_BUS.register(com.example.examplemod.server.TutovikSpawnHandler.class);
 
     }
 
@@ -77,6 +75,5 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.HORSERADISH_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.GINGER_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.MUHOMOR.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(ModBlocks.TUTOVIK.get(), RenderType.cutout());
     }
 }

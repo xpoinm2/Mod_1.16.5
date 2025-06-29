@@ -18,7 +18,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import com.example.examplemod.block.TutovikBlock;
+
 
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ExampleMod.MODID);
@@ -50,10 +50,6 @@ public class ModBlocks {
     // Мухомор
     public static final RegistryObject<Block> MUHOMOR = BLOCKS.register("muhomor",
             () -> new net.minecraft.block.BushBlock(AbstractBlock.Properties.copy(Blocks.RED_MUSHROOM)));
-
-    // Тутовик - гриб на стволе
-    public static final RegistryObject<Block> TUTOVIK = BLOCKS.register("tutovik",
-            TutovikBlock::new);
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);

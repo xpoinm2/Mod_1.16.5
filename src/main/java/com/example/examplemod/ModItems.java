@@ -15,7 +15,6 @@ import com.example.examplemod.item.ElderberryItem;
 import com.example.examplemod.item.AngelicaRootItem;
 import com.example.examplemod.item.HorseradishItem;
 import com.example.examplemod.item.GingerItem;
-import com.example.examplemod.item.TutovikItem;
 import com.example.examplemod.item.MuhomorItem;
 
 
@@ -110,16 +109,6 @@ public class ModItems {
                             .saturationMod(0.0f)
                             .alwaysEat()
                             .build())));
-
-    // Тутовик: восстанавливает мало голода и увеличивает отравление на 5%%
-    public static final RegistryObject<Item> TUTOVIK = ITEMS.register("tutovik",
-            () -> new TutovikItem(ModBlocks.TUTOVIK.get(),
-                    new Item.Properties()
-                            .tab(ModCreativeTabs.EXAMPLE_TAB)
-                            .food(new net.minecraft.item.Food.Builder()
-                                    .nutrition(1)
-                                    .saturationMod(0.1f)
-                                    .build())));
 
     // Мухомор: еда, увеличивающая отравление на 25%% и дающая тошноту
     public static final RegistryObject<Item> MUHOMOR = ITEMS.register("muhomor",
