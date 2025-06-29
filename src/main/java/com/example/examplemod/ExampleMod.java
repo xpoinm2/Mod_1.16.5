@@ -4,6 +4,7 @@ import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.ModBlocks;
+import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
@@ -42,6 +43,7 @@ public class ExampleMod {
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
+        WorldGenRegistry.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }

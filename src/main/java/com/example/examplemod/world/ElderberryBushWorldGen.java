@@ -1,17 +1,9 @@
 package com.example.examplemod.world;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.ModBlocks;
+import com.example.examplemod.world.WorldGenRegistry;
 import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.BlockClusterFeatureConfig;
-import net.minecraft.world.gen.placement.Placement;
-import net.minecraft.world.gen.placement.ChanceConfig;
-import net.minecraft.world.gen.blockstateprovider.SimpleBlockStateProvider;
-import net.minecraft.world.gen.blockplacer.SimpleBlockPlacer;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,27 +11,16 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElderberryBushWorldGen {
-    private static ConfiguredFeature<?, ?> PATCH;
-
-    private static void ensureFeature() {
-        if (PATCH != null) return;
-        BlockClusterFeatureConfig config = (new BlockClusterFeatureConfig.Builder(
-                new SimpleBlockStateProvider(ModBlocks.ELDERBERRY_BUSH.get().defaultBlockState()),
-                SimpleBlockPlacer.INSTANCE)).tries(8).build();
-        PATCH = Feature.RANDOM_PATCH.configured(config)
-                .decorated(Placement.CHANCE.configured(new ChanceConfig(3)));
-        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE, ExampleMod.MODID + ":elderberry_patch", PATCH);
-    }
 
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         if (event.getCategory() == Biome.Category.FOREST) {
-            ensureFeature();
-            event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ELDERBERRY_PATCH.get();
+            event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
         if (event.getCategory() == Biome.Category.TAIGA) {
-            ensureFeature();
-            event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, PATCH);
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ELDERBERRY_PATCH.get();
+            event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }
 }
