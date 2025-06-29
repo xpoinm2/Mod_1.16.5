@@ -22,7 +22,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import com.example.examplemod.server.PebbleSpawnHandler;
 import com.example.examplemod.server.BarkStripHandler;
 
 
@@ -56,8 +55,6 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(ColdHandler.class);
         MinecraftForge.EVENT_BUS.register(HypothermiaHandler.class);
         MinecraftForge.EVENT_BUS.register(VirusHandler.class);
-        // Register handler responsible for pebble spawning
-        MinecraftForge.EVENT_BUS.register(PebbleSpawnHandler.class);
         // Register handler that upgrades pebbles when mining stone
         MinecraftForge.EVENT_BUS.register(PebbleSharpenHandler.class);
         // Register handler that strips logs and drops bark

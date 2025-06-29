@@ -12,8 +12,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.BlockTags;
-import net.minecraftforge.common.Tags;
-import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -59,20 +57,6 @@ public class BlockBreakHandler {
 
         // 2) Получаем состояние блока
         BlockState state = event.getState();
-        // 3) Если это лог — отменяем ломание независимо от инструмента
-        if (state.is(BlockTags.LOGS)) {
-            event.setCanceled(true);
-        }
-
-        // 3.1) Если это камень/булыжник — отменяем ломание независимо от инструмента
-        if (
-                state.is(BlockTags.BASE_STONE_OVERWORLD) ||
-                        state.is(BlockTags.BASE_STONE_NETHER) ||
-                        state.is(Tags.Blocks.COBBLESTONE) ||
-                        state.is(Tags.Blocks.STONE)
-        ) {
-            event.setCanceled(true);
-        }
 
         // 3.2) Если это листва — дропаем 3 листочка и с шансом 50% ветку
         if (state.is(BlockTags.LEAVES)) {
