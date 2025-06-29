@@ -13,6 +13,7 @@ import com.example.examplemod.server.PebbleSharpenHandler;
 import com.example.examplemod.server.ColdHandler;
 import com.example.examplemod.server.HypothermiaHandler;
 import com.example.examplemod.server.VirusHandler;
+import com.example.examplemod.server.HewnStoneSpawnHandler;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -59,6 +60,8 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(PebbleSharpenHandler.class);
         // Register handler that strips logs and drops bark
         MinecraftForge.EVENT_BUS.register(BarkStripHandler.class);
+        // Spawn hewn stones in rivers
+        MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);
 
         // Register configured features for world generation
         WorldGenRegistry.register();

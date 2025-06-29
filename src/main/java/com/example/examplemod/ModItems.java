@@ -39,6 +39,10 @@ public class ModItems {
     public static final RegistryObject<Item> SHARP_PEBBLE = ITEMS.register("sharp_pebble",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Отесанный камень: можно найти в речках
+    public static final RegistryObject<Item> HEWN_STONE = ITEMS.register("hewn_stone",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Кора: получается при обработке бревна острым камнем
     public static final RegistryObject<Item> BARK = ITEMS.register("bark",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
