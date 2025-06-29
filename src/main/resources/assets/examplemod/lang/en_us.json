@@ -22,5 +22,6 @@
   "block.examplemod.ginger_plant": "Ginger Plant",
   "item.examplemod.ginger_plant": "Ginger Plant",
   "item.examplemod.muhomor": "Fly Agaric",
-  "block.examplemod.muhomor": "Fly Agaric"
+  "block.examplemod.muhomor": "Fly Agaric",
+  "key.examplemod.progress": "Technology Progress"
 }
