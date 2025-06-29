@@ -64,6 +64,9 @@ public class ExampleMod {
         // Register handler that strips logs and drops bark
         MinecraftForge.EVENT_BUS.register(BarkStripHandler.class);
 
+        // Register configured features for world generation
+        WorldGenRegistry.register();
+
     }
 
     /** Клиентская инициализация (регистрируем обработку кликов по воде) */
