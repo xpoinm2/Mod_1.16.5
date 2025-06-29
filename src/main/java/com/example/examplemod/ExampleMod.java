@@ -76,6 +76,7 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.ANGELICA.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.HORSERADISH_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.GINGER_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.MUHOMOR.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.TUTOVIK.get(), RenderType.cutout());
     }
 }
