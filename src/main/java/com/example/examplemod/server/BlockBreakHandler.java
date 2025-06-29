@@ -4,13 +4,12 @@ package com.example.examplemod.server;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
+import com.example.examplemod.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.BlockTags;
 import net.minecraftforge.common.Tags;
@@ -60,28 +59,26 @@ public class BlockBreakHandler {
 
         // 2) Получаем состояние блока
         BlockState state = event.getState();
-        // 3) Если это лог и в руке ничего нет — отменяем ломание
+        // 3) Если это лог — отменяем ломание независимо от инструмента
         if (state.is(BlockTags.LOGS)) {
-            ItemStack held = player.getItemInHand(Hand.MAIN_HAND);
-            if (held.isEmpty()) {
-                event.setCanceled(true);
-            }
+            event.setCanceled(true);
         }
 
-        // 3.1) Если это камень/булыжник и в руке ничего нет — отменяем ломание
-        if (player.getMainHandItem().isEmpty() && (
+        // 3.1) Если это камень/булыжник — отменяем ломание независимо от инструмента
+        if (
                 state.is(BlockTags.BASE_STONE_OVERWORLD) ||
                         state.is(BlockTags.BASE_STONE_NETHER) ||
                         state.is(Tags.Blocks.COBBLESTONE) ||
                         state.is(Tags.Blocks.STONE)
-        )) {
+        ) {
             event.setCanceled(true);
         }
 
-        // 3.2) Если это листва — с шансом 50% дропаем палку
+        // 3.2) Если это листва — дропаем 3 листочка и с шансом 50% ветку
         if (state.is(BlockTags.LEAVES)) {
+            Block.popResource(world, event.getPos(), new ItemStack(ModItems.LEAF.get(), 3));
             if (world.random.nextFloat() < 0.5f) {
-                Block.popResource(world, event.getPos(), new ItemStack(Items.STICK));
+                Block.popResource(world, event.getPos(), new ItemStack(ModItems.BRANCH.get()));
             }
         }
 

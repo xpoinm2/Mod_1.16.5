@@ -42,6 +42,14 @@ public class ModItems {
     public static final RegistryObject<Item> BARK = ITEMS.register("bark",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Ветка: выпадает с листвы
+    public static final RegistryObject<Item> BRANCH = ITEMS.register("branch",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Листочек: выпадает с листвы
+    public static final RegistryObject<Item> LEAF = ITEMS.register("leaf",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Малина: еда, восстанавливающая небольшое количество голода
     public static final RegistryObject<Item> RASPBERRY = ITEMS.register("raspberry",
             () -> new Item(new Item.Properties()
