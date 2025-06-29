@@ -15,11 +15,11 @@ public class RaspberryBushWorldGen {
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         if (event.getCategory() == Biome.Category.PLAINS) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.RASPBERRY_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.RASPBERRY_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
         if (event.getCategory() == Biome.Category.EXTREME_HILLS) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.RASPBERRY_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.RASPBERRY_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }

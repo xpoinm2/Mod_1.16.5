@@ -16,7 +16,7 @@ public class AngelicaWorldGen {
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         if (event.getCategory() == Biome.Category.SWAMP) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ANGELICA_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ANGELICA_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }

@@ -15,7 +15,7 @@ public class CranberryBushWorldGen {
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         if (event.getCategory() == Biome.Category.SWAMP) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.CRANBERRY_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.CRANBERRY_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }

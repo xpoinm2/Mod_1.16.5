@@ -43,7 +43,7 @@ public class ExampleMod {
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
-        WorldGenRegistry.register(modBus);
+        WorldGenRegistry.register();
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }

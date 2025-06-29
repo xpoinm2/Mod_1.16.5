@@ -15,11 +15,11 @@ public class ElderberryBushWorldGen {
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         if (event.getCategory() == Biome.Category.FOREST) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ELDERBERRY_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ELDERBERRY_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
         if (event.getCategory() == Biome.Category.TAIGA) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ELDERBERRY_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.ELDERBERRY_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }

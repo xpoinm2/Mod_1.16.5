@@ -16,11 +16,11 @@ public class GingerPlantWorldGen {
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         Biome.Category cat = event.getCategory();
         if (cat == Biome.Category.JUNGLE) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.GINGER_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.GINGER_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
         if (cat == Biome.Category.SAVANNA) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.GINGER_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.GINGER_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }

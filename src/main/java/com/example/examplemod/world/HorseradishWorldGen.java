@@ -17,7 +17,7 @@ public class HorseradishWorldGen {
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         if (event.getCategory() == Biome.Category.PLAINS) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.HORSERADISH_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.HORSERADISH_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }

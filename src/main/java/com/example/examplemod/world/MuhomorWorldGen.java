@@ -34,7 +34,7 @@ public class MuhomorWorldGen {
                 name.equals(Biomes.FLOWER_FOREST.getRegistryName()) ||
                 cat == Biome.Category.TAIGA ||
                 cat == Biome.Category.MUSHROOM) {
-            ConfiguredFeature<?, ?> feature = WorldGenRegistry.MUHOMOR_PATCH.get();
+            ConfiguredFeature<?, ?> feature = WorldGenRegistry.MUHOMOR_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
     }
