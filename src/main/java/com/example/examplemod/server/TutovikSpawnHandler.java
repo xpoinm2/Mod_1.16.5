@@ -23,7 +23,8 @@ public class TutovikSpawnHandler {
         ServerWorld world = (ServerWorld) event.getWorld();
         Chunk chunk = (Chunk) event.getChunk();
 
-        if (world.random.nextInt(20) != 0) return;
+        // Increase spawn chance from 1/20 to 1/2
+        if (world.random.nextInt(2) != 0) return;
 
         for (int i = 0; i < 3; i++) {
             int x = chunk.getPos().getMinBlockX() + world.random.nextInt(16);
