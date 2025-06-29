@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "examplemod:block/tutovik", "y": 180},
+    "facing=south": {"model": "examplemod:block/tutovik"},
+    "facing=west": {"model": "examplemod:block/tutovik", "y": 270},
+    "facing=east": {"model": "examplemod:block/tutovik", "y": 90}
+  }
+}
