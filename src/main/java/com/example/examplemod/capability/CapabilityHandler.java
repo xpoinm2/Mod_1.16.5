@@ -6,6 +6,7 @@ import com.example.examplemod.network.SyncStatsPacket;
 import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
 import com.example.examplemod.network.SyncVirusPacket;
+import com.example.examplemod.network.SyncPoisonPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -63,6 +64,10 @@ public class CapabilityHandler {
                     PacketDistributor.PLAYER.with(() -> player),
                     new SyncVirusPacket(stats.getVirus())
             );
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncPoisonPacket(stats.getPoison())
+            );
         });
     }
 
@@ -73,6 +78,7 @@ public class CapabilityHandler {
                     newStats.setThirst(oldStats.getThirst());
                     newStats.setFatigue(oldStats.getFatigue());
                     newStats.setDisease(oldStats.getDisease());
+                    newStats.setPoison(oldStats.getPoison());
                     newStats.setVirus(oldStats.getVirus());
                     newStats.setHypothermia(oldStats.getHypothermia());
                     newStats.setBlood(oldStats.getBlood());

@@ -12,6 +12,7 @@ import com.example.examplemod.network.OpenCraftingPacket;
 import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
 import com.example.examplemod.network.SyncVirusPacket;
+import com.example.examplemod.network.SyncPoisonPacket;
 
 /**
  * Централизованная регистрация наших сетевых пакетов.
@@ -76,6 +77,13 @@ public class ModNetworkHandler {
                 SyncVirusPacket::encode,
                 SyncVirusPacket::decode,
                 SyncVirusPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                SyncPoisonPacket.class,
+                SyncPoisonPacket::encode,
+                SyncPoisonPacket::decode,
+                SyncPoisonPacket::handle
         );
         CHANNEL.registerMessage(
                 nextId(),
