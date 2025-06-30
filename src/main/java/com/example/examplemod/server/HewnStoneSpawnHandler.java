@@ -15,19 +15,16 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Spawns hewn stone items in river biomes when chunks load.
+ * Spawns a hewn stone item in every river biome chunk when it loads.
  */
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HewnStoneSpawnHandler {
-    private static final int CHANCE = 3; // 1 in 3 chance per chunk
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         if (!(event.getWorld() instanceof ServerWorld)) return;
         ServerWorld world = (ServerWorld) event.getWorld();
         Chunk chunk = (Chunk) event.getChunk();
-
-        if (world.random.nextInt(CHANCE) != 0) return;
 
         int x = chunk.getPos().getMinBlockX() + world.random.nextInt(16);
         int z = chunk.getPos().getMinBlockZ() + world.random.nextInt(16);
