@@ -47,10 +47,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> GINGER_PLANT = BLOCKS.register("ginger_plant",
             GingerPlantBlock::new);
 
-    // Мухомор
-    public static final RegistryObject<Block> MUHOMOR = BLOCKS.register("muhomor",
-            () -> new net.minecraft.block.BushBlock(AbstractBlock.Properties.copy(Blocks.RED_MUSHROOM)));
-
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }

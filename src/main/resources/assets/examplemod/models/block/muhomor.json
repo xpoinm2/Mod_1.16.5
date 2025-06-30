@@ -1,6 +1,0 @@
-{
-  "parent": "examplemod:block/cross_lowered",
-  "textures": {
-    "cross": "examplemod:block/muhomor"
-  }
-}

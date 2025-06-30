@@ -24,7 +24,6 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> RASPBERRY_PATCH;
     public static ConfiguredFeature<?, ?> HORSERADISH_PATCH;
     public static ConfiguredFeature<?, ?> GINGER_PATCH;
-    public static ConfiguredFeature<?, ?> MUHOMOR_PATCH;
 
     /**
      * Registers all configured features to the world generation registry.
@@ -37,7 +36,6 @@ public class WorldGenRegistry {
         RASPBERRY_PATCH = register("raspberry_patch", 3, ModBlocks.RASPBERRY_BUSH.get().defaultBlockState());
         HORSERADISH_PATCH = register("horseradish_patch", 1, ModBlocks.HORSERADISH_PLANT.get().defaultBlockState());
         GINGER_PATCH = register("ginger_patch", 1, ModBlocks.GINGER_PLANT.get().defaultBlockState());
-        MUHOMOR_PATCH = register("muhomor_patch", 2, ModBlocks.MUHOMOR.get().defaultBlockState());
     }
 
     private static ConfiguredFeature<?, ?> register(String name, int chance, net.minecraft.block.BlockState state) {
