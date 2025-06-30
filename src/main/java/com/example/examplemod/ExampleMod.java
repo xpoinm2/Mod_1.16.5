@@ -9,7 +9,6 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
-import com.example.examplemod.server.PebbleSharpenHandler;
 import com.example.examplemod.server.ColdHandler;
 import com.example.examplemod.server.HypothermiaHandler;
 import com.example.examplemod.server.VirusHandler;
@@ -23,7 +22,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import com.example.examplemod.server.BarkStripHandler;
+
 
 
 import org.apache.logging.log4j.LogManager;
@@ -56,10 +55,7 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(ColdHandler.class);
         MinecraftForge.EVENT_BUS.register(HypothermiaHandler.class);
         MinecraftForge.EVENT_BUS.register(VirusHandler.class);
-        // Register handler that upgrades pebbles when mining stone
-        MinecraftForge.EVENT_BUS.register(PebbleSharpenHandler.class);
-        // Register handler that strips logs and drops bark
-        MinecraftForge.EVENT_BUS.register(BarkStripHandler.class);
+
         // Spawn hewn stones in rivers
         MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);
 

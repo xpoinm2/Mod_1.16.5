@@ -4,8 +4,6 @@ import com.example.examplemod.client.FramedButton;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
-import com.example.examplemod.client.screen.SharpPebbleInfoScreen;
-import com.example.examplemod.client.screen.BarkInfoScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -26,10 +24,6 @@ public class CraftInfoScreen extends Screen {
         int y0 = 5;
         this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
-        this.addButton(new FramedButton(x0 + 15, y0 + 40, 120, 20, "Острый камешек", 0xFFFFFF00, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new SharpPebbleInfoScreen(this))));
-        this.addButton(new FramedButton(x0 + 15, y0 + 70, 120, 20, "Кора", 0xFFFFFF00, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new BarkInfoScreen(this))));
         super.init();
     }
 
