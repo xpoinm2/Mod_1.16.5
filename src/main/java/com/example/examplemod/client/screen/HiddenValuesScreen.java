@@ -138,6 +138,15 @@ public class HiddenValuesScreen extends Screen {
         int temp = getAmbientTemperature(player);
         String tempText = String.format("Температура: %d C", temp);
         this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
+
+            if (player != null) {
+                Biome biome = player.level.getBiome(player.blockPosition());
+                String biomeName = biome.getRegistryName() != null
+                        ? biome.getRegistryName().getPath()
+                        : "unknown";
+                String biomeText = String.format("Биом: %s", biomeName);
+                this.font.draw(ms, biomeText, x0 + 10, y0 + 70, 0xFFFFFF);
+            }
     }
 
         super.render(ms, mouseX, mouseY, pt);
