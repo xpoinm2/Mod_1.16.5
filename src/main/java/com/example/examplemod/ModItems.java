@@ -40,6 +40,10 @@ public class ModItems {
     public static final RegistryObject<Item> LEAF = ITEMS.register("leaf",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Большая кость: трофей, который можно получить с некоторых животных
+    public static final RegistryObject<Item> BIG_BONE = ITEMS.register("big_bone",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Малина: еда, восстанавливающая небольшое количество голода
     public static final RegistryObject<Item> RASPBERRY = ITEMS.register("raspberry",
             () -> new Item(new Item.Properties()
