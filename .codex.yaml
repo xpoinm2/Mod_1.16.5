@@ -1,0 +1,12 @@
+# .codex.yaml
+environment:
+  # Подставляем наш Dockerfile
+  dockerfile: ./Dockerfile
+
+steps:
+  - name: Сборка мода
+    run: |
+      # Сборка jar-файла
+      ./gradlew build --no-daemon
+
+timeout: 1200  # увеличенный таймаут до 20 минут (если потребуется)
