@@ -115,6 +115,14 @@ public class ModItems {
     public static final RegistryObject<Item> SOAKED_FLAX = ITEMS.register("soaked_flax",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Деревянный гребень: получается из ветки и отесанного камня
+    public static final RegistryObject<Item> WOODEN_COMB = ITEMS.register("wooden_comb",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Костяной гребень: получается из большой кости и отесанного камня
+    public static final RegistryObject<Item> BONE_COMB = ITEMS.register("bone_comb",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),

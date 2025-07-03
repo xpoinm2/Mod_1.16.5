@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "examplemod:hewn_stone" },
+    { "item": "examplemod:branch" }
+  ],
+  "result": { "item": "examplemod:wooden_comb" }
+}
