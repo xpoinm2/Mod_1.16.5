@@ -15,10 +15,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Spawns a hewn stone item in every river biome chunk when it loads.
+ Spawns hewn stone items in river biomes when chunks load.
  */
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HewnStoneSpawnHandler {
+
+    private static final int CHANCE = 1;
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
@@ -26,17 +28,19 @@ public class HewnStoneSpawnHandler {
         ServerWorld world = (ServerWorld) event.getWorld();
         Chunk chunk = (Chunk) event.getChunk();
 
+        if (world.random.nextInt(CHANCE) != 0) return;
+
         int x = chunk.getPos().getMinBlockX() + world.random.nextInt(16);
         int z = chunk.getPos().getMinBlockZ() + world.random.nextInt(16);
-        BlockPos pos = world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, new BlockPos(x, 0, z));
-
-        Biome biome = world.getBiome(pos);
+        BlockPos ground = world.getHeightmapPos(Heightmap.Type.OCEAN_FLOOR, new BlockPos(x, 0, z));
+        Biome biome = world.getBiome(ground);
         if (biome.getBiomeCategory() != Biome.Category.RIVER) return;
 
-        if (!world.getFluidState(pos).is(FluidTags.WATER)) return;
+        BlockPos waterPos = ground.above();
+        if (!world.getFluidState(waterPos).is(FluidTags.WATER)) return;
 
-        ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                new ItemStack(ModItems.HEWN_STONE.get()));
+        ItemEntity entity = new ItemEntity(world, waterPos.getX() + 0.5, waterPos.getY() + 0.5,
+                waterPos.getZ() + 0.5, new ItemStack(ModItems.HEWN_STONE.get()));
         world.addFreshEntity(entity);
     }
 }
