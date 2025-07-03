@@ -13,6 +13,7 @@ import com.example.examplemod.server.ColdHandler;
 import com.example.examplemod.server.HypothermiaHandler;
 import com.example.examplemod.server.VirusHandler;
 import com.example.examplemod.server.HewnStoneSpawnHandler;
+import com.example.examplemod.server.FlaxDryingHandler;
 import com.example.examplemod.server.RedMushroomHandler;
 
 import net.minecraftforge.common.MinecraftForge;
@@ -57,6 +58,7 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(HypothermiaHandler.class);
         MinecraftForge.EVENT_BUS.register(VirusHandler.class);
         MinecraftForge.EVENT_BUS.register(RedMushroomHandler.class);
+        MinecraftForge.EVENT_BUS.register(FlaxDryingHandler.class);
 
         // Spawn hewn stones in rivers
         MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);
@@ -77,5 +79,6 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.HORSERADISH_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.GINGER_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.FLAX_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
     }
 }

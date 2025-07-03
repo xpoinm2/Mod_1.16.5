@@ -24,6 +24,7 @@
   "block.examplemod.flax_plant": "Flax Plant",
   "item.examplemod.flax_plant": "Flax Plant",
   "item.examplemod.soaked_flax": "Soaked Flax",
+  "block.examplemod.hanging_flax": "Hanging Flax",
   "item.examplemod.hewn_stone": "Hewn Stone",
   "key.examplemod.progress": "Technology Progress"
 }

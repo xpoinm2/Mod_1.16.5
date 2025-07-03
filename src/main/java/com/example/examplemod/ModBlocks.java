@@ -51,6 +51,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> FLAX_PLANT = BLOCKS.register("flax_plant",
             FlaxPlantBlock::new);
 
+    // Сушащийся лён (вешается под листвой)
+    public static final RegistryObject<Block> HANGING_FLAX = BLOCKS.register("hanging_flax",
+            HangingFlaxBlock::new);
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }
@@ -252,6 +256,23 @@ public class ModBlocks {
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.FLAX.get());
+        }
+    }
+    // === Блок сушащегося льна ===
+    public static class HangingFlaxBlock extends net.minecraft.block.BushBlock {
+        public HangingFlaxBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.FERN).noCollission());
+        }
+
+        @Override
+        public void playerDestroy(World world, PlayerEntity player, BlockPos pos, net.minecraft.block.BlockState state, @Nullable net.minecraft.tileentity.TileEntity te, ItemStack stack) {
+            super.playerDestroy(world, player, pos, state, te, stack);
+            Block.popResource(world, pos, new ItemStack(ModItems.SOAKED_FLAX.get()));
+        }
+
+        @Override
+        public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
+            return new ItemStack(ModItems.SOAKED_FLAX.get());
         }
     }
 }
