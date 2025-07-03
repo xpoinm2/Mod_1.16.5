@@ -23,6 +23,7 @@
   "item.examplemod.flax": "Лён",
   "block.examplemod.flax_plant": "Лён",
   "item.examplemod.flax_plant": "Лён",
+  "item.examplemod.soaked_flax": "Вымоченный лён",
   "item.examplemod.hewn_stone": "Отесанный камень",
   "key.examplemod.progress": "Технологический прогресс"
 }

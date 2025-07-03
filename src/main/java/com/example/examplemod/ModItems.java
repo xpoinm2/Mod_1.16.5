@@ -111,6 +111,10 @@ public class ModItems {
     public static final RegistryObject<Item> FLAX = ITEMS.register("flax",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Вымоченный лён: получается при замачивании льна в воде
+    public static final RegistryObject<Item> SOAKED_FLAX = ITEMS.register("soaked_flax",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
