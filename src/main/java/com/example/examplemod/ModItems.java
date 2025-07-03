@@ -3,6 +3,11 @@ package com.example.examplemod;
 
 
 import net.minecraft.item.Item;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.item.HoeItem;
+import net.minecraft.item.ItemTier;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 
@@ -111,6 +116,10 @@ public class ModItems {
     public static final RegistryObject<Item> FLAX = ITEMS.register("flax",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Семена льна
+    public static final RegistryObject<Item> FLAX_SEEDS = ITEMS.register("flax_seeds",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Вымоченный лён: получается при замачивании льна в воде
     public static final RegistryObject<Item> SOAKED_FLAX = ITEMS.register("soaked_flax",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
@@ -126,6 +135,40 @@ public class ModItems {
     // Костяной гребень: получается из большой кости и отесанного камня
     public static final RegistryObject<Item> BONE_COMB = ITEMS.register("bone_comb",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // === Stone Tools ===
+    public static final RegistryObject<Item> STONE_PICKAXE = ITEMS.register("stone_pickaxe",
+            () -> new net.minecraft.item.PickaxeItem(net.minecraft.item.ItemTier.STONE,
+                    1, -2.8f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    public static final RegistryObject<Item> STONE_AXE = ITEMS.register("stone_axe",
+            () -> new net.minecraft.item.AxeItem(net.minecraft.item.ItemTier.STONE,
+                    7.0f, -3.2f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    public static final RegistryObject<Item> STONE_SHOVEL = ITEMS.register("stone_shovel",
+            () -> new net.minecraft.item.ShovelItem(net.minecraft.item.ItemTier.STONE,
+                    1.5f, -3.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    public static final RegistryObject<Item> STONE_HOE = ITEMS.register("stone_hoe",
+            () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
+                    0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // === Bone Tools ===
+    public static final RegistryObject<Item> BONE_PICKAXE = ITEMS.register("bone_pickaxe",
+            () -> new net.minecraft.item.PickaxeItem(net.minecraft.item.ItemTier.STONE,
+                    1, -2.8f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    public static final RegistryObject<Item> BONE_AXE = ITEMS.register("bone_axe",
+            () -> new net.minecraft.item.AxeItem(net.minecraft.item.ItemTier.STONE,
+                    7.0f, -3.2f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    public static final RegistryObject<Item> BONE_SHOVEL = ITEMS.register("bone_shovel",
+            () -> new net.minecraft.item.ShovelItem(net.minecraft.item.ItemTier.STONE,
+                    1.5f, -3.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    public static final RegistryObject<Item> BONE_HOE = ITEMS.register("bone_hoe",
+            () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
+                    0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",

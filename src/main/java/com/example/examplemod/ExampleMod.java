@@ -12,6 +12,7 @@ import com.example.examplemod.server.BlockBreakHandler;
 import com.example.examplemod.server.ColdHandler;
 import com.example.examplemod.server.HypothermiaHandler;
 import com.example.examplemod.server.VirusHandler;
+import com.example.examplemod.server.CraftingBlocker;
 import com.example.examplemod.server.HewnStoneSpawnHandler;
 import com.example.examplemod.server.FlaxDryingHandler;
 import com.example.examplemod.server.RedMushroomHandler;
@@ -59,6 +60,7 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(VirusHandler.class);
         MinecraftForge.EVENT_BUS.register(RedMushroomHandler.class);
         MinecraftForge.EVENT_BUS.register(FlaxDryingHandler.class);
+        MinecraftForge.EVENT_BUS.register(CraftingBlocker.class);
 
         // Spawn hewn stones in rivers
         MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);

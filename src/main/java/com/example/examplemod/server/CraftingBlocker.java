@@ -21,12 +21,16 @@ public class CraftingBlocker {
         ItemStack result = ev.getCrafting();
         ResourceLocation id = result.getItem().getRegistryName();
         if (id != null && "minecraft".equals(id.getNamespace())) {
-            // получаем всю сетку крафта (IInventory, на деле CraftingInventory)
-            IInventory inv = ev.getInventory();
-            // чистим все слоты — и результат, и ингредиенты
-            inv.clearContent();
-            // сообщаем клиенту, чтобы GUI сразу обновился
-            ev.getPlayer().containerMenu.broadcastChanges();
+            String path = id.getPath();
+            if (path.endsWith("_pickaxe") || path.endsWith("_axe") ||
+                    path.endsWith("_shovel") || path.endsWith("_hoe")) {
+                // получаем всю сетку крафта (IInventory, на деле CraftingInventory)
+                IInventory inv = ev.getInventory();
+                // чистим все слоты — и результат, и ингредиенты
+                inv.clearContent();
+                // сообщаем клиенту, чтобы GUI сразу обновился
+                ev.getPlayer().containerMenu.broadcastChanges();
+            }
         }
     }
 }

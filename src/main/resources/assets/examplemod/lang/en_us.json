@@ -21,6 +21,7 @@
   "block.examplemod.ginger_plant": "Ginger Plant",
   "item.examplemod.ginger_plant": "Ginger Plant",
   "item.examplemod.flax": "Flax",
+  "item.examplemod.flax_seeds": "Flax Seeds",
   "block.examplemod.flax_plant": "Flax Plant",
   "item.examplemod.flax_plant": "Flax Plant",
   "item.examplemod.soaked_flax": "Soaked Flax",
@@ -29,5 +30,13 @@
   "item.examplemod.hewn_stone": "Hewn Stone",
   "item.examplemod.wooden_comb": "Wooden Comb",
   "item.examplemod.bone_comb": "Bone Comb",
+  "item.examplemod.stone_pickaxe": "Stone Pickaxe",
+  "item.examplemod.stone_axe": "Stone Axe",
+  "item.examplemod.stone_shovel": "Stone Shovel",
+  "item.examplemod.stone_hoe": "Stone Hoe",
+  "item.examplemod.bone_pickaxe": "Bone Pickaxe",
+  "item.examplemod.bone_axe": "Bone Axe",
+  "item.examplemod.bone_shovel": "Bone Shovel",
+  "item.examplemod.bone_hoe": "Bone Hoe",
   "key.examplemod.progress": "Technology Progress"
 }
