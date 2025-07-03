@@ -268,7 +268,15 @@ public class ModBlocks {
         @Override
         public void playerDestroy(World world, PlayerEntity player, BlockPos pos, net.minecraft.block.BlockState state, @Nullable net.minecraft.tileentity.TileEntity te, ItemStack stack) {
             super.playerDestroy(world, player, pos, state, te, stack);
-            Block.popResource(world, pos, new ItemStack(ModItems.SOAKED_FLAX.get()));
+            if (!world.isClientSide) {
+                if (stack.getItem() == ModItems.WOODEN_COMB.get() || stack.getItem() == ModItems.BONE_COMB.get()) {
+                    Block.popResource(world, pos, new ItemStack(ModItems.FLAX_FIBERS.get()));
+                    Hand hand = player.getMainHandItem() == stack ? Hand.MAIN_HAND : Hand.OFF_HAND;
+                    player.swing(hand, true);
+                } else {
+                    Block.popResource(world, pos, new ItemStack(ModItems.SOAKED_FLAX.get()));
+                }
+            }
         }
 
         @Override

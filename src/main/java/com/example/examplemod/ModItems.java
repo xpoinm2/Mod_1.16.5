@@ -115,6 +115,10 @@ public class ModItems {
     public static final RegistryObject<Item> SOAKED_FLAX = ITEMS.register("soaked_flax",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Волокна льна: получаются обработкой вымоченного льна
+    public static final RegistryObject<Item> FLAX_FIBERS = ITEMS.register("flax_fibers",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Деревянный гребень: получается из ветки и отесанного камня
     public static final RegistryObject<Item> WOODEN_COMB = ITEMS.register("wooden_comb",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
