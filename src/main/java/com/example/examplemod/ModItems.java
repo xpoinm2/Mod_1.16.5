@@ -107,6 +107,10 @@ public class ModItems {
                             .alwaysEat()
                             .build())));
 
+    // Лён: простой растительный ресурс
+    public static final RegistryObject<Item> FLAX = ITEMS.register("flax",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
@@ -135,6 +139,11 @@ public class ModItems {
     // Предмет для растения имбиря
     public static final RegistryObject<Item> GINGER_PLANT = ITEMS.register("ginger_plant",
             () -> new net.minecraft.item.BlockItem(ModBlocks.GINGER_PLANT.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Предмет для растения льна
+    public static final RegistryObject<Item> FLAX_PLANT = ITEMS.register("flax_plant",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLAX_PLANT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {

@@ -20,6 +20,9 @@
   "item.examplemod.ginger": "Имбирь",
   "block.examplemod.ginger_plant": "Имбирь",
   "item.examplemod.ginger_plant": "Имбирь",
+  "item.examplemod.flax": "Лён",
+  "block.examplemod.flax_plant": "Лён",
+  "item.examplemod.flax_plant": "Лён",
   "item.examplemod.hewn_stone": "Отесанный камень",
   "key.examplemod.progress": "Технологический прогресс"
 }

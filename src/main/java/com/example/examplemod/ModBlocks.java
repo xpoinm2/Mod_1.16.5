@@ -47,6 +47,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> GINGER_PLANT = BLOCKS.register("ginger_plant",
             GingerPlantBlock::new);
 
+    // Растение льна
+    public static final RegistryObject<Block> FLAX_PLANT = BLOCKS.register("flax_plant",
+            FlaxPlantBlock::new);
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }
@@ -236,6 +240,18 @@ public class ModBlocks {
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.GINGER.get());
+        }
+    }
+
+    // === Класс растения льна ===
+    public static class FlaxPlantBlock extends net.minecraft.block.BushBlock {
+        public FlaxPlantBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.FERN));
+        }
+
+        @Override
+        public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
+            return new ItemStack(ModItems.FLAX.get());
         }
     }
 }
