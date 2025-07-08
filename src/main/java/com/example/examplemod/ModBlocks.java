@@ -24,6 +24,10 @@ import javax.annotation.Nullable;
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ExampleMod.MODID);
 
+    // Костяной блок
+    public static final RegistryObject<Block> BONE_BLOCK = BLOCKS.register("bone_block",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.BONE_BLOCK)));
+
     // Куст малины
     public static final RegistryObject<Block> RASPBERRY_BUSH = BLOCKS.register("raspberry_bush",
             RaspberryBushBlock::new);

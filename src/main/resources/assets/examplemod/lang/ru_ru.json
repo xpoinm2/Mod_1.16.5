@@ -38,5 +38,9 @@
   "item.examplemod.bone_axe": "Костяной топор",
   "item.examplemod.bone_shovel": "Костяная лопата",
   "item.examplemod.bone_hoe": "Костяная мотыга",
+  "block.examplemod.bone_block": "Костяной блок",
+  "item.examplemod.bone_block": "Костяной блок",
+  "item.examplemod.stone_hammer": "Каменный молот",
+  "item.examplemod.bone_hammer": "Костяной молот",
   "key.examplemod.progress": "Технологический прогресс"
 }

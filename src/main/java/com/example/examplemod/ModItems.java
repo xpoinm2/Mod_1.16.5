@@ -153,6 +153,10 @@ public class ModItems {
             () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
                     0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Каменный молот: простой инструмент
+    public static final RegistryObject<Item> STONE_HAMMER = ITEMS.register("stone_hammer",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // === Bone Tools ===
     public static final RegistryObject<Item> BONE_PICKAXE = ITEMS.register("bone_pickaxe",
             () -> new net.minecraft.item.PickaxeItem(net.minecraft.item.ItemTier.STONE,
@@ -169,6 +173,15 @@ public class ModItems {
     public static final RegistryObject<Item> BONE_HOE = ITEMS.register("bone_hoe",
             () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
                     0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Костяной молот: простой инструмент
+    public static final RegistryObject<Item> BONE_HAMMER = ITEMS.register("bone_hammer",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Костяной блок как предмет
+    public static final RegistryObject<Item> BONE_BLOCK = ITEMS.register("bone_block",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.BONE_BLOCK.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",

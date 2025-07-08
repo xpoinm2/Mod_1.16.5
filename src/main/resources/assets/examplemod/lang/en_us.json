@@ -38,5 +38,9 @@
   "item.examplemod.bone_axe": "Bone Axe",
   "item.examplemod.bone_shovel": "Bone Shovel",
   "item.examplemod.bone_hoe": "Bone Hoe",
+  "block.examplemod.bone_block": "Bone Block",
+  "item.examplemod.bone_block": "Bone Block",
+  "item.examplemod.stone_hammer": "Stone Hammer",
+  "item.examplemod.bone_hammer": "Bone Hammer",
   "key.examplemod.progress": "Technology Progress"
 }

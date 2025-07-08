@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BFB",
+    "CBC",
+    " B "
+  ],
+  "key": {
+    "B": { "item": "examplemod:bone_block" },
+    "F": { "item": "examplemod:flax_fibers" },
+    "C": { "item": "examplemod:branch" }
+  },
+  "result": { "item": "examplemod:bone_hammer" }
+}
