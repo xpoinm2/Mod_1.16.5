@@ -1,14 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " FH",
+    "CFC",
     " B ",
     " B "
   ],
   "key": {
-    "H": { "item": "examplemod:hewn_stone" },
+    "C": { "item": "minecraft:cobblestone" },
     "F": { "item": "examplemod:flax_fibers" },
     "B": { "item": "examplemod:branch" }
   },
-  "result": { "item": "examplemod:stone_hoe" }
+  "result": { "item": "examplemod:stone_pickaxe" }
 }
