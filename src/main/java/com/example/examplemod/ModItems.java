@@ -184,7 +184,7 @@ public class ModItems {
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Железная руда с примесями как предмет
-    public static final RegistryObject<Item> IMPURE_IRON_ORE = ITEMS.register("impure_iron_ore.json",
+    public static final RegistryObject<Item> IMPURE_IRON_ORE = ITEMS.register("impure_iron_ore",
             () -> new net.minecraft.item.BlockItem(ModBlocks.IMPURE_IRON_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 

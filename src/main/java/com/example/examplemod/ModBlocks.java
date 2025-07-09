@@ -61,7 +61,7 @@ public class ModBlocks {
             HangingFlaxBlock::new);
 
     // Железная руда с примесями
-    public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore.json",
+    public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
 
     public static void register(IEventBus bus) {
