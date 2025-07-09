@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:birch_planks" },
+    { "tag": "minecraft:axes" }
+  ],
+  "result": { "item": "minecraft:birch_slab", "count": 2 }
+}
