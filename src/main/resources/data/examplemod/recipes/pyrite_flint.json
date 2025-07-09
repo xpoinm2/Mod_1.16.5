@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "examplemod:pyrite_piece" },
+    { "item": "minecraft:basalt" }
+  ],
+  "result": { "item": "examplemod:pyrite_flint" }
+}

@@ -20,6 +20,7 @@ import com.example.examplemod.item.ElderberryItem;
 import com.example.examplemod.item.AngelicaRootItem;
 import com.example.examplemod.item.HorseradishItem;
 import com.example.examplemod.item.GingerItem;
+import com.example.examplemod.item.PyriteFlintItem;
 
 
 public class ModItems {
@@ -201,6 +202,12 @@ public class ModItems {
     // Кусочек пирита
     public static final RegistryObject<Item> PYRITE_PIECE = ITEMS.register("pyrite_piece",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Пиритовое огниво
+    public static final RegistryObject<Item> PYRITE_FLINT = ITEMS.register("pyrite_flint",
+            () -> new PyriteFlintItem(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .durability(20)));
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",

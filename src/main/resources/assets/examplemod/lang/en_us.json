@@ -48,5 +48,6 @@
   "item.examplemod.pure_iron_ore": "Pure Iron Ore",
   "block.examplemod.pyrite": "Pyrite",
   "item.examplemod.pyrite_piece": "Pyrite Shard",
+  "item.examplemod.pyrite_flint": "Pyrite Flint",
   "key.examplemod.progress": "Technology Progress"
 }
