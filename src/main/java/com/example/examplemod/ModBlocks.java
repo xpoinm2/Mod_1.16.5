@@ -8,7 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.block.SlabBlock.SlabType;
+import net.minecraft.state.properties.SlabType;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.block.AbstractBlock;
@@ -320,11 +320,11 @@ public class ModBlocks {
             VoxelShape branch4 = Block.box(3.0D, 0.0D, 14.0D, 5.0D, 3.0D, 16.0D);
             VoxelShape bottom = VoxelShapes.or(branch1, branch2, branch3, branch4);
             SHAPE_BOTTOM = bottom;
-            SHAPE_TOP = VoxelShapes.or(VoxelShapes.move(branch1, 0.0D, 8.0D, 0.0D),
-                    VoxelShapes.move(branch2, 0.0D, 8.0D, 0.0D),
-                    VoxelShapes.move(branch3, 0.0D, 8.0D, 0.0D),
-                    VoxelShapes.move(branch4, 0.0D, 8.0D, 0.0D));
-            SHAPE_DOUBLE = VoxelShapes.or(bottom, VoxelShapes.move(bottom, 0.0D, 8.0D, 0.0D));
+            SHAPE_TOP = VoxelShapes.or(branch1.move(0.0D, 8.0D, 0.0D),
+                    branch2.move(0.0D, 8.0D, 0.0D),
+                    branch3.move(0.0D, 8.0D, 0.0D),
+                    branch4.move(0.0D, 8.0D, 0.0D));
+            SHAPE_DOUBLE = VoxelShapes.or(bottom, bottom.move(0.0D, 8.0D, 0.0D));
         }
 
         public BrushwoodSlabBlock() {
