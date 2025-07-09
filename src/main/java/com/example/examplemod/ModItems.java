@@ -155,7 +155,8 @@ public class ModItems {
 
     // Каменный молот: простой инструмент
     public static final RegistryObject<Item> STONE_HAMMER = ITEMS.register("stone_hammer",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .durability(ItemTier.STONE.getUses())));
 
     // === Bone Tools ===
     public static final RegistryObject<Item> BONE_PICKAXE = ITEMS.register("bone_pickaxe",
@@ -176,7 +177,8 @@ public class ModItems {
 
     // Костяной молот: простой инструмент
     public static final RegistryObject<Item> BONE_HAMMER = ITEMS.register("bone_hammer",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .durability(ItemTier.STONE.getUses())));
 
     // Костяной блок как предмет
     public static final RegistryObject<Item> BONE_BLOCK = ITEMS.register("bone_block",
@@ -187,6 +189,10 @@ public class ModItems {
     public static final RegistryObject<Item> IMPURE_IRON_ORE = ITEMS.register("impure_iron_ore",
             () -> new net.minecraft.item.BlockItem(ModBlocks.IMPURE_IRON_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Железный кластер: результат дробления руды
+    public static final RegistryObject<Item> IRON_CLUSTER = ITEMS.register("iron_cluster",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",

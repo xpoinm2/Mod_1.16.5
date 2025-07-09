@@ -6,6 +6,7 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModBlocks;
+import net.minecraft.util.Hand;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -66,6 +67,18 @@ public class BlockBreakHandler {
             world.destroyBlock(event.getPos(), false);
             Block.popResource(world, event.getPos(), new ItemStack(ModBlocks.IMPURE_IRON_ORE.get()));
             return;
+        }
+
+        // Crushing impure iron ore with hammers
+        if (state.getBlock() == ModBlocks.IMPURE_IRON_ORE.get()) {
+            ItemStack held = player.getMainHandItem();
+            if (held.getItem() == ModItems.STONE_HAMMER.get() || held.getItem() == ModItems.BONE_HAMMER.get()) {
+                event.setCanceled(true);
+                world.destroyBlock(event.getPos(), false);
+                Block.popResource(world, event.getPos(), new ItemStack(ModItems.IRON_CLUSTER.get()));
+                held.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(Hand.MAIN_HAND));
+                return;
+            }
         }
 
         // 3.2) Если это листва — дропаем 3 листочка и с шансом 50% ветку
