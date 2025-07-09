@@ -60,6 +60,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> HANGING_FLAX = BLOCKS.register("hanging_flax",
             HangingFlaxBlock::new);
 
+    // Полублок хвороста
+    public static final RegistryObject<Block> BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab",
+            () -> new net.minecraft.block.SlabBlock(AbstractBlock.Properties.copy(Blocks.OAK_SLAB)));
+
     // Железная руда с примесями
     public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));

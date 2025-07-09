@@ -1,0 +1,8 @@
+{
+  "parent": "block/slab",
+  "textures": {
+    "bottom": "examplemod:block/brushwood_slab",
+    "top": "examplemod:block/brushwood_slab",
+    "side": "examplemod:block/brushwood_slab"
+  }
+}

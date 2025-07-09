@@ -50,5 +50,7 @@
   "item.examplemod.pyrite": "Пирит",
   "item.examplemod.pyrite_piece": "Кусочек пирита",
   "item.examplemod.pyrite_flint": "Пиритовое огниво",
+  "block.examplemod.brushwood_slab": "Хворост",
+  "item.examplemod.brushwood_slab": "Хворост",
   "key.examplemod.progress": "Технологический прогресс"
 }

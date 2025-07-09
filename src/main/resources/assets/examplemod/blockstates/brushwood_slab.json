@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "examplemod:block/brushwood_slab" },
+    "type=top":    { "model": "examplemod:block/brushwood_slab_top" },
+    "type=double": { "model": "examplemod:block/brushwood_block" }
+  }
+}

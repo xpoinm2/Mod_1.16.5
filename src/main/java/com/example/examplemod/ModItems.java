@@ -249,6 +249,11 @@ public class ModItems {
             () -> new net.minecraft.item.BlockItem(ModBlocks.FLAX_PLANT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Полублок хвороста как предмет
+    public static final RegistryObject<Item> BRUSHWOOD_SLAB = ITEMS.register("brushwood_slab",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.BRUSHWOOD_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }
