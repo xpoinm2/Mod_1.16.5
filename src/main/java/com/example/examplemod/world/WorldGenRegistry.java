@@ -56,7 +56,7 @@ public class WorldGenRegistry {
     private static ConfiguredFeature<?, ?> registerPyriteOre() {
         net.minecraft.world.gen.feature.OreFeatureConfig config =
                 new net.minecraft.world.gen.feature.OreFeatureConfig(
-                        new net.minecraft.world.gen.feature.BlockMatchRuleTest(net.minecraft.block.Blocks.GRAVEL),
+                        new net.minecraft.world.gen.feature.template.BlockMatchRuleTest(net.minecraft.block.Blocks.GRAVEL),
                         ModBlocks.PYRITE.get().defaultBlockState(),
                         4);
         ConfiguredFeature<?, ?> feature = net.minecraft.world.gen.feature.Feature.ORE
