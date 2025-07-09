@@ -42,5 +42,7 @@
   "item.examplemod.bone_block": "Костяной блок",
   "item.examplemod.stone_hammer": "Каменный молот",
   "item.examplemod.bone_hammer": "Костяной молот",
+  "block.examplemod.impure_iron_ore": "Железная руда с примесями",
+  "item.examplemod.impure_iron_ore": "Железная руда с примесями",
   "key.examplemod.progress": "Технологический прогресс"
 }

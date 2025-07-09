@@ -42,5 +42,7 @@
   "item.examplemod.bone_block": "Bone Block",
   "item.examplemod.stone_hammer": "Stone Hammer",
   "item.examplemod.bone_hammer": "Bone Hammer",
+  "block.examplemod.impure_iron_ore": "Impure Iron Ore",
+  "item.examplemod.impure_iron_ore": "Impure Iron Ore",
   "key.examplemod.progress": "Technology Progress"
 }

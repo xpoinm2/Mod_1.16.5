@@ -183,6 +183,11 @@ public class ModItems {
             () -> new net.minecraft.item.BlockItem(ModBlocks.BONE_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Железная руда с примесями как предмет
+    public static final RegistryObject<Item> IMPURE_IRON_ORE = ITEMS.register("impure_iron_ore.json",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.IMPURE_IRON_ORE.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),

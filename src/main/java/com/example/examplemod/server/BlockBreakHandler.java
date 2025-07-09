@@ -5,8 +5,10 @@ import com.example.examplemod.ExampleMod;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import com.example.examplemod.ModItems;
+import com.example.examplemod.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -57,6 +59,14 @@ public class BlockBreakHandler {
 
         // 2) Получаем состояние блока
         BlockState state = event.getState();
+
+        // Replace iron ore drop with impure iron ore block
+        if (state.getBlock() == Blocks.IRON_ORE) {
+            event.setCanceled(true);
+            world.destroyBlock(event.getPos(), false);
+            Block.popResource(world, event.getPos(), new ItemStack(ModBlocks.IMPURE_IRON_ORE.get()));
+            return;
+        }
 
         // 3.2) Если это листва — дропаем 3 листочка и с шансом 50% ветку
         if (state.is(BlockTags.LEAVES)) {

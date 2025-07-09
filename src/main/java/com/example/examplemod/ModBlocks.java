@@ -60,6 +60,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> HANGING_FLAX = BLOCKS.register("hanging_flax",
             HangingFlaxBlock::new);
 
+    // Железная руда с примесями
+    public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore.json",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }
