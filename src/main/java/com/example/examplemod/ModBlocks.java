@@ -3,6 +3,12 @@ package com.example.examplemod;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SweetBerryBushBlock;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.block.SlabBlock.SlabType;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.block.AbstractBlock;
@@ -62,7 +68,7 @@ public class ModBlocks {
 
     // Полублок хвороста
     public static final RegistryObject<Block> BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab",
-            () -> new net.minecraft.block.SlabBlock(AbstractBlock.Properties.copy(Blocks.OAK_SLAB)));
+            BrushwoodSlabBlock::new);
 
     // Железная руда с примесями
     public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore",
@@ -298,6 +304,49 @@ public class ModBlocks {
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.SOAKED_FLAX.get());
+        }
+    }
+
+    // === Класс полублока хвороста с произвольной формой ===
+    public static class BrushwoodSlabBlock extends SlabBlock {
+        private static final VoxelShape SHAPE_BOTTOM;
+        private static final VoxelShape SHAPE_TOP;
+        private static final VoxelShape SHAPE_DOUBLE;
+
+        static {
+            VoxelShape branch1 = Block.box(1.0D, 0.0D, 2.0D, 15.0D, 3.0D, 4.0D);
+            VoxelShape branch2 = Block.box(0.0D, 0.0D, 6.0D, 12.0D, 3.0D, 8.0D);
+            VoxelShape branch3 = Block.box(4.0D, 0.0D, 10.0D, 16.0D, 3.0D, 12.0D);
+            VoxelShape branch4 = Block.box(3.0D, 0.0D, 14.0D, 5.0D, 3.0D, 16.0D);
+            VoxelShape bottom = VoxelShapes.or(branch1, branch2, branch3, branch4);
+            SHAPE_BOTTOM = bottom;
+            SHAPE_TOP = VoxelShapes.or(VoxelShapes.move(branch1, 0.0D, 8.0D, 0.0D),
+                    VoxelShapes.move(branch2, 0.0D, 8.0D, 0.0D),
+                    VoxelShapes.move(branch3, 0.0D, 8.0D, 0.0D),
+                    VoxelShapes.move(branch4, 0.0D, 8.0D, 0.0D));
+            SHAPE_DOUBLE = VoxelShapes.or(bottom, VoxelShapes.move(bottom, 0.0D, 8.0D, 0.0D));
+        }
+
+        public BrushwoodSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.OAK_SLAB));
+        }
+
+        @Override
+        public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+            SlabType type = state.getValue(TYPE);
+            switch (type) {
+                case TOP:
+                    return SHAPE_TOP;
+                case DOUBLE:
+                    return SHAPE_DOUBLE;
+                default:
+                    return SHAPE_BOTTOM;
+            }
+        }
+
+        @Override
+        public VoxelShape getCollisionShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+            return getShape(state, world, pos, context);
         }
     }
 }
