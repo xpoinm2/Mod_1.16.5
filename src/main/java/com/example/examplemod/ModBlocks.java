@@ -64,6 +64,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
 
+    // Пиритовая жила
+    public static final RegistryObject<Block> PYRITE = BLOCKS.register("pyrite",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.COAL_ORE)));
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }

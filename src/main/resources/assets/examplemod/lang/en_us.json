@@ -46,5 +46,7 @@
   "item.examplemod.impure_iron_ore": "Impure Iron Ore",
   "item.examplemod.iron_cluster": "Iron Cluster",
   "item.examplemod.pure_iron_ore": "Pure Iron Ore",
+  "block.examplemod.pyrite": "Pyrite",
+  "item.examplemod.pyrite_piece": "Pyrite Shard",
   "key.examplemod.progress": "Technology Progress"
 }

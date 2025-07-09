@@ -198,6 +198,10 @@ public class ModItems {
     public static final RegistryObject<Item> PURE_IRON_ORE = ITEMS.register("pure_iron_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Кусочек пирита
+    public static final RegistryObject<Item> PYRITE_PIECE = ITEMS.register("pyrite_piece",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
