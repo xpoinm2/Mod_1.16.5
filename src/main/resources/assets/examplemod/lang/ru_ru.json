@@ -45,5 +45,6 @@
   "block.examplemod.impure_iron_ore": "Железная руда с примесями",
   "item.examplemod.impure_iron_ore": "Железная руда с примесями",
   "item.examplemod.iron_cluster": "Железный кластер",
+  "item.examplemod.pure_iron_ore": "Чистая железная руда",
   "key.examplemod.progress": "Технологический прогресс"
 }

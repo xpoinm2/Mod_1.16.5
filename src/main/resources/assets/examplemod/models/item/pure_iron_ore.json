@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "examplemod:item/pure_iron_ore"
+  }
+}

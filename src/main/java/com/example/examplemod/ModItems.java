@@ -194,6 +194,10 @@ public class ModItems {
     public static final RegistryObject<Item> IRON_CLUSTER = ITEMS.register("iron_cluster",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Чистая железная руда: результат промывки кластера
+    public static final RegistryObject<Item> PURE_IRON_ORE = ITEMS.register("pure_iron_ore",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
             () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),

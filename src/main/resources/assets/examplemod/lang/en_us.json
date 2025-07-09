@@ -45,5 +45,6 @@
   "block.examplemod.impure_iron_ore": "Impure Iron Ore",
   "item.examplemod.impure_iron_ore": "Impure Iron Ore",
   "item.examplemod.iron_cluster": "Iron Cluster",
+  "item.examplemod.pure_iron_ore": "Pure Iron Ore",
   "key.examplemod.progress": "Technology Progress"
 }
