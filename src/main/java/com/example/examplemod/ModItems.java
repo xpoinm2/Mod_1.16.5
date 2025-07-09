@@ -203,6 +203,11 @@ public class ModItems {
     public static final RegistryObject<Item> PYRITE_PIECE = ITEMS.register("pyrite_piece",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Пиритовый блок как предмет
+    public static final RegistryObject<Item> PYRITE = ITEMS.register("pyrite",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.PYRITE.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Пиритовое огниво
     public static final RegistryObject<Item> PYRITE_FLINT = ITEMS.register("pyrite_flint",
             () -> new PyriteFlintItem(new Item.Properties()

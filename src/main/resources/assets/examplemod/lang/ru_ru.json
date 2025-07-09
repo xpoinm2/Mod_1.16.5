@@ -47,6 +47,7 @@
   "item.examplemod.iron_cluster": "Железный кластер",
   "item.examplemod.pure_iron_ore": "Чистая железная руда",
   "block.examplemod.pyrite": "Пирит",
+  "item.examplemod.pyrite": "Пирит",
   "item.examplemod.pyrite_piece": "Кусочек пирита",
   "item.examplemod.pyrite_flint": "Пиритовое огниво",
   "key.examplemod.progress": "Технологический прогресс"
