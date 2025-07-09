@@ -15,6 +15,7 @@ import com.example.examplemod.server.VirusHandler;
 import com.example.examplemod.server.CraftingBlocker;
 import com.example.examplemod.server.HewnStoneSpawnHandler;
 import com.example.examplemod.server.FlaxDryingHandler;
+import com.example.examplemod.server.FirepitStructureHandler;
 import com.example.examplemod.server.RedMushroomHandler;
 
 import net.minecraftforge.common.MinecraftForge;
@@ -61,6 +62,7 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(RedMushroomHandler.class);
         MinecraftForge.EVENT_BUS.register(FlaxDryingHandler.class);
         MinecraftForge.EVENT_BUS.register(CraftingBlocker.class);
+        MinecraftForge.EVENT_BUS.register(FirepitStructureHandler.class);
 
         // Spawn hewn stones in rivers
         MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);
