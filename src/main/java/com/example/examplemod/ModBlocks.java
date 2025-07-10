@@ -311,46 +311,11 @@ public class ModBlocks {
         }
     }
 
-    // === Класс полублока хвороста с произвольной формой ===
+    // === Класс полублока хвороста ===
     public static class BrushwoodSlabBlock extends SlabBlock {
-        private static final VoxelShape SHAPE_BOTTOM;
-        private static final VoxelShape SHAPE_TOP;
-        private static final VoxelShape SHAPE_DOUBLE;
-
-        static {
-            VoxelShape branch1 = Block.box(1.0D, 0.0D, 2.0D, 15.0D, 3.0D, 4.0D);
-            VoxelShape branch2 = Block.box(0.0D, 0.0D, 6.0D, 12.0D, 3.0D, 8.0D);
-            VoxelShape branch3 = Block.box(4.0D, 0.0D, 10.0D, 16.0D, 3.0D, 12.0D);
-            VoxelShape branch4 = Block.box(3.0D, 0.0D, 14.0D, 5.0D, 3.0D, 16.0D);
-            VoxelShape bottom = VoxelShapes.or(branch1, branch2, branch3, branch4);
-            SHAPE_BOTTOM = bottom;
-            SHAPE_TOP = VoxelShapes.or(branch1.move(0.0D, 8.0D, 0.0D),
-                    branch2.move(0.0D, 8.0D, 0.0D),
-                    branch3.move(0.0D, 8.0D, 0.0D),
-                    branch4.move(0.0D, 8.0D, 0.0D));
-            SHAPE_DOUBLE = VoxelShapes.or(bottom, bottom.move(0.0D, 8.0D, 0.0D));
-        }
 
         public BrushwoodSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.OAK_SLAB));
-        }
-
-        @Override
-        public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
-            SlabType type = state.getValue(TYPE);
-            switch (type) {
-                case TOP:
-                    return SHAPE_TOP;
-                case DOUBLE:
-                    return SHAPE_DOUBLE;
-                default:
-                    return SHAPE_BOTTOM;
-            }
-        }
-
-        @Override
-        public VoxelShape getCollisionShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
-            return getShape(state, world, pos, context);
         }
     }
 
