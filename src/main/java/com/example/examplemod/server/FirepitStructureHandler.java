@@ -50,8 +50,15 @@ public class FirepitStructureHandler {
         return state.getBlock() instanceof SlabBlock && state.getMaterial() == Material.WOOD;
     }
 
-    private static boolean isStoneSlab(BlockState state) {
-        return state.getBlock() == Blocks.STONE_SLAB;
+    /**
+     * Checks if the block state represents a cobblestone slab. Previously this
+     * method only recognised the vanilla stone slab which prevented the
+     * structure from forming when cobblestone slabs were used. The firepit
+     * design requires cobblestone slabs in the centre, so adjust the check
+     * accordingly.
+     */
+    private static boolean isCobblestoneSlab(BlockState state) {
+        return state.getBlock() == Blocks.COBBLESTONE_SLAB;
     }
 
     private static boolean isFirepit(World world, BlockPos start) {
@@ -64,7 +71,7 @@ public class FirepitStructureHandler {
                 } else if (x == 0 || x == 3 || z == 0 || z == 3) {
                     if (!isWoodSlab(st)) return false;
                 } else {
-                    if (!isStoneSlab(st)) return false;
+                    if (!isCobblestoneSlab(st)) return false;
                 }
             }
         }
