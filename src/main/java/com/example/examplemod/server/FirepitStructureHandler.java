@@ -42,7 +42,8 @@ public class FirepitStructureHandler {
     }
 
     private static boolean isBrushwood(BlockState state) {
-        return state.getBlock() == ModBlocks.BRUSHWOOD_SLAB.get();
+        return state.getBlock() == ModBlocks.BRUSHWOOD_SLAB.get()
+                || state.getBlock() == ModBlocks.BURNED_BRUSHWOOD_SLAB.get();
     }
 
     private static boolean isWoodSlab(BlockState state) {
@@ -77,6 +78,16 @@ public class FirepitStructureHandler {
                 BlockPos firePos = base.offset(x, 1, z);
                 if (world.isEmptyBlock(firePos)) {
                     world.setBlock(firePos, Blocks.CAMPFIRE.defaultBlockState(), 3);
+                }
+            }
+        }
+
+        // Replace corner brushwood slabs with burned variant
+        for (int x = 0; x < 4; x += 3) {
+            for (int z = 0; z < 4; z += 3) {
+                BlockPos corner = start.offset(x, 0, z);
+                if (world.getBlockState(corner).getBlock() == ModBlocks.BRUSHWOOD_SLAB.get()) {
+                    world.setBlock(corner, ModBlocks.BURNED_BRUSHWOOD_SLAB.get().defaultBlockState(), 3);
                 }
             }
         }

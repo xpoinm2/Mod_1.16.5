@@ -254,6 +254,11 @@ public class ModItems {
             () -> new net.minecraft.item.BlockItem(ModBlocks.BRUSHWOOD_SLAB.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Обгоревший полублок хвороста как предмет
+    public static final RegistryObject<Item> BURNED_BRUSHWOOD_SLAB = ITEMS.register("brushwood_slab_burnt",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.BURNED_BRUSHWOOD_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }

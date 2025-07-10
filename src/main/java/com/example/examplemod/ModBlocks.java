@@ -70,6 +70,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab",
             BrushwoodSlabBlock::new);
 
+    // Обгоревший полублок хвороста
+    public static final RegistryObject<Block> BURNED_BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab_burnt",
+            BurnedBrushwoodSlabBlock::new);
+
     // Железная руда с примесями
     public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
@@ -347,6 +351,13 @@ public class ModBlocks {
         @Override
         public VoxelShape getCollisionShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
             return getShape(state, world, pos, context);
+        }
+    }
+
+    // === Класс обгоревшего полублока хвороста ===
+    public static class BurnedBrushwoodSlabBlock extends BrushwoodSlabBlock {
+        public BurnedBrushwoodSlabBlock() {
+            super();
         }
     }
 }
