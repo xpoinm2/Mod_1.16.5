@@ -80,11 +80,17 @@ public class FirepitStructureHandler {
 
     private static void activate(World world, BlockPos start, PlayerEntity player, Hand hand) {
         BlockPos base = start.offset(1, 0, 1);
+        // Previously vanilla campfires were placed in the centre of the
+        // structure. Remove those blocks and instead spawn a simple visual
+        // effect using flame particles over the area so the player still gets
+        // feedback that the structure activated.
         for (int x = 0; x < 2; x++) {
             for (int z = 0; z < 2; z++) {
                 BlockPos firePos = base.offset(x, 1, z);
                 if (world.isEmptyBlock(firePos)) {
-                    world.setBlock(firePos, Blocks.CAMPFIRE.defaultBlockState(), 3);
+                    world.addParticle(net.minecraft.particles.ParticleTypes.FLAME,
+                            firePos.getX() + 0.5, firePos.getY() + 0.1,
+                            firePos.getZ() + 0.5, 0.0D, 0.05D, 0.0D);
                 }
             }
         }
