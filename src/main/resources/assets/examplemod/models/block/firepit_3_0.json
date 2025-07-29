@@ -1,8 +1,8 @@
 {
   "parent": "block/slab",
   "textures": {
-    "bottom": "examplemod:block/firepit/firepit_3_0",
-    "top": "examplemod:block/firepit/firepit_3_0",
-    "side": "examplemod:block/firepit/firepit_3_0"
+    "bottom": "examplemod:block/firepit_3_0",
+    "top": "examplemod:block/firepit_3_0",
+    "side": "examplemod:block/firepit_3_0"
   }
 }
