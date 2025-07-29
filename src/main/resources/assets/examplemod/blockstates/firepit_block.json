@@ -1,20 +1,20 @@
 {
   "variants": {
-    "x=0,z=0": { "model": "examplemod:block/firepit/firepit_0_0" },
-    "x=0,z=1": { "model": "examplemod:block/firepit/firepit_0_1" },
-    "x=0,z=2": { "model": "examplemod:block/firepit/firepit_0_2" },
-    "x=0,z=3": { "model": "examplemod:block/firepit/firepit_0_3" },
-    "x=1,z=0": { "model": "examplemod:block/firepit/firepit_1_0" },
-    "x=1,z=1": { "model": "examplemod:block/firepit/firepit_1_1" },
-    "x=1,z=2": { "model": "examplemod:block/firepit/firepit_1_2" },
-    "x=1,z=3": { "model": "examplemod:block/firepit/firepit_1_3" },
-    "x=2,z=0": { "model": "examplemod:block/firepit/firepit_2_0" },
-    "x=2,z=1": { "model": "examplemod:block/firepit/firepit_2_1" },
-    "x=2,z=2": { "model": "examplemod:block/firepit/firepit_2_2" },
-    "x=2,z=3": { "model": "examplemod:block/firepit/firepit_2_3" },
-    "x=3,z=0": { "model": "examplemod:block/firepit/firepit_3_0" },
-    "x=3,z=1": { "model": "examplemod:block/firepit/firepit_3_1" },
-    "x=3,z=2": { "model": "examplemod:block/firepit/firepit_3_2" },
-    "x=3,z=3": { "model": "examplemod:block/firepit/firepit_3_3" }
+    "x=0,z=0": { "model": "examplemod:block/firepit_0_0" },
+    "x=0,z=1": { "model": "examplemod:block/firepit_0_1" },
+    "x=0,z=2": { "model": "examplemod:block/firepit_0_2" },
+    "x=0,z=3": { "model": "examplemod:block/firepit_0_3" },
+    "x=1,z=0": { "model": "examplemod:block/firepit_1_0" },
+    "x=1,z=1": { "model": "examplemod:block/firepit_1_1" },
+    "x=1,z=2": { "model": "examplemod:block/firepit_1_2" },
+    "x=1,z=3": { "model": "examplemod:block/firepit_1_3" },
+    "x=2,z=0": { "model": "examplemod:block/firepit_2_0" },
+    "x=2,z=1": { "model": "examplemod:block/firepit_2_1" },
+    "x=2,z=2": { "model": "examplemod:block/firepit_2_2" },
+    "x=2,z=3": { "model": "examplemod:block/firepit_2_3" },
+    "x=3,z=0": { "model": "examplemod:block/firepit_3_0" },
+    "x=3,z=1": { "model": "examplemod:block/firepit_3_1" },
+    "x=3,z=2": { "model": "examplemod:block/firepit_3_2" },
+    "x=3,z=3": { "model": "examplemod:block/firepit_3_3" }
   }
 }
