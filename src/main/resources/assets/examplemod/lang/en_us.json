@@ -54,5 +54,7 @@
   "item.examplemod.brushwood_slab": "Brushwood Slab",
   "block.examplemod.brushwood_slab_burnt": "Burned Brushwood Slab",
   "item.examplemod.brushwood_slab_burnt": "Burned Brushwood Slab",
+  "block.examplemod.firepit_block": "Firepit",
+  "item.examplemod.firepit_block": "Firepit",
   "key.examplemod.progress": "Technology Progress"
 }

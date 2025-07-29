@@ -80,10 +80,17 @@ public class FirepitStructureHandler {
 
     private static void activate(World world, BlockPos start, PlayerEntity player, Hand hand) {
         BlockPos base = start.offset(1, 0, 1);
-        // Previously vanilla campfires were placed in the centre of the
-        // structure. Remove those blocks and instead spawn a simple visual
-        // effect using flame particles over the area so the player still gets
-        // feedback that the structure activated.
+        // Заменяем область 4x4 на блоки кострища с указанием позиции
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                BlockPos pos = start.offset(x, 0, z);
+                world.setBlock(pos, ModBlocks.FIREPIT_BLOCK.get().defaultBlockState()
+                        .setValue(ModBlocks.FirepitBlock.X, x)
+                        .setValue(ModBlocks.FirepitBlock.Z, z), 3);
+            }
+        }
+
+        // Визуальный эффект огня в центре
         for (int x = 0; x < 2; x++) {
             for (int z = 0; z < 2; z++) {
                 BlockPos firePos = base.offset(x, 1, z);
@@ -95,15 +102,6 @@ public class FirepitStructureHandler {
             }
         }
 
-        // Replace corner brushwood slabs with burned variant
-        for (int x = 0; x < 4; x += 3) {
-            for (int z = 0; z < 4; z += 3) {
-                BlockPos corner = start.offset(x, 0, z);
-                if (world.getBlockState(corner).getBlock() == ModBlocks.BRUSHWOOD_SLAB.get()) {
-                    world.setBlock(corner, ModBlocks.BURNED_BRUSHWOOD_SLAB.get().defaultBlockState(), 3);
-                }
-            }
-        }
         world.playSound(null, base, SoundEvents.FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, world.random.nextFloat() * 0.4F + 0.8F);
         if (!player.abilities.instabuild) {
             player.getItemInHand(hand).hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));

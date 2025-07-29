@@ -259,6 +259,11 @@ public class ModItems {
             () -> new net.minecraft.item.BlockItem(ModBlocks.BURNED_BRUSHWOOD_SLAB.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Блок кострища как предмет
+    public static final RegistryObject<Item> FIREPIT_BLOCK = ITEMS.register("firepit_block",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FIREPIT_BLOCK.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }

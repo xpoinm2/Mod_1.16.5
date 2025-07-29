@@ -74,6 +74,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> BURNED_BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab_burnt",
             BurnedBrushwoodSlabBlock::new);
 
+    // Блок кострища (часть мультиструктуры 4x4)
+    public static final RegistryObject<Block> FIREPIT_BLOCK = BLOCKS.register("firepit_block",
+            FirepitBlock::new);
+
     // Железная руда с примесями
     public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
@@ -323,6 +327,29 @@ public class ModBlocks {
     public static class BurnedBrushwoodSlabBlock extends BrushwoodSlabBlock {
         public BurnedBrushwoodSlabBlock() {
             super();
+        }
+    }
+    // === Блок кострища ===
+    public static class FirepitBlock extends Block {
+        public static final IntegerProperty X = IntegerProperty.create("x", 0, 3);
+        public static final IntegerProperty Z = IntegerProperty.create("z", 0, 3);
+        private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 8, 16);
+
+        public FirepitBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.BRICKS));
+            this.registerDefaultState(this.stateDefinition.any()
+                    .setValue(X, 0)
+                    .setValue(Z, 0));
+        }
+
+        @Override
+        public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+            return SHAPE;
+        }
+
+        @Override
+        protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+            builder.add(X, Z);
         }
     }
 }
