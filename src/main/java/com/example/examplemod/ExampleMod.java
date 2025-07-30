@@ -4,6 +4,8 @@ import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.ModBlocks;
+import com.example.examplemod.ModContainers;
+import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.server.ThirstHandler;
@@ -26,6 +28,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.gui.ScreenManager;
 
 
 
@@ -46,6 +49,7 @@ public class ExampleMod {
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
+        ModContainers.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }
@@ -76,6 +80,7 @@ public class ExampleMod {
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
         RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.ELDERBERRY_BUSH.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.CRANBERRY_BUSH.get(), RenderType.cutout());

@@ -20,6 +20,11 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -350,6 +355,16 @@ public class ModBlocks {
         @Override
         protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
             builder.add(X, Z);
+        }
+        @Override
+        public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+            if (!world.isClientSide && hand == Hand.MAIN_HAND) {
+                INamedContainerProvider provider = new SimpleNamedContainerProvider(
+                        (id, inv, ply) -> new com.example.examplemod.container.FirepitContainer(id, inv),
+                        new StringTextComponent("Firepit"));
+                NetworkHooks.openGui((ServerPlayerEntity) player, provider, pos);
+            }
+            return ActionResultType.sidedSuccess(world.isClientSide);
         }
     }
 }
