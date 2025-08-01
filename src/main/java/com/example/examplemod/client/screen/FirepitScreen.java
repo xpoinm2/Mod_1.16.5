@@ -26,6 +26,10 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
     public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(ms);
         super.render(ms, mouseX, mouseY, partialTicks);
+
+        // Draw slot borders after everything else so they stay on top
+        drawSlotBorders(ms);
+
         this.renderTooltip(ms, mouseX, mouseY);
     }
 
@@ -43,9 +47,12 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         int i = this.leftPos;
         int j = this.topPos;
         blit(ms, i, j, 0, 0, this.imageWidth, this.imageHeight);
+    }
 
-        // Draw grey slot borders for firepit inventory
+    private void drawSlotBorders(MatrixStack ms) {
         this.minecraft.getTextureManager().bind(SLOT);
+        int i = this.leftPos;
+        int j = this.topPos;
         for (int idx = 0; idx < 12; idx++) {
             Slot slot = this.menu.getSlot(idx);
             blit(ms, i + slot.x - 1, j + slot.y - 1, 0, 0, 18, 18, 18, 18);
