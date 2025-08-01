@@ -1,18 +1,17 @@
 package com.example.examplemod.client.screen;
 
-import com.example.examplemod.ExampleMod;
+
 import com.example.examplemod.container.FirepitContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.inventory.container.Slot;
+
+import static net.minecraft.client.gui.toasts.IToast.TEXTURE;
+
 
 public class FirepitScreen extends ContainerScreen<FirepitContainer> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(ExampleMod.MODID, "textures/gui/firepit.png");
-    private static final ResourceLocation SLOT = new ResourceLocation(ExampleMod.MODID, "textures/gui/slot_border.png");
-
     private final ITextComponent playerInventoryTitle;
 
     public FirepitScreen(FirepitContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
@@ -26,9 +25,6 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
     public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(ms);
         super.render(ms, mouseX, mouseY, partialTicks);
-
-        // Draw slot borders after everything else so they stay on top
-        drawSlotBorders(ms);
 
         this.renderTooltip(ms, mouseX, mouseY);
     }
@@ -49,13 +45,5 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         blit(ms, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 
-    private void drawSlotBorders(MatrixStack ms) {
-        this.minecraft.getTextureManager().bind(SLOT);
-        int i = this.leftPos;
-        int j = this.topPos;
-        for (int idx = 0; idx < 12; idx++) {
-            Slot slot = this.menu.getSlot(idx);
-            blit(ms, i + slot.x - 1, j + slot.y - 1, 0, 0, 18, 18, 18, 18);
-        }
-    }
+
 }
