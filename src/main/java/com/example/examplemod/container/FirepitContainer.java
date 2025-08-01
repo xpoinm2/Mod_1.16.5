@@ -23,20 +23,22 @@ public class FirepitContainer extends Container {
         this.firepitInv = inv;
         inv.startOpen(playerInv.player);
 
-        // Firepit slots 4x3 starting at x=12,y=17 (extra column on the left)
+        // Firepit slots: 3 rows x 4 columns, start at x=44, y=20
+        // (центрируем относительно текстуры 256x256)
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 4; ++col) {
-                this.addSlot(new Slot(inv, col + row * 4, 12 + col * 18, 17 + row * 18));
+                this.addSlot(new Slot(inv, col + row * 4, 44 + col * 18, 20 + row * 18));
             }
         }
 
-        // Player inventory
+        // Player inventory 3x9
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
                 this.addSlot(new Slot(playerInv, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
             }
         }
 
+        // Hotbar
         for (int col = 0; col < 9; ++col) {
             this.addSlot(new Slot(playerInv, col, 8 + col * 18, 142));
         }
