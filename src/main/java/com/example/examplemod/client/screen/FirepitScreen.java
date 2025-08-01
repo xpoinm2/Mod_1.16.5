@@ -13,8 +13,11 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(ExampleMod.MODID, "textures/gui/firepit.png");
     private static final ResourceLocation SLOT = new ResourceLocation(ExampleMod.MODID, "textures/gui/slot_border.png");
 
+    private final ITextComponent playerInventoryTitle;
+
     public FirepitScreen(FirepitContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
         super(screenContainer, inv, titleIn);
+        this.playerInventoryTitle = inv.getDisplayName();
         this.imageWidth = 176;
         this.imageHeight = 166;
     }
