@@ -8,10 +8,9 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
-import static net.minecraft.client.gui.toasts.IToast.TEXTURE;
-
 
 public class FirepitScreen extends ContainerScreen<FirepitContainer> {
+    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/inventory.png");
     private final ITextComponent playerInventoryTitle;
 
     public FirepitScreen(FirepitContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
