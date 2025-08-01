@@ -12,7 +12,7 @@ import net.minecraft.util.text.ITextComponent;
 
 public class FirepitScreen extends ContainerScreen<FirepitContainer> {
     private static final ResourceLocation TEXTURE =
-            new ResourceLocation("minecraft", "textures/gui/container/generic_54.png");
+            new ResourceLocation("examplemod", "textures/gui/firepit.png");
 
     private final ITextComponent playerInventoryTitle;
 
