@@ -1,6 +1,5 @@
 package com.example.examplemod.client.screen;
 
-
 import com.example.examplemod.container.FirepitContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -9,43 +8,30 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
-
+/**
+ * GUI screen for the Firepit container.
+ *
+ * <p>This screen only renders the background texture. Slot frames and items are
+ * rendered by the underlying {@link ContainerScreen} to ensure that inventory
+ * slots stay aligned regardless of resolution or scaling.</p>
+ */
 public class FirepitScreen extends ContainerScreen<FirepitContainer> {
+
     private static final ResourceLocation TEXTURE =
             new ResourceLocation("examplemod", "textures/gui/firepit.png");
 
-    private final ITextComponent playerInventoryTitle;
-
-    public FirepitScreen(FirepitContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
-        super(screenContainer, inv, titleIn);
-        this.playerInventoryTitle = inv.getDisplayName();
+    public FirepitScreen(FirepitContainer container, PlayerInventory inv, ITextComponent title) {
+        super(container, inv, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.titleLabelX = 8;
+        this.titleLabelY = 6;
     }
 
     @Override
-    public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(ms);
-        super.render(ms, mouseX, mouseY, partialTicks);
-
-        this.renderTooltip(ms, mouseX, mouseY);
-    }
-
-    @Override
-    protected void renderLabels(MatrixStack ms, int mouseX, int mouseY) {
-        this.font.draw(ms, this.title, 8.0F, 6.0F, 4210752);
-        this.font.draw(ms, this.playerInventoryTitle, 8.0F,
-                (float) (this.imageHeight - 96 + 2), 4210752);
-    }
-
-    @Override
-    protected void renderBg(MatrixStack ms, float partialTicks, int x, int y) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(TEXTURE);
-        int i = this.leftPos;
-        int j = this.topPos;
-        blit(ms, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
     }
-
-
 }
