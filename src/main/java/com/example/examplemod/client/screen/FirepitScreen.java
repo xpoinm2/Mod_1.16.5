@@ -10,7 +10,7 @@ import net.minecraft.util.text.ITextComponent;
 
 
 public class FirepitScreen extends ContainerScreen<FirepitContainer> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/inventory.png");
+
     private final ITextComponent playerInventoryTitle;
 
     public FirepitScreen(FirepitContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
@@ -38,7 +38,6 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
 
     @Override
     protected void renderBg(MatrixStack ms, float partialTicks, int x, int y) {
-        this.minecraft.getTextureManager().bind(TEXTURE);
         int i = this.leftPos;
         int j = this.topPos;
         blit(ms, i, j, 0, 0, this.imageWidth, this.imageHeight);

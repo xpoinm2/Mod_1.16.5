@@ -23,10 +23,10 @@ public class FirepitContainer extends Container {
         this.firepitInv = inv;
         inv.startOpen(playerInv.player);
 
-        // Firepit slots 3x4 starting at x=44,y=17
+        // Firepit slots 4x3 starting at x=30,y=17
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 4; ++col) {
-                this.addSlot(new Slot(inv, col + row * 4, 44 + col * 18, 17 + row * 18));
+                this.addSlot(new Slot(inv, col + row * 4, 30 + col * 18, 17 + row * 18));
             }
         }
 
