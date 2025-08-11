@@ -9,19 +9,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PlanksQuestScreen extends Screen {
-    private static final int WIDTH = 150;
-    private static final int HEIGHT = 100;
     private final Screen parent;
 
     public PlanksQuestScreen(Screen parent) {
-        super(new StringTextComponent("доски"));
+        super(new StringTextComponent("Доски"));
         this.parent = parent;
     }
 
     @Override
     protected void init() {
-        int x0 = 5;
-        int y0 = 5;
+        int x0 = 10;
+        int y0 = 10;
         this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
         super.init();
@@ -30,15 +28,31 @@ public class PlanksQuestScreen extends Screen {
     @Override
     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
         this.renderBackground(ms);
-        int x0 = 5;
-        int y0 = 5;
-        fill(ms, x0 - 1, y0 - 1, x0 + WIDTH + 1, y0 + HEIGHT + 1, 0xFF00FF00);
-        fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
-        drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
-        drawString(ms, this.font, "Люди работали топорами, чтобы", x0 + 10, y0 + 30, 0xFFFFFFFF);
-        drawString(ms, this.font, "разделывать бревна.", x0 + 10, y0 + 40, 0xFFFFFFFF);
-        drawString(ms, this.font, "Нужно получить 4 доски", x0 + 10, y0 + 60, 0xFFFFFF00);
-        drawString(ms, this.font, "Крафт досок через топор", x0 + 10, y0 + 75, 0xFFFFFF00);
+        int x0 = 10;
+        int y0 = 10;
+        int width = this.width - 20;
+        int height = this.height - 20;
+        fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0 + height + 1, 0xFF000000);
+        fill(ms, x0, y0, x0 + width, y0 + height, 0xFF000000);
+        drawCenteredString(ms, this.font, this.title, x0 + width / 2, y0 + 15, 0xFFFFFFFF);
+
+        int textX = x0 + 20;
+        int currentY = y0 + 40;
+        drawString(ms, this.font, "Описание", textX, currentY, 0xFFFFFFFF);
+        currentY += 15;
+        drawString(ms, this.font, "Люди работали топорами, чтобы", textX, currentY, 0xFFFFFFFF);
+        currentY += 10;
+        drawString(ms, this.font, "разделывать бревна.", textX, currentY, 0xFFFFFFFF);
+        currentY += 15;
+
+        drawString(ms, this.font, "Цель", textX, currentY, 0xFFFFFFFF);
+        currentY += 15;
+        drawString(ms, this.font, "Нужно получить 4 доски", textX, currentY, 0xFFFFFF00);
+        currentY += 15;
+
+        drawString(ms, this.font, "Инструкция", textX, currentY, 0xFFFFFFFF);
+        currentY += 15;
+        drawString(ms, this.font, "Крафт досок через топор", textX, currentY, 0xFFFFFF00);
         super.render(ms, mouseX, mouseY, pt);
     }
 
