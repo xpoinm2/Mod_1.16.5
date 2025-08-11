@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ProgressProductionScreen extends Screen {
     private final Screen parent;
+    private ItemIconButton planksButton;
 
     public ProgressProductionScreen(Screen parent) {
         super(new StringTextComponent("Производство"));
@@ -28,6 +29,9 @@ public class ProgressProductionScreen extends Screen {
         int y = 60;
         this.addButton(new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
                 b -> this.minecraft.setScreen(new PlanksQuestScreen(this))));
+        this.planksButton = new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
+                b -> this.minecraft.setScreen(new PlanksQuestScreen(this)));
+        this.addButton(this.planksButton);
         super.init();
     }
 
@@ -42,6 +46,10 @@ public class ProgressProductionScreen extends Screen {
         AbstractGui.fill(ms, 0, 0, this.width, this.height, 0xCC000000);
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
         super.render(ms, mouseX, mouseY, pt);
+        if (PlanksQuestScreen.isCompleted()) {
+            drawString(ms, this.font, "✔", this.planksButton.x + this.planksButton.getWidth() + 4,
+                    this.planksButton.y + 6, 0xFF00FF00);
+        }
     }
 
     @Override
