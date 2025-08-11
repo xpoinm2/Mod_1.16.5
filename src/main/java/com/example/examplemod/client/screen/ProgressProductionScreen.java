@@ -1,19 +1,22 @@
 package com.example.examplemod.client.screen;
 
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.client.ItemIconButton;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ProgressEraScreen extends Screen {
+public class ProgressProductionScreen extends Screen {
     private final Screen parent;
 
-    public ProgressEraScreen(Screen parent) {
-        super(new StringTextComponent("Древний мир"));
+    public ProgressProductionScreen(Screen parent) {
+        super(new StringTextComponent("Производство"));
         this.parent = parent;
     }
 
@@ -21,15 +24,10 @@ public class ProgressEraScreen extends Screen {
     protected void init() {
         this.addButton(new FramedButton(5, 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
-
-        int tabW = 120;
-        int tabH = 20;
-        int x = 20;
+        int x = 40;
         int y = 60;
-        this.addButton(new FramedButton(x, y, tabW, tabH, "Собирательство", 0xFFFFFF00, 0xFFFF0000, b -> {}));
-        this.addButton(new FramedButton(x, y + 25, tabW, tabH, "Металлургия", 0xFFFFFF00, 0xFFFF0000, b -> {}));
-        this.addButton(new FramedButton(x, y + 50, tabW, tabH, "Производство", 0xFFFFFF00, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressProductionScreen(this))));
+        this.addButton(new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
+                b -> this.minecraft.setScreen(new PlanksQuestScreen(this))));
         super.init();
     }
 
