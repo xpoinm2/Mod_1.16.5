@@ -34,4 +34,12 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         this.minecraft.getTextureManager().bind(TEXTURE);
         blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
     }
+
+    @Override
+    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+        // Draw the title ("Кострище") in red
+        this.font.draw(matrixStack, this.title, this.titleLabelX, this.titleLabelY, 0xFF0000);
+        // Draw the player inventory label in red
+        this.font.draw(matrixStack, this.inventory.getDisplayName(), this.inventoryLabelX, this.inventoryLabelY, 0xFF0000);
+    }
 }

@@ -9,11 +9,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ProgressErasScreen extends Screen {
+public class ProgressEraScreen extends Screen {
     private final Screen parent;
 
-    public ProgressErasScreen(Screen parent) {
-        super(new StringTextComponent("Эпохи"));
+    public ProgressEraScreen(Screen parent) {
+        super(new StringTextComponent("Древний мир"));
         this.parent = parent;
     }
 
@@ -21,6 +21,14 @@ public class ProgressErasScreen extends Screen {
     protected void init() {
         this.addButton(new FramedButton(5, 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
+
+        int tabW = 120;
+        int tabH = 20;
+        int x = 20;
+        int y = 60;
+        this.addButton(new FramedButton(x, y, tabW, tabH, "Собирательство", 0xFFFFFF00, 0xFFFF0000, b -> {}));
+        this.addButton(new FramedButton(x, y + 25, tabW, tabH, "Металлургия", 0xFFFFFF00, 0xFFFF0000, b -> {}));
+        this.addButton(new FramedButton(x, y + 50, tabW, tabH, "Производство", 0xFFFFFF00, 0xFFFF0000, b -> {}));
         super.init();
     }
 
@@ -34,11 +42,6 @@ public class ProgressErasScreen extends Screen {
         this.renderBackground(ms);
         AbstractGui.fill(ms, 0, 0, this.width, this.height, 0xCC000000);
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
-        int x = this.width / 2 - 50;
-        int y = 60;
-        this.font.draw(ms, "Древний мир", x, y, 0xFFFFFF);
-        this.font.draw(ms, "Средние века", x, y + 15, 0xFFFFFF);
-        this.font.draw(ms, "Возрождение", x, y + 30, 0xFFFFFF);
         super.render(ms, mouseX, mouseY, pt);
     }
 

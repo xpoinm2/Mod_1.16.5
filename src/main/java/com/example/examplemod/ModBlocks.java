@@ -361,7 +361,7 @@ public class ModBlocks {
             if (!world.isClientSide && hand == Hand.MAIN_HAND) {
                 INamedContainerProvider provider = new SimpleNamedContainerProvider(
                         (id, inv, ply) -> new com.example.examplemod.container.FirepitContainer(id, inv),
-                        new StringTextComponent("Firepit"));
+                        new StringTextComponent("Кострище"));
                 NetworkHooks.openGui((ServerPlayerEntity) player, provider, pos);
             }
             return ActionResultType.sidedSuccess(world.isClientSide);
