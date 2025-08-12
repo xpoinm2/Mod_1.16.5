@@ -9,7 +9,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 /** Button that displays an item icon instead of text. */
 public class ItemIconButton extends Button {
-    private final int borderColor;
+    private int borderColor;
     private final int fillColor;
     private final ItemStack stack;
 
@@ -18,6 +18,14 @@ public class ItemIconButton extends Button {
         this.borderColor = 0xFFFFFF00;
         this.fillColor = 0xFF333333;
         this.stack = stack;
+    }
+
+    /**
+     * Changes the color of the button's border allowing screens to reflect
+     * quest states (locked, available, completed) using different colors.
+     */
+    public void setBorderColor(int color) {
+        this.borderColor = color;
     }
 
     @Override

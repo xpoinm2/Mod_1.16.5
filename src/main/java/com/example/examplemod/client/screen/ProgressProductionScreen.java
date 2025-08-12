@@ -29,6 +29,7 @@ public class ProgressProductionScreen extends Screen {
                 b -> this.minecraft.setScreen(parent)));
         int x = 40;
         int y = 60;
+        int spacing = 50;
         this.planksButton = new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
                 b -> this.minecraft.setScreen(new PlanksQuestScreen(this)));
         this.addButton(this.planksButton);
@@ -39,6 +40,10 @@ public class ProgressProductionScreen extends Screen {
         } else {
             this.slabsButton = null;
         }
+        this.slabsButton = new ItemIconButton(x + spacing, y, new ItemStack(Items.OAK_SLAB),
+                b -> this.minecraft.setScreen(new SlabsQuestScreen(this)));
+        this.slabsButton.active = QuestManager.isPlanksCompleted();
+        this.addButton(this.slabsButton);
         super.init();
     }
 
@@ -52,14 +57,25 @@ public class ProgressProductionScreen extends Screen {
         this.renderBackground(ms);
         AbstractGui.fill(ms, 0, 0, this.width, this.height, 0xCC000000);
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
-        super.render(ms, mouseX, mouseY, pt);
+
+        // Update button states and colors based on quest progress
+        this.planksButton.setBorderColor(
+                QuestManager.isPlanksCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         if (QuestManager.isPlanksCompleted()) {
-            drawString(ms, this.font, "✔", this.planksButton.x + this.planksButton.getWidth() + 4,
-                    this.planksButton.y + 6, 0xFF00FF00);
+            this.slabsButton.active = true;
+        } else {
+            this.slabsButton.active = false;
         }
-        if (this.slabsButton != null && QuestManager.isSlabsCompleted()) {
-            drawString(ms, this.font, "✔", this.slabsButton.x + this.slabsButton.getWidth() + 4,
-                    this.slabsButton.y + 6, 0xFF00FF00);
+        int slabsColor;
+        if (!QuestManager.isPlanksCompleted()) {
+            slabsColor = 0xFFFF0000; // locked
+        } else if (QuestManager.isSlabsCompleted()) {
+            slabsColor = 0xFF00FF00; // completed
+        } else {
+            slabsColor = 0xFF00BFFF; // available
         }
+        this.slabsButton.setBorderColor(slabsColor);
+
+        super.render(ms, mouseX, mouseY, pt);
     }
 }
