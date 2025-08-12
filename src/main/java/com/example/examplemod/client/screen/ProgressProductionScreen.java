@@ -16,6 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ProgressProductionScreen extends Screen {
     private final Screen parent;
     private ItemIconButton planksButton;
+    private ItemIconButton slabsButton;
 
     public ProgressProductionScreen(Screen parent) {
         super(new StringTextComponent("Производство"));
@@ -28,11 +29,16 @@ public class ProgressProductionScreen extends Screen {
                 b -> this.minecraft.setScreen(parent)));
         int x = 40;
         int y = 60;
-        this.addButton(new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
-                b -> this.minecraft.setScreen(new PlanksQuestScreen(this))));
         this.planksButton = new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
                 b -> this.minecraft.setScreen(new PlanksQuestScreen(this)));
         this.addButton(this.planksButton);
+        if (QuestManager.isPlanksCompleted()) {
+            this.slabsButton = new ItemIconButton(x + 30, y, new ItemStack(Items.OAK_SLAB),
+                    b -> this.minecraft.setScreen(new SlabsQuestScreen(this)));
+            this.addButton(this.slabsButton);
+        } else {
+            this.slabsButton = null;
+        }
         super.init();
     }
 
@@ -50,6 +56,10 @@ public class ProgressProductionScreen extends Screen {
         if (QuestManager.isPlanksCompleted()) {
             drawString(ms, this.font, "✔", this.planksButton.x + this.planksButton.getWidth() + 4,
                     this.planksButton.y + 6, 0xFF00FF00);
+        }
+        if (this.slabsButton != null && QuestManager.isSlabsCompleted()) {
+            drawString(ms, this.font, "✔", this.slabsButton.x + this.slabsButton.getWidth() + 4,
+                    this.slabsButton.y + 6, 0xFF00FF00);
         }
     }
 }
