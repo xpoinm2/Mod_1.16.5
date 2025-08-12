@@ -48,9 +48,4 @@ public class ProgressScreen extends Screen {
 
         super.render(ms, mouseX, mouseY, pt);
     }
-
-    @Override
-    public void onClose() {
-        this.minecraft.setScreen(parent);
-    }
 }

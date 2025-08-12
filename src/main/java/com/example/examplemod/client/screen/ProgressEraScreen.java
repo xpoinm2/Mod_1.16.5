@@ -45,9 +45,4 @@ public class ProgressEraScreen extends Screen {
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
         super.render(ms, mouseX, mouseY, pt);
     }
-
-    @Override
-    public void onClose() {
-        this.minecraft.setScreen(parent);
-    }
 }

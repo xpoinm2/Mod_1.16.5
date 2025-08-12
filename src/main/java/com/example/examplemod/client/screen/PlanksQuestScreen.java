@@ -1,6 +1,7 @@
 package com.example.examplemod.client.screen;
 
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.Items;
@@ -11,7 +12,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class PlanksQuestScreen extends Screen {
     private final Screen parent;
-    private static boolean completed = false;
+    private int scrollOffset = 0;
+    private int maxScroll = 0;
+
 
     public PlanksQuestScreen(Screen parent) {
         super(new StringTextComponent("Доски"));
@@ -32,7 +35,7 @@ public class PlanksQuestScreen extends Screen {
         this.addButton(new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
                     if (hasRequiredItems()) {
-                        completed = true;
+                        QuestManager.setPlanksCompleted(true);
                     }
                 }));
         super.init();
@@ -50,29 +53,27 @@ public class PlanksQuestScreen extends Screen {
         drawTitle(ms, x0 + width / 2, y0 + 15);
 
         int leftX = x0 + 20;
-        int leftY = y0 + 40;
-        drawScaledUnderlined(ms, "Описание", leftX, leftY, 0xFFFFFFFF, 2.0F);
+        int leftY = y0 + 40 - scrollOffset;
+        drawScaledUnderlined(ms, "Описание", leftX, leftY, 0xFFFFFFFF, 4f/3f);
         leftY += 30;
-        drawString(ms, this.font, "Люди работали топорами, чтобы", leftX, leftY, 0xFFFFFFFF);
+        drawString(ms, this.font, "Люди работали топорами, чтобы", leftX, leftY, 0xFFFFFF00);
         leftY += 10;
-        drawString(ms, this.font, "разделывать бревна.", leftX, leftY, 0xFFFFFFFF);
+        drawString(ms, this.font, "разделывать бревна.", leftX, leftY, 0xFFFFFF00);
 
         int rightX = x0 + width / 2 + 20;
-        int rightY = y0 + 40;
-        drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 2.0F);
+        int rightY = y0 + 40 - scrollOffset;
+        drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
         drawString(ms, this.font, "Нужно получить 4 доски", rightX, rightY, 0xFFFFFF00);
         rightY += 25;
-        drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 2.0F);
+        drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
         drawString(ms, this.font, "Крафт досок через топор", rightX, rightY, 0xFFFFFF00);
+        int contentBottom = Math.max(leftY, rightY);
+        maxScroll = Math.max(0, contentBottom - (y0 + height - 10));
         super.render(ms, mouseX, mouseY, pt);
     }
 
-    @Override
-    public void onClose() {
-        this.minecraft.setScreen(parent);
-    }
     private boolean hasRequiredItems() {
         return this.minecraft.player != null &&
                 this.minecraft.player.inventory.countItem(Items.OAK_PLANKS) >= 4;
@@ -81,11 +82,11 @@ public class PlanksQuestScreen extends Screen {
     private void drawTitle(MatrixStack ms, int centerX, int y) {
         String title = this.title.getString();
         ms.pushPose();
-        ms.scale(3.0F, 3.0F, 3.0F);
-        drawCenteredString(ms, this.font, title, (int) (centerX / 3f), (int) (y / 3f), 0xFF00BFFF);
+        ms.scale(2.0F, 2.0F, 2.0F);
+        drawCenteredString(ms, this.font, title, (int) (centerX / 2f), (int) (y / 2f), 0xFF00BFFF);
         ms.popPose();
-        if (completed) {
-            int titleWidth = this.font.width(title) * 3;
+        if (QuestManager.isPlanksCompleted()) {
+            int titleWidth = this.font.width(title) * 2;
             drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, y, 0xFF00FF00);
         }
     }
@@ -101,7 +102,12 @@ public class PlanksQuestScreen extends Screen {
         fill(ms, x, underlineY, x + width, underlineY + 1, color);
     }
 
-    public static boolean isCompleted() {
-        return completed;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (delta != 0) {
+            scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * 10));
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 }

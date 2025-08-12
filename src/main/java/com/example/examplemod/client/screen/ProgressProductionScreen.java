@@ -2,6 +2,7 @@ package com.example.examplemod.client.screen;
 
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.ItemIconButton;
+import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
@@ -46,14 +47,9 @@ public class ProgressProductionScreen extends Screen {
         AbstractGui.fill(ms, 0, 0, this.width, this.height, 0xCC000000);
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
         super.render(ms, mouseX, mouseY, pt);
-        if (PlanksQuestScreen.isCompleted()) {
+        if (QuestManager.isPlanksCompleted()) {
             drawString(ms, this.font, "✔", this.planksButton.x + this.planksButton.getWidth() + 4,
                     this.planksButton.y + 6, 0xFF00FF00);
         }
-    }
-
-    @Override
-    public void onClose() {
-        this.minecraft.setScreen(parent);
     }
 }
