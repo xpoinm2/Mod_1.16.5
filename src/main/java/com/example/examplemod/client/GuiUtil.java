@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.ModList;
 
 /** Utility methods for rendering quest items with tooltips and JEI integration. */
@@ -19,10 +20,15 @@ public final class GuiUtil {
                                                 int x, int y, int mouseX, int mouseY) {
         Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(stack, x, y);
         if (mouseX >= x && mouseX < x + 16 && mouseY >= y && mouseY < y + 16) {
-            screen.renderTooltip(ms, stack, mouseX, mouseY);
+            screen.renderTooltip(ms, (ITextComponent) screen.getTooltipFromItem(stack), mouseX, mouseY);
             return true;
         }
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Enum<E>> E enumValueOf(Class<?> enumClass, String name) {
+        return Enum.valueOf((Class<E>) enumClass.asSubclass(Enum.class), name);
     }
 
     /**
@@ -42,7 +48,7 @@ public final class GuiUtil {
             Object recipeManager = jeiRuntimeClass.getMethod("getRecipeManager").invoke(runtime);
             Class<?> recipeManagerClass = Class.forName("mezz.jei.api.recipe.IRecipeManager");
             Class<?> modeClass = Class.forName("mezz.jei.api.recipe.IFocus$Mode");
-            Object mode = Enum.valueOf((Class<Enum>) modeClass, "OUTPUT");
+            Object mode = enumValueOf(modeClass, "OUTPUT");
             Object focus = recipeManagerClass
                     .getMethod("createFocus", modeClass, Object.class)
                     .invoke(recipeManager, mode, stack);
