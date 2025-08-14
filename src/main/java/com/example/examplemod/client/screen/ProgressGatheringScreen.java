@@ -16,6 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ProgressGatheringScreen extends Screen {
     private final Screen parent;
     private ItemIconButton hewnStoneButton;
+    private ItemIconButton bigBoneButton;
 
     public ProgressGatheringScreen(Screen parent) {
         super(new StringTextComponent("Собирательство"));
@@ -28,9 +29,13 @@ public class ProgressGatheringScreen extends Screen {
                 b -> this.minecraft.setScreen(parent)));
         int x = 40;
         int y = 60;
+        int spacing = 50;
         this.hewnStoneButton = new ItemIconButton(x, y, new ItemStack(ModItems.HEWN_STONE.get()),
                 b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)));
         this.addButton(this.hewnStoneButton);
+        this.bigBoneButton = new ItemIconButton(x, y + spacing, new ItemStack(ModItems.BIG_BONE.get()),
+                b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)));
+        this.addButton(this.bigBoneButton);
         super.init();
     }
 
@@ -48,6 +53,8 @@ public class ProgressGatheringScreen extends Screen {
         // Update button color based on quest state
         this.hewnStoneButton.setBorderColor(
                 QuestManager.isHewnStonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+        this.bigBoneButton.setBorderColor(
+                QuestManager.isBigBonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
 
         super.render(ms, mouseX, mouseY, pt);
     }

@@ -4,6 +4,7 @@ public class QuestManager {
     private static boolean planksCompleted = false;
     private static boolean slabsCompleted = false;
     private static boolean hewnStonesCompleted = false;
+    private static boolean bigBonesCompleted = false;
 
     public static boolean isPlanksCompleted() {
         return planksCompleted;
@@ -30,9 +31,18 @@ public class QuestManager {
         hewnStonesCompleted = value;
     }
 
+    public static boolean isBigBonesCompleted() {
+        return bigBonesCompleted;
+    }
+
+    public static void setBigBonesCompleted(boolean value) {
+        bigBonesCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
         hewnStonesCompleted = false;
+        bigBonesCompleted = false;
     }
 }
