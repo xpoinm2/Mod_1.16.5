@@ -4,7 +4,9 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -74,7 +76,17 @@ public class StoneToolsQuestScreen extends Screen {
         drawString(ms, this.font, "топор, мотыгу", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
         drawString(ms, this.font, "и лопату", rightX, rightY, 0xFFFFFF00);
-        rightY += 25;
+        Minecraft mc = Minecraft.getInstance();
+        ItemStack[] stacks = new ItemStack[]{
+                new ItemStack(ModItems.STONE_PICKAXE.get()),
+                new ItemStack(ModItems.STONE_AXE.get()),
+                new ItemStack(ModItems.STONE_HOE.get()),
+                new ItemStack(ModItems.STONE_SHOVEL.get())
+        };
+        for (int i = 0; i < stacks.length; i++) {
+            mc.getItemRenderer().renderAndDecorateItem(stacks[i], rightX + i * 20, rightY + 10);
+        }
+        rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
         drawString(ms, this.font, "Деревянные инструменты", rightX, rightY, 0xFFFFFF00);

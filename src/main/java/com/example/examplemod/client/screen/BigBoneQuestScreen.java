@@ -4,7 +4,9 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -64,7 +66,9 @@ public class BigBoneQuestScreen extends Screen {
         drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
         drawString(ms, this.font, "Добыть 10 больших костей", rightX, rightY, 0xFFFFFF00);
-        rightY += 25;
+        Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(
+                new ItemStack(ModItems.BIG_BONE.get(), 10), rightX, rightY + 10);
+        rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
         drawString(ms, this.font, "Добываются с животных", rightX, rightY, 0xFFFFFF00);
