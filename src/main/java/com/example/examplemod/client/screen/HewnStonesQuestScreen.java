@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
+import org.lwjgl.glfw.GLFW;
+import com.example.examplemod.client.GuiUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,6 +18,7 @@ public class HewnStonesQuestScreen extends Screen {
     private final Screen parent;
     private int scrollOffset = 0;
     private int maxScroll = 0;
+    private ItemStack hoveredStack = ItemStack.EMPTY;
 
     public HewnStonesQuestScreen(Screen parent) {
         super(new StringTextComponent("Оттёсанные камни"));
@@ -45,6 +48,7 @@ public class HewnStonesQuestScreen extends Screen {
     @Override
     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
         this.renderBackground(ms);
+        hoveredStack = ItemStack.EMPTY;
         int x0 = 10;
         int y0 = 10;
         int width = this.width - 20;
@@ -74,8 +78,10 @@ public class HewnStonesQuestScreen extends Screen {
         drawString(ms, this.font, "Нужно получить 10", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
         drawString(ms, this.font, "оттёсанных камней", rightX, rightY, 0xFFFFFF00);
-        Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(
-                new ItemStack(ModItems.HEWN_STONE.get(), 10), rightX, rightY + 10);
+        ItemStack stack = new ItemStack(ModItems.HEWN_STONE.get(), 10);
+        if (GuiUtil.renderItemWithTooltip(this, ms, stack, rightX, rightY + 10, mouseX, mouseY)) {
+            hoveredStack = stack;
+        }
         rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
@@ -111,6 +117,24 @@ public class HewnStonesQuestScreen extends Screen {
         int width = (int) (this.font.width(text) * scale);
         int underlineY = (int) (y + this.font.lineHeight * scale);
         fill(ms, x, underlineY, x + width, underlineY + 1, color);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!hoveredStack.isEmpty() && button == 0) {
+            GuiUtil.openRecipe(hoveredStack);
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (!hoveredStack.isEmpty() && keyCode == GLFW.GLFW_KEY_R) {
+            GuiUtil.openRecipe(hoveredStack);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

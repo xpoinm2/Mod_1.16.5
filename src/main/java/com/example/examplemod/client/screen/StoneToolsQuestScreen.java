@@ -4,10 +4,11 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
+import org.lwjgl.glfw.GLFW;
+import com.example.examplemod.client.GuiUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,6 +17,7 @@ public class StoneToolsQuestScreen extends Screen {
     private final Screen parent;
     private int scrollOffset = 0;
     private int maxScroll = 0;
+    private ItemStack hoveredStack = ItemStack.EMPTY;
 
     public StoneToolsQuestScreen(Screen parent) {
         super(new StringTextComponent("Каменные инструменты"));
@@ -45,6 +47,7 @@ public class StoneToolsQuestScreen extends Screen {
     @Override
     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
         this.renderBackground(ms);
+        hoveredStack = ItemStack.EMPTY;
         int x0 = 10;
         int y0 = 10;
         int width = this.width - 20;
@@ -76,7 +79,6 @@ public class StoneToolsQuestScreen extends Screen {
         drawString(ms, this.font, "топор, мотыгу", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
         drawString(ms, this.font, "и лопату", rightX, rightY, 0xFFFFFF00);
-        Minecraft mc = Minecraft.getInstance();
         ItemStack[] stacks = new ItemStack[]{
                 new ItemStack(ModItems.STONE_PICKAXE.get()),
                 new ItemStack(ModItems.STONE_AXE.get()),
@@ -84,7 +86,9 @@ public class StoneToolsQuestScreen extends Screen {
                 new ItemStack(ModItems.STONE_SHOVEL.get())
         };
         for (int i = 0; i < stacks.length; i++) {
-            mc.getItemRenderer().renderAndDecorateItem(stacks[i], rightX + i * 20, rightY + 10);
+            if (GuiUtil.renderItemWithTooltip(this, ms, stacks[i], rightX + i * 20, rightY + 10, mouseX, mouseY)) {
+                hoveredStack = stacks[i];
+            }
         }
         rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
@@ -130,6 +134,24 @@ public class StoneToolsQuestScreen extends Screen {
         int width = (int) (this.font.width(text) * scale);
         int underlineY = (int) (y + this.font.lineHeight * scale);
         fill(ms, x, underlineY, x + width, underlineY + 1, color);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!hoveredStack.isEmpty() && button == 0) {
+            GuiUtil.openRecipe(hoveredStack);
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (!hoveredStack.isEmpty() && keyCode == GLFW.GLFW_KEY_R) {
+            GuiUtil.openRecipe(hoveredStack);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
