@@ -2,6 +2,7 @@ package com.example.examplemod.client.screen;
 
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.ItemIconButton;
+import com.example.examplemod.ModItems;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
@@ -17,6 +18,7 @@ public class ProgressProductionScreen extends Screen {
     private final Screen parent;
     private ItemIconButton planksButton;
     private ItemIconButton slabsButton;
+    private ItemIconButton stoneToolsButton;
 
     public ProgressProductionScreen(Screen parent) {
         super(new StringTextComponent("Производство"));
@@ -44,6 +46,12 @@ public class ProgressProductionScreen extends Screen {
                 b -> this.minecraft.setScreen(new SlabsQuestScreen(this)));
         this.slabsButton.active = QuestManager.isPlanksCompleted();
         this.addButton(this.slabsButton);
+
+        this.stoneToolsButton = new ItemIconButton(x + spacing * 2, y,
+                new ItemStack(ModItems.STONE_PICKAXE.get()),
+                b -> this.minecraft.setScreen(new StoneToolsQuestScreen(this)));
+        this.stoneToolsButton.active = QuestManager.isHewnStonesCompleted();
+        this.addButton(this.stoneToolsButton);
         super.init();
     }
 
@@ -75,6 +83,17 @@ public class ProgressProductionScreen extends Screen {
             slabsColor = 0xFF00BFFF; // available
         }
         this.slabsButton.setBorderColor(slabsColor);
+
+        this.stoneToolsButton.active = QuestManager.isHewnStonesCompleted();
+        int toolsColor;
+        if (!QuestManager.isHewnStonesCompleted()) {
+            toolsColor = 0xFFFF0000; // locked
+        } else if (QuestManager.isStoneToolsCompleted()) {
+            toolsColor = 0xFF00FF00; // completed
+        } else {
+            toolsColor = 0xFF00BFFF; // available
+        }
+        this.stoneToolsButton.setBorderColor(toolsColor);
 
         super.render(ms, mouseX, mouseY, pt);
     }
