@@ -73,9 +73,8 @@ sourceSets.main.resources {
 
 // Репозитории для зависимостей
 repositories {
-    maven { url = 'https://maven.blamejared.com'
-        url = 'https://dvs1.progwml6.com/files/maven/' }
-
+    maven { url 'https://maven.blamejared.com' }
+    maven { url 'https://dvs1.progwml6.com/files/maven' }
     mavenCentral()
 }
 
