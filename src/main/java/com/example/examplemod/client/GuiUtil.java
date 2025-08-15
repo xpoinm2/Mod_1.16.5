@@ -20,7 +20,10 @@ public final class GuiUtil {
                                                 int x, int y, int mouseX, int mouseY) {
         Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(stack, x, y);
         if (mouseX >= x && mouseX < x + 16 && mouseY >= y && mouseY < y + 16) {
-            screen.renderTooltip(ms, (ITextComponent) screen.getTooltipFromItem(stack), mouseX, mouseY);
+            // Screen#getTooltipFromItem returns a list of components, which can be passed
+            // directly to Screen#renderTooltip. Casting the list to a single component
+            // causes a ClassCastException. Simply render the tooltip for the stack.
+            screen.renderTooltip(ms, stack, mouseX, mouseY);
             return true;
         }
         return false;
