@@ -6,7 +6,6 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 
@@ -43,7 +42,7 @@ public class ItemIconButton extends Button {
         if (this.isHovered()) {
             Screen screen = minecraft.screen;
             if (screen != null) {
-                screen.renderTooltip(ms, (ITextComponent) screen.getTooltipFromItem(stack), mouseX, mouseY);
+                screen.renderComponentTooltip(ms, screen.getTooltipFromItem(stack), mouseX, mouseY);
             }
         }
     }
