@@ -20,18 +20,13 @@ public final class GuiUtil {
                                                 int x, int y, int mouseX, int mouseY) {
         Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(stack, x, y);
         if (mouseX >= x && mouseX < x + 16 && mouseY >= y && mouseY < y + 16) {
-            // Screen#getTooltipFromItem returns a list of components, which can be passed
-            // directly to Screen#renderTooltip. Casting the list to a single component
-            // causes a ClassCastException. Simply render the tooltip for the stack.
-            screen.renderTooltip(ms, stack, mouseX, mouseY);
+            // Screen#getTooltipFromItem returns a list of components that can be passed
+            // directly to Screen#renderTooltip. Using the item stack overload is not
+            // available in this version, so render the tooltip from the list instead.
+            screen.renderTooltip(ms, (ITextComponent) screen.getTooltipFromItem(stack), mouseX, mouseY);
             return true;
         }
         return false;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <E extends Enum<E>> E enumValueOf(Class<?> enumClass, String name) {
-        return Enum.valueOf((Class<E>) enumClass.asSubclass(Enum.class), name);
     }
 
     /**
@@ -51,7 +46,7 @@ public final class GuiUtil {
             Object recipeManager = jeiRuntimeClass.getMethod("getRecipeManager").invoke(runtime);
             Class<?> recipeManagerClass = Class.forName("mezz.jei.api.recipe.IRecipeManager");
             Class<?> modeClass = Class.forName("mezz.jei.api.recipe.IFocus$Mode");
-            Object mode = enumValueOf(modeClass, "OUTPUT");
+            Object mode = Enum.valueOf(modeClass.asSubclass(Enum.class), "OUTPUT");
             Object focus = recipeManagerClass
                     .getMethod("createFocus", modeClass, Object.class)
                     .invoke(recipeManager, mode, stack);
