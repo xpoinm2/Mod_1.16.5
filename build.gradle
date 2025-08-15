@@ -73,13 +73,17 @@ sourceSets.main.resources {
 
 // Репозитории для зависимостей
 repositories {
-    maven { url = 'https://maven.blamejared.com' }
+    maven { url = 'https://maven.blamejared.com'
+        url = 'https://dvs1.progwml6.com/files/maven/' }
+
     mavenCentral()
 }
 
 dependencies {
     // Forge для Minecraft 1.16.5
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
+    compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.1.152:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.1.152")
 
     // CraftTweaker: сlasspath-only в деве и runtime в run/mods/
     compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.2.527")
