@@ -39,15 +39,8 @@ public class ProgressGatheringScreen extends Screen {
         int y = 60;
         int spacingX = 50;
         int spacingY = 23;
-        this.hewnStoneButton = new ItemIconButton(x, y, new ItemStack(ModItems.HEWN_STONE.get()),
-                b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Оттёсанный камень")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований")));
-        this.addButton(this.hewnStoneButton);
 
-        this.branchButton = new ItemIconButton(x + spacingX, y, new ItemStack(ModItems.BRANCH.get()),
+        this.branchButton = new ItemIconButton(x, y, new ItemStack(ModItems.BRANCH.get()),
                 b -> this.minecraft.setScreen(new BranchQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Ветка")
@@ -55,14 +48,22 @@ public class ProgressGatheringScreen extends Screen {
                         new StringTextComponent("Нет требований")));
         this.addButton(this.branchButton);
 
-        this.bigBoneButton = new ItemIconButton(x, y + spacingY, new ItemStack(ModItems.BIG_BONE.get()),
+        this.hewnStoneButton = new ItemIconButton(x, y + spacingY, new ItemStack(ModItems.HEWN_STONE.get()),
+                b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Оттёсанный камень")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
+        this.addButton(this.hewnStoneButton);
+
+        this.bigBoneButton = new ItemIconButton(x, y + spacingY * 2, new ItemStack(ModItems.BIG_BONE.get()),
                 b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Большая кость")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
         this.addButton(this.bigBoneButton);
-        this.sharpBoneButton = new ItemIconButton(x + spacingX, y + spacingY,
+        this.sharpBoneButton = new ItemIconButton(x + spacingX, y + spacingY * 2,
                 new ItemStack(ModItems.SHARPENED_BONE.get()),
                 b -> this.minecraft.setScreen(new SharpenedBoneQuestScreen(this)),
                 () -> Arrays.asList(
@@ -72,7 +73,7 @@ public class ProgressGatheringScreen extends Screen {
                                 .append(new StringTextComponent("Большая кость")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.sharpBoneButton);
-        this.flaxFibersButton = new ItemIconButton(x, y + spacingY * 2,
+        this.flaxFibersButton = new ItemIconButton(x, y + spacingY * 3,
                 new ItemStack(ModItems.FLAX_FIBERS.get()),
                 b -> this.minecraft.setScreen(new FlaxFibersQuestScreen(this)),
                 () -> Arrays.asList(

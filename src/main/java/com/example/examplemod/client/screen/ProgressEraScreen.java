@@ -1,8 +1,8 @@
 package com.example.examplemod.client.screen;
 
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.client.GuiUtil;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,10 +26,10 @@ public class ProgressEraScreen extends Screen {
         int tabH = 20;
         int x = 20;
         int y = 60;
-        this.addButton(new FramedButton(x, y, tabW, tabH, "Собирательство", 0xFFFFFF00, 0xFFFF0000,
+        this.addButton(new FramedButton(x, y, tabW, tabH, "Собирательство", 0xFF000000, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new ProgressGatheringScreen(this))));
-        this.addButton(new FramedButton(x, y + 25, tabW, tabH, "Металлургия", 0xFFFFFF00, 0xFFFF0000, b -> {}));
-        this.addButton(new FramedButton(x, y + 50, tabW, tabH, "Производство", 0xFFFFFF00, 0xFFFF0000,
+        this.addButton(new FramedButton(x, y + 25, tabW, tabH, "Металлургия", 0xFF000000, 0xFFFF0000, b -> {}));
+        this.addButton(new FramedButton(x, y + 50, tabW, tabH, "Производство", 0xFF000000, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new ProgressProductionScreen(this))));
         super.init();
     }
@@ -42,7 +42,7 @@ public class ProgressEraScreen extends Screen {
     @Override
     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
         this.renderBackground(ms);
-        AbstractGui.fill(ms, 0, 0, this.width, this.height, 0xCC000000);
+        GuiUtil.drawPanel(ms, 10, 10, this.width - 20, this.height - 20);
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
         super.render(ms, mouseX, mouseY, pt);
     }
