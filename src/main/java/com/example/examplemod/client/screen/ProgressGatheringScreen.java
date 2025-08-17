@@ -3,6 +3,7 @@ package com.example.examplemod.client.screen;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.ItemIconButton;
+import com.example.examplemod.client.screen.FlaxFibersQuestScreen;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
@@ -20,6 +21,7 @@ public class ProgressGatheringScreen extends Screen {
     private ItemIconButton hewnStoneButton;
     private ItemIconButton bigBoneButton;
     private ItemIconButton sharpBoneButton;
+    private ItemIconButton flaxFibersButton;
 
     public ProgressGatheringScreen(Screen parent) {
         super(new StringTextComponent("Собирательство"));
@@ -32,7 +34,8 @@ public class ProgressGatheringScreen extends Screen {
                 b -> this.minecraft.setScreen(parent)));
         int x = 40;
         int y = 60;
-        int spacing = 50;
+        int spacingX = 50;
+        int spacingY = 23;
         this.hewnStoneButton = new ItemIconButton(x, y, new ItemStack(ModItems.HEWN_STONE.get()),
                 b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
                 () -> Arrays.asList(
@@ -40,14 +43,14 @@ public class ProgressGatheringScreen extends Screen {
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
         this.addButton(this.hewnStoneButton);
-        this.bigBoneButton = new ItemIconButton(x, y + spacing, new ItemStack(ModItems.BIG_BONE.get()),
+        this.bigBoneButton = new ItemIconButton(x, y + spacingY, new ItemStack(ModItems.BIG_BONE.get()),
                 b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Большая кость")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
         this.addButton(this.bigBoneButton);
-        this.sharpBoneButton = new ItemIconButton(x + spacing, y + spacing,
+        this.sharpBoneButton = new ItemIconButton(x + spacingX, y + spacingY,
                 new ItemStack(ModItems.SHARPENED_BONE.get()),
                 b -> this.minecraft.setScreen(new SharpenedBoneQuestScreen(this)),
                 () -> Arrays.asList(
@@ -57,6 +60,14 @@ public class ProgressGatheringScreen extends Screen {
                                 .append(new StringTextComponent("Большая кость")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.sharpBoneButton);
+        this.flaxFibersButton = new ItemIconButton(x, y + spacingY * 2,
+                new ItemStack(ModItems.FLAX_FIBERS.get()),
+                b -> this.minecraft.setScreen(new FlaxFibersQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Волокна льна")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований"))));
+        this.addButton(this.flaxFibersButton);
         super.init();
     }
 
@@ -85,7 +96,20 @@ public class ProgressGatheringScreen extends Screen {
             sharpColor = 0xFF00BFFF;
         }
         this.sharpBoneButton.setBorderColor(sharpColor);
+        this.flaxFibersButton.setBorderColor(
+                QuestManager.isFlaxFibersCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+
+        drawConnection(ms, this.bigBoneButton, this.sharpBoneButton);
 
         super.render(ms, mouseX, mouseY, pt);
+    }
+
+    private void drawConnection(MatrixStack ms, ItemIconButton from, ItemIconButton to) {
+        int x1 = from.x + from.width;
+        int y1 = from.y + from.height / 2;
+        int x2 = to.x;
+        int y2 = to.y + to.height / 2;
+        AbstractGui.fill(ms, x1, y1, x2, y1 + 1, 0xFFFFFFFF);
+        AbstractGui.fill(ms, x2 - 1, Math.min(y1, y2), x2, Math.max(y1, y2), 0xFFFFFFFF);
     }
 }

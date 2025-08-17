@@ -7,6 +7,7 @@ import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.IReorderingProcessor;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,6 +18,13 @@ public class FlaxFibersQuestScreen extends Screen {
     private final Screen parent;
     private int scrollOffset = 0;
     private int maxScroll = 0;
+    private int contentHeight = 0;
+    private int viewHeight = 0;
+    private int contentStart = 0;
+    private int scrollbarX = 0;
+    private int scrollbarY = 0;
+    private int scrollbarHeight = 0;
+    private boolean draggingScrollbar = false;
     private ItemStack hoveredStack = ItemStack.EMPTY;
 
     public FlaxFibersQuestScreen(Screen parent) {
@@ -51,7 +59,7 @@ public class FlaxFibersQuestScreen extends Screen {
         int x0 = 10;
         int y0 = 10;
         int width = this.width - 20;
-        int height = this.height - 20;
+        int height = this.height - 60;
         fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0 + height + 1, 0xFF000000);
         fill(ms, x0, y0, x0 + width, y0 + height, 0xFF000000);
         drawTitle(ms, x0 + width / 2, y0 + 15);
@@ -66,7 +74,7 @@ public class FlaxFibersQuestScreen extends Screen {
         leftY += 10;
         drawString(ms, this.font, "предметов.", leftX, leftY, 0xFFFFFF00);
 
-        int rightX = x0 + width / 2 + 20;
+        int rightX = x0 + width / 2 + 10;
         int rightY = y0 + 40 - scrollOffset;
         drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
@@ -80,28 +88,28 @@ public class FlaxFibersQuestScreen extends Screen {
         rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
-        drawString(ms, this.font, "Лён растение. Растет", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "в биомах равнин, лесов", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "и болот.", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "Замочите лён в воде.", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "Вымоченный лён повесьте", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "на листву.", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "Через 2 минуты он", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "высохнет.", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "Гребнем соберите", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "волокна.", rightX, rightY, 0xFFFFFF00);
+        String instruction = "Лён растение. Растет в биомах равнин, лесов и болот. Замочите лён в воде. " +
+                "Вымоченный лён повесьте на листву. Через 2 минуты он высохнет. Гребнем соберите волокна.";
+        int rightWidth = width - (rightX - x0) - 20;
+        for (IReorderingProcessor line : this.font.split(new StringTextComponent(instruction), rightWidth)) {
+            this.font.draw(ms, line, rightX, rightY, 0xFFFFFF00);
+            rightY += 10;
+        }
         int contentBottom = Math.max(leftY, rightY);
-        maxScroll = Math.max(0, contentBottom - (y0 + height - 10));
+        contentStart = y0 + 40;
+        viewHeight = height - 50;
+        contentHeight = contentBottom - contentStart;
+        maxScroll = Math.max(0, contentHeight - viewHeight);
+        if (maxScroll > 0) {
+            int trackHeight = viewHeight;
+            scrollbarHeight = Math.max(20, trackHeight * viewHeight / contentHeight);
+            scrollbarX = x0 + width - 8;
+            scrollbarY = contentStart + (scrollOffset * (trackHeight - scrollbarHeight)) / maxScroll;
+        }
         super.render(ms, mouseX, mouseY, pt);
+        if (maxScroll > 0) {
+            fill(ms, scrollbarX, scrollbarY, scrollbarX + 4, scrollbarY + scrollbarHeight, 0xFFFFFFFF);
+        }
     }
 
     private boolean hasRequiredItems() {
@@ -134,6 +142,11 @@ public class FlaxFibersQuestScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (maxScroll > 0 && mouseX >= scrollbarX && mouseX <= scrollbarX + 4 &&
+                mouseY >= scrollbarY && mouseY <= scrollbarY + scrollbarHeight) {
+            draggingScrollbar = true;
+            return true;
+        }
         if (!hoveredStack.isEmpty()) {
             if (button == 0) {
                 GuiUtil.openRecipe(hoveredStack);
@@ -169,5 +182,25 @@ public class FlaxFibersQuestScreen extends Screen {
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (draggingScrollbar) {
+            int trackHeight = viewHeight - scrollbarHeight;
+            int y = (int) Math.max(0, Math.min(trackHeight, mouseY - contentStart));
+            scrollOffset = (int) ((y * (double) maxScroll) / trackHeight);
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (draggingScrollbar) {
+            draggingScrollbar = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 }
