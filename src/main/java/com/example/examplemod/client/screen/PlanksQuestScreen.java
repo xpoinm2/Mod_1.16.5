@@ -3,10 +3,11 @@ package com.example.examplemod.client.screen;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 import com.example.examplemod.client.GuiUtil;
@@ -54,8 +55,10 @@ public class PlanksQuestScreen extends Screen {
         int y0 = 10;
         int width = this.width - 20;
         int height = this.height - 20;
-        fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0 + height + 1, 0xFF000000);
-        fill(ms, x0, y0, x0 + width, y0 + height, 0xFF000000);
+        fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0, 0xFF000000);
+        fill(ms, x0 - 1, y0 + height, x0 + width + 1, y0 + height + 1, 0xFF000000);
+        fill(ms, x0 - 1, y0, x0, y0 + height, 0xFF000000);
+        fill(ms, x0 + width, y0, x0 + width + 1, y0 + height, 0xFF000000);
         drawTitle(ms, x0 + width / 2, y0 + 15);
 
         int leftX = x0 + 20;
@@ -71,9 +74,13 @@ public class PlanksQuestScreen extends Screen {
         drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
         drawString(ms, this.font, "Нужно получить 4 доски", rightX, rightY, 0xFFFFFF00);
-        ItemStack stack = new ItemStack(Items.OAK_PLANKS, 4);
-        if (GuiUtil.renderItemWithTooltip(this, ms, stack, rightX, rightY + 10, mouseX, mouseY)) {
-            hoveredStack = stack;
+        int i = 0;
+        for (Item plank : ItemTags.PLANKS.getValues()) {
+            ItemStack stack = new ItemStack(plank, 4);
+            if (GuiUtil.renderItemWithTooltip(this, ms, stack, rightX + i * 20, rightY + 10, mouseX, mouseY)) {
+                hoveredStack = stack;
+            }
+            i++;
         }
         rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
@@ -85,8 +92,19 @@ public class PlanksQuestScreen extends Screen {
     }
 
     private boolean hasRequiredItems() {
-        return this.minecraft.player != null &&
-                this.minecraft.player.inventory.countItem(Items.OAK_PLANKS) >= 4;
+        if (this.minecraft.player == null) {
+            return false;
+        }
+        int count = 0;
+        for (ItemStack stack : this.minecraft.player.inventory.items) {
+            if (stack.getItem().is(ItemTags.PLANKS)) {
+                count += stack.getCount();
+                if (count >= 4) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void drawTitle(MatrixStack ms, int centerX, int y) {

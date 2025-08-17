@@ -37,8 +37,9 @@ public class BoneToolsQuestScreen extends Screen {
         int btnY = this.height - btnHeight - 15;
         this.addButton(new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
-                    if (hasRequiredItems() && QuestManager.isSlabsCompleted()
-                            && QuestManager.isSharpenedBoneCompleted()) {
+                    if (hasRequiredItems() && QuestManager.isHewnStonesCompleted()
+                            && QuestManager.isFlaxFibersCompleted()
+                            && QuestManager.isBranchCompleted()) {
                         QuestManager.setBoneToolsCompleted(true);
                     }
                 }));
@@ -53,8 +54,10 @@ public class BoneToolsQuestScreen extends Screen {
         int y0 = 10;
         int width = this.width - 20;
         int height = this.height - 20;
-        fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0 + height + 1, 0xFF000000);
-        fill(ms, x0, y0, x0 + width, y0 + height, 0xFF000000);
+        fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0, 0xFF000000);
+        fill(ms, x0 - 1, y0 + height, x0 + width + 1, y0 + height + 1, 0xFF000000);
+        fill(ms, x0 - 1, y0, x0, y0 + height, 0xFF000000);
+        fill(ms, x0 + width, y0, x0 + width + 1, y0 + height, 0xFF000000);
         drawTitle(ms, x0 + width / 2, y0 + 15);
 
         int leftX = x0 + 20;

@@ -62,13 +62,13 @@ public class ProgressProductionScreen extends Screen {
                         new StringTextComponent("Каменные инструменты")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Доски")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Плиты")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
                                 .append(new StringTextComponent("Оттёсанный камень")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Волокна льна")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Ветка")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.stoneToolsButton);
 
@@ -79,10 +79,13 @@ public class ProgressProductionScreen extends Screen {
                         new StringTextComponent("Костяные инструменты")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Плиты")
+                                .append(new StringTextComponent("Оттёсанный камень")
                                         .withStyle(TextFormatting.BLUE))
                                 .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Заостренная кость")
+                                .append(new StringTextComponent("Волокна льна")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Ветка")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.boneToolsButton);
 
@@ -124,9 +127,9 @@ public class ProgressProductionScreen extends Screen {
         }
         this.slabsButton.setBorderColor(slabsColor);
 
-        boolean stoneUnlocked = QuestManager.isPlanksCompleted() &&
-                QuestManager.isSlabsCompleted() &&
-                QuestManager.isHewnStonesCompleted();
+        boolean stoneUnlocked = QuestManager.isHewnStonesCompleted() &&
+                QuestManager.isFlaxFibersCompleted() &&
+                QuestManager.isBranchCompleted();
         int toolsColor;
         if (!stoneUnlocked) {
             toolsColor = 0xFFFF0000; // locked
@@ -137,8 +140,9 @@ public class ProgressProductionScreen extends Screen {
         }
         this.stoneToolsButton.setBorderColor(toolsColor);
 
-        boolean boneUnlocked = QuestManager.isSlabsCompleted() &&
-                QuestManager.isSharpenedBoneCompleted();
+        boolean boneUnlocked = QuestManager.isHewnStonesCompleted() &&
+                QuestManager.isFlaxFibersCompleted() &&
+                QuestManager.isBranchCompleted();
         int boneColor;
         if (!boneUnlocked) {
             boneColor = 0xFFFF0000; // locked
@@ -160,9 +164,6 @@ public class ProgressProductionScreen extends Screen {
         this.combButton.setBorderColor(combColor);
 
         drawConnection(ms, this.planksButton, this.slabsButton);
-        drawConnection(ms, this.planksButton, this.stoneToolsButton);
-        drawConnection(ms, this.slabsButton, this.stoneToolsButton);
-        drawConnection(ms, this.slabsButton, this.boneToolsButton);
 
         super.render(ms, mouseX, mouseY, pt);
     }

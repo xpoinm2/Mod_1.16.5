@@ -2,26 +2,25 @@ package com.example.examplemod.client.screen;
 
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
-import org.lwjgl.glfw.GLFW;
-import com.example.examplemod.client.GuiUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.lwjgl.glfw.GLFW;
 
 @OnlyIn(Dist.CLIENT)
-public class HewnStonesQuestScreen extends Screen {
+public class BranchQuestScreen extends Screen {
     private final Screen parent;
     private int scrollOffset = 0;
     private int maxScroll = 0;
     private ItemStack hoveredStack = ItemStack.EMPTY;
 
-    public HewnStonesQuestScreen(Screen parent) {
-        super(new StringTextComponent("Оттёсанные камни"));
+    public BranchQuestScreen(Screen parent) {
+        super(new StringTextComponent("Ветка"));
         this.parent = parent;
     }
 
@@ -39,7 +38,7 @@ public class HewnStonesQuestScreen extends Screen {
         this.addButton(new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
                     if (hasRequiredItems()) {
-                        QuestManager.setHewnStonesCompleted(true);
+                        QuestManager.setBranchCompleted(true);
                     }
                 }));
         super.init();
@@ -63,31 +62,23 @@ public class HewnStonesQuestScreen extends Screen {
         int leftY = y0 + 40 - scrollOffset;
         drawScaledUnderlined(ms, "Описание", leftX, leftY, 0xFFFFFFFF, 4f/3f);
         leftY += 30;
-        drawString(ms, this.font, "Сбор обломков: люди искали уже", leftX, leftY, 0xFFFFFF00);
+        drawString(ms, this.font, "Можно собирать ветки", leftX, leftY, 0xFFFFFF00);
         leftY += 10;
-        drawString(ms, this.font, "отщепленные природой или ледниками", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "куски кремня и базальта на", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "поверхности, особенно в речных", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "галечниках и моренах.", leftX, leftY, 0xFFFFFF00);
+        drawString(ms, this.font, "с деревьев.", leftX, leftY, 0xFFFFFF00);
 
         int rightX = x0 + width / 2 + 20;
         int rightY = y0 + 40 - scrollOffset;
         drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
-        drawString(ms, this.font, "Нужно получить 10", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "оттёсанных камней", rightX, rightY, 0xFFFFFF00);
-        ItemStack stack = new ItemStack(ModItems.HEWN_STONE.get(), 10);
+        drawString(ms, this.font, "Собрать 20 веток", rightX, rightY, 0xFFFFFF00);
+        ItemStack stack = new ItemStack(ModItems.BRANCH.get(), 20);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, rightX, rightY + 10, mouseX, mouseY)) {
             hoveredStack = stack;
         }
         rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
-        drawString(ms, this.font, "Камни находятся в реках", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "Падают с листвы", rightX, rightY, 0xFFFFFF00);
         int contentBottom = Math.max(leftY, rightY);
         maxScroll = Math.max(0, contentBottom - (y0 + height - 10));
         super.render(ms, mouseX, mouseY, pt);
@@ -95,7 +86,7 @@ public class HewnStonesQuestScreen extends Screen {
 
     private boolean hasRequiredItems() {
         return this.minecraft.player != null &&
-                this.minecraft.player.inventory.countItem(ModItems.HEWN_STONE.get()) >= 10;
+                this.minecraft.player.inventory.countItem(ModItems.BRANCH.get()) >= 20;
     }
 
     private void drawTitle(MatrixStack ms, int centerX, int y) {
@@ -104,7 +95,7 @@ public class HewnStonesQuestScreen extends Screen {
         ms.scale(2.0F, 2.0F, 2.0F);
         drawCenteredString(ms, this.font, title, (int) (centerX / 2f), (int) (y / 2f), 0xFF00BFFF);
         ms.popPose();
-        if (QuestManager.isHewnStonesCompleted()) {
+        if (QuestManager.isBranchCompleted()) {
             int titleWidth = this.font.width(title) * 2;
             drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, y, 0xFF00FF00);
         }

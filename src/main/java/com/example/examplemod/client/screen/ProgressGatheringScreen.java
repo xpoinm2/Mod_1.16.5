@@ -3,6 +3,7 @@ package com.example.examplemod.client.screen;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.ItemIconButton;
+import com.example.examplemod.client.screen.BranchQuestScreen;
 import com.example.examplemod.client.screen.FlaxFibersQuestScreen;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 public class ProgressGatheringScreen extends Screen {
     private final Screen parent;
     private ItemIconButton hewnStoneButton;
+    private ItemIconButton branchButton;
     private ItemIconButton bigBoneButton;
     private ItemIconButton sharpBoneButton;
     private ItemIconButton flaxFibersButton;
@@ -43,6 +45,15 @@ public class ProgressGatheringScreen extends Screen {
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
         this.addButton(this.hewnStoneButton);
+
+        this.branchButton = new ItemIconButton(x + spacingX, y, new ItemStack(ModItems.BRANCH.get()),
+                b -> this.minecraft.setScreen(new BranchQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Ветка")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
+        this.addButton(this.branchButton);
+
         this.bigBoneButton = new ItemIconButton(x, y + spacingY, new ItemStack(ModItems.BIG_BONE.get()),
                 b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
                 () -> Arrays.asList(
@@ -85,6 +96,8 @@ public class ProgressGatheringScreen extends Screen {
         // Update button color based on quest state
         this.hewnStoneButton.setBorderColor(
                 QuestManager.isHewnStonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+        this.branchButton.setBorderColor(
+                QuestManager.isBranchCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         this.bigBoneButton.setBorderColor(
                 QuestManager.isBigBonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         int sharpColor;
