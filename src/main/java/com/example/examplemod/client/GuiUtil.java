@@ -4,7 +4,6 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.ModList;
 
 /** Utility methods for rendering quest items with tooltips and JEI integration. */
@@ -20,10 +19,10 @@ public final class GuiUtil {
                                                 int x, int y, int mouseX, int mouseY) {
         Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(stack, x, y);
         if (mouseX >= x && mouseX < x + 16 && mouseY >= y && mouseY < y + 16) {
-            // Screen#getTooltipFromItem returns a list of components that can be passed
-            // directly to Screen#renderTooltip. Using the item stack overload is not
-            // available in this version, so render the tooltip from the list instead.
-            screen.renderTooltip(ms, (ITextComponent) screen.getTooltipFromItem(stack), mouseX, mouseY);
+            // directly to Screen#renderComponentTooltip, which handles rendering a list
+            // of lines. Attempting to cast the list to a single ITextComponent causes
+            // a ClassCastException, so use the proper overload instead.
+            screen.renderComponentTooltip(ms, screen.getTooltipFromItem(stack), mouseX, mouseY);
             return true;
         }
         return false;
