@@ -6,8 +6,12 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Button that displays an item icon instead of text and supports
@@ -17,12 +21,22 @@ public class ItemIconButton extends Button {
     private int borderColor;
     private final int fillColor;
     private final ItemStack stack;
+    private final Supplier<List<ITextComponent>> tooltipSupplier;
 
     public ItemIconButton(int x, int y, ItemStack stack, IPressable press) {
+        this(x, y, stack, press, () -> {
+            Screen screen = Minecraft.getInstance().screen;
+            return screen != null ? screen.getTooltipFromItem(stack) : Collections.emptyList();
+        });
+    }
+
+    public ItemIconButton(int x, int y, ItemStack stack, IPressable press,
+                          Supplier<List<ITextComponent>> tooltipSupplier) {
         super(x, y, 20, 20, StringTextComponent.EMPTY, press);
         this.borderColor = 0xFFFFFF00;
         this.fillColor = 0xFF333333;
         this.stack = stack;
+        this.tooltipSupplier = tooltipSupplier;
     }
 
     /**
@@ -42,7 +56,7 @@ public class ItemIconButton extends Button {
         if (this.isHovered()) {
             Screen screen = minecraft.screen;
             if (screen != null) {
-                screen.renderComponentTooltip(ms, screen.getTooltipFromItem(stack), mouseX, mouseY);
+                screen.renderComponentTooltip(ms, tooltipSupplier.get(), mouseX, mouseY);
             }
         }
     }

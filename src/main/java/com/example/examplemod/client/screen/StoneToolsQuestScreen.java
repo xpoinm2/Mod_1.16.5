@@ -37,7 +37,9 @@ public class StoneToolsQuestScreen extends Screen {
         int btnY = this.height - btnHeight - 15;
         this.addButton(new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
-                    if (hasRequiredItems()) {
+                    if (hasRequiredItems() && QuestManager.isPlanksCompleted()
+                            && QuestManager.isSlabsCompleted()
+                            && QuestManager.isHewnStonesCompleted()) {
                         QuestManager.setStoneToolsCompleted(true);
                     }
                 }));

@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import java.util.Arrays;
 
 @OnlyIn(Dist.CLIENT)
 public class ProgressGatheringScreen extends Screen {
@@ -31,10 +32,12 @@ public class ProgressGatheringScreen extends Screen {
         int y = 60;
         int spacing = 50;
         this.hewnStoneButton = new ItemIconButton(x, y, new ItemStack(ModItems.HEWN_STONE.get()),
-                b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)));
+                b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
+                () -> Arrays.asList(new StringTextComponent("Оттёсанный камень"), new StringTextComponent("Нет требований")));
         this.addButton(this.hewnStoneButton);
         this.bigBoneButton = new ItemIconButton(x, y + spacing, new ItemStack(ModItems.BIG_BONE.get()),
-                b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)));
+                b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
+                () -> Arrays.asList(new StringTextComponent("Большая кость"), new StringTextComponent("Нет требований")));
         this.addButton(this.bigBoneButton);
         super.init();
     }

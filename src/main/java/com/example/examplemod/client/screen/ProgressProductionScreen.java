@@ -12,6 +12,7 @@ import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import java.util.Arrays;
 
 @OnlyIn(Dist.CLIENT)
 public class ProgressProductionScreen extends Screen {
@@ -33,24 +34,20 @@ public class ProgressProductionScreen extends Screen {
         int y = 60;
         int spacing = 50;
         this.planksButton = new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
-                b -> this.minecraft.setScreen(new PlanksQuestScreen(this)));
+                b -> this.minecraft.setScreen(new PlanksQuestScreen(this)),
+                () -> Arrays.asList(new StringTextComponent("Доски"), new StringTextComponent("Нет требований")));
         this.addButton(this.planksButton);
-        if (QuestManager.isPlanksCompleted()) {
-            this.slabsButton = new ItemIconButton(x + 30, y, new ItemStack(Items.OAK_SLAB),
-                    b -> this.minecraft.setScreen(new SlabsQuestScreen(this)));
-            this.addButton(this.slabsButton);
-        } else {
-            this.slabsButton = null;
-        }
+
         this.slabsButton = new ItemIconButton(x + spacing, y, new ItemStack(Items.OAK_SLAB),
-                b -> this.minecraft.setScreen(new SlabsQuestScreen(this)));
-        this.slabsButton.active = QuestManager.isPlanksCompleted();
+                b -> this.minecraft.setScreen(new SlabsQuestScreen(this)),
+                () -> Arrays.asList(new StringTextComponent("Плиты"), new StringTextComponent("Требуется: Доски")));
         this.addButton(this.slabsButton);
 
         this.stoneToolsButton = new ItemIconButton(x + spacing * 2, y,
                 new ItemStack(ModItems.STONE_PICKAXE.get()),
-                b -> this.minecraft.setScreen(new StoneToolsQuestScreen(this)));
-        this.stoneToolsButton.active = QuestManager.isHewnStonesCompleted();
+                b -> this.minecraft.setScreen(new StoneToolsQuestScreen(this)),
+                () -> Arrays.asList(new StringTextComponent("Каменные инструменты"),
+                        new StringTextComponent("Требуется: Доски, Плиты, Оттесанный камень")));
         this.addButton(this.stoneToolsButton);
         super.init();
     }
@@ -69,11 +66,7 @@ public class ProgressProductionScreen extends Screen {
         // Update button states and colors based on quest progress
         this.planksButton.setBorderColor(
                 QuestManager.isPlanksCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
-        if (QuestManager.isPlanksCompleted()) {
-            this.slabsButton.active = true;
-        } else {
-            this.slabsButton.active = false;
-        }
+
         int slabsColor;
         if (!QuestManager.isPlanksCompleted()) {
             slabsColor = 0xFFFF0000; // locked
@@ -84,9 +77,11 @@ public class ProgressProductionScreen extends Screen {
         }
         this.slabsButton.setBorderColor(slabsColor);
 
-        this.stoneToolsButton.active = QuestManager.isHewnStonesCompleted();
+        boolean stoneUnlocked = QuestManager.isPlanksCompleted() &&
+                QuestManager.isSlabsCompleted() &&
+                QuestManager.isHewnStonesCompleted();
         int toolsColor;
-        if (!QuestManager.isHewnStonesCompleted()) {
+        if (!stoneUnlocked) {
             toolsColor = 0xFFFF0000; // locked
         } else if (QuestManager.isStoneToolsCompleted()) {
             toolsColor = 0xFF00FF00; // completed
