@@ -8,6 +8,8 @@ public class QuestManager {
     private static boolean sharpenedBoneCompleted = false;
     private static boolean stoneToolsCompleted = false;
     private static boolean boneToolsCompleted = false;
+    private static boolean combsCompleted = false;
+    private static boolean flaxFibersCompleted = false;
 
     public static boolean isPlanksCompleted() {
         return planksCompleted;
@@ -66,6 +68,22 @@ public class QuestManager {
         boneToolsCompleted = value;
     }
 
+    public static boolean isCombsCompleted() {
+        return combsCompleted;
+    }
+
+    public static void setCombsCompleted(boolean value) {
+        combsCompleted = value;
+    }
+
+    public static boolean isFlaxFibersCompleted() {
+        return flaxFibersCompleted;
+    }
+
+    public static void setFlaxFibersCompleted(boolean value) {
+        flaxFibersCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
@@ -74,5 +92,7 @@ public class QuestManager {
         sharpenedBoneCompleted = false;
         stoneToolsCompleted = false;
         boneToolsCompleted = false;
+        combsCompleted = false;
+        flaxFibersCompleted = false;
     }
 }

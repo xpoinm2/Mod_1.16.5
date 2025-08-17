@@ -22,6 +22,8 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton slabsButton;
     private ItemIconButton stoneToolsButton;
     private ItemIconButton boneToolsButton;
+    private ItemIconButton combButton;
+    private ItemIconButton flaxFibersButton;
 
     public ProgressProductionScreen(Screen parent) {
         super(new StringTextComponent("Производство"));
@@ -83,6 +85,28 @@ public class ProgressProductionScreen extends Screen {
                                 .append(new StringTextComponent("Заостренная кость")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.boneToolsButton);
+
+        this.combButton = new ItemIconButton(x + spacing * 3, y,
+                new ItemStack(ModItems.BONE_COMB.get()),
+                b -> this.minecraft.setScreen(new CombsQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Гребни")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Оттёсанный камень")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.combButton);
+
+        this.flaxFibersButton = new ItemIconButton(x + spacing * 3, y + 3,
+                new ItemStack(ModItems.FLAX_FIBERS.get()),
+                b -> this.minecraft.setScreen(new FlaxFibersQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Волокна льна")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Гребни")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.flaxFibersButton);
         super.init();
     }
 
@@ -135,6 +159,26 @@ public class ProgressProductionScreen extends Screen {
             boneColor = 0xFF00BFFF; // available
         }
         this.boneToolsButton.setBorderColor(boneColor);
+
+        int combColor;
+        if (!QuestManager.isHewnStonesCompleted()) {
+            combColor = 0xFFFF0000;
+        } else if (QuestManager.isCombsCompleted()) {
+            combColor = 0xFF00FF00;
+        } else {
+            combColor = 0xFF00BFFF;
+        }
+        this.combButton.setBorderColor(combColor);
+
+        int flaxColor;
+        if (!QuestManager.isCombsCompleted()) {
+            flaxColor = 0xFFFF0000;
+        } else if (QuestManager.isFlaxFibersCompleted()) {
+            flaxColor = 0xFF00FF00;
+        } else {
+            flaxColor = 0xFF00BFFF;
+        }
+        this.flaxFibersButton.setBorderColor(flaxColor);
 
         super.render(ms, mouseX, mouseY, pt);
     }

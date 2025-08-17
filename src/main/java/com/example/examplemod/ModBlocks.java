@@ -71,6 +71,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> HANGING_FLAX = BLOCKS.register("hanging_flax",
             HangingFlaxBlock::new);
 
+    // Высушенный лён
+    public static final RegistryObject<Block> DRIED_FLAX = BLOCKS.register("dried_flax",
+            DriedFlaxBlock::new);
+
     // Полублок хвороста
     public static final RegistryObject<Block> BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab",
             BrushwoodSlabBlock::new);
@@ -301,22 +305,53 @@ public class ModBlocks {
         }
 
         @Override
+        public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
+            super.onPlace(state, world, pos, oldState, isMoving);
+            if (!world.isClientSide) {
+                world.getBlockTicks().scheduleTick(pos, this, 2400);
+            }
+        }
+
+        @Override
+        public void tick(BlockState state, net.minecraft.world.server.ServerWorld world, BlockPos pos, java.util.Random random) {
+            world.setBlock(pos, ModBlocks.DRIED_FLAX.get().defaultBlockState(), 2);
+        }
+
+        @Override
         public void playerDestroy(World world, PlayerEntity player, BlockPos pos, net.minecraft.block.BlockState state, @Nullable net.minecraft.tileentity.TileEntity te, ItemStack stack) {
             super.playerDestroy(world, player, pos, state, te, stack);
             if (!world.isClientSide) {
-                if (stack.getItem() == ModItems.WOODEN_COMB.get() || stack.getItem() == ModItems.BONE_COMB.get()) {
-                    Block.popResource(world, pos, new ItemStack(ModItems.FLAX_FIBERS.get()));
-                    Hand hand = player.getMainHandItem() == stack ? Hand.MAIN_HAND : Hand.OFF_HAND;
-                    player.swing(hand, true);
-                } else {
-                    Block.popResource(world, pos, new ItemStack(ModItems.SOAKED_FLAX.get()));
-                }
+                Block.popResource(world, pos, new ItemStack(ModItems.SOAKED_FLAX.get()));
             }
         }
 
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.SOAKED_FLAX.get());
+        }
+    }
+
+    // === Блок высушенного льна ===
+    public static class DriedFlaxBlock extends net.minecraft.block.BushBlock {
+        public DriedFlaxBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.FERN).noCollission());
+        }
+
+        @Override
+        public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable net.minecraft.tileentity.TileEntity te, ItemStack stack) {
+            super.playerDestroy(world, player, pos, state, te, stack);
+            if (!world.isClientSide) {
+                if (stack.getItem() == ModItems.WOODEN_COMB.get() || stack.getItem() == ModItems.BONE_COMB.get()) {
+                    Block.popResource(world, pos, new ItemStack(ModItems.FLAX_FIBERS.get()));
+                    Hand hand = player.getMainHandItem() == stack ? Hand.MAIN_HAND : Hand.OFF_HAND;
+                    player.swing(hand, true);
+                }
+            }
+        }
+
+        @Override
+        public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, BlockState state) {
+            return new ItemStack(ModItems.FLAX_FIBERS.get());
         }
     }
 
