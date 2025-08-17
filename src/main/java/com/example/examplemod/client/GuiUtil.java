@@ -56,4 +56,32 @@ public final class GuiUtil {
         } catch (Exception ignored) {
         }
     }
+    /**
+     * Opens the usages for the given stack using JEI, if available.
+     */
+    public static void openUsage(ItemStack stack) {
+        if (stack.isEmpty() || !ModList.get().isLoaded("jei")) {
+            return;
+        }
+        try {
+            Class<?> internal = Class.forName("mezz.jei.Internal");
+            Object runtime = internal.getMethod("getRuntime").invoke(null);
+            if (runtime == null) {
+                return;
+            }
+            Class<?> jeiRuntimeClass = Class.forName("mezz.jei.api.runtime.IJeiRuntime");
+            Object recipeManager = jeiRuntimeClass.getMethod("getRecipeManager").invoke(runtime);
+            Class<?> recipeManagerClass = Class.forName("mezz.jei.api.recipe.IRecipeManager");
+            Class<?> modeClass = Class.forName("mezz.jei.api.recipe.IFocus$Mode");
+            Object mode = Enum.valueOf(modeClass.asSubclass(Enum.class), "INPUT");
+            Object focus = recipeManagerClass
+                    .getMethod("createFocus", modeClass, Object.class)
+                    .invoke(recipeManager, mode, stack);
+            Object recipesGui = jeiRuntimeClass.getMethod("getRecipesGui").invoke(runtime);
+            Class<?> recipesGuiClass = Class.forName("mezz.jei.api.runtime.IRecipesGui");
+            Class<?> focusClass = Class.forName("mezz.jei.api.recipe.IFocus");
+            recipesGuiClass.getMethod("show", focusClass).invoke(recipesGui, focus);
+        } catch (Exception ignored) {
+        }
+    }
 }

@@ -49,9 +49,15 @@ public class ItemIconButton extends Button {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.isHovered() && keyCode == GLFW.GLFW_KEY_R) {
-            GuiUtil.openRecipe(stack);
-            return true;
+        if (this.isHovered()) {
+            if (keyCode == GLFW.GLFW_KEY_R) {
+                GuiUtil.openRecipe(stack);
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_U) {
+                GuiUtil.openUsage(stack);
+                return true;
+            }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }

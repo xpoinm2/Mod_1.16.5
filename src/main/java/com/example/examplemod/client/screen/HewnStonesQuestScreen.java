@@ -121,18 +121,30 @@ public class HewnStonesQuestScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!hoveredStack.isEmpty() && button == 0) {
-            GuiUtil.openRecipe(hoveredStack);
-            return true;
+        if (!hoveredStack.isEmpty()) {
+            if (button == 0) {
+                GuiUtil.openRecipe(hoveredStack);
+                return true;
+            }
+            if (button == 1) {
+                GuiUtil.openUsage(hoveredStack);
+                return true;
+            }
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (!hoveredStack.isEmpty() && keyCode == GLFW.GLFW_KEY_R) {
-            GuiUtil.openRecipe(hoveredStack);
-            return true;
+        if (!hoveredStack.isEmpty()) {
+            if (keyCode == GLFW.GLFW_KEY_R) {
+                GuiUtil.openRecipe(hoveredStack);
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_U) {
+                GuiUtil.openUsage(hoveredStack);
+                return true;
+            }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
