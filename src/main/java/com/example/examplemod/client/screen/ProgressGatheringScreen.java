@@ -9,6 +9,7 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ public class ProgressGatheringScreen extends Screen {
     private final Screen parent;
     private ItemIconButton hewnStoneButton;
     private ItemIconButton bigBoneButton;
+    private ItemIconButton sharpBoneButton;
 
     public ProgressGatheringScreen(Screen parent) {
         super(new StringTextComponent("Собирательство"));
@@ -33,12 +35,28 @@ public class ProgressGatheringScreen extends Screen {
         int spacing = 50;
         this.hewnStoneButton = new ItemIconButton(x, y, new ItemStack(ModItems.HEWN_STONE.get()),
                 b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
-                () -> Arrays.asList(new StringTextComponent("Оттёсанный камень"), new StringTextComponent("Нет требований")));
+                () -> Arrays.asList(
+                        new StringTextComponent("Оттёсанный камень")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
         this.addButton(this.hewnStoneButton);
         this.bigBoneButton = new ItemIconButton(x, y + spacing, new ItemStack(ModItems.BIG_BONE.get()),
                 b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
-                () -> Arrays.asList(new StringTextComponent("Большая кость"), new StringTextComponent("Нет требований")));
+                () -> Arrays.asList(
+                        new StringTextComponent("Большая кость")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
         this.addButton(this.bigBoneButton);
+        this.sharpBoneButton = new ItemIconButton(x + spacing, y + spacing,
+                new ItemStack(ModItems.SHARPENED_BONE.get()),
+                b -> this.minecraft.setScreen(new SharpenedBoneQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Заостренная кость")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Большая кость")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.sharpBoneButton);
         super.init();
     }
 
@@ -58,6 +76,15 @@ public class ProgressGatheringScreen extends Screen {
                 QuestManager.isHewnStonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         this.bigBoneButton.setBorderColor(
                 QuestManager.isBigBonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+        int sharpColor;
+        if (!QuestManager.isBigBonesCompleted()) {
+            sharpColor = 0xFFFF0000;
+        } else if (QuestManager.isSharpenedBoneCompleted()) {
+            sharpColor = 0xFF00FF00;
+        } else {
+            sharpColor = 0xFF00BFFF;
+        }
+        this.sharpBoneButton.setBorderColor(sharpColor);
 
         super.render(ms, mouseX, mouseY, pt);
     }

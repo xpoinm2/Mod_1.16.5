@@ -5,7 +5,9 @@ public class QuestManager {
     private static boolean slabsCompleted = false;
     private static boolean hewnStonesCompleted = false;
     private static boolean bigBonesCompleted = false;
+    private static boolean sharpenedBoneCompleted = false;
     private static boolean stoneToolsCompleted = false;
+    private static boolean boneToolsCompleted = false;
 
     public static boolean isPlanksCompleted() {
         return planksCompleted;
@@ -40,6 +42,14 @@ public class QuestManager {
         bigBonesCompleted = value;
     }
 
+    public static boolean isSharpenedBoneCompleted() {
+        return sharpenedBoneCompleted;
+    }
+
+    public static void setSharpenedBoneCompleted(boolean value) {
+        sharpenedBoneCompleted = value;
+    }
+
     public static boolean isStoneToolsCompleted() {
         return stoneToolsCompleted;
     }
@@ -48,11 +58,21 @@ public class QuestManager {
         stoneToolsCompleted = value;
     }
 
+    public static boolean isBoneToolsCompleted() {
+        return boneToolsCompleted;
+    }
+
+    public static void setBoneToolsCompleted(boolean value) {
+        boneToolsCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
         hewnStonesCompleted = false;
         bigBonesCompleted = false;
+        sharpenedBoneCompleted = false;
         stoneToolsCompleted = false;
+        boneToolsCompleted = false;
     }
 }

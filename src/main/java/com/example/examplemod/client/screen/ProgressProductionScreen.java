@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton planksButton;
     private ItemIconButton slabsButton;
     private ItemIconButton stoneToolsButton;
+    private ItemIconButton boneToolsButton;
 
     public ProgressProductionScreen(Screen parent) {
         super(new StringTextComponent("Производство"));
@@ -35,20 +37,52 @@ public class ProgressProductionScreen extends Screen {
         int spacing = 50;
         this.planksButton = new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
                 b -> this.minecraft.setScreen(new PlanksQuestScreen(this)),
-                () -> Arrays.asList(new StringTextComponent("Доски"), new StringTextComponent("Нет требований")));
+                () -> Arrays.asList(
+                        new StringTextComponent("Доски")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
         this.addButton(this.planksButton);
 
         this.slabsButton = new ItemIconButton(x + spacing, y, new ItemStack(Items.OAK_SLAB),
                 b -> this.minecraft.setScreen(new SlabsQuestScreen(this)),
-                () -> Arrays.asList(new StringTextComponent("Плиты"), new StringTextComponent("Требуется: Доски")));
+                () -> Arrays.asList(
+                        new StringTextComponent("Плиты")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Доски")
+                                        .withStyle(TextFormatting.BLUE))));
         this.addButton(this.slabsButton);
 
         this.stoneToolsButton = new ItemIconButton(x + spacing * 2, y,
                 new ItemStack(ModItems.STONE_PICKAXE.get()),
                 b -> this.minecraft.setScreen(new StoneToolsQuestScreen(this)),
-                () -> Arrays.asList(new StringTextComponent("Каменные инструменты"),
-                        new StringTextComponent("Требуется: Доски, Плиты, Оттесанный камень")));
+                () -> Arrays.asList(
+                        new StringTextComponent("Каменные инструменты")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Доски")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Плиты")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Оттёсанный камень")
+                                        .withStyle(TextFormatting.BLUE))));
         this.addButton(this.stoneToolsButton);
+
+        this.boneToolsButton = new ItemIconButton(x + spacing * 2, y + 3,
+                new ItemStack(ModItems.BONE_PICKAXE.get()),
+                b -> this.minecraft.setScreen(new BoneToolsQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Костяные инструменты")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Плиты")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Заостренная кость")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.boneToolsButton);
         super.init();
     }
 
@@ -89,6 +123,18 @@ public class ProgressProductionScreen extends Screen {
             toolsColor = 0xFF00BFFF; // available
         }
         this.stoneToolsButton.setBorderColor(toolsColor);
+
+        boolean boneUnlocked = QuestManager.isSlabsCompleted() &&
+                QuestManager.isSharpenedBoneCompleted();
+        int boneColor;
+        if (!boneUnlocked) {
+            boneColor = 0xFFFF0000; // locked
+        } else if (QuestManager.isBoneToolsCompleted()) {
+            boneColor = 0xFF00FF00; // completed
+        } else {
+            boneColor = 0xFF00BFFF; // available
+        }
+        this.boneToolsButton.setBorderColor(boneColor);
 
         super.render(ms, mouseX, mouseY, pt);
     }
