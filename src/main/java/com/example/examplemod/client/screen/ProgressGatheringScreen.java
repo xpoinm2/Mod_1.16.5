@@ -66,7 +66,7 @@ public class ProgressGatheringScreen extends Screen {
                 () -> Arrays.asList(
                         new StringTextComponent("Волокна льна")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований"))));
+                        new StringTextComponent("Нет требований")));
         this.addButton(this.flaxFibersButton);
         super.init();
     }
@@ -105,10 +105,10 @@ public class ProgressGatheringScreen extends Screen {
     }
 
     private void drawConnection(MatrixStack ms, ItemIconButton from, ItemIconButton to) {
-        int x1 = from.x + from.width;
-        int y1 = from.y + from.height / 2;
+        int x1 = from.x + from.getWidth();
+        int y1 = from.y + from.getHeight() / 2;
         int x2 = to.x;
-        int y2 = to.y + to.height / 2;
+        int y2 = to.y + to.getHeight() / 2;
         AbstractGui.fill(ms, x1, y1, x2, y1 + 1, 0xFFFFFFFF);
         AbstractGui.fill(ms, x2 - 1, Math.min(y1, y2), x2, Math.max(y1, y2), 0xFFFFFFFF);
     }
