@@ -2,6 +2,7 @@ package com.example.examplemod.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.ModList;
@@ -83,5 +84,20 @@ public final class GuiUtil {
             recipesGuiClass.getMethod("show", focusClass).invoke(recipesGui, focus);
         } catch (Exception ignored) {
         }
+    }
+
+    /**
+     * Draws a semi-transparent panel with a thin black border, matching the
+     * style used by quest cards. Screens can reuse this to give all menu pages
+     * a consistent background.
+     */
+    public static void drawPanel(MatrixStack ms, int x0, int y0, int width, int height) {
+        // Fill the background with slight transparency
+        AbstractGui.fill(ms, x0, y0, x0 + width, y0 + height, 0x88000000);
+        // Draw the border
+        AbstractGui.fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0, 0xFF000000);
+        AbstractGui.fill(ms, x0 - 1, y0 + height, x0 + width + 1, y0 + height + 1, 0xFF000000);
+        AbstractGui.fill(ms, x0 - 1, y0, x0, y0 + height, 0xFF000000);
+        AbstractGui.fill(ms, x0 + width, y0, x0 + width + 1, y0 + height, 0xFF000000);
     }
 }

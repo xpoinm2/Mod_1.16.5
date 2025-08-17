@@ -2,6 +2,7 @@ package com.example.examplemod.client.screen;
 
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
@@ -19,6 +20,7 @@ public class BigBoneQuestScreen extends Screen {
     private int scrollOffset = 0;
     private int maxScroll = 0;
     private ItemStack hoveredStack = ItemStack.EMPTY;
+    private FramedButton confirmButton;
 
     public BigBoneQuestScreen(Screen parent) {
         super(new StringTextComponent("Большая кость"));
@@ -36,12 +38,13 @@ public class BigBoneQuestScreen extends Screen {
         int btnHeight = 20;
         int btnX = (this.width - btnWidth) / 2;
         int btnY = this.height - btnHeight - 15;
-        this.addButton(new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
+        this.confirmButton = new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
                     if (hasRequiredItems()) {
                         QuestManager.setBigBonesCompleted(true);
                     }
-                }));
+                });
+        this.addButton(this.confirmButton);
         super.init();
     }
 
@@ -53,10 +56,8 @@ public class BigBoneQuestScreen extends Screen {
         int y0 = 10;
         int width = this.width - 20;
         int height = this.height - 20;
-        fill(ms, x0 - 1, y0 - 1, x0 + width + 1, y0, 0xFF000000);
-        fill(ms, x0 - 1, y0 + height, x0 + width + 1, y0 + height + 1, 0xFF000000);
-        fill(ms, x0 - 1, y0, x0, y0 + height, 0xFF000000);
-        fill(ms, x0 + width, y0, x0 + width + 1, y0 + height, 0xFF000000);
+        GuiUtil.drawPanel(ms, x0, y0, width, height);
+        this.confirmButton.visible = !QuestManager.isBigBonesCompleted();
         drawTitle(ms, x0 + width / 2, y0 + 15);
 
         int leftX = x0 + 20;

@@ -2,6 +2,7 @@ package com.example.examplemod.client.screen;
 
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.ItemIconButton;
+import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -110,7 +111,9 @@ public class ProgressProductionScreen extends Screen {
     @Override
     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
         this.renderBackground(ms);
-        AbstractGui.fill(ms, 0, 0, this.width, this.height, 0xCC000000);
+        int x0 = 10;
+        int y0 = 10;
+        GuiUtil.drawPanel(ms, x0, y0, this.width - 20, this.height - 20);
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
 
         // Update button states and colors based on quest progress
