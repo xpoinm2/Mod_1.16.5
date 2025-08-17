@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "FCF",
+    " B "
+  ],
+  "key": {
+    "C": { "item": "minecraft:cobblestone" },
+    "F": { "item": "examplemod:flax_fibers" },
+    "B": { "item": "examplemod:branch" }
+  },
+  "result": { "item": "examplemod:stone_sword" }
+}

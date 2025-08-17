@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "FSF",
+    " B "
+  ],
+  "key": {
+    "S": { "item": "examplemod:sharpened_bone" },
+    "F": { "item": "examplemod:flax_fibers" },
+    "B": { "item": "examplemod:branch" }
+  },
+  "result": { "item": "examplemod:bone_sword" }
+}

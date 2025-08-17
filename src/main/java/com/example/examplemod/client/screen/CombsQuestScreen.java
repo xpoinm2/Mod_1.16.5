@@ -39,7 +39,9 @@ public class CombsQuestScreen extends Screen {
         int btnY = this.height - btnHeight - 15;
         this.confirmButton = new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
-                    if (hasRequiredItems()) {
+                    if (hasRequiredItems() && QuestManager.isBigBonesCompleted()
+                            && QuestManager.isHewnStonesCompleted()
+                            && QuestManager.isBranchCompleted()) {
                         QuestManager.setCombsCompleted(true);
                     }
                 });
@@ -56,7 +58,7 @@ public class CombsQuestScreen extends Screen {
         int width = this.width - 20;
         int height = this.height - 20;
         GuiUtil.drawPanel(ms, x0, y0, width, height);
-        boolean unlocked = QuestManager.isHewnStonesCompleted();
+        boolean unlocked = QuestManager.isBigBonesCompleted() && QuestManager.isHewnStonesCompleted() && QuestManager.isBranchCompleted();
         this.confirmButton.visible = unlocked && !QuestManager.isCombsCompleted();
         drawTitle(ms, x0 + width / 2, y0 + 15);
 

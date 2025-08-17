@@ -82,14 +82,15 @@ public class StoneToolsQuestScreen extends Screen {
         rightY += 30;
         drawString(ms, this.font, "Сделать кирку,", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
-        drawString(ms, this.font, "топор, мотыгу", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "топор, мотыгу,", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
-        drawString(ms, this.font, "и лопату", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "лопату и меч", rightX, rightY, 0xFFFFFF00);
         ItemStack[] stacks = new ItemStack[]{
                 new ItemStack(ModItems.STONE_PICKAXE.get()),
                 new ItemStack(ModItems.STONE_AXE.get()),
                 new ItemStack(ModItems.STONE_HOE.get()),
-                new ItemStack(ModItems.STONE_SHOVEL.get())
+                new ItemStack(ModItems.STONE_SHOVEL.get()),
+                new ItemStack(ModItems.STONE_SWORD.get())
         };
         for (int i = 0; i < stacks.length; i++) {
             if (GuiUtil.renderItemWithTooltip(this, ms, stacks[i], rightX + i * 20, rightY + 10, mouseX, mouseY)) {
@@ -116,7 +117,8 @@ public class StoneToolsQuestScreen extends Screen {
                 this.minecraft.player.inventory.countItem(ModItems.STONE_PICKAXE.get()) >= 1 &&
                 this.minecraft.player.inventory.countItem(ModItems.STONE_AXE.get()) >= 1 &&
                 this.minecraft.player.inventory.countItem(ModItems.STONE_HOE.get()) >= 1 &&
-                this.minecraft.player.inventory.countItem(ModItems.STONE_SHOVEL.get()) >= 1;
+                this.minecraft.player.inventory.countItem(ModItems.STONE_SHOVEL.get()) >= 1 &&
+                this.minecraft.player.inventory.countItem(ModItems.STONE_SWORD.get()) >= 1;
     }
 
     private void drawTitle(MatrixStack ms, int centerX, int y) {

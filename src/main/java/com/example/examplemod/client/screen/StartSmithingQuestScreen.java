@@ -9,20 +9,19 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
-import com.example.examplemod.client.GuiUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BoneToolsQuestScreen extends Screen {
+public class StartSmithingQuestScreen extends Screen {
     private final Screen parent;
     private int scrollOffset = 0;
     private int maxScroll = 0;
     private ItemStack hoveredStack = ItemStack.EMPTY;
     private FramedButton confirmButton;
 
-    public BoneToolsQuestScreen(Screen parent) {
-        super(new StringTextComponent("Костяные инструменты"));
+    public StartSmithingQuestScreen(Screen parent) {
+        super(new StringTextComponent("Начало кузнечного дела"));
         this.parent = parent;
     }
 
@@ -39,10 +38,9 @@ public class BoneToolsQuestScreen extends Screen {
         int btnY = this.height - btnHeight - 15;
         this.confirmButton = new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
-                    if (hasRequiredItems() && QuestManager.isSharpenedBoneCompleted()
-                            && QuestManager.isFlaxFibersCompleted()
-                            && QuestManager.isBranchCompleted()) {
-                        QuestManager.setBoneToolsCompleted(true);
+                    boolean unlocked = QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted();
+                    if (hasRequiredItems() && unlocked) {
+                        QuestManager.setStartSmithingCompleted(true);
                     }
                 });
         this.addButton(this.confirmButton);
@@ -58,53 +56,39 @@ public class BoneToolsQuestScreen extends Screen {
         int width = this.width - 20;
         int height = this.height - 20;
         GuiUtil.drawPanel(ms, x0, y0, width, height);
-        boolean unlocked = QuestManager.isSharpenedBoneCompleted() && QuestManager.isFlaxFibersCompleted() && QuestManager.isBranchCompleted();
-        this.confirmButton.visible = unlocked && !QuestManager.isBoneToolsCompleted();
+        boolean unlocked = QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted();
+        this.confirmButton.visible = unlocked && !QuestManager.isStartSmithingCompleted();
         drawTitle(ms, x0 + width / 2, y0 + 15);
 
         int leftX = x0 + 20;
         int leftY = y0 + 40 - scrollOffset;
         drawScaledUnderlined(ms, "Описание", leftX, leftY, 0xFFFFFFFF, 4f/3f);
         leftY += 30;
-        drawString(ms, this.font, "Заострённые кости", leftX, leftY, 0xFFFFFF00);
+        drawString(ms, this.font, "Добывали железную руду", leftX, leftY, 0xFFFFFF00);
         leftY += 10;
-        drawString(ms, this.font, "крупного рогатого", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "скота, закреплённые", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "в деревянных держателях", leftX, leftY, 0xFFFFFF00);
+        drawString(ms, this.font, "вручную кирками", leftX, leftY, 0xFFFFFF00);
 
         int rightX = x0 + width / 2 + 20;
         int rightY = y0 + 40 - scrollOffset;
         drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
-        drawString(ms, this.font, "Сделать кирку,", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "Нужно добыть 8", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
-        drawString(ms, this.font, "топор, мотыгу,", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "железной руды", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
-        drawString(ms, this.font, "лопату и меч", rightX, rightY, 0xFFFFFF00);
-        ItemStack[] stacks = new ItemStack[]{
-                new ItemStack(ModItems.BONE_PICKAXE.get()),
-                new ItemStack(ModItems.BONE_AXE.get()),
-                new ItemStack(ModItems.BONE_HOE.get()),
-                new ItemStack(ModItems.BONE_SHOVEL.get()),
-                new ItemStack(ModItems.BONE_SWORD.get())
-        };
-        for (int i = 0; i < stacks.length; i++) {
-            if (GuiUtil.renderItemWithTooltip(this, ms, stacks[i], rightX + i * 20, rightY + 10, mouseX, mouseY)) {
-                hoveredStack = stacks[i];
-            }
+        drawString(ms, this.font, "с примесями", rightX, rightY, 0xFFFFFF00);
+        ItemStack stack = new ItemStack(ModItems.IMPURE_IRON_ORE.get(), 8);
+        if (GuiUtil.renderItemWithTooltip(this, ms, stack, rightX, rightY + 10, mouseX, mouseY)) {
+            hoveredStack = stack;
         }
         rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
-        drawString(ms, this.font, "Деревянные инструменты", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "Используйте каменную", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
-        drawString(ms, this.font, "недоступны, поэтому", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "или костяную кирку", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
-        drawString(ms, this.font, "можно начать", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "с костяных.", rightX, rightY, 0xFFFFFF00);
+        drawString(ms, this.font, "в шахте", rightX, rightY, 0xFFFFFF00);
         int contentBottom = Math.max(leftY, rightY);
         maxScroll = Math.max(0, contentBottom - (y0 + height - 10));
         super.render(ms, mouseX, mouseY, pt);
@@ -112,11 +96,7 @@ public class BoneToolsQuestScreen extends Screen {
 
     private boolean hasRequiredItems() {
         return this.minecraft.player != null &&
-                this.minecraft.player.inventory.countItem(ModItems.BONE_PICKAXE.get()) >= 1 &&
-                this.minecraft.player.inventory.countItem(ModItems.BONE_AXE.get()) >= 1 &&
-                this.minecraft.player.inventory.countItem(ModItems.BONE_HOE.get()) >= 1 &&
-                this.minecraft.player.inventory.countItem(ModItems.BONE_SHOVEL.get()) >= 1 &&
-                this.minecraft.player.inventory.countItem(ModItems.BONE_SWORD.get()) >= 1;
+                this.minecraft.player.inventory.countItem(ModItems.IMPURE_IRON_ORE.get()) >= 8;
     }
 
     private void drawTitle(MatrixStack ms, int centerX, int y) {
@@ -125,7 +105,7 @@ public class BoneToolsQuestScreen extends Screen {
         ms.scale(2.0F, 2.0F, 2.0F);
         drawCenteredString(ms, this.font, title, (int) (centerX / 2f), (int) (y / 2f), 0xFF00BFFF);
         ms.popPose();
-        if (QuestManager.isBoneToolsCompleted()) {
+        if (QuestManager.isStartSmithingCompleted()) {
             int titleWidth = this.font.width(title) * 2;
             drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, y, 0xFF00FF00);
         }

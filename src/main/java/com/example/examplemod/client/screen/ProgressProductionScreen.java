@@ -80,7 +80,7 @@ public class ProgressProductionScreen extends Screen {
                         new StringTextComponent("Костяные инструменты")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Оттёсанный камень")
+                                .append(new StringTextComponent("Заостренная кость")
                                         .withStyle(TextFormatting.BLUE))
                                 .append(new StringTextComponent(", "))
                                 .append(new StringTextComponent("Волокна льна")
@@ -97,7 +97,13 @@ public class ProgressProductionScreen extends Screen {
                         new StringTextComponent("Гребни")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Большая кость")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
                                 .append(new StringTextComponent("Оттёсанный камень")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Ветка")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.combButton);
         super.init();
@@ -143,7 +149,7 @@ public class ProgressProductionScreen extends Screen {
         }
         this.stoneToolsButton.setBorderColor(toolsColor);
 
-        boolean boneUnlocked = QuestManager.isHewnStonesCompleted() &&
+        boolean boneUnlocked = QuestManager.isSharpenedBoneCompleted() &&
                 QuestManager.isFlaxFibersCompleted() &&
                 QuestManager.isBranchCompleted();
         int boneColor;
@@ -156,8 +162,11 @@ public class ProgressProductionScreen extends Screen {
         }
         this.boneToolsButton.setBorderColor(boneColor);
 
+        boolean combUnlocked = QuestManager.isBigBonesCompleted() &&
+                QuestManager.isHewnStonesCompleted() &&
+                QuestManager.isBranchCompleted();
         int combColor;
-        if (!QuestManager.isHewnStonesCompleted()) {
+        if (!combUnlocked) {
             combColor = 0xFFFF0000;
         } else if (QuestManager.isCombsCompleted()) {
             combColor = 0xFF00FF00;

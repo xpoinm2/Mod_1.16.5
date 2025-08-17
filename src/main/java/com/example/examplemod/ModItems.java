@@ -154,6 +154,10 @@ public class ModItems {
             () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
                     0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    public static final RegistryObject<Item> STONE_SWORD = ITEMS.register("stone_sword",
+            () -> new net.minecraft.item.SwordItem(net.minecraft.item.ItemTier.STONE,
+                    3, -2.4f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Каменный молот: простой инструмент
     public static final RegistryObject<Item> STONE_HAMMER = ITEMS.register("stone_hammer",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)
@@ -175,6 +179,10 @@ public class ModItems {
     public static final RegistryObject<Item> BONE_HOE = ITEMS.register("bone_hoe",
             () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
                     0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    public static final RegistryObject<Item> BONE_SWORD = ITEMS.register("bone_sword",
+            () -> new net.minecraft.item.SwordItem(net.minecraft.item.ItemTier.STONE,
+                    3, -2.4f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Костяной молот: простой инструмент
     public static final RegistryObject<Item> BONE_HAMMER = ITEMS.register("bone_hammer",

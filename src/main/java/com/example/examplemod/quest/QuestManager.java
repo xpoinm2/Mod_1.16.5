@@ -11,6 +11,7 @@ public class QuestManager {
     private static boolean combsCompleted = false;
     private static boolean flaxFibersCompleted = false;
     private static boolean branchCompleted = false;
+    private static boolean startSmithingCompleted = false;
 
     public static boolean isPlanksCompleted() {
         return planksCompleted;
@@ -93,6 +94,14 @@ public class QuestManager {
         branchCompleted = value;
     }
 
+    public static boolean isStartSmithingCompleted() {
+        return startSmithingCompleted;
+    }
+
+    public static void setStartSmithingCompleted(boolean value) {
+        startSmithingCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
@@ -104,5 +113,6 @@ public class QuestManager {
         combsCompleted = false;
         flaxFibersCompleted = false;
         branchCompleted = false;
+        startSmithingCompleted = false;
     }
 }

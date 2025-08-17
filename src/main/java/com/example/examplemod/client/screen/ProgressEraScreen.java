@@ -28,7 +28,8 @@ public class ProgressEraScreen extends Screen {
         int y = 60;
         this.addButton(new FramedButton(x, y, tabW, tabH, "Собирательство", 0xFF000000, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new ProgressGatheringScreen(this))));
-        this.addButton(new FramedButton(x, y + 25, tabW, tabH, "Металлургия", 0xFF000000, 0xFFFF0000, b -> {}));
+        this.addButton(new FramedButton(x, y + 25, tabW, tabH, "Металлургия", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressMetallurgyScreen(this))));
         this.addButton(new FramedButton(x, y + 50, tabW, tabH, "Производство", 0xFF000000, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new ProgressProductionScreen(this))));
         super.init();

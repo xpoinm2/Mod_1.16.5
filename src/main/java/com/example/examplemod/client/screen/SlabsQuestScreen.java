@@ -74,9 +74,22 @@ public class SlabsQuestScreen extends Screen {
         drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
         rightY += 30;
         drawString(ms, this.font, "Нужно получить 6 полублоков", rightX, rightY, 0xFFFFFF00);
-        ItemStack stack = new ItemStack(Items.OAK_SLAB, 6);
-        if (GuiUtil.renderItemWithTooltip(this, ms, stack, rightX, rightY + 10, mouseX, mouseY)) {
-            hoveredStack = stack;
+        ItemStack[] stacks = new ItemStack[]{
+                new ItemStack(Items.OAK_SLAB),
+                new ItemStack(Items.SPRUCE_SLAB),
+                new ItemStack(Items.BIRCH_SLAB),
+                new ItemStack(Items.JUNGLE_SLAB),
+                new ItemStack(Items.ACACIA_SLAB),
+                new ItemStack(Items.DARK_OAK_SLAB),
+                new ItemStack(Items.CRIMSON_SLAB),
+                new ItemStack(Items.WARPED_SLAB)
+        };
+        for (int i = 0; i < stacks.length; i++) {
+            int dx = i % 4;
+            int dy = i / 4;
+            if (GuiUtil.renderItemWithTooltip(this, ms, stacks[i], rightX + dx * 20, rightY + 10 + dy * 20, mouseX, mouseY)) {
+                hoveredStack = stacks[i];
+            }
         }
         rightY += 40;
         drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
@@ -88,8 +101,15 @@ public class SlabsQuestScreen extends Screen {
     }
 
     private boolean hasRequiredItems() {
-        return this.minecraft.player != null &&
-                this.minecraft.player.inventory.countItem(Items.OAK_SLAB) >= 6;
+        if (this.minecraft.player == null) return false;
+        return this.minecraft.player.inventory.countItem(Items.OAK_SLAB) >= 6 ||
+                this.minecraft.player.inventory.countItem(Items.SPRUCE_SLAB) >= 6 ||
+                this.minecraft.player.inventory.countItem(Items.BIRCH_SLAB) >= 6 ||
+                this.minecraft.player.inventory.countItem(Items.JUNGLE_SLAB) >= 6 ||
+                this.minecraft.player.inventory.countItem(Items.ACACIA_SLAB) >= 6 ||
+                this.minecraft.player.inventory.countItem(Items.DARK_OAK_SLAB) >= 6 ||
+                this.minecraft.player.inventory.countItem(Items.CRIMSON_SLAB) >= 6 ||
+                this.minecraft.player.inventory.countItem(Items.WARPED_SLAB) >= 6;
     }
 
     private void drawTitle(MatrixStack ms, int centerX, int y) {
