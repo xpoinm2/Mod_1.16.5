@@ -58,8 +58,8 @@ public class XRayKeyHandler {
             IRenderTypeBuffer.Impl buffer = mc.renderBuffers().bufferSource();
             for (BlockPos pos : BlockPos.betweenClosed(playerPos.offset(-radius, -radius, -radius),
                     playerPos.offset(radius, radius, radius))) {
-                Block block = mc.level.getBlockState(pos).getBlock();
-                if (block == ModBlocks.IMPURE_IRON_ORE.get() || block == ModBlocks.PYRITE.get()) {
+                net.minecraft.block.BlockState state = mc.level.getBlockState(pos);
+                if (state.is(ModBlocks.IMPURE_IRON_ORE.get()) || state.is(ModBlocks.PYRITE.get())) {
                     AxisAlignedBB box = new AxisAlignedBB(pos);
                     WorldRenderer.renderLineBox(event.getMatrixStack(), buffer.getBuffer(RenderType.lines()), box,
                             1.0F, 1.0F, 0.0F, 1.0F);

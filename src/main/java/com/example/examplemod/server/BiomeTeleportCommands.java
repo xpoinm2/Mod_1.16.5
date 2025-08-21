@@ -50,8 +50,9 @@ public class BiomeTeleportCommands {
             ctx.getSource().sendFailure(new StringTextComponent("Biome not found"));
             return 0;
         }
-        int y = world.getHeight(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, found.getX(), found.getZ());
-        player.teleportTo(world, found.getX() + 0.5, y, found.getZ() + 0.5, player.yRot, player.xRot);
+        world.getChunk(found.getX() >> 4, found.getZ() >> 4); // ensure chunk is loaded
+        BlockPos top = world.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, found);
+        player.teleportTo(world, top.getX() + 0.5, top.getY(), top.getZ() + 0.5, player.yRot, player.xRot);
         ctx.getSource().sendSuccess(new StringTextComponent("Teleported to " + biomeKey.location()), false);
         return 1;
     }
