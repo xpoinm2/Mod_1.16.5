@@ -37,7 +37,7 @@ public class ModBiomes {
         float temperature = 0.2F;
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder()
                 .surfaceBuilder(SurfaceBuilder.DEFAULT.configured(SurfaceBuilder.CONFIG_STONE));
-        ConfiguredFeature<?, ?> volcano = ModFeatures.VOLCANO.get().configured(NoFeatureConfig.INSTANCE);
+        ConfiguredFeature<?, ?> volcano = ModFeatures.VOLCANO_FEATURE.configured(NoFeatureConfig.INSTANCE);
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "volcano"), volcano);
         // Add default overworld features similar to mountains
