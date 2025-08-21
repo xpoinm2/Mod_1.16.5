@@ -42,7 +42,7 @@ public class ModBiomes {
                 new ResourceLocation(ExampleMod.MODID, "volcano"), volcano);
         // Add default overworld features similar to mountains
         DefaultBiomeFeatures.addDefaultCarvers(generation);
-        DefaultBiomeFeatures.addDefaultLakes(generation);
+        // omit lakes to avoid stray lava pillars
         DefaultBiomeFeatures.addDefaultOres(generation);
         DefaultBiomeFeatures.addDefaultMonsterRoom(generation);
         DefaultBiomeFeatures.addSurfaceFreezing(generation);
