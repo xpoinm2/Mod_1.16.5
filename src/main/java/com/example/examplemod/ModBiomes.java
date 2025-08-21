@@ -7,6 +7,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.*;
 import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.surfacebuilders.SurfaceBuilder;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -22,6 +23,7 @@ public class ModBiomes {
     public static final RegistryKey<Biome> VOLCANOES_KEY = RegistryKey.create(Registry.BIOME_REGISTRY,
             new ResourceLocation(ExampleMod.MODID, "volcanoes"));
 
+    @SuppressWarnings("unused")
     public static final RegistryObject<Biome> VOLCANOES = BIOMES.register("volcanoes", ModBiomes::createVolcanoes);
 
     public static void register(IEventBus bus) {
@@ -29,6 +31,7 @@ public class ModBiomes {
     }
 
     private static Biome createVolcanoes() {
+        float temperature = 0.2F;
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder()
                 .surfaceBuilder(SurfaceBuilder.DEFAULT.configured(SurfaceBuilder.CONFIG_STONE));
         // Add default overworld features similar to mountains
@@ -47,14 +50,14 @@ public class ModBiomes {
         BiomeAmbience effects = new BiomeAmbience.Builder()
                 .waterColor(4159204).waterFogColor(329011)
                 .fogColor(12638463)
-                .skyColor(calculateSkyColor(0.2F))
+                .skyColor(calculateSkyColor(temperature))
                 .build();
 
         return new Biome.Builder()
                 .precipitation(Biome.RainType.RAIN)
                 .biomeCategory(Biome.Category.EXTREME_HILLS)
                 .depth(1.0F).scale(0.5F)
-                .temperature(0.2F).downfall(0.3F)
+                .temperature(temperature).downfall(0.3F)
                 .specialEffects(effects)
                 .mobSpawnSettings(spawns.build())
                 .generationSettings(generation.build())
