@@ -20,9 +20,11 @@ import net.minecraftforge.fml.common.Mod;
 /**
  * Simple commands to teleport player to various biomes for testing.
  */
+@SuppressWarnings("unused")
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BiomeTeleportCommands {
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
@@ -43,7 +45,7 @@ public class BiomeTeleportCommands {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
         ServerWorld world = player.getLevel();
         BlockPos origin = player.blockPosition();
-        BlockPos found = findBiome(world, biomeKey, origin, 6400, 64);
+        BlockPos found = findBiome(world, biomeKey, origin);
         if (found == null) {
             ctx.getSource().sendFailure(new StringTextComponent("Biome not found"));
             return 0;
@@ -54,12 +56,16 @@ public class BiomeTeleportCommands {
         return 1;
     }
 
-    private static BlockPos findBiome(ServerWorld world, RegistryKey<Biome> biomeKey, BlockPos origin, int radius, int step) {
-        for (int r = 0; r <= radius; r += step) {
-            for (int x = -r; x <= r; x += step) {
-                for (int z = -r; z <= r; z += step) {
+    private static final int SEARCH_RADIUS = 6400;
+    private static final int SEARCH_STEP = 64;
+
+    private static BlockPos findBiome(ServerWorld world, RegistryKey<Biome> biomeKey, BlockPos origin) {
+        for (int r = 0; r <= SEARCH_RADIUS; r += SEARCH_STEP) {
+            for (int x = -r; x <= r; x += SEARCH_STEP) {
+                for (int z = -r; z <= r; z += SEARCH_STEP) {
                     BlockPos pos = origin.offset(x, 0, z);
-                    if (world.getBiome(pos).is(biomeKey)) {
+                    Biome biome = world.getBiome(pos);
+                    if (biome.getRegistryName() != null && biome.getRegistryName().equals(biomeKey.location())) {
                         return pos;
                     }
                 }
