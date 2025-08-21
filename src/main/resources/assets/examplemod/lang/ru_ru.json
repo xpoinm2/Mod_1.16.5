@@ -59,6 +59,5 @@
   "item.examplemod.brushwood_slab_burnt": "Обгоревший хворост",
   "block.examplemod.firepit_block": "Кострище",
   "item.examplemod.firepit_block": "Кострище",
-  "key.examplemod.progress": "Технологический прогресс",
-  "key.examplemod.xray": "Рентген руды"
+  "key.examplemod.progress": "Технологический прогресс"
 }
