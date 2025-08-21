@@ -7,6 +7,7 @@ import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.screen.BranchQuestScreen;
 import com.example.examplemod.client.screen.FlaxFibersQuestScreen;
 import com.example.examplemod.client.screen.InitialFaunaQuestScreen;
+import com.example.examplemod.client.screen.BrushwoodQuestScreen;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
@@ -27,6 +28,7 @@ public class ProgressGatheringScreen extends Screen {
     private ItemIconButton sharpBoneButton;
     private ItemIconButton flaxFibersButton;
     private ItemIconButton initialFaunaButton;
+    private ItemIconButton brushwoodButton;
 
     public ProgressGatheringScreen(Screen parent) {
         super(new StringTextComponent("Собирательство"));
@@ -58,6 +60,17 @@ public class ProgressGatheringScreen extends Screen {
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
         this.addButton(this.initialFaunaButton);
+
+        this.brushwoodButton = new ItemIconButton(x + spacingX, y + spacingY,
+                new ItemStack(ModItems.BRUSHWOOD_SLAB.get()),
+                b -> this.minecraft.setScreen(new BrushwoodQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Хворост")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Ветка")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.brushwoodButton);
 
         this.hewnStoneButton = new ItemIconButton(x, y + spacingY, new ItemStack(ModItems.HEWN_STONE.get()),
                 b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
@@ -115,6 +128,15 @@ public class ProgressGatheringScreen extends Screen {
                 QuestManager.isBranchCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         this.initialFaunaButton.setBorderColor(
                 QuestManager.isInitialFaunaCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+        int brushColor;
+        if (!QuestManager.isBranchCompleted()) {
+            brushColor = 0xFFFF0000;
+        } else if (QuestManager.isBrushwoodCompleted()) {
+            brushColor = 0xFF00FF00;
+        } else {
+            brushColor = 0xFF00BFFF;
+        }
+        this.brushwoodButton.setBorderColor(brushColor);
         this.bigBoneButton.setBorderColor(
                 QuestManager.isBigBonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         int sharpColor;
@@ -130,6 +152,7 @@ public class ProgressGatheringScreen extends Screen {
                 QuestManager.isFlaxFibersCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
 
         drawConnection(ms, this.bigBoneButton, this.sharpBoneButton);
+        drawConnection(ms, this.branchButton, this.brushwoodButton);
 
         super.render(ms, mouseX, mouseY, pt);
     }

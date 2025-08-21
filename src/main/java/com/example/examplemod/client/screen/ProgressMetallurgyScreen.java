@@ -14,12 +14,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Arrays;
 import com.example.examplemod.client.screen.IronClusterQuestScreen;
+import com.example.examplemod.client.screen.PureIronOreQuestScreen;
 
 @OnlyIn(Dist.CLIENT)
 public class ProgressMetallurgyScreen extends Screen {
     private final Screen parent;
     private ItemIconButton startSmithingButton;
     private ItemIconButton ironClusterButton;
+    private ItemIconButton pureIronOreButton;
 
     public ProgressMetallurgyScreen(Screen parent) {
         super(new StringTextComponent("Металлургия"));
@@ -54,6 +56,16 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .append(new StringTextComponent("Стартовые молоты")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.ironClusterButton);
+        this.pureIronOreButton = new ItemIconButton(x + spacingX * 2, y,
+                new ItemStack(ModItems.PURE_IRON_ORE.get()),
+                b -> this.minecraft.setScreen(new PureIronOreQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Чистая железная руда")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Железный кластер")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.pureIronOreButton);
         super.init();
     }
 
@@ -87,6 +99,17 @@ public class ProgressMetallurgyScreen extends Screen {
             ironColor = 0xFF00BFFF;
         }
         this.ironClusterButton.setBorderColor(ironColor);
+
+        int pureColor;
+        if (!QuestManager.isIronClusterCompleted()) {
+            pureColor = 0xFFFF0000;
+        } else if (QuestManager.isPureIronOreCompleted()) {
+            pureColor = 0xFF00FF00;
+        } else {
+            pureColor = 0xFF00BFFF;
+        }
+        this.pureIronOreButton.setBorderColor(pureColor);
+
 
         super.render(ms, mouseX, mouseY, pt);
     }

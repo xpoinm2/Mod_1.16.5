@@ -6,6 +6,7 @@ import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.quest.QuestManager;
 import com.example.examplemod.client.screen.StartHammersQuestScreen;
+import com.example.examplemod.client.screen.CobbleSlabQuestScreen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
@@ -22,6 +23,7 @@ public class ProgressProductionScreen extends Screen {
     private final Screen parent;
     private ItemIconButton planksButton;
     private ItemIconButton slabsButton;
+    private ItemIconButton cobbleSlabButton;
     private ItemIconButton stoneToolsButton;
     private ItemIconButton boneToolsButton;
     private ItemIconButton combButton;
@@ -57,6 +59,15 @@ public class ProgressProductionScreen extends Screen {
                                 .append(new StringTextComponent("Доски")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.slabsButton);
+
+        this.cobbleSlabButton = new ItemIconButton(x + spacingX, y + spacingY,
+                new ItemStack(Items.COBBLESTONE_SLAB),
+                b -> this.minecraft.setScreen(new CobbleSlabQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Булыжная плита")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
+        this.addButton(this.cobbleSlabButton
 
         this.stoneToolsButton = new ItemIconButton(x + spacingX * 2, y,
                 new ItemStack(ModItems.STONE_PICKAXE.get()),
@@ -155,6 +166,9 @@ public class ProgressProductionScreen extends Screen {
         }
         this.slabsButton.setBorderColor(slabsColor);
 
+        this.cobbleSlabButton.setBorderColor(
+                QuestManager.isCobbleSlabsCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+
         boolean stoneUnlocked = QuestManager.isHewnStonesCompleted() &&
                 QuestManager.isFlaxFibersCompleted() &&
                 QuestManager.isBranchCompleted();
@@ -207,6 +221,7 @@ public class ProgressProductionScreen extends Screen {
         this.startHammersButton.setBorderColor(hammerColor);
 
         drawConnection(ms, this.planksButton, this.slabsButton);
+        drawConnection(ms, this.slabsButton, this.cobbleSlabButton);
 
         super.render(ms, mouseX, mouseY, pt);
     }
