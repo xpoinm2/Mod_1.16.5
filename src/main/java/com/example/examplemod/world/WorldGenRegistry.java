@@ -2,8 +2,6 @@ package com.example.examplemod.world;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModBlocks;
-import com.example.examplemod.ModFeatures;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
@@ -28,7 +26,7 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> GINGER_PATCH;
     public static ConfiguredFeature<?, ?> FLAX_PATCH;
     public static ConfiguredFeature<?, ?> PYRITE_ORE;
-    public static ConfiguredFeature<?, ?> VOLCANO;
+
 
 
     /**
@@ -44,7 +42,6 @@ public class WorldGenRegistry {
         GINGER_PATCH = register("ginger_patch", 1, ModBlocks.GINGER_PLANT.get().defaultBlockState());
         FLAX_PATCH = register("flax_patch", 1, ModBlocks.FLAX_PLANT.get().defaultBlockState());
         PYRITE_ORE = registerPyriteOre();
-        VOLCANO = registerVolcano();
     }
 
     private static ConfiguredFeature<?, ?> register(String name, int chance, net.minecraft.block.BlockState state) {
@@ -71,11 +68,4 @@ public class WorldGenRegistry {
         return feature;
     }
 
-    private static ConfiguredFeature<?, ?> registerVolcano() {
-        ConfiguredFeature<?, ?> feature = ModFeatures.VOLCANO.get()
-                .configured(NoFeatureConfig.INSTANCE);
-        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
-                new ResourceLocation(ExampleMod.MODID, "volcano"), feature);
-        return feature;
-    }
 }

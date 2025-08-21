@@ -1,6 +1,9 @@
 package com.example.examplemod;
 
-import com.example.examplemod.world.WorldGenRegistry;
+import com.example.examplemod.ModFeatures;
+import net.minecraft.util.registry.WorldGenRegistries;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -34,6 +37,9 @@ public class ModBiomes {
         float temperature = 0.2F;
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder()
                 .surfaceBuilder(SurfaceBuilder.DEFAULT.configured(SurfaceBuilder.CONFIG_STONE));
+        ConfiguredFeature<?, ?> volcano = ModFeatures.VOLCANO.get().configured(NoFeatureConfig.INSTANCE);
+        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
+                new ResourceLocation(ExampleMod.MODID, "volcano"), volcano);
         // Add default overworld features similar to mountains
         DefaultBiomeFeatures.addDefaultCarvers(generation);
         DefaultBiomeFeatures.addDefaultLakes(generation);
@@ -41,7 +47,7 @@ public class ModBiomes {
         DefaultBiomeFeatures.addDefaultMonsterRoom(generation);
         DefaultBiomeFeatures.addSurfaceFreezing(generation);
         // Add our volcano feature
-        generation.addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, WorldGenRegistry.VOLCANO);
+        generation.addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, volcano);
 
         MobSpawnInfo.Builder spawns = new MobSpawnInfo.Builder();
         DefaultBiomeFeatures.farmAnimals(spawns);
