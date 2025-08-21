@@ -38,11 +38,14 @@ public class BlockTeleportCommand {
     private static int teleport(CommandContext<CommandSource> ctx, String blockName) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
         ServerWorld world = player.getLevel();
-        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockName));
-        if (block == null) {
+        ResourceLocation id = blockName.contains(":")
+                ? new ResourceLocation(blockName)
+                : new ResourceLocation(ExampleMod.MODID, blockName);
+        if (!ForgeRegistries.BLOCKS.containsKey(id)) {
             ctx.getSource().sendFailure(new StringTextComponent("Unknown block: " + blockName));
             return 0;
         }
+        Block block = ForgeRegistries.BLOCKS.getValue(id);
         BlockPos origin = player.blockPosition();
         BlockPos found = findBlock(world, block, origin);
         if (found == null) {
