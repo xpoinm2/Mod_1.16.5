@@ -12,6 +12,10 @@ public class QuestManager {
     private static boolean flaxFibersCompleted = false;
     private static boolean branchCompleted = false;
     private static boolean startSmithingCompleted = false;
+    private static boolean initialFaunaCompleted = false;
+    private static boolean startHammersCompleted = false;
+    private static boolean ironClusterCompleted = false;
+
 
     public static boolean isPlanksCompleted() {
         return planksCompleted;
@@ -102,6 +106,30 @@ public class QuestManager {
         startSmithingCompleted = value;
     }
 
+    public static boolean isInitialFaunaCompleted() {
+        return initialFaunaCompleted;
+    }
+
+    public static void setInitialFaunaCompleted(boolean value) {
+        initialFaunaCompleted = value;
+    }
+
+    public static boolean isStartHammersCompleted() {
+        return startHammersCompleted;
+    }
+
+    public static void setStartHammersCompleted(boolean value) {
+        startHammersCompleted = value;
+    }
+
+    public static boolean isIronClusterCompleted() {
+        return ironClusterCompleted;
+    }
+
+    public static void setIronClusterCompleted(boolean value) {
+        ironClusterCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
@@ -114,5 +142,8 @@ public class QuestManager {
         flaxFibersCompleted = false;
         branchCompleted = false;
         startSmithingCompleted = false;
+        initialFaunaCompleted = false;
+        startHammersCompleted = false;
+        ironClusterCompleted = false;
     }
 }

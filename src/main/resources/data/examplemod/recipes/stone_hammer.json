@@ -6,7 +6,7 @@
     " B "
   ],
   "key": {
-    "C": { "item": "minecraft:cobblestone" },
+    "C": { "item": "minecraft:smooth_stone" },
     "F": { "item": "examplemod:flax_fibers" },
     "B": { "item": "examplemod:branch" }
   },

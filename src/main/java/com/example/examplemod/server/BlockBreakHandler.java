@@ -78,6 +78,11 @@ public class BlockBreakHandler {
                 Block.popResource(world, event.getPos(), new ItemStack(ModItems.IRON_CLUSTER.get()));
                 held.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(Hand.MAIN_HAND));
                 return;
+            } else {
+                event.setCanceled(true);
+                world.destroyBlock(event.getPos(), false);
+                Block.popResource(world, event.getPos(), new ItemStack(ModBlocks.IMPURE_IRON_ORE.get()));
+                return;
             }
         }
 

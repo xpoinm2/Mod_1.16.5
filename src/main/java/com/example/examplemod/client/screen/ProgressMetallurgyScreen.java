@@ -13,11 +13,13 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Arrays;
+import com.example.examplemod.client.screen.IronClusterQuestScreen;
 
 @OnlyIn(Dist.CLIENT)
 public class ProgressMetallurgyScreen extends Screen {
     private final Screen parent;
     private ItemIconButton startSmithingButton;
+    private ItemIconButton ironClusterButton;
 
     public ProgressMetallurgyScreen(Screen parent) {
         super(new StringTextComponent("Металлургия"));
@@ -30,6 +32,7 @@ public class ProgressMetallurgyScreen extends Screen {
                 b -> this.minecraft.setScreen(parent)));
         int x = 40;
         int y = 60;
+        int spacingX = 50;
         this.startSmithingButton = new ItemIconButton(x, y,
                 new ItemStack(ModItems.IMPURE_IRON_ORE.get()),
                 b -> this.minecraft.setScreen(new StartSmithingQuestScreen(this)),
@@ -40,6 +43,17 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .append(new StringTextComponent("Каменные или костяные инструменты")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.startSmithingButton);
+
+        this.ironClusterButton = new ItemIconButton(x + spacingX, y,
+                new ItemStack(ModItems.IRON_CLUSTER.get()),
+                b -> this.minecraft.setScreen(new IronClusterQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Железный кластер")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Стартовые молоты")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.ironClusterButton);
         super.init();
     }
 
@@ -63,6 +77,16 @@ public class ProgressMetallurgyScreen extends Screen {
             color = 0xFF00BFFF;
         }
         this.startSmithingButton.setBorderColor(color);
+
+        int ironColor;
+        if (!QuestManager.isStartHammersCompleted()) {
+            ironColor = 0xFFFF0000;
+        } else if (QuestManager.isIronClusterCompleted()) {
+            ironColor = 0xFF00FF00;
+        } else {
+            ironColor = 0xFF00BFFF;
+        }
+        this.ironClusterButton.setBorderColor(ironColor);
 
         super.render(ms, mouseX, mouseY, pt);
     }

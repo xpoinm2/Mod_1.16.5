@@ -5,6 +5,7 @@ import com.example.examplemod.client.ItemIconButton;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.quest.QuestManager;
+import com.example.examplemod.client.screen.StartHammersQuestScreen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
@@ -24,6 +25,7 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton stoneToolsButton;
     private ItemIconButton boneToolsButton;
     private ItemIconButton combButton;
+    private ItemIconButton startHammersButton;
 
     public ProgressProductionScreen(Screen parent) {
         super(new StringTextComponent("Производство"));
@@ -106,6 +108,23 @@ public class ProgressProductionScreen extends Screen {
                                 .append(new StringTextComponent("Ветка")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.combButton);
+
+        this.startHammersButton = new ItemIconButton(x + spacingX * 3, y + spacingY,
+                new ItemStack(ModItems.STONE_HAMMER.get()),
+                b -> this.minecraft.setScreen(new StartHammersQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Стартовые молоты")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Начало кузнечного дела")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Костяные инструменты")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Каменные инструменты")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.startHammersButton);
         super.init();
     }
 
@@ -174,6 +193,18 @@ public class ProgressProductionScreen extends Screen {
             combColor = 0xFF00BFFF;
         }
         this.combButton.setBorderColor(combColor);
+
+        boolean hammerUnlocked = QuestManager.isStartSmithingCompleted() &&
+                QuestManager.isBoneToolsCompleted() && QuestManager.isStoneToolsCompleted();
+        int hammerColor;
+        if (!hammerUnlocked) {
+            hammerColor = 0xFFFF0000;
+        } else if (QuestManager.isStartHammersCompleted()) {
+            hammerColor = 0xFF00FF00;
+        } else {
+            hammerColor = 0xFF00BFFF;
+        }
+        this.startHammersButton.setBorderColor(hammerColor);
 
         drawConnection(ms, this.planksButton, this.slabsButton);
 

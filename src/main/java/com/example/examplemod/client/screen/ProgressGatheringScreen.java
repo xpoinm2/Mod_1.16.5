@@ -6,6 +6,7 @@ import com.example.examplemod.client.ItemIconButton;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.screen.BranchQuestScreen;
 import com.example.examplemod.client.screen.FlaxFibersQuestScreen;
+import com.example.examplemod.client.screen.InitialFaunaQuestScreen;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
@@ -25,6 +26,7 @@ public class ProgressGatheringScreen extends Screen {
     private ItemIconButton bigBoneButton;
     private ItemIconButton sharpBoneButton;
     private ItemIconButton flaxFibersButton;
+    private ItemIconButton initialFaunaButton;
 
     public ProgressGatheringScreen(Screen parent) {
         super(new StringTextComponent("Собирательство"));
@@ -47,6 +49,15 @@ public class ProgressGatheringScreen extends Screen {
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
         this.addButton(this.branchButton);
+
+        this.initialFaunaButton = new ItemIconButton(x + spacingX, y,
+                new ItemStack(ModItems.RASPBERRY.get()),
+                b -> this.minecraft.setScreen(new InitialFaunaQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Начальная фауна")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
+        this.addButton(this.initialFaunaButton);
 
         this.hewnStoneButton = new ItemIconButton(x, y + spacingY, new ItemStack(ModItems.HEWN_STONE.get()),
                 b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
@@ -102,6 +113,8 @@ public class ProgressGatheringScreen extends Screen {
                 QuestManager.isHewnStonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         this.branchButton.setBorderColor(
                 QuestManager.isBranchCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+        this.initialFaunaButton.setBorderColor(
+                QuestManager.isInitialFaunaCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         this.bigBoneButton.setBorderColor(
                 QuestManager.isBigBonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
         int sharpColor;
