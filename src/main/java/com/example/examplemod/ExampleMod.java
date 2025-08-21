@@ -5,6 +5,8 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModContainers;
+import com.example.examplemod.ModFeatures;
+import com.example.examplemod.ModBiomes;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.network.ModNetworkHandler;
@@ -21,6 +23,8 @@ import com.example.examplemod.server.FirepitStructureHandler;
 import com.example.examplemod.server.RedMushroomHandler;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -50,6 +54,8 @@ public class ExampleMod {
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
         ModContainers.register(modBus);
+        ModFeatures.register(modBus);
+        ModBiomes.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }
@@ -73,6 +79,14 @@ public class ExampleMod {
 
         // Register configured features for world generation
         WorldGenRegistry.register();
+
+        // Add custom biome to generation
+        event.enqueueWork(() -> {
+            BiomeManager.addBiome(BiomeManager.BiomeType.COOL,
+                    new BiomeManager.BiomeEntry(ModBiomes.VOLCANOES_KEY, 8));
+            BiomeDictionary.addTypes(ModBiomes.VOLCANOES_KEY,
+                    BiomeDictionary.Type.MOUNTAIN, BiomeDictionary.Type.HOT);
+        });
 
     }
 
