@@ -67,7 +67,7 @@ public class ProgressProductionScreen extends Screen {
                         new StringTextComponent("Булыжная плита")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
-        this.addButton(this.cobbleSlabButton
+        this.addButton(this.cobbleSlabButton);
 
         this.stoneToolsButton = new ItemIconButton(x + spacingX * 2, y,
                 new ItemStack(ModItems.STONE_PICKAXE.get()),
