@@ -2,6 +2,7 @@ package com.example.examplemod.world;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.gen.ChunkGenerator;
@@ -9,24 +10,39 @@ import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
- * Feature that generates exactly three lava-filled basalt volcanoes with bedrock foundations.
+ * Feature that generates up to three lava-filled basalt volcanoes with bedrock foundations
+ * per biome.
  */
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
     public VolcanoFeature(Codec<NoFeatureConfig> codec) {
         super(codec);
     }
 
+    /**
+     * Tracks how many volcanoes have been generated per biome to limit to three.
+     */
+    private static final Map<ResourceLocation, Integer> VOLCANO_COUNTS = new HashMap<>();
+
     @Override
     public boolean place(ISeedReader world, ChunkGenerator generator, Random rand, BlockPos pos, NoFeatureConfig cfg) {
-        for (int i = 0; i < 3; i++) {
-            int x = pos.getX() + rand.nextInt(16);
-            int z = pos.getZ() + rand.nextInt(16);
-            int surface = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, x, z);
-            buildVolcano(world, new BlockPos(x, 0, z), surface + 40, rand);
+        ResourceLocation biome = world.getBiome(pos).getRegistryName();
+        if (biome == null) {
+            return false;
         }
+        int count = VOLCANO_COUNTS.getOrDefault(biome, 0);
+        if (count >= 3) {
+            return false; // already generated enough volcanoes for this biome
+        }
+        int x = pos.getX() + rand.nextInt(16);
+        int z = pos.getZ() + rand.nextInt(16);
+        int surface = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, x, z);
+        buildVolcano(world, new BlockPos(x, 0, z), surface + 40, rand);
+        VOLCANO_COUNTS.put(biome, count + 1);
         return true;
     }
 
