@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Feature that generates a hollow basalt volcano with an open crater.
+ * Feature that generates exactly one hollow basalt volcano with an open crater per biome.
  */
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
 
@@ -30,12 +30,20 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
 
     @Override
     public boolean place(ISeedReader world, ChunkGenerator generator, Random rand, BlockPos pos, NoFeatureConfig cfg) {
-        int x = pos.getX() + rand.nextInt(16);
-        int z = pos.getZ() + rand.nextInt(16);
-
-        int groundY = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, x, z);
-        Biome biome = world.getBiome(new BlockPos(x, groundY, z));
+        Biome biome = world.getBiome(pos);
         ResourceLocation biomeName = ForgeRegistries.BIOMES.getKey(biome);
+
+        // Проверяем, не генерировали ли вулкан в этом биоме
+        if (biomeName == null || !GENERATED_BIOMES.add(biomeName)) {
+            return false;
+        }
+
+        // Находим "центр" области биома (по сетке 512x512 чанков)
+        int biomeCenterX = (pos.getX() & ~511) + 256;
+        int biomeCenterZ = (pos.getZ() & ~511) + 256;
+
+        // Высота поверхности
+        int groundY = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, biomeCenterX, biomeCenterZ);
 
         int maxHeight = world.getMaxBuildHeight();
         int height = Math.min(40 + rand.nextInt(20), maxHeight - groundY);
@@ -43,12 +51,7 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
             return false;
         }
 
-        // Only allow a single volcano in each biome
-        if (biomeName != null && !GENERATED_BIOMES.add(biomeName)) {
-            return false;
-        }
-
-        buildVolcano(world, new BlockPos(x, groundY, z), height, rand);
+        buildVolcano(world, new BlockPos(biomeCenterX, groundY, biomeCenterZ), height, rand);
         return true;
     }
 
@@ -68,7 +71,6 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
                             world.setBlock(p, Blocks.BASALT.defaultBlockState(), 2);
                         } else {
                             world.setBlock(p, Blocks.AIR.defaultBlockState(), 2);
-
                         }
                     }
                 }
