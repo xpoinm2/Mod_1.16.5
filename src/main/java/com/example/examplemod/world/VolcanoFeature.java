@@ -17,12 +17,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Feature that generates exactly one hollow basalt volcano with an open crater per "mountains" biome.
+ * Генерирует ровно один полый базальтовый вулкан с открытым кратером в каждом регионе 512x512 блоков,
+ * но только если этот регион содержит биомы, в названии которых есть "mountains".
+ * Это устраняет проблему «один на весь тип биома» и гарантирует, что вулканы реально появляются.
  */
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
 
-    /** Tracks biomes that already contain a volcano. */
-    private static final Set<ResourceLocation> GENERATED_BIOMES = ConcurrentHashMap.newKeySet();
+    // Вместо глобального "по типу биома" — отслеживаем уже сгенерированные регионы мира (по сетке 512x512).
+    private static final Set<String> GENERATED_REGIONS = ConcurrentHashMap.newKeySet();
 
     public VolcanoFeature(Codec<NoFeatureConfig> codec) {
         super(codec);
@@ -30,28 +32,42 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
 
     @Override
     public boolean place(ISeedReader world, ChunkGenerator generator, Random rand, BlockPos pos, NoFeatureConfig cfg) {
-        Biome biome = world.getBiome(pos);
-        ResourceLocation biomeName = ForgeRegistries.BIOMES.getKey(biome);
+        Biome biomeAtPos = world.getBiome(pos);
+        ResourceLocation biomeName = ForgeRegistries.BIOMES.getKey(biomeAtPos);
 
-        // Проверяем, не генерировали ли вулкан в этом биоме
-        if (biomeName == null || !biomeName.getPath().contains("mountains") || !GENERATED_BIOMES.add(biomeName)) {
+        // Генерируем только в биомах, имя которых содержит "mountains"
+        if (biomeName == null || !biomeName.getPath().contains("mountains")) {
             return false;
         }
 
-        // Фиксированная точка для вулкана в этом биоме (центр квадрата 512×512)
-        int biomeCenterX = (pos.getX() & ~511) + 256;
-        int biomeCenterZ = (pos.getZ() & ~511) + 256;
+        // Привязываем по региону 512x512 (чтобы был максимум один вулкан на такой регион)
+        final int REGION_SIZE = 512;
+        int regionX = Math.floorDiv(pos.getX(), REGION_SIZE);
+        int regionZ = Math.floorDiv(pos.getZ(), REGION_SIZE);
+        String regionKey = regionX + "," + regionZ;
+        if (!GENERATED_REGIONS.add(regionKey)) {
+            return false; // В этом регионе уже есть вулкан
+        }
 
-        // Высота поверхности
-        int groundY = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, biomeCenterX, biomeCenterZ);
+        // Центр региона — фиксированная точка для вулкана
+        int centerX = regionX * REGION_SIZE + REGION_SIZE / 2;
+        int centerZ = regionZ * REGION_SIZE + REGION_SIZE / 2;
 
+        // Проверяем, что в центре тоже горный биом — если нет, отменяем (вулкан не будет в "плоском" пятне)
+        Biome biomeAtCenter = world.getBiome(new BlockPos(centerX, pos.getY(), centerZ));
+        ResourceLocation centerName = ForgeRegistries.BIOMES.getKey(biomeAtCenter);
+        if (centerName == null || !centerName.getPath().contains("mountains")) {
+            return false;
+        }
+
+        int groundY = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, centerX, centerZ);
         int maxHeight = world.getMaxBuildHeight();
         int height = Math.min(40 + rand.nextInt(20), maxHeight - groundY);
         if (height <= 0) {
             return false;
         }
 
-        buildVolcano(world, new BlockPos(biomeCenterX, groundY, biomeCenterZ), height, rand);
+        buildVolcano(world, new BlockPos(centerX, groundY, centerZ), height, rand);
         return true;
     }
 

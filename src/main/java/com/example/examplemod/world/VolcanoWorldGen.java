@@ -14,8 +14,10 @@ public class VolcanoWorldGen {
     @SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {
         ResourceLocation biomeName = event.getName();
+        // Добавляем фичу только в биомы, у которых в имени есть "mountains"
         if (biomeName != null && biomeName.getPath().contains("mountains")) {
             ConfiguredFeature<?, ?> feature = WorldGenRegistry.VOLCANO;
+            // Подойдёт и SURFACE_STRUCTURES, но можно попробовать LOCAL_MODIFICATIONS, если что
             event.getGeneration().addFeature(GenerationStage.Decoration.SURFACE_STRUCTURES, feature);
         }
     }
