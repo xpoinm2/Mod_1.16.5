@@ -16,7 +16,8 @@ import net.minecraft.world.gen.placement.ChanceConfig;
 import net.minecraft.world.gen.placement.Placement;
 
 /**
- * Registry for world generation configured features.
+ * Registry for configured features.
+ * Вызови WorldGenRegistry.register() в FMLCommonSetupEvent через event.enqueueWork(...).
  */
 public class WorldGenRegistry {
 
@@ -30,12 +31,6 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> PYRITE_ORE;
     public static ConfiguredFeature<?, ?> VOLCANO;
 
-
-
-    /**
-     * Registers all configured features to the world generation registry.
-     * Should be called during common setup.
-     */
     public static void register() {
         ANGELICA_PATCH = register("angelica_patch", 1, ModBlocks.ANGELICA.get().defaultBlockState());
         ELDERBERRY_PATCH = register("elderberry_patch", 3, ModBlocks.ELDERBERRY_BUSH.get().defaultBlockState());
@@ -50,14 +45,15 @@ public class WorldGenRegistry {
 
     private static ConfiguredFeature<?, ?> register(String name, int chance, net.minecraft.block.BlockState state) {
         BlockClusterFeatureConfig config = new BlockClusterFeatureConfig.Builder(
-                new SimpleBlockStateProvider(state),
-                SimpleBlockPlacer.INSTANCE).tries(8).build();
+                new SimpleBlockStateProvider(state), SimpleBlockPlacer.INSTANCE
+        ).tries(8).build();
         ConfiguredFeature<?, ?> feature = Feature.RANDOM_PATCH.configured(config)
                 .decorated(Placement.CHANCE.configured(new ChanceConfig(chance)));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, name), feature);
         return feature;
     }
+
     private static ConfiguredFeature<?, ?> registerPyriteOre() {
         net.minecraft.world.gen.feature.OreFeatureConfig config =
                 new net.minecraft.world.gen.feature.OreFeatureConfig(
@@ -65,18 +61,17 @@ public class WorldGenRegistry {
                         ModBlocks.PYRITE.get().defaultBlockState(),
                         4);
         ConfiguredFeature<?, ?> feature = net.minecraft.world.gen.feature.Feature.ORE
-                .configured(config)
-                .range(64).squared().count(6);
+                .configured(config).range(64).squared().count(6);
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "pyrite_ore"), feature);
         return feature;
     }
 
     private static ConfiguredFeature<?, ?> registerVolcano() {
-        ConfiguredFeature<?, ?> feature = ModFeatures.VOLCANO_FEATURE.configured(NoFeatureConfig.INSTANCE);
+        // Используем объект из реестра, а не статический инстанс
+        ConfiguredFeature<?, ?> feature = ModFeatures.VOLCANO.get().configured(NoFeatureConfig.INSTANCE);
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "volcano"), feature);
         return feature;
     }
-
 }
