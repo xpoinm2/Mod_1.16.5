@@ -51,28 +51,28 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
         buildVolcano(world, new BlockPos(x, groundY, z), height, rand);
         return true;
     }
-}
+
     private void buildVolcano(ISeedReader world, BlockPos base, int height, Random rand) {
         int maxRadius = 16 + rand.nextInt(8);
         int craterRadius = maxRadius / 3;
         int buildLimit = world.getMaxBuildHeight();
 
-                for (int y = 0; y < height && base.getY() + y < buildLimit; y++) {
-                    int radius = Math.max(craterRadius, (int) (maxRadius * (1.0 - (double) y / height)));
-                    for (int dx = -radius; dx <= radius; dx++) {
-                        for (int dz = -radius; dz <= radius; dz++) {
-                            double dist = Math.sqrt(dx * dx + dz * dz);
-                            BlockPos p = base.offset(dx, y, dz);
-                            if (dist <= radius) {
-                                if (dist >= radius - 1) {
-                                    world.setBlock(p, Blocks.BASALT.defaultBlockState(), 2);
-                                } else {
-                                    world.setBlock(p, Blocks.AIR.defaultBlockState(), 2);
-                                }
-                            }
+        for (int y = 0; y < height && base.getY() + y < buildLimit; y++) {
+            int radius = Math.max(craterRadius, (int) (maxRadius * (1.0 - (double) y / height)));
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    double dist = Math.sqrt(dx * dx + dz * dz);
+                    BlockPos p = base.offset(dx, y, dz);
+                    if (dist <= radius) {
+                        if (dist >= radius - 1) {
+                            world.setBlock(p, Blocks.BASALT.defaultBlockState(), 2);
+                        } else {
+                            world.setBlock(p, Blocks.AIR.defaultBlockState(), 2);
 
                         }
                     }
                 }
             }
         }
+    }
+}
