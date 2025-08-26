@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Feature that generates exactly one hollow basalt volcano with an open crater per biome.
+ * Feature that generates exactly one hollow basalt volcano with an open crater per "mountains" biome.
  */
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
 
@@ -34,11 +34,11 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
         ResourceLocation biomeName = ForgeRegistries.BIOMES.getKey(biome);
 
         // Проверяем, не генерировали ли вулкан в этом биоме
-        if (biomeName == null || !GENERATED_BIOMES.add(biomeName)) {
+        if (biomeName == null || !biomeName.getPath().contains("mountains") || !GENERATED_BIOMES.add(biomeName)) {
             return false;
         }
 
-        // Находим "центр" области биома (по сетке 512x512 чанков)
+        // Фиксированная точка для вулкана в этом биоме (центр квадрата 512×512)
         int biomeCenterX = (pos.getX() & ~511) + 256;
         int biomeCenterZ = (pos.getZ() & ~511) + 256;
 
