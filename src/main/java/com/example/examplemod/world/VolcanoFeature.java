@@ -2,59 +2,43 @@ package com.example.examplemod.world;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 /**
- * Feature that generates up to three lava-filled basalt volcanoes with bedrock foundations
- * per biome.
+ * Feature that generates lava-filled basalt volcanoes with bedrock foundations.
  */
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
     public VolcanoFeature(Codec<NoFeatureConfig> codec) {
         super(codec);
     }
 
-    /**
-     * Tracks how many volcanoes have been generated per biome to limit to three.
-     */
-    private static final Map<ResourceLocation, Integer> VOLCANO_COUNTS = new HashMap<>();
-
     @Override
     public boolean place(ISeedReader world, ChunkGenerator generator, Random rand, BlockPos pos, NoFeatureConfig cfg) {
-        ResourceLocation biome = world.getBiome(pos).getRegistryName();
-        if (biome == null) {
+        // only attempt a volcano in roughly half of the chunks to reduce density
+        if (rand.nextInt(2) != 0) {
             return false;
-        }
-        int count = VOLCANO_COUNTS.getOrDefault(biome, 0);
-        if (count >= 3) {
-            return false; // already generated enough volcanoes for this biome
         }
         int x = pos.getX() + rand.nextInt(16);
         int z = pos.getZ() + rand.nextInt(16);
-        int surface = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, x, z);
-        int height = 30 + rand.nextInt(15);
-        buildVolcano(world, new BlockPos(x, surface - 5, z), height, rand);
-        VOLCANO_COUNTS.put(biome, count + 1);
+        int height = (30 + rand.nextInt(15)) * 3; // triple the height for larger structures
+        buildVolcano(world, new BlockPos(x, 2, z), height, rand);
         return true;
     }
 
     private void buildVolcano(ISeedReader world, BlockPos base, int height, Random rand) {
-        int baseRadius = 25;
-        // reinforce the foundation with bedrock below the surface
-        for (int y = -5; y <= 0; y++) {
+        int baseRadius = 25 * 3;
+        // reinforce the foundation with bedrock from the world bottom
+        for (int y = 0; y <= base.getY(); y++) {
             for (int dx = -baseRadius; dx <= baseRadius; dx++) {
                 for (int dz = -baseRadius; dz <= baseRadius; dz++) {
                     if (Math.sqrt(dx * dx + dz * dz) <= baseRadius) {
-                        world.setBlock(base.offset(dx, y, dz), Blocks.BEDROCK.defaultBlockState(), 2);
+                        world.setBlock(new BlockPos(base.getX() + dx, y, base.getZ() + dz), Blocks.BEDROCK.defaultBlockState(), 2);
                     }
                 }
             }
@@ -76,18 +60,17 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
                 }
             }
         }
-        // carve and rim the crater at the top
-        int craterRadius = baseRadius / 3;
+        // carve a crater at the top without expanding the silhouette
+        int topRadius = Math.max(1, baseRadius - (baseRadius * (height - 4) / height));
+        int craterRadius = Math.max(1, topRadius - 1);
         for (int y = height - 4; y <= height; y++) {
             for (int dx = -craterRadius; dx <= craterRadius; dx++) {
                 for (int dz = -craterRadius; dz <= craterRadius; dz++) {
                     double dist = Math.sqrt(dx * dx + dz * dz);
                     BlockPos p = base.offset(dx, y, dz);
-                    if (dist <= craterRadius) {
-                        if (y == height - 4 && dist < craterRadius - 1) {
+                    if (dist < craterRadius) {
+                        if (y == height - 4) {
                             world.setBlock(p, Blocks.LAVA.defaultBlockState(), 2);
-                        } else if (dist >= craterRadius - 1) {
-                            world.setBlock(p, Blocks.BASALT.defaultBlockState(), 2);
                         } else {
                             world.setBlock(p, Blocks.AIR.defaultBlockState(), 2);
                         }
