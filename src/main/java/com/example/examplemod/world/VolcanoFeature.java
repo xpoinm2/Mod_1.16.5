@@ -41,15 +41,16 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
         int x = pos.getX() + rand.nextInt(16);
         int z = pos.getZ() + rand.nextInt(16);
         int surface = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, x, z);
-        buildVolcano(world, new BlockPos(x, 0, z), surface + 40, rand);
+        int height = 30 + rand.nextInt(15);
+        buildVolcano(world, new BlockPos(x, surface - 5, z), height, rand);
         VOLCANO_COUNTS.put(biome, count + 1);
         return true;
     }
 
     private void buildVolcano(ISeedReader world, BlockPos base, int height, Random rand) {
-        int baseRadius = 15;
-        // reinforce the foundation with bedrock
-        for (int y = 0; y <= 5; y++) {
+        int baseRadius = 25;
+        // reinforce the foundation with bedrock below the surface
+        for (int y = -5; y <= 0; y++) {
             for (int dx = -baseRadius; dx <= baseRadius; dx++) {
                 for (int dz = -baseRadius; dz <= baseRadius; dz++) {
                     if (Math.sqrt(dx * dx + dz * dz) <= baseRadius) {
@@ -57,9 +58,10 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
                     }
                 }
             }
-        }/// build basalt shell filled with lava
+        }
+        // build tapered basalt cone with lava interior
         for (int y = 0; y <= height; y++) {
-            int radius = Math.max(1, (int) ((1.0 - (double) y / height) * baseRadius));
+            int radius = Math.max(1, baseRadius - (baseRadius * y / height));
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
                     double dist = Math.sqrt(dx * dx + dz * dz);
@@ -67,26 +69,27 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
                     if (dist <= radius) {
                         if (dist >= radius - 1 || y == 0) {
                             world.setBlock(p, Blocks.BASALT.defaultBlockState(), 2);
-                        } else {
+                        } else if (y < height - 4) {
                             world.setBlock(p, Blocks.LAVA.defaultBlockState(), 2);
                         }
                     }
                 }
             }
         }
-        // enlarged crater brim filled with lava
-        int craterHeight = height - 3;
-        int craterRadius = 6;
-        for (int y = craterHeight; y < height; y++) {
+        // carve and rim the crater at the top
+        int craterRadius = baseRadius / 3;
+        for (int y = height - 4; y <= height; y++) {
             for (int dx = -craterRadius; dx <= craterRadius; dx++) {
                 for (int dz = -craterRadius; dz <= craterRadius; dz++) {
                     double dist = Math.sqrt(dx * dx + dz * dz);
                     BlockPos p = base.offset(dx, y, dz);
                     if (dist <= craterRadius) {
-                        if (y == craterHeight || dist >= craterRadius - 1) {
+                        if (y == height - 4 && dist < craterRadius - 1) {
+                            world.setBlock(p, Blocks.LAVA.defaultBlockState(), 2);
+                        } else if (dist >= craterRadius - 1) {
                             world.setBlock(p, Blocks.BASALT.defaultBlockState(), 2);
                         } else {
-                            world.setBlock(p, Blocks.LAVA.defaultBlockState(), 2);
+                            world.setBlock(p, Blocks.AIR.defaultBlockState(), 2);
                         }
                     }
                 }
