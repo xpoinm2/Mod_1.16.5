@@ -15,7 +15,7 @@ public class ModFeatures {
     public static final DeferredRegister<Feature<?>> FEATURES =
             DeferredRegister.create(ForgeRegistries.FEATURES, ExampleMod.MODID);
 
-    // Volcano feature used in the Volcanoes biome
+    // Volcano feature used in vanilla mountain biomes
     public static final Feature<NoFeatureConfig> VOLCANO_FEATURE =
             new VolcanoFeature(NoFeatureConfig.CODEC);
     public static final RegistryObject<Feature<NoFeatureConfig>> VOLCANO = FEATURES.register(

@@ -16,7 +16,6 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import com.example.examplemod.ModBiomes;
 
 /**
  * Simple commands to teleport player to various biomes for testing.
@@ -39,7 +38,6 @@ public class BiomeTeleportCommands {
                         .then(Commands.literal("savanna").executes(ctx -> teleport(ctx, Biomes.SAVANNA)))
                         .then(Commands.literal("mountains").executes(ctx -> teleport(ctx, Biomes.MOUNTAINS)))
                         .then(Commands.literal("desert").executes(ctx -> teleport(ctx, Biomes.DESERT)))
-                        .then(Commands.literal("volcanoes").executes(ctx -> teleport(ctx, ModBiomes.VOLCANOES_KEY)))
         );
     }
 
