@@ -12,9 +12,9 @@ import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Feature that generates a hollow basalt volcano with an open crater.
@@ -22,7 +22,7 @@ import java.util.Set;
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
 
     /** Tracks which biomes have already generated a volcano. */
-    private static final Set<ResourceLocation> GENERATED_BIOMES = new HashSet<>();
+    private static final Set<ResourceLocation> GENERATED_BIOMES = ConcurrentHashMap.newKeySet();
 
     public VolcanoFeature(Codec<NoFeatureConfig> codec) {
         super(codec);
@@ -36,9 +36,6 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
         int groundY = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, x, z);
         Biome biome = world.getBiome(new BlockPos(x, groundY, z));
         ResourceLocation biomeName = ForgeRegistries.BIOMES.getKey(biome);
-        if (biomeName != null && GENERATED_BIOMES.contains(biomeName)) {
-            return false; // Only one volcano per biome
-        }
 
         int maxHeight = world.getMaxBuildHeight();
         int height = Math.min(40 + rand.nextInt(20), maxHeight - groundY);
@@ -46,10 +43,11 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
             return false;
         }
 
-        buildVolcano(world, new BlockPos(x, groundY, z), height, rand);
-        if (biomeName != null) {
-            GENERATED_BIOMES.add(biomeName);
+        if (biomeName != null && !GENERATED_BIOMES.add(biomeName)) {
+            return false; // Only one volcano per biome
         }
+
+        buildVolcano(world, new BlockPos(x, groundY, z), height, rand);
         return true;
 }
 
