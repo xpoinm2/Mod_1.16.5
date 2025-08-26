@@ -17,13 +17,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Генерирует ровно один полый базальтовый вулкан с открытым кратером в каждом регионе 512x512 блоков,
- * но только если этот регион содержит биомы, в названии которых есть "mountains".
- * Это устраняет проблему «один на весь тип биома» и гарантирует, что вулканы реально появляются.
+ * Ровно один вулкан на каждый "островок" (пятно) биома mountains.
+ * Реализовано так: по сетке REG_SIZE (64 блоков) выбирается один якорь,
+ * мы ищем ближайшую точку внутри этого пятна mountains (спиральный поиск),
+ * и ставим вулкан. Для каждого региона 64x64 гарантируется не более одного вулкана.
  */
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
 
-    // Вместо глобального "по типу биома" — отслеживаем уже сгенерированные регионы мира (по сетке 512x512).
+    // Ограничиваем генерацию максимум одним вулканом на регион REG_SIZE x REG_SIZE
+    private static final int REG_SIZE = 64;
     private static final Set<String> GENERATED_REGIONS = ConcurrentHashMap.newKeySet();
 
     public VolcanoFeature(Codec<NoFeatureConfig> codec) {
@@ -35,40 +37,62 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
         Biome biomeAtPos = world.getBiome(pos);
         ResourceLocation biomeName = ForgeRegistries.BIOMES.getKey(biomeAtPos);
 
-        // Генерируем только в биомах, имя которых содержит "mountains"
+        // Генерируем только в биомах с именем, содержащим "mountains"
         if (biomeName == null || !biomeName.getPath().contains("mountains")) {
             return false;
         }
 
-        // Привязываем по региону 512x512 (чтобы был максимум один вулкан на такой регион)
-        final int REGION_SIZE = 512;
-        int regionX = Math.floorDiv(pos.getX(), REGION_SIZE);
-        int regionZ = Math.floorDiv(pos.getZ(), REGION_SIZE);
+        // Региональная привязка 64x64 (намного плотнее прежних 512x512)
+        int regionX = Math.floorDiv(pos.getX(), REG_SIZE);
+        int regionZ = Math.floorDiv(pos.getZ(), REG_SIZE);
         String regionKey = regionX + "," + regionZ;
         if (!GENERATED_REGIONS.add(regionKey)) {
-            return false; // В этом регионе уже есть вулкан
+            return false; // в этом регионе уже генерировали
         }
 
-        // Центр региона — фиксированная точка для вулкана
-        int centerX = regionX * REGION_SIZE + REGION_SIZE / 2;
-        int centerZ = regionZ * REGION_SIZE + REGION_SIZE / 2;
+        // Начальная точка — центр региона
+        int startX = regionX * REG_SIZE + REG_SIZE / 2;
+        int startZ = regionZ * REG_SIZE + REG_SIZE / 2;
 
-        // Проверяем, что в центре тоже горный биом — если нет, отменяем (вулкан не будет в "плоском" пятне)
-        Biome biomeAtCenter = world.getBiome(new BlockPos(centerX, pos.getY(), centerZ));
-        ResourceLocation centerName = ForgeRegistries.BIOMES.getKey(biomeAtCenter);
-        if (centerName == null || !centerName.getPath().contains("mountains")) {
-            return false;
+        // Ищем ближайшую точку внутри mountains (спираль), чтобы не зависеть от размера пятна
+        BlockPos target = findNearestMountains(world, startX, pos.getY(), startZ, 96);
+        if (target == null) {
+            return false; // поблизости нет mountains — отменяем
         }
 
-        int groundY = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, centerX, centerZ);
+        int groundY = world.getHeight(Heightmap.Type.WORLD_SURFACE_WG, target.getX(), target.getZ());
         int maxHeight = world.getMaxBuildHeight();
         int height = Math.min(40 + rand.nextInt(20), maxHeight - groundY);
         if (height <= 0) {
             return false;
         }
 
-        buildVolcano(world, new BlockPos(centerX, groundY, centerZ), height, rand);
+        buildVolcano(world, new BlockPos(target.getX(), groundY, target.getZ()), height, rand);
         return true;
+    }
+
+    /** Спиральный поиск ближайшего блока, где биом содержит "mountains". */
+    private BlockPos findNearestMountains(ISeedReader world, int x0, int y, int z0, int maxRadius) {
+        int x = 0, z = 0;
+        int dx = 0, dz = -1;
+        for (int i = 0; i < (maxRadius * maxRadius); i++) {
+            int cx = x0 + x;
+            int cz = z0 + z;
+            Biome b = world.getBiome(new BlockPos(cx, y, cz));
+            ResourceLocation name = ForgeRegistries.BIOMES.getKey(b);
+            if (name != null && name.getPath().contains("mountains")) {
+                return new BlockPos(cx, y, cz);
+            }
+            if (x == z || (x < 0 && x == -z) || (x > 0 && x == 1 - z)) {
+                int tmp = dx;
+                dx = -dz;
+                dz = tmp;
+            }
+            x += dx;
+            z += dz;
+            if (Math.max(Math.abs(x), Math.abs(z)) > maxRadius) break;
+        }
+        return null;
     }
 
     private void buildVolcano(ISeedReader world, BlockPos base, int height, Random rand) {
