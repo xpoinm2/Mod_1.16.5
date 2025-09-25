@@ -1,14 +1,15 @@
 package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
-import com.example.examplemod.ModItems;
-import com.example.examplemod.ModCreativeTabs;
-import com.example.examplemod.ModBlocks;
-import com.example.examplemod.ModContainers;
-import com.example.examplemod.ModFeatures;
 import com.example.examplemod.client.screen.FirepitScreen;
+import com.example.examplemod.world.ModConfiguredStructures;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.ModItems;
+import com.example.examplemod.ModBlocks;
+import com.example.examplemod.ModCreativeTabs;
+import com.example.examplemod.ModContainers;
+import com.example.examplemod.ModStructures;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
@@ -21,16 +22,15 @@ import com.example.examplemod.server.FlaxDryingHandler;
 import com.example.examplemod.server.FirepitStructureHandler;
 import com.example.examplemod.server.RedMushroomHandler;
 
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.gui.ScreenManager;
-
 
 
 import org.apache.logging.log4j.LogManager;
@@ -42,21 +42,21 @@ public class ExampleMod {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public ExampleMod() {
-        // 1) Регистрируем наш канал + пакеты
+
         ModNetworkHandler.register();
 
-        // 2) Подписываемся на жизненный цикл загрузки модов
+
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
         ModContainers.register(modBus);
-        ModFeatures.register(modBus);
+        ModStructures.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }
 
-    /** Серверная и общая инициализация (регистрируем ThirstHandler) */
+
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("ExampleMod common setup");
         MinecraftForge.EVENT_BUS.register(ThirstHandler.class);
@@ -70,14 +70,17 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(CraftingBlocker.class);
         MinecraftForge.EVENT_BUS.register(FirepitStructureHandler.class);
 
-        // Spawn hewn stones in rivers
+
         MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);
 
-        // Register configured features for world generation
-        WorldGenRegistry.register();
+        event.enqueueWork(() -> {
+            WorldGenRegistry.register();
+            ModStructures.setupStructures();
+            ModConfiguredStructures.register();
+        });
     }
 
-    /** Клиентская инициализация (регистрируем обработку кликов по воде) */
+
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
