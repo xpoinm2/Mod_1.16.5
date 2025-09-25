@@ -28,7 +28,6 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> GINGER_PATCH;
     public static ConfiguredFeature<?, ?> FLAX_PATCH;
     public static ConfiguredFeature<?, ?> PYRITE_ORE;
-    public static ConfiguredFeature<?, ?> VOLCANO;
 
     public static void register() {
         ANGELICA_PATCH = register("angelica_patch", 1, ModBlocks.ANGELICA.get().defaultBlockState());
@@ -39,7 +38,7 @@ public class WorldGenRegistry {
         GINGER_PATCH = register("ginger_patch", 1, ModBlocks.GINGER_PLANT.get().defaultBlockState());
         FLAX_PATCH = register("flax_patch", 1, ModBlocks.FLAX_PLANT.get().defaultBlockState());
         PYRITE_ORE = registerPyriteOre();
-        VOLCANO = registerVolcano();
+        registerVolcano();
     }
 
     private static ConfiguredFeature<?, ?> register(String name, int chance, net.minecraft.block.BlockState state) {
@@ -66,13 +65,12 @@ public class WorldGenRegistry {
         return feature;
     }
 
-    private static ConfiguredFeature<?, ?> registerVolcano() {
+    private static void registerVolcano() {
         VolcanoFeature feature = Registry.register(Registry.FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "volcano"), new VolcanoFeature(NoFeatureConfig.CODEC));
         ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE)
                 .decorated(Placement.CHANCE.configured(new ChanceConfig(1)));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "volcano"), configured);
-        return configured;
     }
 }

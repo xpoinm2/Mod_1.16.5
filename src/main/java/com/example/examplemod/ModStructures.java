@@ -35,7 +35,7 @@ public class ModStructures {
             "volcano", () -> new VolcanoStructure(NoFeatureConfig.CODEC)
     );
 
-    private static final StructureSeparationSettings VOLCANO_SPACING = new StructureSeparationSettings(32, 16, 0x4C6F7661);
+    private static final StructureSeparationSettings VOLCANO_SPACING = new StructureSeparationSettings(16, 8, 0x4C6F7661);
 
     public static final IStructurePieceType VOLCANO_PIECE = IStructurePieceType.setPieceId(
             VolcanoStructure.VolcanoPiece::new, ExampleMod.MODID + ":volcano_piece");
