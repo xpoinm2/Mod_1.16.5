@@ -140,7 +140,7 @@ public class VolcanoStructure extends Structure<NoFeatureConfig> {
         private final long seed;
 
         public VolcanoPiece(BlockPos base, int height, long seed) {
-            super(ModStructures.VOLCANO_PIECE.get(), 0);
+            super(ModStructures.VOLCANO_PIECE, 0);
             this.base = base;
             this.height = height;
             this.seed = seed;
@@ -152,7 +152,7 @@ public class VolcanoStructure extends Structure<NoFeatureConfig> {
         }
 
         public VolcanoPiece(TemplateManager templateManager, CompoundNBT nbt) {
-            this(ModStructures.VOLCANO_PIECE.get(), nbt);
+            this(ModStructures.VOLCANO_PIECE, nbt);
         }
 
         public VolcanoPiece(StructurePieceType type, CompoundNBT nbt) {

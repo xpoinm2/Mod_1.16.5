@@ -5,8 +5,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.FlatChunkGenerator;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.gen.feature.Structure;
+import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructurePieceType;
+import net.minecraft.world.gen.settings.StructureSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.world.WorldEvent;
@@ -14,10 +15,12 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.util.registry.WorldGenRegistries;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +30,6 @@ import java.util.Map;
 public class ModStructures {
     public static final DeferredRegister<Structure<?>> STRUCTURES =
             DeferredRegister.create(ForgeRegistries.STRUCTURE_FEATURES, ExampleMod.MODID);
-    public static final DeferredRegister<StructurePieceType> STRUCTURE_PIECES =
-            DeferredRegister.create(ForgeRegistries.STRUCTURE_PIECE_TYPES, ExampleMod.MODID);
 
     public static final RegistryObject<Structure<NoFeatureConfig>> VOLCANO = STRUCTURES.register(
             "volcano", () -> new VolcanoStructure(NoFeatureConfig.CODEC)
@@ -36,13 +37,18 @@ public class ModStructures {
 
     private static final StructureSeparationSettings VOLCANO_SPACING = new StructureSeparationSettings(32, 16, 0x4C6F7661);
 
-    public static final RegistryObject<StructurePieceType> VOLCANO_PIECE = STRUCTURE_PIECES.register(
-            "volcano_piece", () -> VolcanoStructure.VolcanoPiece::new
-    );
+    public static final StructurePieceType VOLCANO_PIECE = StructurePieceType.register(ExampleMod.MODID + ":volcano_piece",
+            VolcanoStructure.VolcanoPiece::new);
+
+    private static final Field STRUCTURE_CONFIG_FIELD = ObfuscationReflectionHelper.findField(StructureSettings.class,
+            "structureConfig", "field_236193_d_");
+
+    static {
+        STRUCTURE_CONFIG_FIELD.setAccessible(true);
+    }
 
     public static void register(IEventBus bus) {
         STRUCTURES.register(bus);
-        STRUCTURE_PIECES.register(bus);
     }
 
     /**
@@ -55,7 +61,7 @@ public class ModStructures {
             Map<Structure<?>, StructureSeparationSettings> config = entry.getValue().structureSettings().structureConfig();
             if (!(config instanceof HashMap)) {
                 config = new HashMap<>(config);
-                entry.getValue().structureSettings().structureConfig = config;
+                setStructureConfig(entry.getValue().structureSettings(), config);
             }
             config.put(volcano, VOLCANO_SPACING);
         });
@@ -81,7 +87,15 @@ public class ModStructures {
 
             Map<Structure<?>, StructureSeparationSettings> mutable = new HashMap<>(config);
             mutable.put(VOLCANO.get(), VOLCANO_SPACING);
-            generator.getSettings().structureConfig = mutable;
+            setStructureConfig(generator.getSettings(), mutable);
+        }
+    }
+
+    private static void setStructureConfig(StructureSettings settings, Map<Structure<?>, StructureSeparationSettings> map) {
+        try {
+            STRUCTURE_CONFIG_FIELD.set(settings, map);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to set structure configuration map", e);
         }
     }
 }
