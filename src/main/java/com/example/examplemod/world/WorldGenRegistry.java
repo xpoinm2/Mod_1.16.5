@@ -70,7 +70,7 @@ public class WorldGenRegistry {
         VolcanoFeature feature = Registry.register(Registry.FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "volcano"), new VolcanoFeature(NoFeatureConfig.CODEC));
         ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE)
-                .decorated(Placement.CHANCE.configured(new ChanceConfig(16)));
+                .decorated(Placement.CHANCE.configured(new ChanceConfig(1)));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "volcano"), configured);
         return configured;
