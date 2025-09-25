@@ -14,7 +14,7 @@ import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -79,7 +79,7 @@ public class BlockTeleportCommand {
                     int chunkX = originChunk.x + dx;
                     int chunkZ = originChunk.z + dz;
 
-                    Chunk chunk = world.getChunkSource().getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+                    IChunk chunk = world.getChunkSource().getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
                     if (chunk == null) {
                         continue;
                     }
