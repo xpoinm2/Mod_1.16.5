@@ -3,6 +3,7 @@ package com.example.examplemod;
 import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.world.WorldGenRegistry;
+import com.example.examplemod.world.ModConfiguredStructures;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModBlocks;
@@ -74,6 +75,7 @@ public class ExampleMod {
 
         event.enqueueWork(() -> {
             WorldGenRegistry.register();
+            ModConfiguredStructures.register();
             ModStructures.setupStructures();
         });
     }
