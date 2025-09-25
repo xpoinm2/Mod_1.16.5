@@ -2,7 +2,7 @@ package com.example.examplemod.world;
 
 import com.example.examplemod.ExampleMod;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.feature.structure.StructureFeature;
+import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

@@ -31,6 +31,12 @@ public class VolcanoTeleportCommand {
                         .requires(cs -> cs.hasPermission(2))
                         .executes(VolcanoTeleportCommand::teleportToVolcano)
         );
+        event.getDispatcher().register(
+                Commands.literal("tpminibiome")
+                        .requires(cs -> cs.hasPermission(2))
+                        .then(Commands.literal("volcano")
+                                .executes(VolcanoTeleportCommand::teleportToVolcano))
+        );
     }
 
     private static int teleportToVolcano(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
