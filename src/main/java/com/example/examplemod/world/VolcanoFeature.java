@@ -10,12 +10,15 @@ import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 
+import javax.annotation.Nonnull;
+
 import java.util.Random;
 
 /**
  * Procedurally builds a basalt volcano with a lava filled crater.
  */
 public class VolcanoFeature extends Feature<NoFeatureConfig> {
+    private static final int MIN_WORLD_HEIGHT = 0;
     private static final int MIN_HEIGHT = 24;
     private static final int MAX_HEIGHT = 38;
     private static final int MIN_RADIUS = 9;
@@ -26,10 +29,10 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
     }
 
     @Override
-    public boolean place(ISeedReader world, ChunkGenerator generator, Random random, BlockPos origin,
-                         NoFeatureConfig config) {
+    public boolean place(@Nonnull ISeedReader world, @Nonnull ChunkGenerator generator, @Nonnull Random random,
+                         @Nonnull BlockPos origin, @Nonnull NoFeatureConfig config) {
         int surfaceY = generator.getBaseHeight(origin.getX(), origin.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
-        if (surfaceY <= world.getMinBuildHeight() + 4) {
+        if (surfaceY <= MIN_WORLD_HEIGHT + 4) {
             return false;
         }
 
@@ -51,7 +54,7 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
                     }
 
                     mutable.set(base.getX() + dx, base.getY() + y, base.getZ() + dz);
-                    if (mutable.getY() < world.getMinBuildHeight() || mutable.getY() >= world.getMaxBuildHeight()) {
+                    if (mutable.getY() < MIN_WORLD_HEIGHT || mutable.getY() >= generator.getGenDepth()) {
                         continue;
                     }
 
@@ -83,7 +86,7 @@ public class VolcanoFeature extends Feature<NoFeatureConfig> {
     private void reinforceBase(ISeedReader world, BlockPos base, int baseRadius) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         BlockPos.Mutable fillPos = new BlockPos.Mutable();
-        int minBuild = world.getMinBuildHeight();
+        int minBuild = MIN_WORLD_HEIGHT;
 
         for (int dx = -baseRadius; dx <= baseRadius; dx++) {
             for (int dz = -baseRadius; dz <= baseRadius; dz++) {
