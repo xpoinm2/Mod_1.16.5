@@ -22,7 +22,7 @@ import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.structure.StructurePiece;
-import net.minecraft.world.gen.feature.structure.StructurePieceType;
+import net.minecraft.world.gen.feature.structure.IStructurePieceType;
 import net.minecraft.world.gen.feature.structure.StructureStart;
 import net.minecraft.world.gen.feature.template.TemplateManager;
 import net.minecraftforge.common.BiomeDictionary;
@@ -155,7 +155,7 @@ public class VolcanoStructure extends Structure<NoFeatureConfig> {
             this(ModStructures.VOLCANO_PIECE, nbt);
         }
 
-        public VolcanoPiece(StructurePieceType type, CompoundNBT nbt) {
+        public VolcanoPiece(IStructurePieceType type, CompoundNBT nbt) {
             super(type, nbt);
             this.base = new BlockPos(nbt.getInt("BaseX"), nbt.getInt("BaseY"), nbt.getInt("BaseZ"));
             this.height = nbt.getInt("Height");

@@ -6,8 +6,8 @@ import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.FlatChunkGenerator;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.gen.feature.structure.StructurePieceType;
-import net.minecraft.world.gen.settings.StructureSettings;
+import net.minecraft.world.gen.feature.structure.IStructurePieceType;
+import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.world.WorldEvent;
@@ -37,11 +37,11 @@ public class ModStructures {
 
     private static final StructureSeparationSettings VOLCANO_SPACING = new StructureSeparationSettings(32, 16, 0x4C6F7661);
 
-    public static final StructurePieceType VOLCANO_PIECE = StructurePieceType.register(ExampleMod.MODID + ":volcano_piece",
-            VolcanoStructure.VolcanoPiece::new);
+    public static final IStructurePieceType VOLCANO_PIECE = IStructurePieceType.setPieceId(
+            VolcanoStructure.VolcanoPiece::new, ExampleMod.MODID + ":volcano_piece");
 
-    private static final Field STRUCTURE_CONFIG_FIELD = ObfuscationReflectionHelper.findField(StructureSettings.class,
-            "structureConfig", "field_236193_d_");
+    private static final Field STRUCTURE_CONFIG_FIELD = ObfuscationReflectionHelper.findField(
+            DimensionStructuresSettings.class, "structureConfig");
 
     static {
         STRUCTURE_CONFIG_FIELD.setAccessible(true);
@@ -91,7 +91,8 @@ public class ModStructures {
         }
     }
 
-    private static void setStructureConfig(StructureSettings settings, Map<Structure<?>, StructureSeparationSettings> map) {
+    private static void setStructureConfig(DimensionStructuresSettings settings,
+                                           Map<Structure<?>, StructureSeparationSettings> map) {
         try {
             STRUCTURE_CONFIG_FIELD.set(settings, map);
         } catch (IllegalAccessException e) {
