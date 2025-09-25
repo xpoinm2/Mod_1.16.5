@@ -10,8 +10,12 @@ import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.Mutable;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -59,19 +63,60 @@ public class BlockTeleportCommand {
     }
 
     private static BlockPos findBlock(ServerWorld world, Block block, BlockPos origin) {
-        for (int r = 0; r <= SEARCH_RADIUS; r++) {
-            for (int x = -r; x <= r; x++) {
-                for (int y = -r; y <= r; y++) {
-                    for (int z = -r; z <= r; z++) {
-                        if (Math.abs(x) != r && Math.abs(y) != r && Math.abs(z) != r) continue;
-                        int posY = origin.getY() + y;
-                        if (posY < 0 || posY >= world.getMaxBuildHeight()) continue;
-                        BlockPos pos = origin.offset(x, y, z);
-                        if (world.getBlockState(pos).getBlock() == block) {
-                            return pos.immutable();
+        ChunkPos originChunk = new ChunkPos(origin);
+        int chunkRadius = Math.max(0, (SEARCH_RADIUS + 15) >> 4);
+        int minY = Math.max(0, origin.getY() - SEARCH_RADIUS);
+        int maxY = Math.min(world.getMaxBuildHeight() - 1, origin.getY() + SEARCH_RADIUS);
+        Mutable mutablePos = new Mutable();
+        BlockPos bestPos = null;
+        double bestDistance = Double.MAX_VALUE;
+
+        for (int r = 0; r <= chunkRadius; r++) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    if (Math.abs(dx) != r && Math.abs(dz) != r) continue;
+
+                    int chunkX = originChunk.x + dx;
+                    int chunkZ = originChunk.z + dz;
+
+                    Chunk chunk = world.getChunkSource().getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+                    if (chunk == null) {
+                        continue;
+                    }
+
+                    int chunkMinX = chunkX << 4;
+                    int chunkMinZ = chunkZ << 4;
+                    int chunkMaxX = chunkMinX + 15;
+                    int chunkMaxZ = chunkMinZ + 15;
+
+                    int searchMinX = Math.max(chunkMinX, origin.getX() - SEARCH_RADIUS);
+                    int searchMaxX = Math.min(chunkMaxX, origin.getX() + SEARCH_RADIUS);
+                    int searchMinZ = Math.max(chunkMinZ, origin.getZ() - SEARCH_RADIUS);
+                    int searchMaxZ = Math.min(chunkMaxZ, origin.getZ() + SEARCH_RADIUS);
+
+                    if (searchMinX > searchMaxX || searchMinZ > searchMaxZ) {
+                        continue;
+                    }
+
+                    for (int x = searchMinX; x <= searchMaxX; x++) {
+                        for (int z = searchMinZ; z <= searchMaxZ; z++) {
+                            for (int y = minY; y <= maxY; y++) {
+                                mutablePos.set(x, y, z);
+                                if (chunk.getBlockState(mutablePos).getBlock() == block) {
+                                    double distance = mutablePos.distSqr(origin.getX(), origin.getY(), origin.getZ(), true);
+                                    if (distance < bestDistance) {
+                                        bestDistance = distance;
+                                        bestPos = mutablePos.immutable();
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            if (bestPos != null) {
+                return bestPos;
             }
         }
         return null;
