@@ -10,6 +10,7 @@ import net.minecraft.world.gen.blockstateprovider.SimpleBlockStateProvider;
 import net.minecraft.world.gen.feature.BlockClusterFeatureConfig;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.placement.ChanceConfig;
 import net.minecraft.world.gen.placement.Placement;
 
@@ -27,6 +28,7 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> GINGER_PATCH;
     public static ConfiguredFeature<?, ?> FLAX_PATCH;
     public static ConfiguredFeature<?, ?> PYRITE_ORE;
+    public static ConfiguredFeature<?, ?> VOLCANO;
 
     public static void register() {
         ANGELICA_PATCH = register("angelica_patch", 1, ModBlocks.ANGELICA.get().defaultBlockState());
@@ -37,6 +39,7 @@ public class WorldGenRegistry {
         GINGER_PATCH = register("ginger_patch", 1, ModBlocks.GINGER_PLANT.get().defaultBlockState());
         FLAX_PATCH = register("flax_patch", 1, ModBlocks.FLAX_PLANT.get().defaultBlockState());
         PYRITE_ORE = registerPyriteOre();
+        VOLCANO = registerVolcano();
     }
 
     private static ConfiguredFeature<?, ?> register(String name, int chance, net.minecraft.block.BlockState state) {
@@ -61,5 +64,15 @@ public class WorldGenRegistry {
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "pyrite_ore"), feature);
         return feature;
+    }
+
+    private static ConfiguredFeature<?, ?> registerVolcano() {
+        VolcanoFeature feature = Registry.register(Registry.FEATURE,
+                new ResourceLocation(ExampleMod.MODID, "volcano"), new VolcanoFeature(NoFeatureConfig.CODEC));
+        ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE)
+                .decorated(Placement.CHANCE.configured(new ChanceConfig(16)));
+        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
+                new ResourceLocation(ExampleMod.MODID, "volcano"), configured);
+        return configured;
     }
 }
