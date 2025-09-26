@@ -9,11 +9,12 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraft.client.world.DimensionRenderInfo.SkyType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraftforge.client.IRenderHandler;
+import net.minecraftforge.client.ISkyRenderHandler;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -27,10 +28,10 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
     public HeavenDimensionRenderInfo() {
         super(Float.NaN, false, SkyType.NONE, false, true);
         this.setSkyRenderHandler(new HeavenSkyRenderer());
-        this.setCloudRenderHandler((mc, level, ticks, partialTicks, matrixStack, cameraX, cameraY, cameraZ) -> {
+        this.setCloudRenderHandler((ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ) -> {
             // Intentionally empty: clouds are disabled in Heaven.
         });
-        this.setWeatherRenderHandler((ticks, partialTicks, level, mc, camera, matrixStack) -> {
+        this.setWeatherRenderHandler((ticks, partialTicks, level, mc, lightTexture, x, y, z) -> {
             // No weather in Heaven.
         });
     }
@@ -45,7 +46,7 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
         return false;
     }
 
-    private static final class HeavenSkyRenderer implements IRenderHandler {
+    private static final class HeavenSkyRenderer implements ISkyRenderHandler {
 
         @Override
         public void render(int ticks, float partialTicks, MatrixStack matrixStack, ClientWorld world, Minecraft mc) {

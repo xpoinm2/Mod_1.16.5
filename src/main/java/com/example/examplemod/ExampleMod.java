@@ -33,7 +33,11 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraft.client.world.DimensionRenderInfo;
+
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+
+import java.util.Map;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -88,8 +92,7 @@ public class ExampleMod {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
-        ForgeHooksClient.registerDimensionRenderInfo(
-                new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
+        registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                 new HeavenDimensionRenderInfo());
         RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.ELDERBERRY_BUSH.get(), RenderType.cutout());
@@ -100,5 +103,22 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.FLAX_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
+    }
+
+    private static void registerDimensionRenderInfo(ResourceLocation key, DimensionRenderInfo info) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<ResourceLocation, DimensionRenderInfo> effects =
+                    ObfuscationReflectionHelper.getPrivateValue(DimensionRenderInfo.class, null, "field_239208_a_");
+
+            if (effects == null) {
+                LOGGER.error("Failed to access DimensionRenderInfo effects map when registering {}", key);
+                return;
+            }
+
+            effects.put(key, info);
+        } catch (RuntimeException exception) {
+            LOGGER.error("Failed to register dimension render info for {}", key, exception);
+        }
     }
 }
