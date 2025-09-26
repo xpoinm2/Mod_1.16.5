@@ -3,6 +3,7 @@ package com.example.examplemod.world;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.world.biome.BasaltMountainsBiome;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
@@ -15,8 +16,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Objects;
-
 /**
  * Handles biome registration for the mod.
  */
@@ -28,8 +27,14 @@ public final class ModBiomes {
     private static final DeferredRegister<Biome> BIOMES =
             DeferredRegister.create(ForgeRegistries.BIOMES, ExampleMod.MODID);
 
+    public static final RegistryKey<Biome> BASALT_MOUNTAINS_KEY = RegistryKey.create(
+            Registry.BIOME_REGISTRY,
+            new ResourceLocation(ExampleMod.MODID, "basalt_mountains")
+    );
+
+
     public static final RegistryObject<Biome> BASALT_MOUNTAINS = BIOMES.register(
-            "basalt_mountains", BasaltMountainsBiome::create
+            BASALT_MOUNTAINS_KEY.location().getPath(), BasaltMountainsBiome::create
     );
 
     public static void register(IEventBus bus) {
@@ -37,28 +42,22 @@ public final class ModBiomes {
     }
 
     public static void setupBiomes() {
-        if (!BASALT_MOUNTAINS.isPresent()) {
+        Biome biome = BASALT_MOUNTAINS.orElse(null);
+        if (biome == null) {
             LOGGER.error("Skipping Basalt Mountains biome setup because the biome failed to register.");
             return;
         }
-        RegistryKey<Biome> key = RegistryKey.create(
-                Registry.BIOME_REGISTRY,
-                Objects.requireNonNull(
-                        BASALT_MOUNTAINS.getId(),
-                        "Basalt Mountains biome registry ID has not been registered yet"
-                )
-        );
 
-        if (!WorldGenRegistries.BIOME.containsKey(key.location())) {
-            Registry.register(WorldGenRegistries.BIOME, key.location(), BASALT_MOUNTAINS.get());
+        if (!WorldGenRegistries.BIOME.getOptional(BASALT_MOUNTAINS_KEY).isPresent()) {
+            Registry.register(WorldGenRegistries.BIOME, BASALT_MOUNTAINS_KEY.location(), biome);
         }
 
-        BiomeDictionary.addTypes(key,
+        BiomeDictionary.addTypes(BASALT_MOUNTAINS_KEY,
                 BiomeDictionary.Type.MOUNTAIN,
                 BiomeDictionary.Type.HOT,
                 BiomeDictionary.Type.OVERWORLD,
                 BiomeDictionary.Type.RARE);
-        BiomeManager.addBiome(BiomeManager.BiomeType.WARM, new BiomeManager.BiomeEntry(key, 1));
-        BiomeManager.addAdditionalOverworldBiomes(key);
+        BiomeManager.addBiome(BiomeManager.BiomeType.WARM, new BiomeManager.BiomeEntry(BASALT_MOUNTAINS_KEY, 1));
+        BiomeManager.addAdditionalOverworldBiomes(BASALT_MOUNTAINS_KEY);
     }
 }

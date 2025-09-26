@@ -2,6 +2,7 @@ package com.example.examplemod.world.biome;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.world.WorldGenRegistry;
+import com.example.examplemod.world.ModBiomes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
@@ -18,7 +19,7 @@ import org.apache.logging.log4j.Logger;
 public final class BasaltMountainsBiomeEvents {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation BASALT_MOUNTAINS =
-            new ResourceLocation(ExampleMod.MODID, "basalt_mountains");
+            ModBiomes.BASALT_MOUNTAINS_KEY.location();
 
     private BasaltMountainsBiomeEvents() {
     }
