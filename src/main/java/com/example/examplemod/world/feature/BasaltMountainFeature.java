@@ -119,10 +119,15 @@ public class BasaltMountainFeature extends Feature<NoFeatureConfig> {
                         }
                     } else if (rim && random.nextFloat() < RIM_MAGMA_CHANCE) {
                         state = Blocks.MAGMA_BLOCK.defaultBlockState();
-                    } else if (random.nextFloat() < 0.08F) {
-                    } else if (random.nextFloat() < RANDOM_BLACKSTONE_CHANCE) {
                     } else {
-                        state = Blocks.BASALT.defaultBlockState();
+                        float variantChance = random.nextFloat();
+                        if (variantChance < 0.08F) {
+                            state = Blocks.POLISHED_BASALT.defaultBlockState();
+                        } else if (variantChance < 0.08F + RANDOM_BLACKSTONE_CHANCE) {
+                            state = Blocks.BLACKSTONE.defaultBlockState();
+                        } else {
+                            state = Blocks.BASALT.defaultBlockState();
+                        }
                     }
 
                     world.setBlock(mutable, state, 2);
