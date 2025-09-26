@@ -10,6 +10,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -19,6 +20,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.Objects;
 /**
  * Simple commands to teleport player to various biomes for testing.
  */
@@ -41,7 +43,9 @@ public class BiomeTeleportCommands {
                         .then(Commands.literal("mountains").executes(ctx -> teleport(ctx, Biomes.MOUNTAINS)))
                         .then(Commands.literal("desert").executes(ctx -> teleport(ctx, Biomes.DESERT)))
                         .then(Commands.literal("basalt_mountains").executes(ctx -> teleport(ctx,
-                                ModBiomes.BASALT_MOUNTAINS_KEY)))
+                                RegistryKey.create(Registry.BIOME_REGISTRY,
+                                        Objects.requireNonNull(ModBiomes.BASALT_MOUNTAINS.getId(),
+                                                "Basalt Mountains biome has not been registered yet")))))
         );
     }
 
