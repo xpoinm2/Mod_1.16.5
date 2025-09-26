@@ -23,6 +23,7 @@ import com.example.examplemod.item.AngelicaRootItem;
 import com.example.examplemod.item.HorseradishItem;
 import com.example.examplemod.item.GingerItem;
 import com.example.examplemod.item.PyriteFlintItem;
+import com.example.examplemod.item.HeavenTicketItem;
 
 
 public class ModItems {
@@ -215,6 +216,10 @@ public class ModItems {
     public static final RegistryObject<Item> PARADISE_FENCE = ITEMS.register("paradise_fence",
             () -> new BlockItem(ModBlocks.PARADISE_FENCE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Билет в рай: телепортирует игрока в райское измерение
+    public static final RegistryObject<Item> HEAVEN_TICKET = ITEMS.register("heaven_ticket",
+            () -> new HeavenTicketItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB).stacksTo(1)));
 
     // Железный кластер: результат дробления руды
     public static final RegistryObject<Item> IRON_CLUSTER = ITEMS.register("iron_cluster",

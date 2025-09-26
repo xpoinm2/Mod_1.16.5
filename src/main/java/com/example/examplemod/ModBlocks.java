@@ -2,7 +2,7 @@ package com.example.examplemod;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.DoorBlock;
+import com.example.examplemod.block.ParadiseDoorBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
@@ -99,15 +99,21 @@ public class ModBlocks {
 
     // Райский блок
     public static final RegistryObject<Block> PARADISE_BLOCK = BLOCKS.register("paradise_block",
-            () -> new Block(AbstractBlock.Properties.copy(Blocks.QUARTZ_BLOCK).lightLevel(state -> 12)));
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.QUARTZ_BLOCK)
+                    .strength(-1.0F, 3600000.0F)
+                    .noDrops()
+                    .lightLevel(state -> 12)));
 
     // Райская дверь
     public static final RegistryObject<Block> PARADISE_DOOR = BLOCKS.register("paradise_door",
-            () -> new DoorBlock(AbstractBlock.Properties.copy(Blocks.BIRCH_DOOR)));
+            ParadiseDoorBlock::new);
 
     // Райская ограда
     public static final RegistryObject<Block> PARADISE_FENCE = BLOCKS.register("paradise_fence",
-            () -> new WallBlock(AbstractBlock.Properties.copy(Blocks.COBBLESTONE_WALL)));
+            () -> new WallBlock(AbstractBlock.Properties.copy(Blocks.COBBLESTONE_WALL)
+                    .strength(-1.0F, 3600000.0F)
+                    .noDrops()
+                    .lightLevel(state -> 12)));
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);

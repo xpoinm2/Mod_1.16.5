@@ -59,6 +59,8 @@
   "item.examplemod.paradise_door": "Paradise Door",
   "block.examplemod.paradise_fence": "Paradise Fence",
   "item.examplemod.paradise_fence": "Paradise Fence",
+  "item.examplemod.heaven_ticket": "Ticket to Heaven",
+  "dimension.examplemod.heaven": "Heaven",
   "block.examplemod.brushwood_slab": "Brushwood Slab",
   "item.examplemod.brushwood_slab": "Brushwood Slab",
   "block.examplemod.brushwood_slab_burnt": "Burned Brushwood Slab",

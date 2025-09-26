@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:overworld",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:the_void",
+      "layers": [
+        { "block": "examplemod:paradise_block", "height": 3 }
+      ],
+      "structures": {
+        "structures": {}
+      }
+    }
+  }
+}
