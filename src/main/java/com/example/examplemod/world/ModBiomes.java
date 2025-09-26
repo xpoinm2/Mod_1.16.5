@@ -4,6 +4,7 @@ import com.example.examplemod.ExampleMod;
 import com.example.examplemod.world.biome.BasaltMountainsBiome;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeManager;
@@ -16,6 +17,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Handles biome registration for the mod.
@@ -36,6 +38,7 @@ public final class ModBiomes {
     }
 
     public static void setupBiomes() {
+        Biome biome = BASALT_MOUNTAINS.get();
         RegistryKey<Biome> key = RegistryKey.create(
                 Registry.BIOME_REGISTRY,
                 Objects.requireNonNull(
@@ -43,6 +46,13 @@ public final class ModBiomes {
                         "Basalt Mountains biome registry ID has not been registered yet"
                 )
         );
+
+
+        Optional<Biome> existing = WorldGenRegistries.BIOME.getOptional(key);
+        if (!existing.isPresent()) {
+            Registry.register(WorldGenRegistries.BIOME, key.location(), biome);
+        }
+
         BiomeDictionary.addTypes(key,
                 BiomeDictionary.Type.MOUNTAIN,
                 BiomeDictionary.Type.HOT,
