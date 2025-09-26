@@ -23,6 +23,7 @@ import net.minecraftforge.fml.common.Mod;
 public class VolcanoTeleportCommand {
 
     private static final int SEARCH_RADIUS = 512;
+    private static final int MAX_ATTEMPTS = 4;
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
@@ -45,8 +46,7 @@ public class VolcanoTeleportCommand {
         Structure<?> volcano = ModStructures.VOLCANO.get();
 
         BlockPos origin = player.blockPosition();
-        BlockPos found = world.getChunkSource().getGenerator()
-                .findNearestMapFeature(world, volcano, origin, SEARCH_RADIUS, false);
+        BlockPos found = locateNearestVolcano(world, volcano, origin);
 
         if (found == null) {
             ctx.getSource().sendFailure(new StringTextComponent("Volcano not found within search radius"));
@@ -59,5 +59,22 @@ public class VolcanoTeleportCommand {
         ctx.getSource().sendSuccess(new StringTextComponent("Teleported to volcano at "
                 + surface.getX() + ", " + surface.getY() + ", " + surface.getZ()), false);
         return 1;
+    }
+
+    private static BlockPos locateNearestVolcano(ServerWorld world, Structure<?> volcano, BlockPos origin) {
+        BlockPos found = null;
+        int radius = SEARCH_RADIUS;
+
+        for (int attempt = 0; attempt < MAX_ATTEMPTS && found == null; attempt++) {
+            found = world.getChunkSource().getGenerator()
+                    .findNearestMapFeature(world, volcano, origin, radius, false);
+            radius *= 2;
+        }
+
+        if (found == null) {
+            found = VolcanoStructureLocatorFallback.locate(world, origin);
+        }
+
+        return found;
     }
 }
