@@ -15,7 +15,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.Features;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
-import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
+import com.example.examplemod.world.ModSurfaceBuilders;
 import net.minecraft.world.gen.feature.template.BlockMatchRuleTest;
 
 /**
@@ -39,7 +39,7 @@ public final class BasaltMountainsBiome {
         mobSpawnInfo.setPlayerCanSpawn();
 
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder();
-        generation.surfaceBuilder(() -> ConfiguredSurfaceBuilders.BASALT_DELTAS);
+        generation.surfaceBuilder(() -> ModSurfaceBuilders.PURE_BASALT);
         DefaultBiomeFeatures.addDefaultCarvers(generation);
         DefaultBiomeFeatures.addDefaultMonsterRoom(generation);
         DefaultBiomeFeatures.addDefaultUndergroundVariety(generation);
@@ -54,6 +54,38 @@ public final class BasaltMountainsBiome {
                 .range(256).squared().count(96);
         generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceStoneWithBasalt);
 
+        ConfiguredFeature<?, ?> replaceGrassWithBasalt = Feature.ORE
+                .configured(new OreFeatureConfig(
+                        new BlockMatchRuleTest(Blocks.GRASS_BLOCK),
+                        Blocks.BASALT.defaultBlockState(),
+                        48))
+                .range(256).squared().count(96);
+        generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceGrassWithBasalt);
+
+        ConfiguredFeature<?, ?> replaceDirtWithBasalt = Feature.ORE
+                .configured(new OreFeatureConfig(
+                        new BlockMatchRuleTest(Blocks.DIRT),
+                        Blocks.BASALT.defaultBlockState(),
+                        48))
+                .range(256).squared().count(96);
+        generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceDirtWithBasalt);
+
+        ConfiguredFeature<?, ?> replaceCoarseDirtWithBasalt = Feature.ORE
+                .configured(new OreFeatureConfig(
+                        new BlockMatchRuleTest(Blocks.COARSE_DIRT),
+                        Blocks.BASALT.defaultBlockState(),
+                        48))
+                .range(256).squared().count(64);
+        generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceCoarseDirtWithBasalt);
+
+        ConfiguredFeature<?, ?> replaceGravelWithBasalt = Feature.ORE
+                .configured(new OreFeatureConfig(
+                        new BlockMatchRuleTest(Blocks.GRAVEL),
+                        Blocks.BASALT.defaultBlockState(),
+                        48))
+                .range(256).squared().count(64);
+        generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceGravelWithBasalt);
+
         ConfiguredFeature<?, ?> replaceCobblestoneWithBasalt = Feature.ORE
                 .configured(new OreFeatureConfig(
                         new BlockMatchRuleTest(Blocks.COBBLESTONE),
@@ -62,11 +94,12 @@ public final class BasaltMountainsBiome {
                 .range(256).squared().count(48);
         generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceCobblestoneWithBasalt);
 
-        generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
-        generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
-        generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
-        generation.addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.SPRING_LAVA);
-        generation.addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.SPRING_LAVA);
+        for (int i = 0; i < 6; i++) {
+            generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
+        }
+        for (int i = 0; i < 4; i++) {
+            generation.addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.SPRING_LAVA);
+        }
 
         return new Biome.Builder()
                 .precipitation(Biome.RainType.NONE)

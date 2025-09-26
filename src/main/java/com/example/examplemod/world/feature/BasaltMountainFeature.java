@@ -23,6 +23,14 @@ public class BasaltMountainFeature extends Feature<NoFeatureConfig> {
     private static final int MAX_HEIGHT = 76;
     private static final int DUPLICATE_SAMPLE_STEP = 8;
     private static final int BASE_FILL_DEPTH = 40;
+    private static final float RIM_MAGMA_CHANCE = 0.2F;
+    private static final float RANDOM_BLACKSTONE_CHANCE = 0.03F;
+    private static final double CRATER_LAVA_START = 0.88D;
+    private static final int MIN_LAVA_POOL_ATTEMPTS = 8;
+    private static final int EXTRA_LAVA_POOL_ATTEMPTS = 5;
+    private static final int BASIN_MAX_DEPTH = 4;
+    private static final int MIN_LAVA_FALLS = 4;
+    private static final int EXTRA_LAVA_FALLS = 4;
 
     public BasaltMountainFeature(Codec<NoFeatureConfig> codec) {
         super(codec);
@@ -104,15 +112,15 @@ public class BasaltMountainFeature extends Feature<NoFeatureConfig> {
                     BlockState state;
 
                     if (crater) {
-                        if (progress > 0.92) {
+                        if (progress > CRATER_LAVA_START) {
                             state = Blocks.LAVA.defaultBlockState();
                         } else {
-                            state = Blocks.AIR.defaultBlockState();
+                            state = Blocks.BASALT.defaultBlockState();
                         }
-                    } else if (rim && random.nextFloat() < 0.12F) {
+                    } else if (rim && random.nextFloat() < RIM_MAGMA_CHANCE) {
                         state = Blocks.MAGMA_BLOCK.defaultBlockState();
                     } else if (random.nextFloat() < 0.08F) {
-                        state = Blocks.BLACKSTONE.defaultBlockState();
+                    } else if (random.nextFloat() < RANDOM_BLACKSTONE_CHANCE) {
                     } else {
                         state = Blocks.BASALT.defaultBlockState();
                     }
@@ -150,7 +158,7 @@ public class BasaltMountainFeature extends Feature<NoFeatureConfig> {
     }
 
     private void createLavaPools(ISeedReader world, BlockPos base, int radius, Random random) {
-        int attempts = 4 + random.nextInt(3);
+        int attempts = MIN_LAVA_POOL_ATTEMPTS + random.nextInt(EXTRA_LAVA_POOL_ATTEMPTS + 1);
         for (int i = 0; i < attempts; i++) {
             int dx = random.nextInt(radius) - random.nextInt(radius);
             int dz = random.nextInt(radius) - random.nextInt(radius);
@@ -166,14 +174,14 @@ public class BasaltMountainFeature extends Feature<NoFeatureConfig> {
 
     private void carveBasin(ISeedReader world, BlockPos center, Random random) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        int basinRadius = 2 + random.nextInt(3);
+        int basinRadius = 3 + random.nextInt(3);
         for (int dx = -basinRadius; dx <= basinRadius; dx++) {
             for (int dz = -basinRadius; dz <= basinRadius; dz++) {
                 double dist = Math.sqrt(dx * dx + dz * dz);
                 if (dist > basinRadius + 0.3) {
                     continue;
                 }
-                for (int dy = 0; dy <= 2; dy++) {
+                for (int dy = 0; dy <= BASIN_MAX_DEPTH; dy++) {
                     int y = center.getY() - dy;
                     if (y < 0) {
                         continue;
@@ -192,7 +200,7 @@ public class BasaltMountainFeature extends Feature<NoFeatureConfig> {
     private void createLavaFalls(ISeedReader world, BlockPos base, int radius, int height, Random random) {
         int lavaY = base.getY() + height - 4;
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        int falls = 2 + random.nextInt(3);
+        int falls = MIN_LAVA_FALLS + random.nextInt(EXTRA_LAVA_FALLS + 1);
         for (int i = 0; i < falls; i++) {
             double angle = random.nextDouble() * Math.PI * 2.0;
             int offsetRadius = (int) (radius * 0.6 + random.nextDouble() * radius * 0.25);
@@ -207,15 +215,20 @@ public class BasaltMountainFeature extends Feature<NoFeatureConfig> {
                 BlockState state = world.getBlockState(mutable);
                 if (world.isEmptyBlock(mutable) || state.getBlock() == Blocks.AIR || state.getBlock() == Blocks.LAVA) {
                     world.setBlock(mutable, Blocks.LAVA.defaultBlockState(), 2);
-                } else {
-                    if (state.getMaterial().isSolid()) {
-                        mutable.move(0, 1, 0);
-                        if (mutable.getY() < world.getMaxBuildHeight()) {
-                            world.setBlock(mutable, Blocks.LAVA.defaultBlockState(), 2);
-                        }
-                    }
-                    break;
+                    continue;
                 }
+
+                if (!state.getMaterial().isSolid()) {
+                    world.setBlock(mutable, Blocks.LAVA.defaultBlockState(), 2);
+                    continue;
+                }
+
+                world.setBlock(mutable, Blocks.BASALT.defaultBlockState(), 2);
+                mutable.move(0, 1, 0);
+                if (mutable.getY() < world.getMaxBuildHeight()) {
+                    world.setBlock(mutable, Blocks.LAVA.defaultBlockState(), 2);
+                }
+                break;
             }
         }
     }
