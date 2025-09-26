@@ -9,6 +9,8 @@ import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeManager;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -39,6 +41,23 @@ public final class ModBiomes {
 
     public static void register(IEventBus bus) {
         BIOMES.register(bus);
+        bus.addListener(EventPriority.LOW, ModBiomes::registerWorldGenBiomes);
+    }
+
+    private static void registerWorldGenBiomes(final RegistryEvent.Register<Biome> event) {
+        if (event.getRegistry() != ForgeRegistries.BIOMES) {
+            return;
+        }
+
+        Biome biome = BASALT_MOUNTAINS.orElse(null);
+        if (biome == null) {
+            LOGGER.error("Skipping WorldGen registry hookup for Basalt Mountains because the biome is not registered yet.");
+            return;
+        }
+
+        if (!WorldGenRegistries.BIOME.containsKey(BASALT_MOUNTAINS_KEY.location())) {
+            Registry.register(WorldGenRegistries.BIOME, BASALT_MOUNTAINS_KEY.location(), biome);
+        }
     }
 
     public static void setupBiomes() {
