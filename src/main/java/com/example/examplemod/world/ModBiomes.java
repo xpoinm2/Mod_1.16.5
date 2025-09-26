@@ -11,6 +11,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -18,6 +20,7 @@ import java.util.Objects;
  * Handles biome registration for the mod.
  */
 public final class ModBiomes {
+    private static final Logger LOGGER = LogManager.getLogger();
     private ModBiomes() {
     }
 
@@ -33,6 +36,10 @@ public final class ModBiomes {
     }
 
     public static void setupBiomes() {
+        if (!BASALT_MOUNTAINS.isPresent()) {
+            LOGGER.error("Skipping Basalt Mountains biome setup because the biome failed to register.");
+            return;
+        }
         RegistryKey<Biome> key = RegistryKey.create(
                 Registry.BIOME_REGISTRY,
                 Objects.requireNonNull(
