@@ -41,7 +41,7 @@ public final class ModBiomes {
 
     public static void register(IEventBus bus) {
         BIOMES.register(bus);
-        bus.addListener(EventPriority.LOW, ModBiomes::registerWorldGenBiomes);
+        bus.addGenericListener(Biome.class, EventPriority.LOW, ModBiomes::registerWorldGenBiomes);
     }
 
     private static void registerWorldGenBiomes(final RegistryEvent.Register<Biome> event) {
