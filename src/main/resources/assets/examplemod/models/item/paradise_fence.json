@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/fence_inventory",
+  "parent": "minecraft:block/wall_inventory",
   "textures": {
-    "texture": "minecraft:block/birch_planks"
+    "wall": "examplemod:block/paradise_wall"
   }
 }

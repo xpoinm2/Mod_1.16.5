@@ -1,21 +1,41 @@
 {
   "multipart": [
-    { "apply": { "model": "examplemod:block/paradise_fence_post" } },
+
     {
-      "when": { "north": "true" },
+      "when": { "up": "true" },
+      "apply": { "model": "examplemod:block/paradise_fence_post" }
+    },
+    {
+      "when": { "north": "low" },
       "apply": { "model": "examplemod:block/paradise_fence_side", "uvlock": true }
     },
     {
-      "when": { "east": "true" },
+      "when": { "east": "low" },
       "apply": { "model": "examplemod:block/paradise_fence_side", "y": 90, "uvlock": true }
     },
     {
-      "when": { "south": "true" },
+      "when": { "south": "low" },
       "apply": { "model": "examplemod:block/paradise_fence_side", "y": 180, "uvlock": true }
     },
     {
-      "when": { "west": "true" },
-      "apply": { "model": "examplemod:block/paradise_fence_side", "y": 270, "uvlock": true }
+      "when": { "west": "low" },
+      "apply": { "model": "examplemod:block/paradise_fence_side", "y": 270, "uvlock": true },
+    },
+    {
+      "when": { "north": "tall" },
+      "apply": { "model": "examplemod:block/paradise_fence_side_tall", "uvlock": true }
+    },
+    {
+      "when": { "east": "tall" },
+      "apply": { "model": "examplemod:block/paradise_fence_side_tall", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "south": "tall" },
+      "apply": { "model": "examplemod:block/paradise_fence_side_tall", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "west": "tall" },
+      "apply": { "model": "examplemod:block/paradise_fence_side_tall", "y": 270, "uvlock": true }
     }
   ]
 }

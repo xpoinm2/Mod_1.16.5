@@ -3,7 +3,7 @@ package com.example.examplemod;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.DoorBlock;
-import net.minecraft.block.FenceBlock;
+import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.BlockState;
@@ -107,7 +107,7 @@ public class ModBlocks {
 
     // Райская ограда
     public static final RegistryObject<Block> PARADISE_FENCE = BLOCKS.register("paradise_fence",
-            () -> new FenceBlock(AbstractBlock.Properties.copy(Blocks.BIRCH_FENCE)));
+            () -> new WallBlock(AbstractBlock.Properties.copy(Blocks.COBBLESTONE_WALL)));
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
