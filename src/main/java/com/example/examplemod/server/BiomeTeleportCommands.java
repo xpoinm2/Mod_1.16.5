@@ -53,11 +53,16 @@ public class BiomeTeleportCommands {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
         ServerWorld world = player.getLevel();
         BlockPos origin = player.blockPosition();
-        BlockPos found = findBiome(world, biomeKey, origin);
-        if (found == null) {
-            ctx.getSource().sendFailure(new StringTextComponent("Biome not found"));
+        SearchResult result = findBiome(world, biomeKey, origin);
+        if (result.getPosition() == null) {
+            if (result.isTimedOut()) {
+                ctx.getSource().sendFailure(new StringTextComponent("Biome search timed out; try again after exploring more of the world"));
+            } else {
+                ctx.getSource().sendFailure(new StringTextComponent("Biome not found"));
+            }
             return 0;
         }
+        BlockPos found = result.getPosition();
         world.getChunk(found.getX() >> 4, found.getZ() >> 4); // ensure chunk is loaded
         BlockPos top = world.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, found);
         player.teleportTo(world, top.getX() + 0.5, top.getY(), top.getZ() + 0.5, player.yRot, player.xRot);
@@ -67,19 +72,43 @@ public class BiomeTeleportCommands {
 
     private static final int SEARCH_RADIUS = 6400;
     private static final int SEARCH_STEP = 64;
+    private static final long SEARCH_TIMEOUT_NANOS = java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
 
-    private static BlockPos findBiome(ServerWorld world, RegistryKey<Biome> biomeKey, BlockPos origin) {
+    private static SearchResult findBiome(ServerWorld world, RegistryKey<Biome> biomeKey, BlockPos origin) {
+        long deadline = System.nanoTime() + SEARCH_TIMEOUT_NANOS;
+
         for (int r = 0; r <= SEARCH_RADIUS; r += SEARCH_STEP) {
             for (int x = -r; x <= r; x += SEARCH_STEP) {
                 for (int z = -r; z <= r; z += SEARCH_STEP) {
+                    if (System.nanoTime() > deadline) {
+                        return new SearchResult(null, true);
+                    }
                     BlockPos pos = origin.offset(x, 0, z);
                     Biome biome = world.getBiome(pos);
                     if (biome.getRegistryName() != null && biome.getRegistryName().equals(biomeKey.location())) {
-                        return pos;
+                        return new SearchResult(pos, false);
                     }
                 }
             }
         }
-        return null;
+        return new SearchResult(null, false);
+    }
+
+    private static final class SearchResult {
+        private final BlockPos position;
+        private final boolean timedOut;
+
+        private SearchResult(BlockPos position, boolean timedOut) {
+            this.position = position;
+            this.timedOut = timedOut;
+        }
+
+        private BlockPos getPosition() {
+            return position;
+        }
+
+        private boolean isTimedOut() {
+            return timedOut;
+        }
     }
 }
