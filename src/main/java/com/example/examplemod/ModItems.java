@@ -1,14 +1,15 @@
 // === FILE src/main/java/com/example/examplemod/ModItems.java
 package com.example.examplemod;
 
-
-import net.minecraft.item.Item;
-import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.AxeItem;
-import net.minecraft.item.ShovelItem;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.DoorItem;
 import net.minecraft.item.HoeItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemTier;
-import net.minecraft.item.DoubleHighBlockItem;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.item.SwordItem;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 
@@ -140,23 +141,23 @@ public class ModItems {
 
     // === Stone Tools ===
     public static final RegistryObject<Item> STONE_PICKAXE = ITEMS.register("stone_pickaxe",
-            () -> new net.minecraft.item.PickaxeItem(net.minecraft.item.ItemTier.STONE,
+            () -> new PickaxeItem(ItemTier.STONE,
                     1, -2.8f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> STONE_AXE = ITEMS.register("stone_axe",
-            () -> new net.minecraft.item.AxeItem(net.minecraft.item.ItemTier.STONE,
+            () -> new AxeItem(ItemTier.STONE,
                     7.0f, -3.2f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> STONE_SHOVEL = ITEMS.register("stone_shovel",
-            () -> new net.minecraft.item.ShovelItem(net.minecraft.item.ItemTier.STONE,
+            () -> new ShovelItem(ItemTier.STONE,
                     1.5f, -3.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> STONE_HOE = ITEMS.register("stone_hoe",
-            () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
+            () -> new HoeItem(ItemTier.STONE,
                     0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> STONE_SWORD = ITEMS.register("stone_sword",
-            () -> new net.minecraft.item.SwordItem(net.minecraft.item.ItemTier.STONE,
+            () -> new SwordItem(ItemTier.STONE,
                     3, -2.4f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Каменный молот: простой инструмент
@@ -166,23 +167,23 @@ public class ModItems {
 
     // === Bone Tools ===
     public static final RegistryObject<Item> BONE_PICKAXE = ITEMS.register("bone_pickaxe",
-            () -> new net.minecraft.item.PickaxeItem(net.minecraft.item.ItemTier.STONE,
+            () -> new PickaxeItem(ItemTier.STONE,
                     1, -2.8f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> BONE_AXE = ITEMS.register("bone_axe",
-            () -> new net.minecraft.item.AxeItem(net.minecraft.item.ItemTier.STONE,
+            () -> new AxeItem(ItemTier.STONE,
                     7.0f, -3.2f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> BONE_SHOVEL = ITEMS.register("bone_shovel",
-            () -> new net.minecraft.item.ShovelItem(net.minecraft.item.ItemTier.STONE,
+            () -> new ShovelItem(ItemTier.STONE,
                     1.5f, -3.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> BONE_HOE = ITEMS.register("bone_hoe",
-            () -> new net.minecraft.item.HoeItem(net.minecraft.item.ItemTier.STONE,
+            () -> new HoeItem(ItemTier.STONE,
                     0, -2.0f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static final RegistryObject<Item> BONE_SWORD = ITEMS.register("bone_sword",
-            () -> new net.minecraft.item.SwordItem(net.minecraft.item.ItemTier.STONE,
+            () -> new SwordItem(ItemTier.STONE,
                     3, -2.4f, new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Костяной молот: простой инструмент
@@ -192,27 +193,27 @@ public class ModItems {
 
     // Костяной блок как предмет
     public static final RegistryObject<Item> BONE_BLOCK = ITEMS.register("bone_block",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.BONE_BLOCK.get(),
+            () -> new BlockItem(ModBlocks.BONE_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Железная руда с примесями как предмет
     public static final RegistryObject<Item> IMPURE_IRON_ORE = ITEMS.register("impure_iron_ore",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.IMPURE_IRON_ORE.get(),
+            () -> new BlockItem(ModBlocks.IMPURE_IRON_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Райский блок как предмет
     public static final RegistryObject<Item> PARADISE_BLOCK = ITEMS.register("paradise_block",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.PARADISE_BLOCK.get(),
+            () -> new BlockItem(ModBlocks.PARADISE_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Райская дверь как предмет
     public static final RegistryObject<Item> PARADISE_DOOR = ITEMS.register("paradise_door",
-            () -> new DoubleHighBlockItem(ModBlocks.PARADISE_DOOR.get(),
+            () -> new DoorItem(ModBlocks.PARADISE_DOOR.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Райская ограда как предмет
     public static final RegistryObject<Item> PARADISE_FENCE = ITEMS.register("paradise_fence",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.PARADISE_FENCE.get(),
+            () -> new BlockItem(ModBlocks.PARADISE_FENCE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Железный кластер: результат дробления руды
@@ -229,7 +230,7 @@ public class ModItems {
 
     // Пиритовый блок как предмет
     public static final RegistryObject<Item> PYRITE = ITEMS.register("pyrite",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.PYRITE.get(),
+            () -> new BlockItem(ModBlocks.PYRITE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Пиритовое огниво
@@ -240,52 +241,52 @@ public class ModItems {
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
+            () -> new BlockItem(ModBlocks.RASPBERRY_BUSH.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для куста бузины
     public static final RegistryObject<Item> ELDERBERRY_BUSH = ITEMS.register("elderberry_bush",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.ELDERBERRY_BUSH.get(),
+            () -> new BlockItem(ModBlocks.ELDERBERRY_BUSH.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для куста клюквы
     public static final RegistryObject<Item> CRANBERRY_BUSH = ITEMS.register("cranberry_bush",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.CRANBERRY_BUSH.get(),
+            () -> new BlockItem(ModBlocks.CRANBERRY_BUSH.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для дягеля
     public static final RegistryObject<Item> ANGELICA = ITEMS.register("angelica",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.ANGELICA.get(),
+            () -> new BlockItem(ModBlocks.ANGELICA.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для растения хрена
     public static final RegistryObject<Item> HORSERADISH_PLANT = ITEMS.register("horseradish_plant",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.HORSERADISH_PLANT.get(),
+            () -> new BlockItem(ModBlocks.HORSERADISH_PLANT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для растения имбиря
     public static final RegistryObject<Item> GINGER_PLANT = ITEMS.register("ginger_plant",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.GINGER_PLANT.get(),
+            () -> new BlockItem(ModBlocks.GINGER_PLANT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для растения льна
     public static final RegistryObject<Item> FLAX_PLANT = ITEMS.register("flax_plant",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.FLAX_PLANT.get(),
+            () -> new BlockItem(ModBlocks.FLAX_PLANT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Полублок хвороста как предмет
     public static final RegistryObject<Item> BRUSHWOOD_SLAB = ITEMS.register("brushwood_slab",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.BRUSHWOOD_SLAB.get(),
+            () -> new BlockItem(ModBlocks.BRUSHWOOD_SLAB.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Обгоревший полублок хвороста как предмет
     public static final RegistryObject<Item> BURNED_BRUSHWOOD_SLAB = ITEMS.register("brushwood_slab_burnt",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.BURNED_BRUSHWOOD_SLAB.get(),
+            () -> new BlockItem(ModBlocks.BURNED_BRUSHWOOD_SLAB.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Блок кострища как предмет
     public static final RegistryObject<Item> FIREPIT_BLOCK = ITEMS.register("firepit_block",
-            () -> new net.minecraft.item.BlockItem(ModBlocks.FIREPIT_BLOCK.get(),
+            () -> new BlockItem(ModBlocks.FIREPIT_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     public static void register(IEventBus bus) {
