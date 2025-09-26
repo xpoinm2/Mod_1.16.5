@@ -1,6 +1,7 @@
 package com.example.examplemod.server;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.world.ModBiomes;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
@@ -8,6 +9,7 @@ import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -16,6 +18,8 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.Objects;
 
 /**
  * Simple commands to teleport player to various biomes for testing.
@@ -38,6 +42,10 @@ public class BiomeTeleportCommands {
                         .then(Commands.literal("savanna").executes(ctx -> teleport(ctx, Biomes.SAVANNA)))
                         .then(Commands.literal("mountains").executes(ctx -> teleport(ctx, Biomes.MOUNTAINS)))
                         .then(Commands.literal("desert").executes(ctx -> teleport(ctx, Biomes.DESERT)))
+                        .then(Commands.literal("basalt_mountains").executes(ctx -> teleport(ctx,
+                                RegistryKey.create(Registry.BIOME_REGISTRY,
+                                        Objects.requireNonNull(ModBiomes.BASALT_MOUNTAINS.getId(),
+                                                "Basalt Mountains biome has not been registered yet")))))
         );
     }
 
