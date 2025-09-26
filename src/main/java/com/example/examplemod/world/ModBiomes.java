@@ -49,22 +49,20 @@ public final class ModBiomes {
             return;
         }
 
-        Biome biome = event.getRegistry().getValue(BASALT_MOUNTAINS_KEY.location());
-        if (biome == null) {
+        if (!BASALT_MOUNTAINS.isPresent()) {
             LOGGER.error("Skipping WorldGen registry hookup for Basalt Mountains because the biome is not registered yet.");
             return;
         }
-
+        Biome biome = BASALT_MOUNTAINS.get();
         registerBiomeWithWorldGenRegistry(BASALT_MOUNTAINS_KEY, biome);
     }
 
     public static void setupBiomes() {
-        Biome biome = ForgeRegistries.BIOMES.getValue(BASALT_MOUNTAINS_KEY.location());
-        if (biome == null) {
+        if (!BASALT_MOUNTAINS.isPresent()) {
             LOGGER.error("Skipping Basalt Mountains biome setup because the biome failed to register.");
             return;
         }
-
+        Biome biome = BASALT_MOUNTAINS.get();
         registerBiomeWithWorldGenRegistry(BASALT_MOUNTAINS_KEY, biome);
 
         BiomeDictionary.addTypes(BASALT_MOUNTAINS_KEY,
