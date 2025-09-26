@@ -33,8 +33,8 @@ public final class ModBiomes {
     }
 
     public static void setupBiomes() {
-        RegistryKey<Biome> key = RegistryKey.getOrCreateKey(
-                Registry.BIOME_KEY,
+        RegistryKey<Biome> key = RegistryKey.create(
+                Registry.BIOME_REGISTRY,
                 Objects.requireNonNull(
                         BASALT_MOUNTAINS.getId(),
                         "Basalt Mountains biome registry ID has not been registered yet"
