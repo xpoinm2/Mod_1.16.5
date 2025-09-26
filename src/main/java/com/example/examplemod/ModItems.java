@@ -3,7 +3,7 @@ package com.example.examplemod;
 
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.DoorItem;
+import net.minecraft.item.TallBlockItem;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemTier;
@@ -208,7 +208,7 @@ public class ModItems {
 
     // Райская дверь как предмет
     public static final RegistryObject<Item> PARADISE_DOOR = ITEMS.register("paradise_door",
-            () -> new DoorItem(ModBlocks.PARADISE_DOOR.get(),
+            () -> new TallBlockItem(ModBlocks.PARADISE_DOOR.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Райская ограда как предмет
