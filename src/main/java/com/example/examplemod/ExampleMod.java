@@ -33,7 +33,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.ForgeHooksClient;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -88,7 +88,7 @@ public class ExampleMod {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
-        MinecraftForgeClient.registerDimensionRenderInfo(
+        ForgeHooksClient.registerDimensionRenderInfo(
                 new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                 new HeavenDimensionRenderInfo());
         RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
