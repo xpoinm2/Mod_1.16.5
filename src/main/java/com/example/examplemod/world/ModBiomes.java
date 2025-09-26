@@ -3,6 +3,7 @@ package com.example.examplemod.world;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.world.biome.BasaltMountainsBiome;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeManager;
@@ -32,9 +33,12 @@ public final class ModBiomes {
     }
 
     public static void setupBiomes() {
-        RegistryKey<Biome> key = Objects.requireNonNull(
-                BASALT_MOUNTAINS.getKey(),
-                "Basalt Mountains biome registry key has not been registered yet"
+        RegistryKey<Biome> key = RegistryKey.getOrCreateKey(
+                Registry.BIOME_KEY,
+                Objects.requireNonNull(
+                        BASALT_MOUNTAINS.getId(),
+                        "Basalt Mountains biome registry ID has not been registered yet"
+                )
         );
         BiomeDictionary.addTypes(key,
                 BiomeDictionary.Type.MOUNTAIN,
