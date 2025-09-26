@@ -43,11 +43,12 @@ public final class HeavenManager {
     public static final ResourceLocation HEAVEN_ID = new ResourceLocation(ExampleMod.MODID, "heaven");
     public static final RegistryKey<World> HEAVEN_WORLD_KEY = RegistryKey.create(Registry.DIMENSION_REGISTRY, HEAVEN_ID);
 
-    private static final BlockPos ARRIVAL_CENTER = new BlockPos(0, 5, 0);
+    private static final BlockPos ARRIVAL_CENTER = new BlockPos(0, 3, 0);
     private static final int FENCE_HALF_SIZE = 200; // Creates a 400x400 square perimeter
 
     private static final Map<UUID, ReturnLocation> RETURN_LOCATIONS = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> PENDING_HEAVEN_RESPAWN = new ConcurrentHashMap<>();
+    private static final Map<UUID, ArrivalReason> ARRIVAL_REASONS = new ConcurrentHashMap<>();
 
     public static void storeReturnLocation(ServerPlayerEntity player, Vector3d pos, RegistryKey<World> dimension) {
         RETURN_LOCATIONS.put(player.getUUID(), new ReturnLocation(pos, player.yRot, player.xRot, dimension));
@@ -55,6 +56,7 @@ public final class HeavenManager {
 
     public static void markForHeavenRespawn(ServerPlayerEntity player) {
         PENDING_HEAVEN_RESPAWN.put(player.getUUID(), Boolean.TRUE);
+        ARRIVAL_REASONS.put(player.getUUID(), ArrivalReason.DEATH);
     }
 
     public static void teleportToHeaven(ServerPlayerEntity player) {
@@ -77,33 +79,32 @@ public final class HeavenManager {
         }
 
         ReturnLocation target = RETURN_LOCATIONS.remove(player.getUUID());
+        ArrivalReason reason = ARRIVAL_REASONS.remove(player.getUUID());
         ServerWorld destination = player.server.getLevel(World.OVERWORLD);
-        double targetX;
-        double targetY;
-        double targetZ;
-        float targetYaw;
-        float targetPitch;
+        if (destination == null) {
+            destination = player.server.overworld();
+        }
 
-        if (target != null && target.dimension.equals(World.OVERWORLD)) {
-            destination = player.server.getLevel(target.dimension);
+        double targetX = 0.0;
+        double targetY = 0.0;
+        double targetZ = 0.0;
+        float targetYaw = player.yRot;
+        float targetPitch = player.xRot;
+
+        if (reason == ArrivalReason.DEATH && target != null && destination != null
+                && World.OVERWORLD.equals(target.dimension)) {
             targetX = target.position.x;
             targetY = target.position.y;
             targetZ = target.position.z;
             targetYaw = target.yaw;
             targetPitch = target.pitch;
-        } else {
-            if (target != null) {
-                destination = player.server.getLevel(target.dimension);
-            }
-            if (destination == null) {
-                destination = player.server.overworld();
-            }
+        } else if (reason == ArrivalReason.TICKET) {
+            // Defaults already set to origin.
+        } else if (destination != null) {
             BlockPos spawn = destination.getSharedSpawnPos();
             targetX = spawn.getX() + 0.5;
             targetY = spawn.getY() + 0.1;
             targetZ = spawn.getZ() + 0.5;
-            targetYaw = player.yRot;
-            targetPitch = player.xRot;
         }
 
         if (destination != null) {
@@ -123,6 +124,7 @@ public final class HeavenManager {
     }
 
     public static void rememberTicketLocation(ServerPlayerEntity player) {
+        ARRIVAL_REASONS.put(player.getUUID(), ArrivalReason.TICKET);
         storeReturnLocation(player, player.position(), player.getLevel().dimension());
     }
 
@@ -304,5 +306,10 @@ public final class HeavenManager {
             this.pitch = pitch;
             this.dimension = dimension;
         }
+    }
+
+    private enum ArrivalReason {
+        DEATH,
+        TICKET
     }
 }
