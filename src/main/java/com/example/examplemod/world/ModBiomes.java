@@ -49,27 +49,23 @@ public final class ModBiomes {
             return;
         }
 
-        Biome biome = BASALT_MOUNTAINS.orElse(null);
+        Biome biome = event.getRegistry().getValue(BASALT_MOUNTAINS_KEY.location());
         if (biome == null) {
             LOGGER.error("Skipping WorldGen registry hookup for Basalt Mountains because the biome is not registered yet.");
             return;
         }
 
-        if (!WorldGenRegistries.BIOME.containsKey(BASALT_MOUNTAINS_KEY.location())) {
-            Registry.register(WorldGenRegistries.BIOME, BASALT_MOUNTAINS_KEY.location(), biome);
-        }
+        registerBiomeWithWorldGenRegistry(BASALT_MOUNTAINS_KEY, biome);
     }
 
     public static void setupBiomes() {
-        Biome biome = BASALT_MOUNTAINS.orElse(null);
+        Biome biome = ForgeRegistries.BIOMES.getValue(BASALT_MOUNTAINS_KEY.location());
         if (biome == null) {
             LOGGER.error("Skipping Basalt Mountains biome setup because the biome failed to register.");
             return;
         }
 
-        if (!WorldGenRegistries.BIOME.getOptional(BASALT_MOUNTAINS_KEY).isPresent()) {
-            Registry.register(WorldGenRegistries.BIOME, BASALT_MOUNTAINS_KEY.location(), biome);
-        }
+        registerBiomeWithWorldGenRegistry(BASALT_MOUNTAINS_KEY, biome);
 
         BiomeDictionary.addTypes(BASALT_MOUNTAINS_KEY,
                 BiomeDictionary.Type.MOUNTAIN,
@@ -78,5 +74,13 @@ public final class ModBiomes {
                 BiomeDictionary.Type.RARE);
         BiomeManager.addBiome(BiomeManager.BiomeType.WARM, new BiomeManager.BiomeEntry(BASALT_MOUNTAINS_KEY, 1));
         BiomeManager.addAdditionalOverworldBiomes(BASALT_MOUNTAINS_KEY);
+    }
+
+    private static void registerBiomeWithWorldGenRegistry(RegistryKey<Biome> key, Biome biome) {
+        if (WorldGenRegistries.BIOME.getOptional(key).isPresent()) {
+            return;
+        }
+
+        Registry.register(WorldGenRegistries.BIOME, key.location(), biome);
     }
 }
