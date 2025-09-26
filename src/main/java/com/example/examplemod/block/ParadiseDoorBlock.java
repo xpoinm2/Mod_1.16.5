@@ -30,11 +30,38 @@ public class ParadiseDoorBlock extends DoorBlock {
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
                                 BlockRayTraceResult hit) {
-        ActionResultType result = super.use(state, world, pos, player, hand, hit);
-        if (!world.isClientSide && result.consumesAction() && player instanceof ServerPlayerEntity) {
-            BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+        if (world.isClientSide) {
+            return ActionResultType.SUCCESS;
+        }
+
+        BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+        toggleDoorOpen(world, lowerPos, true);
+
+        if (player instanceof ServerPlayerEntity) {
             HeavenManager.handleDoorOpened((ServerPlayerEntity) player, (ServerWorld) world, lowerPos);
         }
-        return result;
+
+        return ActionResultType.CONSUME;
+    }
+
+    private void toggleDoorOpen(World world, BlockPos lowerPos, boolean open) {
+        BlockState lowerState = world.getBlockState(lowerPos);
+        if (lowerState.getBlock() != this) {
+            return;
+        }
+
+        if (lowerState.getValue(OPEN) == open) {
+            return;
+        }
+
+        world.setBlock(lowerPos, lowerState.setValue(OPEN, open), 10);
+
+        BlockPos upperPos = lowerPos.above();
+        BlockState upperState = world.getBlockState(upperPos);
+        if (upperState.getBlock() == this) {
+            world.setBlock(upperPos, upperState.setValue(OPEN, open), 10);
+        }
+
+        world.levelEvent(null, open ? 1005 : 1011, lowerPos, 0);
     }
 }

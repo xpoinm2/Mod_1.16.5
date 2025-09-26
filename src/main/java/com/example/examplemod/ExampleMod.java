@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
+import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
@@ -24,6 +25,7 @@ import com.example.examplemod.server.RedMushroomHandler;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -31,6 +33,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -85,6 +88,9 @@ public class ExampleMod {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
+        MinecraftForgeClient.registerDimensionRenderInfo(
+                new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
+                new HeavenDimensionRenderInfo());
         RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.ELDERBERRY_BUSH.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.CRANBERRY_BUSH.get(), RenderType.cutout());

@@ -1,5 +1,5 @@
 {
-  "type": "minecraft:overworld",
+  "type": "examplemod:heaven",
   "generator": {
     "type": "minecraft:flat",
     "settings": {
