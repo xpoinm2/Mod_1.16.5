@@ -3,6 +3,7 @@ package com.example.examplemod.server;
 import com.example.examplemod.world.ModConfiguredStructures;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.structure.StructureStart;
 import net.minecraft.world.server.ServerWorld;
@@ -27,9 +28,10 @@ final class VolcanoStructureLocatorFallback {
         if (configured == null) {
             return null;
         }
+        Structure<?> structure = configured.feature;
 
         StructureManager manager = world.structureFeatureManager();
-        StructureStart<?> start = manager.getStructureWithPieceAt(origin, configured);
+        StructureStart<?> start = manager.getStructureAt(origin, true, structure);
         if (start == null || start == StructureStart.INVALID_START) {
             return null;
         }
