@@ -3,13 +3,12 @@ package com.example.examplemod;
 import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.world.WorldGenRegistry;
-import com.example.examplemod.world.ModConfiguredStructures;
+import com.example.examplemod.world.ModBiomes;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.ModContainers;
-import com.example.examplemod.ModStructures;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
@@ -51,7 +50,7 @@ public class ExampleMod {
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
         ModContainers.register(modBus);
-        ModStructures.register(modBus);
+        ModBiomes.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }
@@ -75,8 +74,7 @@ public class ExampleMod {
 
         event.enqueueWork(() -> {
             WorldGenRegistry.register();
-            ModConfiguredStructures.register();
-            ModStructures.setupStructures();
+            ModBiomes.setupBiomes();
         });
     }
 
