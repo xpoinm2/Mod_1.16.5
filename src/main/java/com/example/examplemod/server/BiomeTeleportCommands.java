@@ -8,6 +8,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
@@ -76,22 +77,51 @@ public class BiomeTeleportCommands {
 
     private static SearchResult findBiome(ServerWorld world, RegistryKey<Biome> biomeKey, BlockPos origin) {
         long deadline = System.nanoTime() + SEARCH_TIMEOUT_NANOS;
+        ResourceLocation targetName = biomeKey.location();
 
-        for (int r = 0; r <= SEARCH_RADIUS; r += SEARCH_STEP) {
-            for (int x = -r; x <= r; x += SEARCH_STEP) {
-                for (int z = -r; z <= r; z += SEARCH_STEP) {
-                    if (System.nanoTime() > deadline) {
-                        return new SearchResult(null, true);
-                    }
-                    BlockPos pos = origin.offset(x, 0, z);
-                    Biome biome = world.getBiome(pos);
-                    if (biome.getRegistryName() != null && biome.getRegistryName().equals(biomeKey.location())) {
-                        return new SearchResult(pos, false);
-                    }
+        SearchResult initial = tryPosition(world, origin, 0, 0, targetName, deadline);
+        if (initial != null) {
+            return initial;
+        }
+
+        for (int radius = SEARCH_STEP; radius <= SEARCH_RADIUS; radius += SEARCH_STEP) {
+            for (int x = -radius; x <= radius; x += SEARCH_STEP) {
+                SearchResult result = tryPosition(world, origin, x, radius, targetName, deadline);
+                if (result != null) {
+                    return result;
+                }
+                result = tryPosition(world, origin, x, -radius, targetName, deadline);
+                if (result != null) {
+                    return result;
+                }
+            }
+
+            for (int z = -radius + SEARCH_STEP; z <= radius - SEARCH_STEP; z += SEARCH_STEP) {
+                SearchResult result = tryPosition(world, origin, radius, z, targetName, deadline);
+                if (result != null) {
+                    return result;
+                }
+                result = tryPosition(world, origin, -radius, z, targetName, deadline);
+                if (result != null) {
+                    return result;
                 }
             }
         }
         return new SearchResult(null, false);
+    }
+
+    private static SearchResult tryPosition(ServerWorld world, BlockPos origin, int dx, int dz,
+                                            ResourceLocation targetName, long deadline) {
+        if (System.nanoTime() > deadline) {
+            return new SearchResult(null, true);
+        }
+
+        BlockPos pos = origin.offset(dx, 0, dz);
+        Biome biome = world.getBiome(pos);
+        if (biome.getRegistryName() != null && biome.getRegistryName().equals(targetName)) {
+            return new SearchResult(pos, false);
+        }
+        return null;
     }
 
     private static final class SearchResult {
