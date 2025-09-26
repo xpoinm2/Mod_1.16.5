@@ -4,7 +4,6 @@ import com.example.examplemod.ExampleMod;
 import com.example.examplemod.world.biome.BasaltMountainsBiome;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
@@ -55,7 +54,7 @@ public final class ModBiomes {
             return;
         }
         Biome biome = BASALT_MOUNTAINS.get();
-        registerBiomeWithWorldGenRegistry(BASALT_MOUNTAINS_KEY, biome);
+        registerBasaltMountainsWithWorldGenRegistry(biome);
     }
 
     public static void setupBiomes() {
@@ -64,7 +63,7 @@ public final class ModBiomes {
             return;
         }
         Biome biome = BASALT_MOUNTAINS.get();
-        registerBiomeWithWorldGenRegistry(BASALT_MOUNTAINS_KEY, biome);
+        registerBasaltMountainsWithWorldGenRegistry(biome);
 
         BiomeDictionary.addTypes(BASALT_MOUNTAINS_KEY,
                 BiomeDictionary.Type.MOUNTAIN,
@@ -75,17 +74,13 @@ public final class ModBiomes {
         BiomeManager.addAdditionalOverworldBiomes(BASALT_MOUNTAINS_KEY);
     }
 
-    private static void registerBiomeWithWorldGenRegistry(RegistryKey<Biome> key, Biome biome) {
-        if (WorldGenRegistries.BIOME.getOptional(key).isPresent()) {
+    @SuppressWarnings("deprecation")
+    private static void registerBasaltMountainsWithWorldGenRegistry(Biome biome) {
+        if (WorldGenRegistries.BIOME.getOptional(BASALT_MOUNTAINS_KEY).isPresent()) {
             return;
         }
 
-        Registry.register(WorldGenRegistries.BIOME, key.location(), biome);
-        // Ensure the biome is also visible to the built-in registry used when world presets
-        // bootstrap their biome lists.  Without this, the vanilla world generator will look up
-        // our biome by key and crash before the biome ever appears in game.
-        if (BuiltinRegistries.BIOME.getOptional(key).isEmpty()) {
-            Registry.register(BuiltinRegistries.BIOME, key.location(), biome);
-        }
+        Registry.register(WorldGenRegistries.BIOME, BASALT_MOUNTAINS_KEY.location(), biome);
+
     }
 }
