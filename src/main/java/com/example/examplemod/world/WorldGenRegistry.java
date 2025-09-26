@@ -2,7 +2,6 @@ package com.example.examplemod.world;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModBlocks;
-import com.example.examplemod.world.feature.BasaltMountainFeature;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
@@ -68,9 +67,7 @@ public class WorldGenRegistry {
     }
 
     private static ConfiguredFeature<?, ?> registerBasaltMountain() {
-        BasaltMountainFeature feature = Registry.register(Registry.FEATURE,
-                new ResourceLocation(ExampleMod.MODID, "basalt_mountain"),
-                new BasaltMountainFeature(NoFeatureConfig.CODEC));
+        Feature<NoFeatureConfig> feature = ModFeatures.BASALT_MOUNTAIN.get();
         ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE);
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "basalt_mountain"), configured);

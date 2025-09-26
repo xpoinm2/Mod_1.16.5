@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Injects custom features into the basalt mountains biome when it loads.
  */
+@SuppressWarnings("unused")
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class BasaltMountainsBiomeEvents {
     private static final Logger LOGGER = LogManager.getLogger();

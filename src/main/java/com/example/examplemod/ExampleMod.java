@@ -4,6 +4,7 @@ import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
+import com.example.examplemod.world.ModFeatures;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModBlocks;
@@ -51,6 +52,7 @@ public class ExampleMod {
         ModCreativeTabs.register(modBus);
         ModContainers.register(modBus);
         ModBiomes.register(modBus);
+        ModFeatures.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }

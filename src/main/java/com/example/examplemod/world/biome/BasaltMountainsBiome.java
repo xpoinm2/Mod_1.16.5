@@ -17,6 +17,7 @@ import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
  * Factory for the basalt mountains biome.
  */
 public final class BasaltMountainsBiome {
+    private static final float TEMPERATURE = 2.0F;
     private BasaltMountainsBiome() {
     }
 
@@ -25,7 +26,7 @@ public final class BasaltMountainsBiome {
                 .fogColor(0x1b1b21)
                 .waterColor(0x3f0f0f)
                 .waterFogColor(0x160a0a)
-                .skyColor(calculateSkyColor(2.0F))
+                .skyColor(calculateSkyColor(TEMPERATURE))
                 .ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS)
                 .build();
 
@@ -51,7 +52,7 @@ public final class BasaltMountainsBiome {
                 .biomeCategory(Biome.Category.EXTREME_HILLS)
                 .depth(1.6F)
                 .scale(0.8F)
-                .temperature(2.0F)
+                .temperature(TEMPERATURE)
                 .downfall(0.0F)
                 .specialEffects(effects)
                 .mobSpawnSettings(mobSpawnInfo.build())
