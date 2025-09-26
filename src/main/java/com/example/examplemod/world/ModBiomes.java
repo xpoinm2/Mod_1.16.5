@@ -4,6 +4,7 @@ import com.example.examplemod.ExampleMod;
 import com.example.examplemod.world.biome.BasaltMountainsBiome;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
 import net.minecraft.world.biome.Biome;
@@ -80,5 +81,11 @@ public final class ModBiomes {
         }
 
         Registry.register(WorldGenRegistries.BIOME, key.location(), biome);
+        // Ensure the biome is also visible to the built-in registry used when world presets
+        // bootstrap their biome lists.  Without this, the vanilla world generator will look up
+        // our biome by key and crash before the biome ever appears in game.
+        if (BuiltinRegistries.BIOME.getOptional(key).isEmpty()) {
+            Registry.register(BuiltinRegistries.BIOME, key.location(), biome);
+        }
     }
 }
