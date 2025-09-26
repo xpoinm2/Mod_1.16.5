@@ -19,7 +19,7 @@
     },
     {
       "when": { "west": "low" },
-      "apply": { "model": "examplemod:block/paradise_fence_side", "y": 270, "uvlock": true },
+      "apply": { "model": "examplemod:block/paradise_fence_side", "y": 270, "uvlock": true }
     },
     {
       "when": { "north": "tall" },
