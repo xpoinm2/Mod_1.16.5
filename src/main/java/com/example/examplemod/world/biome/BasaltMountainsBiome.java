@@ -1,5 +1,6 @@
 package com.example.examplemod.world.biome;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.MathHelper;
@@ -10,8 +11,12 @@ import net.minecraft.world.biome.BiomeGenerationSettings;
 import net.minecraft.world.biome.MobSpawnInfo;
 import net.minecraft.world.biome.MoodSoundAmbience;
 import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.Features;
+import net.minecraft.world.gen.feature.OreFeatureConfig;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
+import net.minecraft.world.gen.feature.template.BlockMatchRuleTest;
 
 /**
  * Factory for the basalt mountains biome.
@@ -32,10 +37,6 @@ public final class BasaltMountainsBiome {
 
         MobSpawnInfo.Builder mobSpawnInfo = new MobSpawnInfo.Builder();
         mobSpawnInfo.setPlayerCanSpawn();
-        mobSpawnInfo.addSpawn(EntityClassification.MONSTER,
-                new MobSpawnInfo.Spawners(EntityType.MAGMA_CUBE, 20, 1, 3));
-        mobSpawnInfo.addSpawn(EntityClassification.MONSTER,
-                new MobSpawnInfo.Spawners(EntityType.BLAZE, 8, 1, 2));
 
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder();
         generation.surfaceBuilder(() -> ConfiguredSurfaceBuilders.BASALT_DELTAS);
@@ -44,7 +45,27 @@ public final class BasaltMountainsBiome {
         DefaultBiomeFeatures.addDefaultUndergroundVariety(generation);
         DefaultBiomeFeatures.addDefaultOres(generation);
         DefaultBiomeFeatures.addDefaultSprings(generation);
+
+        ConfiguredFeature<?, ?> replaceStoneWithBasalt = Feature.ORE
+                .configured(new OreFeatureConfig(
+                        OreFeatureConfig.FillerBlockType.NATURAL_STONE,
+                        Blocks.BASALT.defaultBlockState(),
+                        64))
+                .range(256).squared().count(96);
+        generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceStoneWithBasalt);
+
+        ConfiguredFeature<?, ?> replaceCobblestoneWithBasalt = Feature.ORE
+                .configured(new OreFeatureConfig(
+                        new BlockMatchRuleTest(Blocks.COBBLESTONE),
+                        Blocks.BASALT.defaultBlockState(),
+                        32))
+                .range(256).squared().count(48);
+        generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceCobblestoneWithBasalt);
+
         generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
+        generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
+        generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
+        generation.addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.SPRING_LAVA);
         generation.addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.SPRING_LAVA);
 
         return new Biome.Builder()
