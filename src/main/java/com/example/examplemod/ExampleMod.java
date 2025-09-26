@@ -33,7 +33,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraft.client.renderer.DimensionRenderInfo;
 
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 

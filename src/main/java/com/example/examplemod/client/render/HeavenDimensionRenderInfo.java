@@ -5,11 +5,11 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.DimensionRenderInfo;
+import net.minecraft.client.renderer.DimensionRenderInfo.SkyType;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.client.world.DimensionRenderInfo;
-import net.minecraft.client.world.DimensionRenderInfo.SkyType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
@@ -17,9 +17,15 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.ISkyRenderHandler;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import net.minecraft.util.annotation.MethodsReturnNonnullByDefault;
+
 /**
  * Custom visual settings for the Heaven dimension.
  */
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
 
     private static final ResourceLocation HEAVEN_SKY = new ResourceLocation(ExampleMod.MODID,
@@ -37,7 +43,7 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
     }
 
     @Override
-    public Vector3d getBrightnessDependentFogColor(Vector3d color, float sunHeight) {
+    public Vector3d getBrightnessDependentFogColor(@Nonnull Vector3d color, float sunHeight) {
         return new Vector3d(1.0D, 1.0D, 1.0D);
     }
 
@@ -45,6 +51,9 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
     public boolean isFoggyAt(int x, int z) {
         return false;
     }
+
+    @MethodsReturnNonnullByDefault
+    @ParametersAreNonnullByDefault
 
     private static final class HeavenSkyRenderer implements ISkyRenderHandler {
 
@@ -54,7 +63,6 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
             RenderSystem.depthMask(false);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.disableAlphaTest();
             RenderSystem.disableCull();
             RenderSystem.enableTexture();
 
@@ -79,7 +87,6 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
 
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
-            RenderSystem.enableAlphaTest();
             RenderSystem.depthMask(true);
             RenderSystem.enableDepthTest();
         }
