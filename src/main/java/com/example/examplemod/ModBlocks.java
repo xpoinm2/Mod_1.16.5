@@ -2,6 +2,8 @@ package com.example.examplemod;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.block.FenceBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.BlockState;
@@ -94,6 +96,18 @@ public class ModBlocks {
     // Пиритовая жила
     public static final RegistryObject<Block> PYRITE = BLOCKS.register("pyrite",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.COAL_ORE)));
+
+    // Райский блок
+    public static final RegistryObject<Block> PARADISE_BLOCK = BLOCKS.register("paradise_block",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.QUARTZ_BLOCK).lightLevel(state -> 12)));
+
+    // Райская дверь
+    public static final RegistryObject<Block> PARADISE_DOOR = BLOCKS.register("paradise_door",
+            () -> new DoorBlock(AbstractBlock.Properties.copy(Blocks.BIRCH_DOOR)));
+
+    // Райская ограда
+    public static final RegistryObject<Block> PARADISE_FENCE = BLOCKS.register("paradise_fence",
+            () -> new FenceBlock(AbstractBlock.Properties.copy(Blocks.BIRCH_FENCE)));
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);

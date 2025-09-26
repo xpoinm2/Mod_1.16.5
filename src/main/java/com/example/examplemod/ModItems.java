@@ -8,6 +8,7 @@ import net.minecraft.item.AxeItem;
 import net.minecraft.item.ShovelItem;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.ItemTier;
+import net.minecraft.item.DoubleHighBlockItem;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 
@@ -197,6 +198,21 @@ public class ModItems {
     // Железная руда с примесями как предмет
     public static final RegistryObject<Item> IMPURE_IRON_ORE = ITEMS.register("impure_iron_ore",
             () -> new net.minecraft.item.BlockItem(ModBlocks.IMPURE_IRON_ORE.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Райский блок как предмет
+    public static final RegistryObject<Item> PARADISE_BLOCK = ITEMS.register("paradise_block",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.PARADISE_BLOCK.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Райская дверь как предмет
+    public static final RegistryObject<Item> PARADISE_DOOR = ITEMS.register("paradise_door",
+            () -> new DoubleHighBlockItem(ModBlocks.PARADISE_DOOR.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Райская ограда как предмет
+    public static final RegistryObject<Item> PARADISE_FENCE = ITEMS.register("paradise_fence",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.PARADISE_FENCE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Железный кластер: результат дробления руды

@@ -51,7 +51,7 @@ public final class BasaltMountainsBiome {
                         OreFeatureConfig.FillerBlockType.NATURAL_STONE,
                         Blocks.BASALT.defaultBlockState(),
                         64))
-                .range(256).squared().count(96);
+                .range(256).squared().count(128);
         generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceStoneWithBasalt);
 
         ConfiguredFeature<?, ?> replaceGrassWithBasalt = Feature.ORE
@@ -94,10 +94,10 @@ public final class BasaltMountainsBiome {
                 .range(256).squared().count(48);
         generation.addFeature(GenerationStage.Decoration.UNDERGROUND_ORES, replaceCobblestoneWithBasalt);
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 180; i++) {
             generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
         }
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 120; i++) {
             generation.addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.SPRING_LAVA);
         }
 
