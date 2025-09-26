@@ -13,7 +13,6 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.placement.ChanceConfig;
-import net.minecraft.world.gen.placement.FrequencyConfig;
 import net.minecraft.world.gen.placement.Placement;
 
 /**
@@ -72,8 +71,7 @@ public class WorldGenRegistry {
         BasaltMountainFeature feature = Registry.register(Registry.FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "basalt_mountain"),
                 new BasaltMountainFeature(NoFeatureConfig.CODEC));
-        ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE)
-                .decorated(Placement.COUNT_TOP_SOLID.configured(new FrequencyConfig(1)));
+        ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE);
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "basalt_mountain"), configured);
         return configured;

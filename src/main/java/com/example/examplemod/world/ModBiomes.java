@@ -42,7 +42,7 @@ public final class ModBiomes {
                 BiomeDictionary.Type.OVERWORLD,
                 BiomeDictionary.Type.RARE);
         BiomeManager.addBiome(BiomeManager.BiomeType.WARM, new BiomeManager.BiomeEntry(key, 1));
-        BiomeManager.addSpecialBiome(key);
+        BiomeManager.addAdditionalOverworldBiomes(key);
         BiomeManager.addSpawnBiome(key);
     }
 }

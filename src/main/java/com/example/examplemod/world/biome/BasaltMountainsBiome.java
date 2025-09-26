@@ -5,9 +5,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeAmbience;
-import net.minecraft.world.biome.BiomeDefaultFeatures;
+import net.minecraft.world.biome.DefaultBiomeFeatures;
 import net.minecraft.world.biome.BiomeGenerationSettings;
 import net.minecraft.world.biome.MobSpawnInfo;
+import net.minecraft.world.biome.MoodSoundAmbience;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.Features;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilders;
@@ -25,7 +26,7 @@ public final class BasaltMountainsBiome {
                 .waterColor(0x3f0f0f)
                 .waterFogColor(0x160a0a)
                 .skyColor(calculateSkyColor(2.0F))
-                .ambientMoodSound(BiomeAmbience.LEGACY_CAVE_SETTINGS)
+                .ambientMoodSound(MoodSoundAmbience.LEGACY_CAVE_SETTINGS)
                 .build();
 
         MobSpawnInfo.Builder mobSpawnInfo = new MobSpawnInfo.Builder();
@@ -37,17 +38,17 @@ public final class BasaltMountainsBiome {
 
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder();
         generation.surfaceBuilder(() -> ConfiguredSurfaceBuilders.BASALT_DELTAS);
-        BiomeDefaultFeatures.addDefaultCarvers(generation);
-        BiomeDefaultFeatures.addDefaultMonsterRoom(generation);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(generation);
-        BiomeDefaultFeatures.addDefaultOres(generation);
-        BiomeDefaultFeatures.addDefaultSprings(generation);
-        generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAVA_LAKE);
+        DefaultBiomeFeatures.addDefaultCarvers(generation);
+        DefaultBiomeFeatures.addDefaultMonsterRoom(generation);
+        DefaultBiomeFeatures.addDefaultUndergroundVariety(generation);
+        DefaultBiomeFeatures.addDefaultOres(generation);
+        DefaultBiomeFeatures.addDefaultSprings(generation);
+        generation.addFeature(GenerationStage.Decoration.LAKES, Features.LAKE_LAVA);
         generation.addFeature(GenerationStage.Decoration.LOCAL_MODIFICATIONS, Features.SPRING_LAVA);
 
         return new Biome.Builder()
                 .precipitation(Biome.RainType.NONE)
-                .biomeCategory(Biome.Category.MOUNTAIN)
+                .biomeCategory(Biome.Category.EXTREME_HILLS)
                 .depth(1.6F)
                 .scale(0.8F)
                 .temperature(2.0F)
