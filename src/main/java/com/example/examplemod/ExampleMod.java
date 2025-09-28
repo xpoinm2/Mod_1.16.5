@@ -36,6 +36,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import software.bernie.geckolib3.GeckoLib;
@@ -71,6 +72,7 @@ public class ExampleMod {
         ModFeatures.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
+        modBus.addListener(this::registerEntityAttributes);
     }
 
 
@@ -93,9 +95,6 @@ public class ExampleMod {
         event.enqueueWork(() -> {
             WorldGenRegistry.register();
             ModBiomes.setupBiomes();
-            net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes.put(
-                    ModEntityTypes.BEAVER.get(),
-                    BeaverEntity.createAttributes().build());
         });
     }
 
@@ -135,5 +134,9 @@ public class ExampleMod {
         } catch (RuntimeException exception) {
             LOGGER.error("Failed to register dimension render info for {}", key, exception);
         }
+    }
+
+    private void registerEntityAttributes(EntityAttributeCreationEvent event) {
+        event.put(ModEntityTypes.BEAVER.get(), BeaverEntity.createAttributes().build());
     }
 }
