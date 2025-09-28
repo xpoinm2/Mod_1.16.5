@@ -32,23 +32,25 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
-import software.bernie.geckolib3.GeckoLib;
-
-
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-
-import java.util.Map;
-
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+
+import software.bernie.geckolib3.GeckoLib;
+
+import java.util.Map;
+
 
 @Mod(ExampleMod.MODID)
 public class ExampleMod {
@@ -72,7 +74,6 @@ public class ExampleMod {
         ModFeatures.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
-        modBus.addListener(this::registerEntityAttributes);
     }
 
 
@@ -136,7 +137,12 @@ public class ExampleMod {
         }
     }
 
-    private void registerEntityAttributes(EntityAttributeCreationEvent event) {
-        event.put(ModEntityTypes.BEAVER.get(), BeaverEntity.createAttributes().build());
+
+    @EventBusSubscriber(modid = ExampleMod.MODID, bus = Bus.MOD)
+    public static class ModLifecycleEvents {
+        @SubscribeEvent
+        public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
+            event.put(ModEntityTypes.BEAVER.get(), BeaverEntity.createAttributes().build());
+        }
     }
 }
