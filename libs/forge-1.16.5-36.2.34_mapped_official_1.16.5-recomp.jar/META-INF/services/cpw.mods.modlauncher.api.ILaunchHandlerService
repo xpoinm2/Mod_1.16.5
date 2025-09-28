@@ -1,0 +1,7 @@
+# net.minecraftforge:forge:1.16.5-36.2.34:userdev - forge-1.16.5-36.2.34-userdev.jar
+net.minecraftforge.userdev.FMLUserdevClientLaunchProvider
+net.minecraftforge.userdev.FMLUserdevServerLaunchProvider
+net.minecraftforge.userdev.FMLUserdevDataLaunchProvider
+net.minecraftforge.userdev.FMLDevClientLaunchProvider
+net.minecraftforge.userdev.FMLDevServerLaunchProvider
+net.minecraftforge.userdev.FMLDevDataLaunchProvider
