@@ -13,7 +13,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.ISkyRenderHandler;
 import org.lwjgl.opengl.GL11;
 
@@ -73,13 +72,48 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
             float size = 200.0F;
             for (int i = 0; i < 6; i++) {
                 matrixStack.pushPose();
-                applyFaceRotation(matrixStack, i);
                 Matrix4f matrix4f = matrixStack.last().pose();
                 buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-                buffer.vertex(matrix4f, -size, size, -size).uv(0.0F, 0.0F).endVertex();
-                buffer.vertex(matrix4f, -size, size, size).uv(0.0F, 1.0F).endVertex();
-                buffer.vertex(matrix4f, size, size, size).uv(1.0F, 1.0F).endVertex();
-                buffer.vertex(matrix4f, size, size, -size).uv(1.0F, 0.0F).endVertex();
+
+                switch (i) {
+                    case 0: // Top
+                        buffer.vertex(matrix4f, -size, size, -size).uv(0.0F, 0.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, size, size).uv(0.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, size, size).uv(1.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, size, -size).uv(1.0F, 0.0F).endVertex();
+                        break;
+                    case 1: // Bottom
+                        buffer.vertex(matrix4f, -size, -size, size).uv(0.0F, 0.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, -size, -size).uv(0.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, -size, -size).uv(1.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, -size, size).uv(1.0F, 0.0F).endVertex();
+                        break;
+                    case 2: // North (-Z)
+                        buffer.vertex(matrix4f, -size, -size, -size).uv(0.0F, 0.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, size, -size).uv(0.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, size, -size).uv(1.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, -size, -size).uv(1.0F, 0.0F).endVertex();
+                        break;
+                    case 3: // South (+Z)
+                        buffer.vertex(matrix4f, size, -size, size).uv(0.0F, 0.0F).endVertex();
+                        buffer.vertex(matrix4f, size, size, size).uv(0.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, size, size).uv(1.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, -size, size).uv(1.0F, 0.0F).endVertex();
+                        break;
+                    case 4: // East (+X)
+                        buffer.vertex(matrix4f, size, -size, -size).uv(0.0F, 0.0F).endVertex();
+                        buffer.vertex(matrix4f, size, size, -size).uv(0.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, size, size).uv(1.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, size, -size, size).uv(1.0F, 0.0F).endVertex();
+                        break;
+                    case 5: // West (-X)
+                    default:
+                        buffer.vertex(matrix4f, -size, -size, size).uv(0.0F, 0.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, size, size).uv(0.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, size, -size).uv(1.0F, 1.0F).endVertex();
+                        buffer.vertex(matrix4f, -size, -size, -size).uv(1.0F, 0.0F).endVertex();
+                        break;
+                }
                 tessellator.end();
                 matrixStack.popPose();
             }
@@ -88,28 +122,6 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
             RenderSystem.disableBlend();
             RenderSystem.depthMask(true);
             RenderSystem.enableDepthTest();
-        }
-
-        private void applyFaceRotation(MatrixStack stack, int face) {
-            switch (face) {
-                case 1:
-                    stack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
-                    break;
-                case 2:
-                    stack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-                    break;
-                case 3:
-                    stack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-                    break;
-                case 4:
-                    stack.mulPose(Vector3f.YP.rotationDegrees(90.0F));
-                    break;
-                case 5:
-                    stack.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
-                    break;
-                default:
-                    break;
-            }
         }
     }
 }
