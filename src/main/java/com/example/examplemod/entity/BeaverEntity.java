@@ -1,6 +1,7 @@
 package com.example.examplemod.entity;
 
 import com.example.examplemod.ModEntityTypes;
+import com.example.examplemod.client.model.BeaverModelGeo;
 
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
@@ -22,9 +23,14 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-public class BeaverEntity extends AnimalEntity {
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+
+public class BeaverEntity extends AnimalEntity implements IAnimatable {
 
     private static final Ingredient FAVORITE_FOOD = Ingredient.of(Items.APPLE);
+    private final AnimationFactory factory = new AnimationFactory(this);
 
     public BeaverEntity(EntityType<? extends BeaverEntity> type, World world) {
         super(type, world);
@@ -57,4 +63,14 @@ public class BeaverEntity extends AnimalEntity {
                 .add(Attributes.MAX_HEALTH, 16.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D);
     }
+}
+
+@Override
+public void registerControllers(AnimationData data) {
+    BeaverModelGeo.registerControllers(data, this);
+}
+
+@Override
+public AnimationFactory getFactory() {
+    return factory;
 }

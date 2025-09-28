@@ -38,6 +38,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import software.bernie.geckolib3.GeckoLib;
+
 
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
@@ -53,6 +55,8 @@ public class ExampleMod {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public ExampleMod() {
+
+        GeckoLib.initialize();
 
         ModNetworkHandler.register();
 
