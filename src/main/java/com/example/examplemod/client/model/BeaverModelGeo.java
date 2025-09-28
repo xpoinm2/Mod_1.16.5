@@ -41,9 +41,11 @@ public class BeaverModelGeo extends AnimatedGeoModel<BeaverEntity> {
     }
 
     private static <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (!(event.getAnimatable() instanceof BeaverEntity beaver)) {
+        if (!(event.getAnimatable() instanceof BeaverEntity)) {
             return PlayState.STOP;
         }
+
+        BeaverEntity beaver = (BeaverEntity) event.getAnimatable();
 
         if (beaver.isInWater()) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.swim", true));

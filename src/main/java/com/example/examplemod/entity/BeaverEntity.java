@@ -63,14 +63,15 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
                 .add(Attributes.MAX_HEALTH, 16.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D);
     }
-}
 
-@Override
-public void registerControllers(AnimationData data) {
-    BeaverModelGeo.registerControllers(data, this);
-}
 
-@Override
-public AnimationFactory getFactory() {
-    return factory;
+    @Override
+    public void registerControllers(AnimationData data) {
+        BeaverModelGeo.registerControllers(data, this);
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return factory;
+    }
 }
