@@ -8,6 +8,8 @@ import net.minecraft.block.WallBlock;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.state.properties.DoorHingeSide;
 import net.minecraft.util.Direction;
@@ -18,7 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -81,39 +82,59 @@ public final class HeavenManager {
 
         ReturnLocation target = RETURN_LOCATIONS.remove(player.getUUID());
         ArrivalReason reason = ARRIVAL_REASONS.remove(player.getUUID());
-        ServerWorld destination = player.server.getLevel(World.OVERWORLD);
-        if (destination == null) {
-            destination = player.server.overworld();
-        }
 
-        double targetX = 0.0;
-        double targetY = 0.0;
-        double targetZ = 0.0;
+        ServerWorld destination = null;
+        double targetX = player.getX();
+        double targetY = player.getY();
+        double targetZ = player.getZ();
         float targetYaw = player.yRot;
         float targetPitch = player.xRot;
+        boolean grantInvulnerability = false;
 
-        if (reason == ArrivalReason.DEATH && target != null && destination != null
-                && World.OVERWORLD.equals(target.dimension)) {
-            targetX = target.position.x;
-            targetY = target.position.y;
-            targetZ = target.position.z;
-            targetYaw = target.yaw;
-            targetPitch = target.pitch;
-        } else if (reason == ArrivalReason.TICKET && destination != null) {
-            int surfaceY = destination.getHeight(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, 0, 0);
-            targetX = 0.5D;
-            targetY = surfaceY + 0.1D;
-            targetZ = 0.5D;
-        } else if (destination != null) {
-            BlockPos spawn = destination.getSharedSpawnPos();
-            targetX = spawn.getX() + 0.5;
-            targetY = spawn.getY() + 0.1;
-            targetZ = spawn.getZ() + 0.5;
+        if (reason == ArrivalReason.DEATH && target != null) {
+            destination = player.server.getLevel(target.dimension);
+            if (destination != null) {
+                targetX = target.position.x;
+                targetY = target.position.y + 200.0D;
+                targetZ = target.position.z;
+                targetYaw = target.yaw;
+                targetPitch = target.pitch;
+                grantInvulnerability = true;
+            }
+        }
+
+        if (destination == null && reason == ArrivalReason.TICKET) {
+            destination = player.server.getLevel(World.OVERWORLD);
+            if (destination == null) {
+                destination = player.server.overworld();
+            }
+            if (destination != null) {
+                targetX = 0.5D;
+                targetY = 300.0D;
+                targetZ = 0.5D;
+                grantInvulnerability = true;
+            }
+        }
+
+        if (destination == null) {
+            destination = player.server.getLevel(World.OVERWORLD);
+            if (destination == null) {
+                destination = player.server.overworld();
+            }
+            if (destination != null) {
+                BlockPos spawn = destination.getSharedSpawnPos();
+                targetX = spawn.getX() + 0.5;
+                targetY = spawn.getY() + 0.1;
+                targetZ = spawn.getZ() + 0.5;
+            }
         }
 
         if (destination != null) {
             player.fallDistance = 0.0f;
             player.teleportTo(destination, targetX, targetY, targetZ, targetYaw, targetPitch);
+            if (grantInvulnerability) {
+                grantTemporaryInvulnerability(player);
+            }
         }
 
         BlockState state = world.getBlockState(doorPos);
@@ -315,5 +336,9 @@ public final class HeavenManager {
     private enum ArrivalReason {
         DEATH,
         TICKET
+    }
+
+    private static void grantTemporaryInvulnerability(ServerPlayerEntity player) {
+        player.addEffect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 200, 4, false, false));
     }
 }
