@@ -52,13 +52,19 @@ public class BeaverModelGeo extends AnimatedGeoModel<BeaverEntity> {
             return PlayState.CONTINUE;
         }
 
-        double horizontalSpeed = beaver.getDeltaMovement().horizontalDistanceSqr();
-        if (horizontalSpeed > WALK_ANIMATION_THRESHOLD * WALK_ANIMATION_THRESHOLD) {
+        double horizontalSpeedSq = getHorizontalSpeedSquared(beaver);
+        if (horizontalSpeedSq > WALK_ANIMATION_THRESHOLD * WALK_ANIMATION_THRESHOLD) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.walk", true));
             return PlayState.CONTINUE;
         }
 
         event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.idle", true));
         return PlayState.CONTINUE;
+    }
+
+    private static double getHorizontalSpeedSquared(BeaverEntity beaver) {
+        final double x = beaver.getDeltaMovement().x;
+        final double z = beaver.getDeltaMovement().z;
+        return x * x + z * z;
     }
 }
