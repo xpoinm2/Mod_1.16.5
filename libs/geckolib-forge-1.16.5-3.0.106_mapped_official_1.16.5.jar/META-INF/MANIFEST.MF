@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Title: geckolib-forge1.16
+Implementation-Version: 3.0.106
+Specification-Vendor: Gecko
+Specification-Title: GeckoLib
+Implementation-Timestamp: 2022-12-16T12:45:20-0500
+Specification-Version: 1
+Implementation-Vendor: Gecko
+
