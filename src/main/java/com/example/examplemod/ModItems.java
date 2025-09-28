@@ -17,6 +17,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import com.example.examplemod.item.HealingItem;
 import com.example.examplemod.item.ElderberryItem;
 import com.example.examplemod.item.AngelicaRootItem;
@@ -48,6 +49,13 @@ public class ModItems {
     // Листочек: выпадает с листвы
     public static final RegistryObject<Item> LEAF = ITEMS.register("leaf",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Яйцо призыва бобра
+    public static final RegistryObject<Item> BEAVER_SPAWN_EGG = ITEMS.register("beaver_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityTypes.BEAVER,
+                    0x5b3a29,
+                    0xb98354,
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Большая кость: трофей, который можно получить с некоторых животных
     public static final RegistryObject<Item> BIG_BONE = ITEMS.register("big_bone",

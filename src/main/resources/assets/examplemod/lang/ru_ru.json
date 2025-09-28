@@ -3,6 +3,8 @@
   "item.examplemod.healing_item": "Лечебное зелье",
   "item.examplemod.branch": "Ветка",
   "item.examplemod.leaf": "Листочек",
+  "item.examplemod.beaver_spawn_egg": "Яйцо призыва бобра",
+  "entity.examplemod.beaver": "Бобёр",
   "item.examplemod.big_bone": "Большая кость",
   "item.examplemod.sharpened_bone": "Заостренная кость",
   "item.examplemod.raspberry": "Малина",

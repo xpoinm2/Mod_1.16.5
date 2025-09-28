@@ -1,8 +1,10 @@
 package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
+import com.example.examplemod.client.render.BeaverRenderer;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.FirepitScreen;
+import com.example.examplemod.entity.BeaverEntity;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
 import com.example.examplemod.world.ModFeatures;
@@ -11,6 +13,7 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.ModContainers;
+import com.example.examplemod.ModEntityTypes;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
@@ -59,6 +62,7 @@ public class ExampleMod {
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
         ModContainers.register(modBus);
+        ModEntityTypes.register(modBus);
         ModBiomes.register(modBus);
         ModFeatures.register(modBus);
         modBus.addListener(this::commonSetup);
@@ -85,6 +89,9 @@ public class ExampleMod {
         event.enqueueWork(() -> {
             WorldGenRegistry.register();
             ModBiomes.setupBiomes();
+            net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes.put(
+                    ModEntityTypes.BEAVER.get(),
+                    BeaverEntity.createAttributes().build());
         });
     }
 
@@ -104,6 +111,9 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.FLAX_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
+        net.minecraftforge.fml.client.registry.RenderingRegistry.registerEntityRenderingHandler(
+                ModEntityTypes.BEAVER.get(),
+                BeaverRenderer::new);
     }
 
     private static void registerDimensionRenderInfo(ResourceLocation key, DimensionRenderInfo info) {
