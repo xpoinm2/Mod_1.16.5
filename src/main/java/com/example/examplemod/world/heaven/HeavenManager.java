@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -98,8 +99,11 @@ public final class HeavenManager {
             targetZ = target.position.z;
             targetYaw = target.yaw;
             targetPitch = target.pitch;
-        } else if (reason == ArrivalReason.TICKET) {
-            // Defaults already set to origin.
+        } else if (reason == ArrivalReason.TICKET && destination != null) {
+            int surfaceY = destination.getHeight(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, 0, 0);
+            targetX = 0.5D;
+            targetY = surfaceY + 0.1D;
+            targetZ = 0.5D;
         } else if (destination != null) {
             BlockPos spawn = destination.getSharedSpawnPos();
             targetX = spawn.getX() + 0.5;

@@ -26,8 +26,31 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
 
-    private static final ResourceLocation HEAVEN_SKY = new ResourceLocation(ExampleMod.MODID,
-            "textures/environment/heaven_sky.png");
+    private static final ResourceLocation SKYBOX_TOP = new ResourceLocation(ExampleMod.MODID,
+            "textures/environment/skybox_top.png");
+    private static final ResourceLocation SKYBOX_BOTTOM = new ResourceLocation(ExampleMod.MODID,
+            "textures/environment/skybox_bottom.png");
+    private static final ResourceLocation SKYBOX_NORTH = new ResourceLocation(ExampleMod.MODID,
+            "textures/environment/skybox_back.png");
+    private static final ResourceLocation SKYBOX_SOUTH = new ResourceLocation(ExampleMod.MODID,
+            "textures/environment/skybox_front.png");
+    private static final ResourceLocation SKYBOX_EAST = new ResourceLocation(ExampleMod.MODID,
+            "textures/environment/skybox_right.png");
+    private static final ResourceLocation SKYBOX_WEST = new ResourceLocation(ExampleMod.MODID,
+            "textures/environment/skybox_left.png");
+
+    /**
+     * Order of faces matches the quad cases below: top, bottom, north (-Z / back), south (+Z / front),
+     * east (+X / right), west (-X / left).
+     */
+    private static final ResourceLocation[] SKYBOX_FACES = {
+            SKYBOX_TOP,
+            SKYBOX_BOTTOM,
+            SKYBOX_NORTH,
+            SKYBOX_SOUTH,
+            SKYBOX_EAST,
+            SKYBOX_WEST
+    };
 
     public HeavenDimensionRenderInfo() {
         super(Float.NaN, false, FogType.NONE, false, true);
@@ -64,14 +87,12 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
             RenderSystem.disableCull();
             RenderSystem.enableTexture();
 
-            mc.getTextureManager().bind(HEAVEN_SKY);
-
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder buffer = tessellator.getBuilder();
 
             float size = 200.0F;
-            for (int i = 0; i < 6; i++) {
-                matrixStack.pushPose();
+            for (int i = 0; i < SKYBOX_FACES.length; i++) {
+                mc.getTextureManager().bind(SKYBOX_FACES[i]);
                 Matrix4f matrix4f = matrixStack.last().pose();
                 buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
