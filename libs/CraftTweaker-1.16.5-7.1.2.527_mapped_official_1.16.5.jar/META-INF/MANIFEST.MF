@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Title: CraftTweaker
+Implementation-Version: 7.1.2.527
+Specification-Vendor: CraftTweaker
+Specification-Title: crafttweaker
+Implementation-Timestamp: 2024-01-04T14:07:36+0000
+Specification-Version: 1
+Implementation-Vendor: CraftTweaker
+
