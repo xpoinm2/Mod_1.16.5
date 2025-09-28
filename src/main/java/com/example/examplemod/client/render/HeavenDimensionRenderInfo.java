@@ -136,7 +136,6 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
                         break;
                 }
                 tessellator.end();
-                matrixStack.popPose();
             }
 
             RenderSystem.enableCull();
