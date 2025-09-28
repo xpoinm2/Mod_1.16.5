@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.world.DimensionRenderInfo;
-import net.minecraft.client.world.DimensionRenderInfo.SkyType;
+import net.minecraft.client.world.DimensionRenderInfo.FogType;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.world.ClientWorld;
@@ -31,7 +31,7 @@ public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
             "textures/environment/heaven_sky.png");
 
     public HeavenDimensionRenderInfo() {
-        super(Float.NaN, false, SkyType.NONE, false, true);
+        super(Float.NaN, false, FogType.NONE, false, true);
         this.setSkyRenderHandler(new HeavenSkyRenderer());
         this.setCloudRenderHandler((ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ) -> {
             // Intentionally empty: clouds are disabled in Heaven.
