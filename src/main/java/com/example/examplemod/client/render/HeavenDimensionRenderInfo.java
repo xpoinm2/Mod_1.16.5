@@ -5,8 +5,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.DimensionRenderInfo;
-import net.minecraft.client.renderer.DimensionRenderInfo.SkyType;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.client.renderer.DimensionSpecialEffects.SkyType;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.world.ClientWorld;
@@ -19,14 +19,14 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import net.minecraft.util.annotation.MethodsReturnNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
 /**
  * Custom visual settings for the Heaven dimension.
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class HeavenDimensionRenderInfo extends DimensionRenderInfo {
+public class HeavenDimensionRenderInfo extends DimensionSpecialEffects {
 
     private static final ResourceLocation HEAVEN_SKY = new ResourceLocation(ExampleMod.MODID,
             "textures/environment/heaven_sky.png");

@@ -33,7 +33,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraft.client.renderer.DimensionRenderInfo;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
@@ -105,14 +105,14 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
     }
 
-    private static void registerDimensionRenderInfo(ResourceLocation key, DimensionRenderInfo info) {
+    private static void registerDimensionRenderInfo(ResourceLocation key, DimensionSpecialEffects info) {
         try {
             @SuppressWarnings("unchecked")
-            Map<ResourceLocation, DimensionRenderInfo> effects =
-                    ObfuscationReflectionHelper.getPrivateValue(DimensionRenderInfo.class, null, "field_239208_a_");
+            Map<ResourceLocation, DimensionSpecialEffects> effects =
+                    ObfuscationReflectionHelper.getPrivateValue(DimensionSpecialEffects.class, null, "field_239208_a_");
 
             if (effects == null) {
-                LOGGER.error("Failed to access DimensionRenderInfo effects map when registering {}", key);
+                LOGGER.error("Failed to access DimensionSpecialEffects effects map when registering {}", key);
                 return;
             }
 
