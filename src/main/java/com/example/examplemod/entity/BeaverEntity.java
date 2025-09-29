@@ -17,7 +17,6 @@ import net.minecraft.entity.ai.goal.TemptGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.IPacket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
@@ -64,7 +63,7 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
         return AnimalEntity.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 16.0D)
+                .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D);
     }
 
@@ -80,7 +79,7 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public net.minecraft.network.IPacket<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

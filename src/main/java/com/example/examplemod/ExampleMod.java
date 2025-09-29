@@ -1,7 +1,6 @@
 package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
-import com.example.examplemod.client.render.BeaverRenderer;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.entity.BeaverEntity;
@@ -115,9 +114,6 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.FLAX_PLANT.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
-        net.minecraftforge.fml.client.registry.RenderingRegistry.registerEntityRenderingHandler(
-                ModEntityTypes.BEAVER.get(),
-                BeaverRenderer::new);
     }
 
     private static void registerDimensionRenderInfo(ResourceLocation key, DimensionRenderInfo info) {

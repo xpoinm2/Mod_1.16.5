@@ -18,7 +18,7 @@ public class ModEntityTypes {
 
     public static final RegistryObject<EntityType<BeaverEntity>> BEAVER = ENTITY_TYPES.register("beaver",
             () -> EntityType.Builder.of(BeaverEntity::new, EntityClassification.CREATURE)
-                    .sized(0.9f, 0.7f)
+                    .sized(0.9F, 0.7F)
                     .build(new ResourceLocation(ExampleMod.MODID, "beaver").toString()));
 
     public static void register(IEventBus bus) {
