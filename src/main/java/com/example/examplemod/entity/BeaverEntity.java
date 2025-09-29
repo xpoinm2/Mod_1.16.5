@@ -20,6 +20,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -89,7 +90,8 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.swim", true));
             return PlayState.CONTINUE;
         }
-        boolean moving = this.getDeltaMovement().horizontalDistance() > 0.05;
+        Vector3d movement = this.getDeltaMovement();
+        boolean moving = movement.x * movement.x + movement.z * movement.z > 0.0025D;
         event.getController().setAnimation(new AnimationBuilder().addAnimation(moving ? "beaver.walk" : "beaver.idle", true));
         return PlayState.CONTINUE;
     }
