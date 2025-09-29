@@ -20,6 +20,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -100,11 +101,18 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimatio
             return playAnimation(event, ANIMATION_SWIM);
         }
 
-        if (event.isMoving() || this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-4) {
+        if (event.isMoving() || isMovingHorizontally()) {
             return playAnimation(event, ANIMATION_WALK);
         }
 
         return playAnimation(event, ANIMATION_IDLE);
+    }
+
+    private boolean isMovingHorizontally() {
+        final double threshold = 1.0E-4;
+        final Vector3d delta = this.getDeltaMovement();
+        final double horizontalSpeedSquared = delta.x * delta.x + delta.z * delta.z;
+        return horizontalSpeedSquared > threshold;
     }
 
     private <E extends IAnimatable> PlayState playAnimation(AnimationEvent<E> event, String animationName) {
