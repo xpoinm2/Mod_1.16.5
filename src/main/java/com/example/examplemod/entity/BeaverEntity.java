@@ -40,7 +40,11 @@ import software.bernie.geckolib3.core.IAnimationTickable;
 public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimationTickable {
 
     private static final Ingredient FAVORITE_FOOD = Ingredient.of(Items.APPLE);
+    private static final String ANIMATION_IDLE = "animation.beaver.idle";
+    private static final String ANIMATION_WALK = "animation.beaver.walk";
+    private static final String ANIMATION_SWIM = "animation.beaver.swim";
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private String currentAnimation = "";
 
     public BeaverEntity(EntityType<? extends BeaverEntity> type, World world) {
         super(type, world);
@@ -78,7 +82,7 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimatio
 
     @Override
     public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "ctrl", 4, this::predicate));
+        data.addAnimationController(new AnimationController<>(this, "controller", 0, this::predicate));
     }
 
     @Override
@@ -93,17 +97,20 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimatio
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         if (this.isInWaterOrBubble()) {
-            event.getController().setAnimation(
-                    new AnimationBuilder().addAnimation("animation.beaver.swim", true));
-            return PlayState.CONTINUE;
+            return playAnimation(event, ANIMATION_SWIM);
         }
 
-        if (event.isMoving()) {
-            event.getController().setAnimation(
-                    new AnimationBuilder().addAnimation("animation.beaver.walk", true));
-        } else {
-            event.getController().setAnimation(
-                    new AnimationBuilder().addAnimation("animation.beaver.idle", true));
+        if (event.isMoving() || this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-4) {
+            return playAnimation(event, ANIMATION_WALK);
+        }
+
+        return playAnimation(event, ANIMATION_IDLE);
+    }
+
+    private <E extends IAnimatable> PlayState playAnimation(AnimationEvent<E> event, String animationName) {
+        if (!animationName.equals(this.currentAnimation)) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, true));
+            this.currentAnimation = animationName;
         }
         return PlayState.CONTINUE;
     }

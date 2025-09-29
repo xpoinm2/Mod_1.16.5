@@ -18,6 +18,7 @@ public final class ClientSetup {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.BEAVER.get(), BeaverRenderer::new);
+        event.enqueueWork(() -> RenderingRegistry.registerEntityRenderingHandler(
+                ModEntityTypes.BEAVER.get(), BeaverRenderer::new));
     }
 }
