@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
+import com.example.examplemod.client.render.BeaverRenderer;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.entity.BeaverEntity;
@@ -34,6 +35,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -104,6 +106,7 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
         event.enqueueWork(() -> {
             net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
+            RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.BEAVER.get(), BeaverRenderer::new);
             registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                     new HeavenDimensionRenderInfo());
             RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
