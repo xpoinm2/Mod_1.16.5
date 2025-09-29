@@ -5,17 +5,9 @@ import com.example.examplemod.entity.BeaverEntity;
 
 import net.minecraft.util.ResourceLocation;
 
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class BeaverModelGeo extends AnimatedGeoModel<BeaverEntity> {
-
-    private static final double WALK_ANIMATION_THRESHOLD = 0.05D;
 
     private static ResourceLocation rl(String path) {
         return new ResourceLocation(ExampleMod.MODID, path);
@@ -34,37 +26,5 @@ public class BeaverModelGeo extends AnimatedGeoModel<BeaverEntity> {
     @Override
     public ResourceLocation getAnimationFileLocation(BeaverEntity animatable) {
         return rl("animations/beaver.animation.json");
-    }
-
-    public static void registerControllers(AnimationData data, BeaverEntity beaver) {
-        data.addAnimationController(new AnimationController<>(beaver, "controller", 5, BeaverModelGeo::predicate));
-    }
-
-    private static <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (!(event.getAnimatable() instanceof BeaverEntity)) {
-            return PlayState.STOP;
-        }
-
-        BeaverEntity beaver = (BeaverEntity) event.getAnimatable();
-
-        if (beaver.isInWater()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.swim", true));
-            return PlayState.CONTINUE;
-        }
-
-        double horizontalSpeedSq = getHorizontalSpeedSquared(beaver);
-        if (horizontalSpeedSq > WALK_ANIMATION_THRESHOLD * WALK_ANIMATION_THRESHOLD) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.walk", true));
-            return PlayState.CONTINUE;
-        }
-
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.idle", true));
-        return PlayState.CONTINUE;
-    }
-
-    private static double getHorizontalSpeedSquared(BeaverEntity beaver) {
-        final double x = beaver.getDeltaMovement().x;
-        final double z = beaver.getDeltaMovement().z;
-        return x * x + z * z;
     }
 }

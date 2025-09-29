@@ -1,10 +1,10 @@
 package com.example.examplemod.entity;
 
 import com.example.examplemod.ModEntityTypes;
-import com.example.examplemod.client.model.BeaverModelGeo;
 
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.BreedGoal;
@@ -27,13 +27,18 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 
 import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 public class BeaverEntity extends AnimalEntity implements IAnimatable {
 
     private static final Ingredient FAVORITE_FOOD = Ingredient.of(Items.APPLE);
-    private final AnimationFactory factory = new AnimationFactory(this);
+    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public BeaverEntity(EntityType<? extends BeaverEntity> type, World world) {
         super(type, world);
@@ -62,7 +67,7 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return AnimalEntity.createLivingAttributes()
+        return MobEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
@@ -71,12 +76,22 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
 
     @Override
     public void registerControllers(AnimationData data) {
-        BeaverModelGeo.registerControllers(data, this);
+        data.addAnimationController(new AnimationController<>(this, "ctrl", 4, this::predicate));
     }
 
     @Override
     public AnimationFactory getFactory() {
         return factory;
+    }
+
+    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+        if (this.isInWater()) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.swim", true));
+            return PlayState.CONTINUE;
+        }
+        boolean moving = this.getDeltaMovement().horizontalDistance() > 0.05;
+        event.getController().setAnimation(new AnimationBuilder().addAnimation(moving ? "beaver.walk" : "beaver.idle", true));
+        return PlayState.CONTINUE;
     }
 
     @Override
