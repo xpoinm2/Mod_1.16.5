@@ -64,7 +64,8 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
     public static AttributeModifierMap.MutableAttribute createAttributes() {
         return AnimalEntity.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D);
+                .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                .add(Attributes.FOLLOW_RANGE, 16.0D);
     }
 
 
