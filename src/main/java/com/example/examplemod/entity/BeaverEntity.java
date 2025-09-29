@@ -26,7 +26,7 @@ import net.minecraft.world.server.ServerWorld;
 
 import net.minecraftforge.fml.network.NetworkHooks;
 
-
+import software.bernie.geckolib3.core.Animation;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -45,7 +45,6 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimatio
     private static final String ANIMATION_WALK = "animation.beaver.walk";
     private static final String ANIMATION_SWIM = "animation.beaver.swim";
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
-    private String currentAnimation = "";
 
     public BeaverEntity(EntityType<? extends BeaverEntity> type, World world) {
         super(type, world);
@@ -116,9 +115,11 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimatio
     }
 
     private <E extends IAnimatable> PlayState playAnimation(AnimationEvent<E> event, String animationName) {
-        if (!animationName.equals(this.currentAnimation)) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, true));
-            this.currentAnimation = animationName;
+        AnimationController<E> controller = event.getController();
+        Animation current = controller.getCurrentAnimation();
+
+        if (current == null || !animationName.equals(current.animationName)) {
+            controller.setAnimation(new AnimationBuilder().addAnimation(animationName, true));
         }
         return PlayState.CONTINUE;
     }
