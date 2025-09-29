@@ -35,7 +35,9 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-public class BeaverEntity extends AnimalEntity implements IAnimatable {
+import software.bernie.geckolib3.core.IAnimationTickable;
+
+public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimationTickable {
 
     private static final Ingredient FAVORITE_FOOD = Ingredient.of(Items.APPLE);
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
@@ -84,6 +86,11 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
         return factory;
     }
 
+    @Override
+    public void tick() {
+        super.tick();
+    }
+
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         if (this.isInWaterOrBubble()) {
             event.getController().setAnimation(
@@ -100,6 +107,12 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
         }
         return PlayState.CONTINUE;
     }
+
+    @Override
+    public int tickTimer() {
+        return tickCount;
+    }
+
 
     @Override
     public net.minecraft.network.IPacket<?> getAddEntityPacket() {
