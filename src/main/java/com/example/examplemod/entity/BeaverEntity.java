@@ -20,7 +20,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -86,13 +85,19 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable {
     }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (this.isInWater()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("beaver.swim", true));
+        if (this.isInWaterOrBubble()) {
+            event.getController().setAnimation(
+                    new AnimationBuilder().addAnimation("animation.beaver.swim", true));
             return PlayState.CONTINUE;
         }
-        Vector3d movement = this.getDeltaMovement();
-        boolean moving = movement.x * movement.x + movement.z * movement.z > 0.0025D;
-        event.getController().setAnimation(new AnimationBuilder().addAnimation(moving ? "beaver.walk" : "beaver.idle", true));
+
+        if (event.isMoving()) {
+            event.getController().setAnimation(
+                    new AnimationBuilder().addAnimation("animation.beaver.walk", true));
+        } else {
+            event.getController().setAnimation(
+                    new AnimationBuilder().addAnimation("animation.beaver.idle", true));
+        }
         return PlayState.CONTINUE;
     }
 
