@@ -104,9 +104,9 @@ public class ExampleMod {
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
+        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.BEAVER.get(), BeaverRenderer::new);
         event.enqueueWork(() -> {
             net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
-            RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.BEAVER.get(), BeaverRenderer::new);
             registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                     new HeavenDimensionRenderInfo());
             RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
