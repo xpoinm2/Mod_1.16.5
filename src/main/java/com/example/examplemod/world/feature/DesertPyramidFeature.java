@@ -29,7 +29,7 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
      * suitable area. Relax the threshold so generation can succeed on typical terrain without
      * looking out of place.
      */
-    private static final int MAX_TERRAIN_VARIATION = 6;
+    private static final int MAX_TERRAIN_VARIATION = 12;
     private static final int FOUNDATION_DEPTH = 6;
     private static final AtomicInteger GENERATED_COUNT = new AtomicInteger();
 
