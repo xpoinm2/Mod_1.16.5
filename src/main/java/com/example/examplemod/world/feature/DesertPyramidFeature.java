@@ -18,7 +18,12 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Generates a sandstone pyramid structure in desert biomes.
+ * Feature responsible for generating a sandstone pyramid in desert-like biomes.
+ *
+ * <p>The logic mirrors the original behaviour but contains several defensive
+ * checks to avoid malformed structures. The actual footprint of the pyramid
+ * (base width, platform size, height, etc.) remains exactly the same as in the
+ * broken file provided by the user.</p>
  */
 public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -26,14 +31,9 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     private static final int PLATFORM_SIZE = 33;
     private static final int PLATFORM_HALF = PLATFORM_SIZE / 2;
     private static final int PLATFORM_HEIGHT = 20;
-    /**
-     * The maximum difference in block height allowed across the pyramid's footprint. Deserts often
-     * contain rolling dunes, so a very small tolerance prevents the structure from ever finding a
-     * suitable area. Relax the threshold so generation can succeed on typical terrain without
-     * looking out of place.
-     */
     private static final int MAX_TERRAIN_VARIATION = 12;
     private static final int FOUNDATION_DEPTH = 6;
+
     private static final AtomicInteger GENERATED_COUNT = new AtomicInteger();
 
     public DesertPyramidFeature(Codec<NoFeatureConfig> codec) {
@@ -41,7 +41,7 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     }
 
     /**
-     * @return The number of pyramids that have been generated since the server was started.
+     * @return Number of pyramids generated during the current server run.
      */
     public static int getGeneratedCount() {
         return GENERATED_COUNT.get();
@@ -225,10 +225,11 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
                 mutable.set(center.getX(), baseY + dy, z + dz);
                 world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
             }
+        }
         world.setBlock(center.offset(0, 1, -halfWidth), Blocks.CUT_SANDSTONE.defaultBlockState(), 2);
     }
 
-        private void carveInterior(ISeedReader world, BlockPos center, int baseY, int height, int halfWidth) {
+    private void carveInterior(ISeedReader world, BlockPos center, int baseY, int height, int halfWidth) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         for (int level = 1; level < height; level++) {
             int layerHalf = Math.max(0, halfWidth - level);
