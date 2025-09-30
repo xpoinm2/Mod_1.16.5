@@ -22,6 +22,7 @@ public final class PyramidDebugCommands {
         event.getDispatcher().register(
                 Commands.literal("pyramid")
                         .requires(cs -> cs.hasPermission(2))
+                        .executes(ctx -> reportCount(ctx.getSource()))
                         .then(Commands.literal("count")
                                 .executes(ctx -> reportCount(ctx.getSource())))
         );
