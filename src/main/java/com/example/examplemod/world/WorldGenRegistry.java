@@ -2,6 +2,7 @@ package com.example.examplemod.world;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModBlocks;
+import com.example.examplemod.world.ModFeatures;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
@@ -29,6 +30,7 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> FLAX_PATCH;
     public static ConfiguredFeature<?, ?> PYRITE_ORE;
     public static ConfiguredFeature<?, ?> BASALT_MOUNTAIN;
+    public static ConfiguredFeature<?, ?> DESERT_PYRAMID;
 
     public static void register() {
         ANGELICA_PATCH = register("angelica_patch", 1, ModBlocks.ANGELICA.get().defaultBlockState());
@@ -40,6 +42,7 @@ public class WorldGenRegistry {
         FLAX_PATCH = register("flax_patch", 1, ModBlocks.FLAX_PLANT.get().defaultBlockState());
         PYRITE_ORE = registerPyriteOre();
         BASALT_MOUNTAIN = registerBasaltMountain();
+        DESERT_PYRAMID = registerDesertPyramid();
     }
 
     private static ConfiguredFeature<?, ?> register(String name, int chance, net.minecraft.block.BlockState state) {
@@ -71,6 +74,14 @@ public class WorldGenRegistry {
         ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE);
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "basalt_mountain"), configured);
+        return configured;
+    }
+
+    private static ConfiguredFeature<?, ?> registerDesertPyramid() {
+        Feature<NoFeatureConfig> feature = ModFeatures.DESERT_PYRAMID.get();
+        ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE);
+        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
+                new ResourceLocation(ExampleMod.MODID, "desert_pyramid"), configured);
         return configured;
     }
 }
