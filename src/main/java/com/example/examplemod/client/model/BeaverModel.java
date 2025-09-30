@@ -4,11 +4,11 @@ import com.example.examplemod.entity.BeaverEntity;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.client.renderer.entity.model.SegmentedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.MathHelper;
 
-public class BeaverModel<T extends BeaverEntity> extends EntityModel<T> {
+public class BeaverModel<T extends BeaverEntity> extends SegmentedModel<T> {
     public final ModelRenderer body;
     public final ModelRenderer head;
     public final ModelRenderer tail;
