@@ -1,3 +1,5 @@
 {
-  "": { "model": "examplemod:block/dried_flax" }
+  "variants": {
+    "": { "model": "examplemod:block/dried_flax" }
+  }
 }
