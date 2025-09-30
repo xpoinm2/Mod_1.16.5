@@ -23,7 +23,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int BASE_WIDTH = 11;
-    private static final int MAX_TERRAIN_VARIATION = 2;
+    /**
+     * The maximum difference in block height allowed across the pyramid's footprint. Deserts often
+     * contain rolling dunes, so a very small tolerance prevents the structure from ever finding a
+     * suitable area. Relax the threshold so generation can succeed on typical terrain without
+     * looking out of place.
+     */
+    private static final int MAX_TERRAIN_VARIATION = 6;
     private static final int FOUNDATION_DEPTH = 6;
     private static final AtomicInteger GENERATED_COUNT = new AtomicInteger();
 
