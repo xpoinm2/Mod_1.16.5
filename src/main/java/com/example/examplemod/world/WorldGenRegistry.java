@@ -81,7 +81,7 @@ public class WorldGenRegistry {
     private static ConfiguredFeature<?, ?> registerDesertPyramid() {
         Feature<NoFeatureConfig> feature = ModFeatures.DESERT_PYRAMID.get();
         ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE)
-                .decorated(Placement.CHANCE.configured(new ChanceConfig(32)))
+                .decorated(Placement.CHANCE.configured(new ChanceConfig(128)))
                 .decorated(Placement.SQUARE.configured(NoPlacementConfig.INSTANCE))
                 .decorated(Placement.HEIGHTMAP.configured(NoPlacementConfig.INSTANCE));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
