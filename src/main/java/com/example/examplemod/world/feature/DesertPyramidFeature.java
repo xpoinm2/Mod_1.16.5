@@ -92,9 +92,11 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
 
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
-                for (int y = baseY; y <= maxY; y++) {
+                for (int y = baseY + 1; y <= maxY; y++) {
                     mutable.set(x, y, z);
-                    world.setBlock(mutable, Blocks.SANDSTONE.defaultBlockState(), 2);
+                    if (!world.isEmptyBlock(mutable)) {
+                        world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
+                    }
                 }
             }
         }
@@ -157,7 +159,6 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     }
 
     private void buildPyramid(ISeedReader world, BlockPos center, int halfWidth, int height) {
-        BlockState sandstone = Blocks.SANDSTONE.defaultBlockState();
         BlockState smoothSandstone = Blocks.SMOOTH_SANDSTONE.defaultBlockState();
         BlockState chiseledSandstone = Blocks.CHISELED_SANDSTONE.defaultBlockState();
 
@@ -173,28 +174,30 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
                     int z = center.getZ() + dz;
                     mutable.set(x, y, z);
 
-                    BlockState blockToPlace;
+                    BlockState blockToPlace = null;
+                    boolean onBoundary = Math.abs(dx) == layerHalf || Math.abs(dz) == layerHalf;
                     if (level == height) {
                         blockToPlace = chiseledSandstone;
                     } else if (level == 0) {
                         blockToPlace = smoothSandstone;
-                    } else if (Math.abs(dx) == layerHalf || Math.abs(dz) == layerHalf) {
+                    } else if (onBoundary) {
                         blockToPlace = smoothSandstone;
-                    } else {
-                        blockToPlace = sandstone;
                     }
 
-                    world.setBlock(mutable, blockToPlace, 2);
-
-                    if (level == 0) {
-                        reinforceFoundation(world, x, baseY - 1, z);
+                    if (blockToPlace != null) {
+                        world.setBlock(mutable, blockToPlace, 2);
+                        if (level == 0) {
+                            reinforceFoundation(world, x, baseY - 1, z);
+                        }
+                    } else {
+                        world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
                     }
                 }
             }
         }
 
         carveEntrance(world, center, baseY, halfWidth);
-        carveInterior(world, center, baseY, height);
+        carveInterior(world, center, baseY, height, halfWidth);
     }
 
     private void reinforceFoundation(ISeedReader world, int x, int startY, int z) {
@@ -226,14 +229,18 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
         world.setBlock(center.offset(0, 1, -halfWidth), Blocks.CUT_SANDSTONE.defaultBlockState(), 2);
     }
 
-    private void carveInterior(ISeedReader world, BlockPos center, int baseY, int height) {
+    private void carveInterior(ISeedReader world, BlockPos center, int baseY, int height, int halfWidth) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        int chamberHalf = Math.max(2, Math.min(6, height / 6));
-        int chamberHeight = Math.max(3, Math.min(7, height / 5));
-        for (int dx = -chamberHalf; dx <= chamberHalf; dx++) {
-            for (int dz = -chamberHalf; dz <= chamberHalf; dz++) {
-                for (int dy = 1; dy <= chamberHeight; dy++) {
-                    mutable.set(center.getX() + dx, baseY + dy, center.getZ() + dz);
+        for (int level = 1; level < height; level++) {
+            int layerHalf = Math.max(0, halfWidth - level);
+            int innerHalf = layerHalf - 1;
+            if (innerHalf < 0) {
+                continue;
+            }
+
+            for (int dx = -innerHalf; dx <= innerHalf; dx++) {
+                for (int dz = -innerHalf; dz <= innerHalf; dz++) {
+                    mutable.set(center.getX() + dx, baseY + level, center.getZ() + dz);
                     world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
                 }
             }
