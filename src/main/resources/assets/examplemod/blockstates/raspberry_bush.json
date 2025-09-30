@@ -1,19 +1,19 @@
 {
   "multipart": [
     {
-      "when": { "age": "1" },
+      "when": { "age": 1 },
       "apply": { "model": "examplemod:block/bush" }
     },
     {
-      "when": { "age": "0" },
+      "when": { "age": 0 },
       "apply": { "model": "examplemod:block/raspberry_bush" }
     },
     {
-      "when": { "age": "2" },
+      "when": { "age": 2 },
       "apply": { "model": "examplemod:block/raspberry_bush" }
     },
     {
-      "when": { "age": "3" },
+      "when": { "age": 3 },
       "apply": { "model": "examplemod:block/raspberry_bush" }
     }
   ]
