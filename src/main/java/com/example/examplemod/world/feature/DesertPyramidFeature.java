@@ -22,7 +22,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final int BASE_WIDTH = 55;
+    private static final int BASE_WIDTH = 33;
+    private static final int PLATFORM_SIZE = 33;
+    private static final int PLATFORM_HALF = PLATFORM_SIZE / 2;
+    private static final int PLATFORM_HEIGHT = 20;
     /**
      * The maximum difference in block height allowed across the pyramid's footprint. Deserts often
      * contain rolling dunes, so a very small tolerance prevents the structure from ever finding a
@@ -47,7 +50,7 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     @Override
     public boolean place(@Nonnull ISeedReader world, @Nonnull ChunkGenerator generator, @Nonnull Random random,
                          @Nonnull BlockPos origin, @Nonnull NoFeatureConfig config) {
-        BlockPos surface = world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE_WG, origin);
+        BlockPos surface = world.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, origin);
         BlockPos adjustedBase = findStableGround(world, surface);
         if (adjustedBase == null) {
             return false;
@@ -69,11 +72,32 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
             return false;
         }
 
+        preparePlatform(world, baseCenter);
+
         buildPyramid(world, baseCenter, halfWidth, structureHeight);
 
         int count = GENERATED_COUNT.incrementAndGet();
         LOGGER.info("Generated desert pyramid at {} (total: {})", baseCenter, count);
         return true;
+    }
+
+    private void preparePlatform(ISeedReader world, BlockPos center) {
+        BlockPos.Mutable mutable = new BlockPos.Mutable();
+        int baseY = center.getY();
+        int minX = center.getX() - PLATFORM_HALF;
+        int minZ = center.getZ() - PLATFORM_HALF;
+        int maxX = minX + PLATFORM_SIZE - 1;
+        int maxZ = minZ + PLATFORM_SIZE - 1;
+        int maxY = Math.min(baseY + PLATFORM_HEIGHT, world.getMaxBuildHeight() - 1);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int y = baseY; y <= maxY; y++) {
+                    mutable.set(x, y, z);
+                    world.setBlock(mutable, Blocks.SANDSTONE.defaultBlockState(), 2);
+                }
+            }
+        }
     }
 
     private boolean isAreaSuitable(ISeedReader world, BlockPos center, int halfWidth) {
