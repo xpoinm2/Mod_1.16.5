@@ -219,10 +219,11 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         int entranceHeight = 2;
         int entranceDepth = 2;
+        int entranceBaseY = baseY + 2;
         int z = center.getZ() - halfWidth;
-        for (int dy = 1; dy <= entranceHeight; dy++) {
+        for (int dy = 0; dy < entranceHeight; dy++) {
             for (int dz = 0; dz < entranceDepth; dz++) {
-                mutable.set(center.getX(), baseY + dy, z + dz);
+                mutable.set(center.getX(), entranceBaseY + dy, z + dz);
                 world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
             }
         }
