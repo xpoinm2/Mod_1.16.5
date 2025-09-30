@@ -7,6 +7,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
 
@@ -14,12 +16,12 @@ public class FirepitContainer extends Container {
     private final IInventory firepitInv;
 
     public FirepitContainer(int id, PlayerInventory playerInv) {
-        this(id, new Inventory(12), playerInv, new IntArray(1));
+        this(id, new Inventory(14), playerInv, new IntArray(1));
     }
 
     public FirepitContainer(int id, IInventory inv, PlayerInventory playerInv, IIntArray data) {
         super(ModContainers.FIREPIT.get(), id);
-        checkContainerSize(inv, 12);
+        checkContainerSize(inv, 14);
         this.firepitInv = inv;
         inv.startOpen(playerInv.player);
 
@@ -30,6 +32,23 @@ public class FirepitContainer extends Container {
                 this.addSlot(new Slot(inv, col + row * 4, 52 + col * 18, 20 + row * 18));
             }
         }
+
+        // Reserved utility slots on the right
+        // Top slot (index 12) currently does not accept any items
+        this.addSlot(new Slot(inv, 12, 136, 38) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return false;
+            }
+        });
+
+        // Bottom slot (index 13) accepts furnace fuel items only
+        this.addSlot(new Slot(inv, 13, 136, 56) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return AbstractFurnaceTileEntity.isFuel(stack);
+            }
+        });
 
         // Player inventory (3×9)
         for (int row = 0; row < 3; ++row) {

@@ -219,18 +219,16 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         int entranceHeight = 2;
         int entranceDepth = 2;
-        int entranceBaseY = baseY + 2;
         int z = center.getZ() - halfWidth;
-        for (int dy = 0; dy < entranceHeight; dy++) {
+        for (int dy = 1; dy <= entranceHeight; dy++) {
             for (int dz = 0; dz < entranceDepth; dz++) {
-                mutable.set(center.getX(), entranceBaseY + dy, z + dz);
+                mutable.set(center.getX(), baseY + dy, z + dz);
                 world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
             }
-        }
         world.setBlock(center.offset(0, 1, -halfWidth), Blocks.CUT_SANDSTONE.defaultBlockState(), 2);
     }
 
-    private void carveInterior(ISeedReader world, BlockPos center, int baseY, int height, int halfWidth) {
+        private void carveInterior(ISeedReader world, BlockPos center, int baseY, int height, int halfWidth) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         for (int level = 1; level < height; level++) {
             int layerHalf = Math.max(0, halfWidth - level);
