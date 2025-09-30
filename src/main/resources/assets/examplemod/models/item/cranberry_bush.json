@@ -1,3 +1,6 @@
 {
-  "parent": "examplemod:block/cranberry_bush"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "examplemod:block/cranberry_bush"
+  }
 }

@@ -1,3 +1,6 @@
 {
-  "parent": "examplemod:block/angelica"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "examplemod:block/angelica"
+  }
 }
