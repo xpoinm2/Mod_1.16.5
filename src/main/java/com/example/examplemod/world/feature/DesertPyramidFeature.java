@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final int BASE_WIDTH = 11;
+    private static final int BASE_WIDTH = 55;
     /**
      * The maximum difference in block height allowed across the pyramid's footprint. Deserts often
      * contain rolling dunes, so a very small tolerance prevents the structure from ever finding a
@@ -171,7 +171,6 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
 
         carveEntrance(world, center, baseY, halfWidth);
         carveInterior(world, center, baseY, height);
-        placeTreasure(world, center, baseY + 1);
     }
 
     private void reinforceFoundation(ISeedReader world, int x, int startY, int z) {
@@ -191,11 +190,11 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
 
     private void carveEntrance(ISeedReader world, BlockPos center, int baseY, int halfWidth) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        int entranceHeight = 3;
+        int entranceHeight = 2;
         int entranceDepth = 2;
         int z = center.getZ() - halfWidth;
         for (int dy = 1; dy <= entranceHeight; dy++) {
-            for (int dz = 0; dz <= entranceDepth; dz++) {
+            for (int dz = 0; dz < entranceDepth; dz++) {
                 mutable.set(center.getX(), baseY + dy, z + dz);
                 world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
             }
@@ -205,19 +204,15 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
 
     private void carveInterior(ISeedReader world, BlockPos center, int baseY, int height) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        int chamberHalf = Math.max(1, height - 3);
+        int chamberHalf = Math.max(2, Math.min(6, height / 6));
+        int chamberHeight = Math.max(3, Math.min(7, height / 5));
         for (int dx = -chamberHalf; dx <= chamberHalf; dx++) {
             for (int dz = -chamberHalf; dz <= chamberHalf; dz++) {
-                for (int dy = 1; dy <= chamberHalf; dy++) {
+                for (int dy = 1; dy <= chamberHeight; dy++) {
                     mutable.set(center.getX() + dx, baseY + dy, center.getZ() + dz);
                     world.setBlock(mutable, Blocks.AIR.defaultBlockState(), 2);
                 }
             }
         }
-    }
-
-    private void placeTreasure(ISeedReader world, BlockPos center, int chestY) {
-        BlockPos chestPos = new BlockPos(center.getX(), chestY, center.getZ());
-        world.setBlock(chestPos, Blocks.CHEST.defaultBlockState(), 2);
     }
 }
