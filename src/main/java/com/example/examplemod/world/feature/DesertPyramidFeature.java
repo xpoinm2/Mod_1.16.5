@@ -48,7 +48,12 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
     public boolean place(@Nonnull ISeedReader world, @Nonnull ChunkGenerator generator, @Nonnull Random random,
                          @Nonnull BlockPos origin, @Nonnull NoFeatureConfig config) {
         BlockPos surface = world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE_WG, origin);
-        BlockPos baseCenter = new BlockPos(surface.getX(), surface.getY(), surface.getZ());
+        BlockPos adjustedBase = findStableGround(world, surface);
+        if (adjustedBase == null) {
+            return false;
+        }
+
+        BlockPos baseCenter = new BlockPos(adjustedBase.getX(), adjustedBase.getY(), adjustedBase.getZ());
 
         if (baseCenter.getY() <= generator.getSeaLevel()) {
             return false;
@@ -77,21 +82,21 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
         for (int dx = -halfWidth; dx <= halfWidth; dx++) {
             for (int dz = -halfWidth; dz <= halfWidth; dz++) {
                 BlockPos columnTop = world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE_WG, center.offset(dx, 0, dz));
-                int columnY = columnTop.getY();
+                BlockPos stableGround = findStableGround(world, columnTop);
+                if (stableGround == null) {
+                    return false;
+                }
+
+                int columnY = stableGround.getY();
                 if (Math.abs(columnY - baseY) > MAX_TERRAIN_VARIATION) {
                     return false;
                 }
 
-                BlockState ground = world.getBlockState(columnTop);
-                if (!isDesertGround(ground)) {
+                if (!world.getFluidState(stableGround).isEmpty()) {
                     return false;
                 }
 
-                if (!world.getFluidState(columnTop).isEmpty()) {
-                    return false;
-                }
-
-                mutable.set(columnTop.getX(), columnY + 1, columnTop.getZ());
+                mutable.set(stableGround.getX(), columnY + 1, stableGround.getZ());
                 if (!world.isEmptyBlock(mutable)) {
                     BlockState above = world.getBlockState(mutable);
                     if (!above.getMaterial().isReplaceable()) {
@@ -101,6 +106,25 @@ public class DesertPyramidFeature extends Feature<NoFeatureConfig> {
             }
         }
         return true;
+    }
+
+    private BlockPos findStableGround(ISeedReader world, BlockPos start) {
+        BlockPos current = start;
+        BlockState state = world.getBlockState(current);
+        for (int depth = 0; depth < FOUNDATION_DEPTH && current.getY() > 0; depth++) {
+            if (isDesertGround(state)) {
+                return current;
+            }
+
+            if (state.getMaterial().isSolid() && !state.getMaterial().isReplaceable()) {
+                return null;
+            }
+
+            current = current.below();
+            state = world.getBlockState(current);
+        }
+
+        return isDesertGround(state) ? current : null;
     }
 
     private boolean isDesertGround(BlockState state) {
