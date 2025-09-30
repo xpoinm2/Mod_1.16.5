@@ -3,7 +3,6 @@ package com.example.examplemod;
 import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.FirepitScreen;
-import com.example.examplemod.entity.BeaverEntity;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
 import com.example.examplemod.world.ModFeatures;
@@ -31,12 +30,8 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -130,15 +125,6 @@ public class ExampleMod {
             effects.put(key, info);
         } catch (RuntimeException exception) {
             LOGGER.error("Failed to register dimension render info for {}", key, exception);
-        }
-    }
-
-
-    @EventBusSubscriber(modid = ExampleMod.MODID, bus = Bus.MOD)
-    public static class ModLifecycleEvents {
-        @SubscribeEvent
-        public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
-            event.put(ModEntityTypes.BEAVER.get(), BeaverEntity.createAttributes().build());
         }
     }
 }
