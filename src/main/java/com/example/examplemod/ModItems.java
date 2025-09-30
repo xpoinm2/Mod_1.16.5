@@ -17,6 +17,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import com.example.examplemod.item.HealingItem;
 import com.example.examplemod.item.ElderberryItem;
 import com.example.examplemod.item.AngelicaRootItem;
@@ -248,6 +249,12 @@ public class ModItems {
             () -> new PyriteFlintItem(new Item.Properties()
                     .tab(ModCreativeTabs.EXAMPLE_TAB)
                     .durability(20)));
+
+    // Яйцо призыва бобра
+    public static final RegistryObject<Item> BEAVER_SPAWN_EGG = ITEMS.register("beaver_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.BEAVER,
+                    0x6B4C2E, 0x3B2A1A,
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ITEMS.register("raspberry_bush",
