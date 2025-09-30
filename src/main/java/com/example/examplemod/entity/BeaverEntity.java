@@ -20,7 +20,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -35,15 +34,9 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-import software.bernie.geckolib3.core.IAnimationTickable;
-
-public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimationTickable {
+public class BeaverEntity extends AnimalEntity implements IAnimatable {
 
     private static final Ingredient FAVORITE_FOOD = Ingredient.of(Items.APPLE);
-    private static final String ANIMATION_IDLE = "animation.beaver.idle";
-    private static final String ANIMATION_WALK = "animation.beaver.walk";
-    private static final String ANIMATION_SWIM = "animation.beaver.swim";
-    private String currentAnimation = "";
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public BeaverEntity(EntityType<? extends BeaverEntity> type, World world) {
@@ -82,7 +75,7 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimatio
 
     @Override
     public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "controller", 0, this::predicate));
+        data.addAnimationController(new AnimationController<>(this, "ctrl", 4, this::predicate));
     }
 
     @Override
@@ -90,44 +83,22 @@ public class BeaverEntity extends AnimalEntity implements IAnimatable, IAnimatio
         return factory;
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-    }
-
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         if (this.isInWaterOrBubble()) {
-            return playAnimation(event, ANIMATION_SWIM);
+            event.getController().setAnimation(
+                    new AnimationBuilder().addAnimation("animation.beaver.swim", true));
+            return PlayState.CONTINUE;
         }
 
-        if (event.isMoving() || isMovingHorizontally()) {
-            return playAnimation(event, ANIMATION_WALK);
-        }
-
-        return playAnimation(event, ANIMATION_IDLE);
-    }
-
-    private boolean isMovingHorizontally() {
-        final double threshold = 1.0E-4;
-        final Vector3d delta = this.getDeltaMovement();
-        final double horizontalSpeedSquared = delta.x * delta.x + delta.z * delta.z;
-        return horizontalSpeedSquared > threshold;
-    }
-
-    private <E extends IAnimatable> PlayState playAnimation(AnimationEvent<E> event, String animationName) {
-        AnimationController<E> controller = event.getController();
-        if (!animationName.equals(currentAnimation)) {
-            controller.setAnimation(new AnimationBuilder().addAnimation(animationName, true));
-            currentAnimation = animationName;
+        if (event.isMoving()) {
+            event.getController().setAnimation(
+                    new AnimationBuilder().addAnimation("animation.beaver.walk", true));
+        } else {
+            event.getController().setAnimation(
+                    new AnimationBuilder().addAnimation("animation.beaver.idle", true));
         }
         return PlayState.CONTINUE;
     }
-
-    @Override
-    public int tickTimer() {
-        return tickCount;
-    }
-
 
     @Override
     public net.minecraft.network.IPacket<?> getAddEntityPacket() {

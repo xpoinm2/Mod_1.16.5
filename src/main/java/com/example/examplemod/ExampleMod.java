@@ -1,7 +1,6 @@
 package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
-import com.example.examplemod.client.render.BeaverRenderer;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.entity.BeaverEntity;
@@ -35,7 +34,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -104,21 +102,18 @@ public class ExampleMod {
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.BEAVER.get(), BeaverRenderer::new);
-        event.enqueueWork(() -> {
-            net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
-            registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
-                    new HeavenDimensionRenderInfo());
-            RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.ELDERBERRY_BUSH.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.CRANBERRY_BUSH.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.ANGELICA.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.HORSERADISH_PLANT.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.GINGER_PLANT.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.FLAX_PLANT.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
-            RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
-        });
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
+        registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
+                new HeavenDimensionRenderInfo());
+        RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.ELDERBERRY_BUSH.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.CRANBERRY_BUSH.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.ANGELICA.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.HORSERADISH_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.GINGER_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.FLAX_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
     }
 
     private static void registerDimensionRenderInfo(ResourceLocation key, DimensionRenderInfo info) {
