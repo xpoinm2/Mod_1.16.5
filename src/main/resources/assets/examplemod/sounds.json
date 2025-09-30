@@ -1,0 +1,9 @@
+{
+  "block.danilka.tap": {
+    "sounds": [
+      {
+        "name": "examplemod:block/danilka_tap"
+      }
+    ]
+  }
+}

@@ -197,6 +197,11 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.BONE_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Данилка как предмет
+    public static final RegistryObject<Item> DANILKA_BLOCK = ITEMS.register("danilka_block",
+            () -> new BlockItem(ModBlocks.DANILKA_BLOCK.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Железная руда с примесями как предмет
     public static final RegistryObject<Item> IMPURE_IRON_ORE = ITEMS.register("impure_iron_ore",
             () -> new BlockItem(ModBlocks.IMPURE_IRON_ORE.get(),

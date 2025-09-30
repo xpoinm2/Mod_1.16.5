@@ -62,6 +62,7 @@ public class ExampleMod {
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
+        ModSounds.register(modBus);
         ModContainers.register(modBus);
         ModEntities.ENTITIES.register(modBus);
         ModBiomes.register(modBus);
