@@ -13,6 +13,7 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.placement.ChanceConfig;
+import net.minecraft.world.gen.placement.NoPlacementConfig;
 import net.minecraft.world.gen.placement.Placement;
 
 /**
@@ -81,7 +82,8 @@ public class WorldGenRegistry {
         Feature<NoFeatureConfig> feature = ModFeatures.DESERT_PYRAMID.get();
         ConfiguredFeature<?, ?> configured = feature.configured(NoFeatureConfig.INSTANCE)
                 .decorated(Placement.CHANCE.configured(new ChanceConfig(32)))
-                .decorated(Placement.HEIGHTMAP_SQUARE);
+                .decorated(Placement.SQUARE.configured(NoPlacementConfig.INSTANCE))
+                .decorated(Placement.HEIGHTMAP.configured(NoPlacementConfig.INSTANCE));
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "desert_pyramid"), configured);
         return configured;
