@@ -235,6 +235,10 @@ public class ModItems {
     public static final RegistryObject<Item> PURE_IRON_ORE = ITEMS.register("pure_iron_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Обожжённая руда: результат прогрева чистой руды в кострище
+    public static final RegistryObject<Item> CALCINED_IRON_ORE = ITEMS.register("calcined_iron_ore",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Кусочек пирита
     public static final RegistryObject<Item> PYRITE_PIECE = ITEMS.register("pyrite_piece",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));

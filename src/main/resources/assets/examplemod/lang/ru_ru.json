@@ -51,6 +51,7 @@
   "item.examplemod.impure_iron_ore": "Железная руда с примесями",
   "item.examplemod.iron_cluster": "Железный кластер",
   "item.examplemod.pure_iron_ore": "Чистая железная руда",
+  "item.examplemod.calcined_iron_ore": "Обожжённая руда",
   "block.examplemod.pyrite": "Пирит",
   "item.examplemod.pyrite": "Пирит",
   "item.examplemod.pyrite_piece": "Кусочек пирита",

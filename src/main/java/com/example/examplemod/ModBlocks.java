@@ -23,11 +23,11 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.Containers;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -416,15 +416,41 @@ public class ModBlocks {
         protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
             builder.add(X, Z);
         }
+
+        @Override
+        public boolean hasTileEntity(BlockState state) {
+            return true;
+        }
+
+        @Nullable
+        @Override
+        public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+            return ModTileEntities.FIREPIT.get().create();
+        }
+
         @Override
         public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
             if (!world.isClientSide && hand == Hand.MAIN_HAND) {
-                INamedContainerProvider provider = new SimpleNamedContainerProvider(
-                        (id, inv, ply) -> new com.example.examplemod.container.FirepitContainer(id, inv),
-                        new StringTextComponent("Кострище"));
-                NetworkHooks.openGui((ServerPlayerEntity) player, provider, pos);
+                TileEntity tile = world.getBlockEntity(pos);
+                if (tile instanceof FirepitTileEntity) {
+                    NetworkHooks.openGui((ServerPlayerEntity) player, (FirepitTileEntity) tile, pos);
+                }
             }
             return ActionResultType.sidedSuccess(world.isClientSide);
+        }
+
+        @Override
+        public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+            if (!state.is(newState.getBlock())) {
+                TileEntity tile = world.getBlockEntity(pos);
+                if (tile instanceof FirepitTileEntity) {
+                    Containers.dropContents(world, pos, (FirepitTileEntity) tile);
+                    world.updateNeighbourForOutputSignal(pos, this);
+                }
+                super.onRemove(state, world, pos, newState, isMoving);
+            } else {
+                super.onRemove(state, world, pos, newState, isMoving);
+            }
         }
     }
 }

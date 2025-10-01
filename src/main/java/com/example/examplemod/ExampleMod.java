@@ -12,6 +12,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.ModContainers;
 import com.example.examplemod.ModEntities;
+import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
@@ -64,6 +65,7 @@ public class ExampleMod {
         ModCreativeTabs.register(modBus);
         ModSounds.register(modBus);
         ModContainers.register(modBus);
+        ModTileEntities.register(modBus);
         ModEntities.ENTITIES.register(modBus);
         ModBiomes.register(modBus);
         ModFeatures.register(modBus);

@@ -19,6 +19,8 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
 
     private static final ResourceLocation TEXTURE =
             new ResourceLocation("examplemod", "textures/gui/firepit.png");
+    private static final ResourceLocation FURNACE_TEXTURE =
+            new ResourceLocation("minecraft", "textures/gui/container/furnace.png");
 
     public FirepitScreen(FirepitContainer container, PlayerInventory inv, ITextComponent title) {
         super(container, inv, title);
@@ -33,6 +35,23 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(TEXTURE);
         blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+
+        int flameHeight = this.menu.getHeatScaled(14);
+        if (flameHeight > 0) {
+            this.minecraft.getTextureManager().bind(FURNACE_TEXTURE);
+            int flameX = this.leftPos + 118;
+            int flameY = this.topPos + 44;
+            // Flame sprite height is 14 pixels in the vanilla furnace texture
+            this.blit(matrixStack, flameX, flameY + 14 - flameHeight, 176, 14 - flameHeight, 14, flameHeight);
+        }
+
+        int progressWidth = this.menu.getProcessingScaled(24);
+        if (progressWidth > 0) {
+            this.minecraft.getTextureManager().bind(FURNACE_TEXTURE);
+            int progressX = this.leftPos + 94;
+            int progressY = this.topPos + 32;
+            this.blit(matrixStack, progressX, progressY, 176, 14, progressWidth + 1, 16);
+        }
     }
 
     @Override
