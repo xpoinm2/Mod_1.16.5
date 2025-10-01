@@ -7,7 +7,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -18,7 +20,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraft.item.crafting.RecipeType;
 
 import javax.annotation.Nullable;
 
@@ -117,7 +118,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
         ItemStack fuelStack = items.get(13);
         if (burnTime <= 0 && canConsumeFuel(fuelStack)) {
-            int fuelBurnTime = ForgeHooks.getBurnTime(fuelStack, RecipeType.SMELTING);
+            int fuelBurnTime = ForgeHooks.getBurnTime(fuelStack, IRecipeType.SMELTING);
             if (fuelBurnTime > 0) {
                 burnTime = currentItemBurnTime = fuelBurnTime;
                 double heatIncrement = (double) fuelBurnTime / COAL_BURN_TIME;
@@ -197,7 +198,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         if (isHeatAtMaximum() && holdTicks > 0) {
             return false;
         }
-        return ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
+        return ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING) > 0;
     }
 
     public boolean canAcceptOre(ItemStack stack) {
@@ -238,7 +239,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     }
 
     @Override
-    protected int getContainerSize() {
+    public int getContainerSize() {
         return items.size();
     }
 
@@ -359,7 +360,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
     @Nullable
     @Override
-    public FirepitContainer createMenu(int id, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+    public Container createMenu(int id, PlayerInventory playerInventory) {
         return new FirepitContainer(id, playerInventory, this);
     }
 

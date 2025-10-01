@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockRayTraceResult;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.Containers;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -444,7 +444,7 @@ public class ModBlocks {
             if (!state.is(newState.getBlock())) {
                 TileEntity tile = world.getBlockEntity(pos);
                 if (tile instanceof FirepitTileEntity) {
-                    Containers.dropContents(world, pos, (FirepitTileEntity) tile);
+                    InventoryHelper.dropContents(world, pos, (FirepitTileEntity) tile);
                     world.updateNeighbourForOutputSignal(pos, this);
                 }
                 super.onRemove(state, world, pos, newState, isMoving);
