@@ -226,18 +226,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     public IIntArray getDataAccess() {
         return dataAccess;
     }
-
-    @Override
-    protected NonNullList<ItemStack> getItems() {
-        return items;
-    }
-
-    @Override
-    protected void setItems(NonNullList<ItemStack> stacks) {
-        for (int i = 0; i < items.size(); ++i) {
-            items.set(i, i < stacks.size() ? stacks.get(i) : ItemStack.EMPTY);
-        }
-    }
+    // LockableTileEntity (official Mojang mappings) does not expose helper
+    // hooks such as getItems/setItems, so inventory access is implemented via
+    // the IInventory methods below.
 
     @Override
     protected ITextComponent getDefaultName() {
