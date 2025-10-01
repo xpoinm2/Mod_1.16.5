@@ -39,8 +39,8 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         int flameHeight = this.menu.getHeatScaled(14);
         if (flameHeight > 0) {
             this.minecraft.getTextureManager().bind(FURNACE_TEXTURE);
-            int flameX = this.leftPos + 118;
-            int flameY = this.topPos + 44;
+            int flameX = this.leftPos + 138;
+            int flameY = this.topPos + 20;
             // Flame sprite height is 14 pixels in the vanilla furnace texture
             this.blit(matrixStack, flameX, flameY + 14 - flameHeight, 176, 14 - flameHeight, 14, flameHeight);
         }

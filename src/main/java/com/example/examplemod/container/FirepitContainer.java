@@ -82,7 +82,8 @@ public class FirepitContainer extends Container {
 
     public int getHeatScaled(int pixels) {
         int heatValue = this.dataAccess.get(0);
-        double ratio = MathHelper.clamp(heatValue / 1000.0D, 0.0D, 1.0D);
+        double heatLevel = heatValue / 1000.0D;
+        double ratio = MathHelper.clamp(heatLevel / FirepitTileEntity.getMaxHeat(), 0.0D, 1.0D);
         return (int) Math.round(ratio * pixels);
     }
 
@@ -92,7 +93,8 @@ public class FirepitContainer extends Container {
     }
 
     public boolean isAtMaxHeat() {
-        return this.dataAccess.get(0) >= 1000;
+        int heatValue = this.dataAccess.get(0);
+        return heatValue >= Math.round(FirepitTileEntity.getMaxHeat() * 1000.0D);
     }
 
     @Override

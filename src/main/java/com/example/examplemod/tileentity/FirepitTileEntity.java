@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 public class FirepitTileEntity extends LockableTileEntity implements ITickableTileEntity {
     private static final double MAX_HEAT = 10.0D;
     private static final double HEAT_PER_STAGE = MAX_HEAT / 4.0D;
+    private static final double FUEL_UNITS_FOR_MAX_HEAT = 3.0D;
     private static final int COAL_BURN_TIME = 1600;
     private static final int MAX_HOLD_TICKS = 2400;
     private static final int COOLDOWN_STEP_TICKS = 200;
@@ -121,7 +122,8 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             int fuelBurnTime = ForgeHooks.getBurnTime(fuelStack, IRecipeType.SMELTING);
             if (fuelBurnTime > 0) {
                 burnTime = currentItemBurnTime = fuelBurnTime;
-                double heatIncrement = (double) fuelBurnTime / COAL_BURN_TIME;
+                double normalizedBurn = (double) fuelBurnTime / COAL_BURN_TIME;
+                double heatIncrement = normalizedBurn * (MAX_HEAT / FUEL_UNITS_FOR_MAX_HEAT);
                 heatLevel = Math.min(MAX_HEAT, heatLevel + heatIncrement);
                 ItemStack containerItem = fuelStack.getContainerItem();
                 fuelStack.shrink(1);
@@ -366,5 +368,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
     public static int getProcessTicks() {
         return PROCESS_TICKS;
+    }
+
+    public static double getMaxHeat() {
+        return MAX_HEAT;
     }
 }
