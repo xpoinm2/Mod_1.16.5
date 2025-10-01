@@ -221,12 +221,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return processingTicks;
     }
 
-    @Override
+
     protected NonNullList<ItemStack> getItems() {
         return items;
     }
 
-    @Override
+
     protected void setItems(NonNullList<ItemStack> stacks) {
         for (int i = 0; i < items.size(); i++) {
             items.set(i, i < stacks.size() ? stacks.get(i) : ItemStack.EMPTY);
