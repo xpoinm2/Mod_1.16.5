@@ -24,39 +24,26 @@ import net.minecraftforge.common.ForgeHooks;
 import javax.annotation.Nullable;
 
 public class FirepitTileEntity extends LockableTileEntity implements ITickableTileEntity {
-    private static final double MAX_HEAT = 10.0D;
-    private static final double HEAT_PER_STAGE = MAX_HEAT / 4.0D;
-    private static final double FUEL_UNITS_FOR_MAX_HEAT = 3.0D;
-    private static final int COAL_BURN_TIME = 1600;
-    private static final int MAX_HOLD_TICKS = 2400;
-    private static final int COOLDOWN_STEP_TICKS = 200;
-    private static final int PROCESS_TICKS = 1200;
-
+    private static final int COOK_TIME_TOTAL = 200;
     private final NonNullList<ItemStack> items = NonNullList.withSize(14, ItemStack.EMPTY);
 
     private int burnTime;
-    private int currentItemBurnTime;
-    private double heatLevel;
-    private int holdTicks;
-    private int cooldownTicks;
-    private int processingTicks;
+    private int burnTimeTotal;
+    private int cookTime;
+    private int cookTimeTotal = COOK_TIME_TOTAL;
 
     private final IIntArray dataAccess = new IIntArray() {
         @Override
         public int get(int index) {
             switch (index) {
                 case 0:
-                    return (int) Math.round(heatLevel * 1000.0D);
-                case 1:
                     return burnTime;
+                case 1:
+                    return burnTimeTotal;
                 case 2:
-                    return currentItemBurnTime;
+                    return cookTime;
                 case 3:
-                    return processingTicks;
-                case 4:
-                    return holdTicks;
-                case 5:
-                    return cooldownTicks;
+                    return cookTimeTotal;
                 default:
                     return 0;
             }
@@ -66,22 +53,16 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         public void set(int index, int value) {
             switch (index) {
                 case 0:
-                    heatLevel = value / 1000.0D;
-                    break;
-                case 1:
                     burnTime = value;
                     break;
+                case 1:
+                    burnTimeTotal = value;
+                    break;
                 case 2:
-                    currentItemBurnTime = value;
+                    cookTime = value;
                     break;
                 case 3:
-                    processingTicks = value;
-                    break;
-                case 4:
-                    holdTicks = value;
-                    break;
-                case 5:
-                    cooldownTicks = value;
+                    cookTimeTotal = Math.max(1, value);
                     break;
                 default:
                     break;
@@ -90,7 +71,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
         @Override
         public int getCount() {
-            return 6;
+            return 4;
         }
     };
 
@@ -104,133 +85,156 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return;
         }
 
-        boolean wasBurning = burnTime > 0;
-        double prevHeat = heatLevel;
-        int prevHold = holdTicks;
-        int prevCooldown = cooldownTicks;
-        int prevProcessing = processingTicks;
+        boolean wasBurning = isBurning();
         boolean changed = false;
-        boolean notifyBlock = false;
 
         if (burnTime > 0) {
             burnTime--;
-            cooldownTicks = 0;
         }
 
         ItemStack fuelStack = items.get(13);
-        if (burnTime <= 0 && canConsumeFuel(fuelStack)) {
-            int fuelBurnTime = ForgeHooks.getBurnTime(fuelStack, IRecipeType.SMELTING);
-            if (fuelBurnTime > 0) {
-                burnTime = currentItemBurnTime = fuelBurnTime;
-                double normalizedBurn = (double) fuelBurnTime / COAL_BURN_TIME;
-                double heatIncrement = normalizedBurn * (MAX_HEAT / FUEL_UNITS_FOR_MAX_HEAT);
-                heatLevel = Math.min(MAX_HEAT, heatLevel + heatIncrement);
-                ItemStack containerItem = fuelStack.getContainerItem();
-                fuelStack.shrink(1);
-                if (fuelStack.isEmpty()) {
-                    items.set(13, containerItem);
-                }
-                changed = true;
-                notifyBlock = true;
-            }
-        }
+        boolean hasInput = !items.get(12).isEmpty();
+        boolean canSmelt = canSmelt();
 
-        if (heatLevel >= MAX_HEAT) {
-            heatLevel = MAX_HEAT;
-            holdTicks = MAX_HOLD_TICKS;
-            cooldownTicks = 0;
-        } else if (holdTicks > 0) {
-            holdTicks--;
-            heatLevel = MAX_HEAT;
-        } else if (heatLevel > 0.0D) {
-            if (burnTime <= 0) {
-                cooldownTicks++;
-                if (cooldownTicks >= COOLDOWN_STEP_TICKS) {
-                    cooldownTicks = 0;
-                    heatLevel = Math.max(0.0D, heatLevel - HEAT_PER_STAGE);
+        if (isBurning() || (!fuelStack.isEmpty() && hasInput)) {
+            if (!isBurning() && canSmelt) {
+                burnTime = getFuelBurnTime(fuelStack);
+                burnTimeTotal = burnTime;
+                if (burnTime > 0) {
+                    changed = true;
+                    ItemStack containerItem = fuelStack.getContainerItem();
+                    fuelStack.shrink(1);
+                    if (fuelStack.isEmpty()) {
+                        items.set(13, containerItem);
+                    }
+                }
+            }
+
+            if (isBurning() && canSmelt) {
+                cookTime++;
+                if (cookTime >= cookTimeTotal) {
+                    cookTime = 0;
+                    cookTimeTotal = COOK_TIME_TOTAL;
+                    if (smeltItem()) {
+                        changed = true;
+                    }
                 }
             } else {
-                cooldownTicks = 0;
+                cookTime = 0;
             }
-        } else {
-            cooldownTicks = 0;
+        } else if (!isBurning() && cookTime > 0) {
+            cookTime = Math.max(cookTime - 2, 0);
         }
 
-        ItemStack oreStack = items.get(12);
-        if (oreStack.isEmpty() || oreStack.getItem() != ModItems.PURE_IRON_ORE.get()) {
-            if (processingTicks != 0) {
-                processingTicks = 0;
-                changed = true;
-            }
-        } else if (isHeatAtMaximum()) {
-            processingTicks++;
-            if (processingTicks >= PROCESS_TICKS) {
-                ItemStack result = new ItemStack(ModItems.CALCINED_IRON_ORE.get(), oreStack.getCount());
-                items.set(12, result);
-                processingTicks = 0;
-                changed = true;
-                notifyBlock = true;
-            }
-        }
-
-        if (wasBurning != (burnTime > 0)) {
+        if (wasBurning != isBurning()) {
             changed = true;
-            notifyBlock = true;
-        }
-
-        if (!changed) {
-            if (Math.abs(prevHeat - heatLevel) > 1.0E-5D || prevHold != holdTicks
-                    || prevCooldown != cooldownTicks || prevProcessing != processingTicks) {
-                changed = true;
-            }
         }
 
         if (changed) {
             setChanged();
-            if (notifyBlock) {
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private int getFuelBurnTime(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        int burn = ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING);
+        if (burn <= 0) {
+            return 0;
+        }
+        burn /= 4; // Половинное потребление: 1 уголь переплавляет 2 руды
+        return Math.max(burn, 0);
+    }
+
+    private boolean canSmelt() {
+        ItemStack input = items.get(12);
+        if (input.isEmpty() || input.getItem() != ModItems.PURE_IRON_ORE.get()) {
+            return false;
+        }
+
+        ItemStack result = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+        return hasOutputSpace(result);
+    }
+
+    private boolean smeltItem() {
+        if (!canSmelt()) {
+            return false;
+        }
+
+        ItemStack input = items.get(12);
+        ItemStack result = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+
+        if (!storeOutput(result.copy())) {
+            return false;
+        }
+
+        input.shrink(1);
+        if (input.isEmpty()) {
+            items.set(12, ItemStack.EMPTY);
+        }
+
+        return true;
+    }
+
+    public boolean isBurning() {
+        return burnTime > 0;
+    }
+
+    public boolean isSmeltable(ItemStack stack) {
+        return stack.getItem() == ModItems.PURE_IRON_ORE.get();
+    }
+
+    private boolean hasOutputSpace(ItemStack result) {
+        for (int i = 0; i < 12; ++i) {
+            ItemStack stack = items.get(i);
+            if (stack.isEmpty()) {
+                return true;
+            }
+            if (ItemStack.isSame(stack, result) && ItemStack.tagMatches(stack, result)) {
+                if (stack.getCount() + result.getCount() <= stack.getMaxStackSize()) {
+                    return true;
+                }
             }
         }
+        return false;
     }
 
-    private boolean canConsumeFuel(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
+    private boolean storeOutput(ItemStack result) {
+        for (int i = 0; i < 12 && !result.isEmpty(); ++i) {
+            ItemStack stack = items.get(i);
+            if (stack.isEmpty()) {
+                items.set(i, result.copy());
+                result.setCount(0);
+                break;
+            }
+
+            if (ItemStack.isSame(stack, result) && ItemStack.tagMatches(stack, result)) {
+                int transferable = Math.min(result.getCount(), stack.getMaxStackSize() - stack.getCount());
+                if (transferable > 0) {
+                    stack.grow(transferable);
+                    result.shrink(transferable);
+                }
+            }
         }
-        if (isHeatAtMaximum() && holdTicks > 0) {
-            return false;
-        }
-        return ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING) > 0;
+
+        return result.isEmpty();
     }
 
-    public boolean canAcceptOre(ItemStack stack) {
-        return stack.getItem() == ModItems.PURE_IRON_ORE.get() && isHeatAtMaximum();
-    }
-
-    public boolean isHeatAtMaximum() {
-        return heatLevel >= MAX_HEAT - 1.0E-4D;
-    }
 
     public IIntArray getDataAccess() {
         return dataAccess;
     }
 
-    public double getHeatLevel() {
-        return heatLevel;
-    }
-
-    public int getProcessingTicks() {
-        return processingTicks;
-    }
-
-
+    @Override
     protected NonNullList<ItemStack> getItems() {
         return items;
     }
 
-
+    @Override
     protected void setItems(NonNullList<ItemStack> stacks) {
-        for (int i = 0; i < items.size(); i++) {
+        for (int i = 0; i < items.size(); ++i) {
             items.set(i, i < stacks.size() ? stacks.get(i) : ItemStack.EMPTY);
         }
     }
@@ -263,9 +267,6 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     @Override
     public ItemStack removeItem(int index, int count) {
         ItemStack stack = ItemStackHelper.removeItem(items, index, count);
-        if (index == 12 && !stack.isEmpty()) {
-            processingTicks = 0;
-        }
         if (!stack.isEmpty()) {
             setChanged();
         }
@@ -274,11 +275,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
     @Override
     public ItemStack removeItemNoUpdate(int index) {
-        ItemStack stack = ItemStackHelper.takeItem(items, index);
-        if (index == 12 && !stack.isEmpty()) {
-            processingTicks = 0;
-        }
-        return stack;
+        return ItemStackHelper.takeItem(items, index);
     }
 
     @Override
@@ -287,9 +284,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         if (stack.getCount() > getMaxStackSize()) {
             stack.setCount(getMaxStackSize());
         }
-        if (index == 12) {
-            processingTicks = 0;
+
+        if (index == 12 && !stack.isEmpty()) {
+            cookTime = 0;
+            cookTimeTotal = COOK_TIME_TOTAL;
         }
+
         setChanged();
     }
 
@@ -312,7 +312,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         for (int i = 0; i < items.size(); ++i) {
             items.set(i, ItemStack.EMPTY);
         }
-        processingTicks = 0;
+        cookTime = 0;
+        cookTimeTotal = COOK_TIME_TOTAL;
+        burnTime = 0;
+        burnTimeTotal = 0;
         setChanged();
     }
 
@@ -324,11 +327,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         }
         ItemStackHelper.loadAllItems(nbt, items);
         burnTime = nbt.getInt("BurnTime");
-        currentItemBurnTime = nbt.getInt("CurrentItemBurnTime");
-        heatLevel = nbt.getDouble("HeatLevel");
-        holdTicks = nbt.getInt("HoldTicks");
-        cooldownTicks = nbt.getInt("CooldownTicks");
-        processingTicks = nbt.getInt("ProcessingTicks");
+        burnTimeTotal = nbt.getInt("BurnTimeTotal");
+        cookTime = nbt.getInt("CookTime");
+        cookTimeTotal = Math.max(1, nbt.getInt("CookTimeTotal"));
     }
 
     @Override
@@ -336,11 +337,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         super.save(nbt);
         ItemStackHelper.saveAllItems(nbt, items);
         nbt.putInt("BurnTime", burnTime);
-        nbt.putInt("CurrentItemBurnTime", currentItemBurnTime);
-        nbt.putDouble("HeatLevel", heatLevel);
-        nbt.putInt("HoldTicks", holdTicks);
-        nbt.putInt("CooldownTicks", cooldownTicks);
-        nbt.putInt("ProcessingTicks", processingTicks);
+        nbt.putInt("BurnTimeTotal", burnTimeTotal);
+        nbt.putInt("CookTime", cookTime);
+        nbt.putInt("CookTimeTotal", cookTimeTotal);
         return nbt;
     }
 
@@ -364,13 +363,5 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     @Override
     public Container createMenu(int id, PlayerInventory playerInventory) {
         return new FirepitContainer(id, playerInventory, this);
-    }
-
-    public static int getProcessTicks() {
-        return PROCESS_TICKS;
-    }
-
-    public static double getMaxHeat() {
-        return MAX_HEAT;
     }
 }

@@ -419,21 +419,22 @@ public class ModBlocks {
 
         @Override
         public boolean hasTileEntity(BlockState state) {
-            return true;
+            return isMaster(state);
         }
 
         @Nullable
         @Override
         public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-            return ModTileEntities.FIREPIT.get().create();
+            return isMaster(state) ? ModTileEntities.FIREPIT.get().create() : null;
         }
 
         @Override
         public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
             if (!world.isClientSide && hand == Hand.MAIN_HAND) {
-                TileEntity tile = world.getBlockEntity(pos);
+                BlockPos masterPos = getMasterPos(pos, state);
+                TileEntity tile = world.getBlockEntity(masterPos);
                 if (tile instanceof FirepitTileEntity) {
-                    NetworkHooks.openGui((ServerPlayerEntity) player, (FirepitTileEntity) tile, pos);
+                    NetworkHooks.openGui((ServerPlayerEntity) player, (FirepitTileEntity) tile, masterPos);
                 }
             }
             return ActionResultType.sidedSuccess(world.isClientSide);
@@ -442,15 +443,28 @@ public class ModBlocks {
         @Override
         public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
             if (!state.is(newState.getBlock())) {
-                TileEntity tile = world.getBlockEntity(pos);
-                if (tile instanceof FirepitTileEntity) {
-                    InventoryHelper.dropContents(world, pos, (FirepitTileEntity) tile);
-                    world.updateNeighbourForOutputSignal(pos, this);
+                if (isMaster(state)) {
+                    TileEntity tile = world.getBlockEntity(pos);
+                    if (tile instanceof FirepitTileEntity) {
+                        InventoryHelper.dropContents(world, pos, (FirepitTileEntity) tile);
+                        world.updateNeighbourForOutputSignal(pos, this);
+                    }
                 }
                 super.onRemove(state, world, pos, newState, isMoving);
             } else {
                 super.onRemove(state, world, pos, newState, isMoving);
             }
         }
+
+            private static boolean isMaster(BlockState state) {
+                return state.getValue(X) == 1 && state.getValue(Z) == 1;
+            }
+
+            private static BlockPos getMasterPos(BlockPos pos, BlockState state) {
+                int xOffset = state.getValue(X);
+                int zOffset = state.getValue(Z);
+                BlockPos start = pos.offset(-xOffset, 0, -zOffset);
+                return start.offset(1, 0, 1);
+            }
     }
 }

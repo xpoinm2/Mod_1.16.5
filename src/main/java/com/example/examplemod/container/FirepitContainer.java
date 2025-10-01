@@ -40,16 +40,15 @@ public class FirepitContainer extends Container {
             }
         }
 
-        // Reserved utility slots on the right
-        // Top slot (index 12) accepts pure iron ore only when the firepit is at maximum heat
+        // Input slot (index 12) - accepts only pure iron ore
         this.addSlot(new Slot(firepitInv, 12, 136, 38) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return tileEntity != null && tileEntity.canAcceptOre(stack);
+                return tileEntity != null && tileEntity.isSmeltable(stack);
             }
         });
 
-        // Bottom slot (index 13) accepts furnace fuel items only
+        // Fuel slot (index 13)
         this.addSlot(new Slot(firepitInv, 13, 136, 56) {
             @Override
             public boolean mayPlace(ItemStack stack) {
@@ -81,20 +80,23 @@ public class FirepitContainer extends Container {
     }
 
     public int getHeatScaled(int pixels) {
-        int heatValue = this.dataAccess.get(0);
-        double heatLevel = heatValue / 1000.0D;
-        double ratio = MathHelper.clamp(heatLevel / FirepitTileEntity.getMaxHeat(), 0.0D, 1.0D);
-        return (int) Math.round(ratio * pixels);
+        int burnTime = this.dataAccess.get(0);
+        int totalBurn = this.dataAccess.get(1);
+        if (totalBurn == 0) {
+            totalBurn = 200;
+        }
+        burnTime = MathHelper.clamp(burnTime, 0, totalBurn);
+        return MathHelper.ceil((double) burnTime * pixels / totalBurn);
     }
 
     public int getProcessingScaled(int pixels) {
-        int progress = this.dataAccess.get(3);
-        return (int) Math.round(MathHelper.clamp((double) progress / FirepitTileEntity.getProcessTicks(), 0.0D, 1.0D) * pixels);
-    }
-
-    public boolean isAtMaxHeat() {
-        int heatValue = this.dataAccess.get(0);
-        return heatValue >= Math.round(FirepitTileEntity.getMaxHeat() * 1000.0D);
+        int cookTime = this.dataAccess.get(2);
+        int cookTotal = this.dataAccess.get(3);
+        if (cookTotal == 0) {
+            cookTotal = 200;
+        }
+        cookTime = MathHelper.clamp(cookTime, 0, cookTotal);
+        return MathHelper.ceil((double) cookTime * pixels / cookTotal);
     }
 
     @Override
@@ -120,26 +122,24 @@ public class FirepitContainer extends Container {
                 if (!this.moveItemStackTo(stack, 14, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else {
-                if (tileEntity != null && tileEntity.canAcceptOre(stack)) {
-                    if (!this.moveItemStackTo(stack, 12, 13, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (AbstractFurnaceTileEntity.isFuel(stack)) {
-                    if (!this.moveItemStackTo(stack, 13, 14, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index >= 14 && index < 41) {
-                    if (!this.moveItemStackTo(stack, 41, this.slots.size(), false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index >= 41 && index < this.slots.size()) {
-                    if (!this.moveItemStackTo(stack, 14, 41, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (!this.moveItemStackTo(stack, 14, this.slots.size(), false)) {
+            } else if (tileEntity != null && tileEntity.isSmeltable(stack)) {
+                if (!this.moveItemStackTo(stack, 12, 13, false)) {
                     return ItemStack.EMPTY;
                 }
+            } else if (AbstractFurnaceTileEntity.isFuel(stack)) {
+                if (!this.moveItemStackTo(stack, 13, 14, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (index >= 14 && index < 41) {
+                if (!this.moveItemStackTo(stack, 41, this.slots.size(), false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (index >= 41 && index < this.slots.size()) {
+                if (!this.moveItemStackTo(stack, 14, 41, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(stack, 14, this.slots.size(), false)) {
+                return ItemStack.EMPTY;
             }
 
             if (stack.isEmpty()) {
