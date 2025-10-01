@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:campfire_cooking",
+  "ingredient": {
+    "item": "examplemod:pure_iron_ore"
+  },
+  "result": "examplemod:calcined_iron_ore",
+  "experience": 0.35,
+  "cookingtime": 600
+}
