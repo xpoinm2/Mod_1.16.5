@@ -103,6 +103,16 @@ public class FirepitContainer extends Container {
         return MathHelper.ceil((double) cookTime * pixels / cookTotal);
     }
 
+    public float getProcessingProgress() {
+        int cookTime = this.dataAccess.get(2);
+        int cookTotal = this.dataAccess.get(3);
+        if (cookTotal <= 0) {
+            return 0.0F;
+        }
+        cookTime = MathHelper.clamp(cookTime, 0, cookTotal);
+        return (float) cookTime / (float) cookTotal;
+    }
+
     @Override
     public boolean stillValid(PlayerEntity player) {
         return firepitInv.stillValid(player);

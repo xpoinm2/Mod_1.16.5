@@ -7,8 +7,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+
+import java.util.Locale;
 
 /**
  * GUI screen for the Firepit container.
@@ -21,8 +23,20 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
 
     private static final ResourceLocation TEXTURE =
             new ResourceLocation("examplemod", "textures/gui/firepit.png");
-    private static final ResourceLocation FURNACE_TEXTURE =
-            new ResourceLocation("minecraft", "textures/gui/container/furnace.png");
+    private static final int PROGRESS_FRAME_COUNT = 16;
+    private static final int PROGRESS_FRAME_SIZE = 16;
+    /**
+     * Individual 16×16 frame textures stored at
+     * assets/examplemod/textures/gui/firepit_progress/frame_XX.png.
+     */
+    private static final ResourceLocation[] PROGRESS_FRAMES = new ResourceLocation[PROGRESS_FRAME_COUNT];
+
+    static {
+        for (int i = 0; i < PROGRESS_FRAME_COUNT; i++) {
+            PROGRESS_FRAMES[i] = new ResourceLocation("examplemod",
+                    String.format(Locale.ROOT, "textures/gui/firepit_progress/frame_%02d.png", i));
+        }
+    }
 
     public FirepitScreen(FirepitContainer container, PlayerInventory inv, ITextComponent title) {
         super(container, inv, title);
@@ -56,12 +70,16 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         int thresholdY = barBottom - thresholdHeight;
         fill(matrixStack, barX - 1, thresholdY, barX + barWidth + 1, thresholdY + 1, 0xFF757575);
 
-        int progressWidth = this.menu.getProcessingScaled(24);
-        if (progressWidth > 0) {
-            this.minecraft.getTextureManager().bind(FURNACE_TEXTURE);
-            int progressX = this.leftPos + this.imageWidth - 24 - 8;
+        float progress = this.menu.getProcessingProgress();
+        if (progress > 0.0F) {
+            int frameIndex = MathHelper.clamp((int) (progress * PROGRESS_FRAME_COUNT), 0,
+                    PROGRESS_FRAME_COUNT - 1);
+            ResourceLocation frameTexture = PROGRESS_FRAMES[frameIndex];
+            this.minecraft.getTextureManager().bind(frameTexture);
+            int progressX = this.leftPos + this.imageWidth - PROGRESS_FRAME_SIZE - 8;
             int progressY = this.topPos + 6;
-            this.blit(matrixStack, progressX, progressY, 176, 14, progressWidth + 1, 16);
+            this.blit(matrixStack, progressX, progressY, 0, 0, PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE,
+                    PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE);
         }
     }
 
