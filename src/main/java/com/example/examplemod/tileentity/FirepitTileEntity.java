@@ -30,6 +30,8 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     public static final int HEAT_PER_FUEL = 4;
     public static final int HEATING_DURATION_TICKS = 40;
     public static final int MIN_HEAT_FOR_SMELTING = 80;
+    public static final int COOLING_INTERVAL_TICKS = 200;
+    public static final int COOLING_AMOUNT = 4;
     private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SLOT_COUNT + 1, ItemStack.EMPTY);
 
     private final int[] slotCookTimes = new int[GRID_SLOT_COUNT];
@@ -38,6 +40,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     private int heatingTicks;
     private int cookProgress;
     private int cookProgressTotal = COOK_TIME_TOTAL;
+    private int coolingTicks;
 
     private final IIntArray dataAccess = new IIntArray() {
         @Override
@@ -104,6 +107,21 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                 }
             }
         }
+
+        if (heat > 0) {
+            coolingTicks++;
+            if (coolingTicks >= COOLING_INTERVAL_TICKS) {
+                coolingTicks = 0;
+                int newHeat = Math.max(0, heat - COOLING_AMOUNT);
+                if (newHeat != heat) {
+                    heat = newHeat;
+                    changed = true;
+                }
+            }
+        } else if (coolingTicks != 0) {
+            coolingTicks = 0;
+        }
+
 
         ItemStack fuelStack = items.get(FUEL_SLOT);
         boolean hasInput = hasSmeltableInput();
@@ -275,6 +293,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
         onInventoryChanged();
 
+        coolingTicks = 0;
         setChanged();
     }
 
@@ -300,6 +319,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         resetCookingProgress();
         heat = 0;
         heatingTicks = 0;
+        coolingTicks = 0;
         setChanged();
     }
 
@@ -313,6 +333,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         enforceInputStackLimits();
         heat = Math.max(0, Math.min(MAX_HEAT, nbt.getInt("Heat")));
         heatingTicks = Math.max(0, Math.min(HEATING_DURATION_TICKS, nbt.getInt("HeatingTicks")));
+        coolingTicks = Math.max(0, Math.min(COOLING_INTERVAL_TICKS, nbt.getInt("CoolingTicks")));
         int[] savedCookTimes = nbt.getIntArray("SlotCookTimes");
         if (savedCookTimes.length == GRID_SLOT_COUNT) {
             System.arraycopy(savedCookTimes, 0, slotCookTimes, 0, GRID_SLOT_COUNT);
@@ -334,6 +355,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         ItemStackHelper.saveAllItems(nbt, items);
         nbt.putInt("Heat", heat);
         nbt.putInt("HeatingTicks", heatingTicks);
+        nbt.putInt("CoolingTicks", coolingTicks);
         nbt.putIntArray("SlotCookTimes", slotCookTimes);
         nbt.putInt("CookProgress", cookProgress);
         nbt.putInt("CookProgressTotal", cookProgressTotal);

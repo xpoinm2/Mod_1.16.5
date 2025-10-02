@@ -38,11 +38,13 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         this.minecraft.getTextureManager().bind(TEXTURE);
         blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
-        int heatBarHeight = this.menu.getHeatScaled(100);
         int barWidth = 6;
+        int barTop = this.topPos + 8;
+        int inventoryTop = this.topPos + this.inventoryLabelY + 10;
+        int barBottom = inventoryTop - 2;
+        int barHeight = barBottom - barTop;
+        int heatBarHeight = this.menu.getHeatScaled(barHeight);
         int barX = this.leftPos + this.imageWidth - barWidth - 4;
-        int barBottom = this.topPos + this.imageHeight - 10;
-        int barTop = barBottom - 100;
         fill(matrixStack, barX - 1, barTop - 1, barX + barWidth + 1, barBottom + 1, 0xFF1A1A1A);
         fill(matrixStack, barX, barTop, barX + barWidth, barBottom, 0xFF3C3C3C);
         if (heatBarHeight > 0) {
@@ -50,7 +52,7 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
             fill(matrixStack, barX, filledTop, barX + barWidth, barBottom, 0xFFCC2A2A);
         }
         int thresholdHeight = MathHelper.ceil(
-                (double) FirepitTileEntity.MIN_HEAT_FOR_SMELTING * 100 / FirepitTileEntity.MAX_HEAT);
+                (double) FirepitTileEntity.MIN_HEAT_FOR_SMELTING * barHeight / FirepitTileEntity.MAX_HEAT);
         int thresholdY = barBottom - thresholdHeight;
         fill(matrixStack, barX - 1, thresholdY, barX + barWidth + 1, thresholdY + 1, 0xFF757575);
 
