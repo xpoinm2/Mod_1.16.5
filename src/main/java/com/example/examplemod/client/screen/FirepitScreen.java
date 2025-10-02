@@ -34,7 +34,7 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
     static {
         for (int i = 0; i < PROGRESS_FRAME_COUNT; i++) {
             PROGRESS_FRAMES[i] = new ResourceLocation("examplemod",
-                    String.format(Locale.ROOT, "textures/gui/firepit_progress/frame_%02d.png", i));
+                    String.format(Locale.ROOT, "textures/gui/firepit_progress/frame_%02d.png", i + 1));
         }
     }
 
