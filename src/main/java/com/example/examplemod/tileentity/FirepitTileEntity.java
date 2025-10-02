@@ -100,7 +100,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         boolean hasInput = canSmelt();
 
         if (isBurning() || (!fuelStack.isEmpty() && hasInput)) {
-            if (!isBurning() && canSmelt) {
+            if (!isBurning() && hasInput) {
                 burnTime = getFuelBurnTime(fuelStack);
                 burnTimeTotal = burnTime;
                 if (burnTime > 0) {
@@ -111,15 +111,19 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                         items.set(FUEL_SLOT, containerItem);
                     }
                 }
+                hasInput = canSmelt();
             }
 
-            if (isBurning() && canSmelt) {
+            if (isBurning() && hasInput) {
                 cookTime++;
                 clampCompletedSmelts();
                 if (handleCookingProgress()) {
                     changed = true;
                 }
-            } else if (!canSmelt) {
+                hasInput = canSmelt();
+            }
+
+            if (!hasInput) {
                 if (completedSmelts > 0 && cookTime >= cookTimeTotal) {
                     resetCookingProgress();
                 }
