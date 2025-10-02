@@ -152,6 +152,16 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return countOreInputs() > 0;
     }
 
+    private int countOreInputs() {
+        int count = 0;
+        for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+            if (isSmeltable(items.get(i))) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     private boolean hasSmeltableInput() {
         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
             if (isSmeltable(items.get(i))) {
