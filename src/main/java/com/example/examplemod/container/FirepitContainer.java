@@ -89,13 +89,8 @@ public class FirepitContainer extends Container {
     }
 
     public int getHeatScaled(int pixels) {
-        int burnTime = this.dataAccess.get(0);
-        int totalBurn = this.dataAccess.get(1);
-        if (totalBurn == 0) {
-            totalBurn = 200;
-        }
-        burnTime = MathHelper.clamp(burnTime, 0, totalBurn);
-        return MathHelper.ceil((double) burnTime * pixels / totalBurn);
+        int heat = MathHelper.clamp(this.dataAccess.get(0), 0, FirepitTileEntity.MAX_HEAT);
+        return MathHelper.ceil((double) heat * pixels / FirepitTileEntity.MAX_HEAT);
     }
 
     public int getProcessingScaled(int pixels) {

@@ -1,12 +1,14 @@
 package com.example.examplemod.client.screen;
 
 import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.tileentity.FirepitTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.math.MathHelper;
 
 /**
  * GUI screen for the Firepit container.
@@ -36,14 +38,21 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         this.minecraft.getTextureManager().bind(TEXTURE);
         blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
-        int flameHeight = this.menu.getHeatScaled(14);
-        if (flameHeight > 0) {
-            this.minecraft.getTextureManager().bind(FURNACE_TEXTURE);
-            int flameX = this.leftPos + 138;
-            int flameY = this.topPos + 20;
-            // Flame sprite height is 14 pixels in the vanilla furnace texture
-            this.blit(matrixStack, flameX, flameY + 14 - flameHeight, 176, 14 - flameHeight, 14, flameHeight);
+        int heatBarHeight = this.menu.getHeatScaled(100);
+        int barWidth = 6;
+        int barX = this.leftPos + this.imageWidth - barWidth - 4;
+        int barBottom = this.topPos + this.imageHeight - 10;
+        int barTop = barBottom - 100;
+        fill(matrixStack, barX - 1, barTop - 1, barX + barWidth + 1, barBottom + 1, 0xFF1A1A1A);
+        fill(matrixStack, barX, barTop, barX + barWidth, barBottom, 0xFF3C3C3C);
+        if (heatBarHeight > 0) {
+            int filledTop = barBottom - heatBarHeight;
+            fill(matrixStack, barX, filledTop, barX + barWidth, barBottom, 0xFFCC2A2A);
         }
+        int thresholdHeight = MathHelper.ceil(
+                (double) FirepitTileEntity.MIN_HEAT_FOR_SMELTING * 100 / FirepitTileEntity.MAX_HEAT);
+        int thresholdY = barBottom - thresholdHeight;
+        fill(matrixStack, barX - 1, thresholdY, barX + barWidth + 1, thresholdY + 1, 0xFF757575);
 
         int progressWidth = this.menu.getProcessingScaled(24);
         if (progressWidth > 0) {
