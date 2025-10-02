@@ -33,6 +33,8 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     private int burnTimeTotal;
     private int cookTime;
     private int cookTimeTotal = COOK_TIME_TOTAL;
+    /** Number of smelts completed during the current aggregate cooking cycle. */
+    private int completedSmelts;
 
     private final IIntArray dataAccess = new IIntArray() {
         @Override
@@ -95,8 +97,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         }
 
         ItemStack fuelStack = items.get(FUEL_SLOT);
-        boolean hasInput = findInputSlot() != -1;
-        boolean canSmelt = canSmelt();
+        boolean hasInput = canSmelt();
 
         if (isBurning() || (!fuelStack.isEmpty() && hasInput)) {
             if (!isBurning() && canSmelt) {
@@ -114,19 +115,24 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
             if (isBurning() && canSmelt) {
                 cookTime++;
-                if (cookTime >= cookTimeTotal) {
-                    cookTime = 0;
-                    cookTimeTotal = COOK_TIME_TOTAL;
-                    if (smeltItem()) {
-                        changed = true;
-                    }
+                clampCompletedSmelts();
+                if (handleCookingProgress()) {
+                    changed = true;
                 }
-            } else {
-                cookTime = 0;
+            } else if (!canSmelt) {
+                if (completedSmelts > 0 && cookTime >= cookTimeTotal) {
+                    resetCookingProgress();
+                }
             }
         } else if (!isBurning() && cookTime > 0) {
             cookTime = Math.max(cookTime - 2, 0);
+            clampCompletedSmelts();
+            if (cookTime == 0) {
+                completedSmelts = 0;
+            }
         }
+
+        updateCookTimeTotal(countOreInputs());
 
         if (wasBurning != isBurning()) {
             changed = true;
@@ -151,7 +157,34 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     }
 
     private boolean canSmelt() {
-        return findInputSlot() != -1;
+        return countOreInputs() > 0;
+    }
+
+    private boolean handleCookingProgress() {
+        boolean changed = false;
+        int oreCount = countOreInputs();
+        updateCookTimeTotal(oreCount);
+
+        int expectedSmelts = cookTime / COOK_TIME_TOTAL;
+        while (expectedSmelts > completedSmelts) {
+            if (smeltItem()) {
+                completedSmelts++;
+                changed = true;
+            } else {
+                cookTime = completedSmelts * COOK_TIME_TOTAL;
+                break;
+            }
+            oreCount = countOreInputs();
+            updateCookTimeTotal(oreCount);
+            expectedSmelts = cookTime / COOK_TIME_TOTAL;
+        }
+
+        if (countOreInputs() == 0 && completedSmelts > 0 && cookTime >= cookTimeTotal) {
+            resetCookingProgress();
+            changed = true;
+        }
+
+        return changed;
     }
 
     private boolean smeltItem() {
@@ -176,6 +209,66 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             items.set(slot, new ItemStack(ModItems.CALCINED_IRON_ORE.get()));
         }
         return true;
+    }
+
+    private void clampCompletedSmelts() {
+        int maxSmelts = cookTime / COOK_TIME_TOTAL;
+        if (completedSmelts > maxSmelts) {
+            completedSmelts = maxSmelts;
+        }
+        if (completedSmelts < 0) {
+            completedSmelts = 0;
+        }
+    }
+
+    private void resetCookingProgress() {
+        cookTime = 0;
+        cookTimeTotal = COOK_TIME_TOTAL;
+        completedSmelts = 0;
+    }
+
+    private void updateCookTimeTotal(int oreCount) {
+        clampCompletedSmelts();
+        int totalWork = oreCount + completedSmelts;
+        if (totalWork <= 0) {
+            cookTimeTotal = COOK_TIME_TOTAL;
+        } else {
+            cookTimeTotal = totalWork * COOK_TIME_TOTAL;
+        }
+        if (cookTime > cookTimeTotal) {
+            cookTime = cookTimeTotal;
+            clampCompletedSmelts();
+        }
+    }
+
+    private int countOreInputs() {
+        int count = 0;
+        for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+            ItemStack stack = items.get(i);
+            if (!stack.isEmpty() && stack.getItem() == ModItems.PURE_IRON_ORE.get()) {
+                count += stack.getCount();
+            }
+        }
+        return count;
+    }
+
+    private void enforceInputStackLimits() {
+        for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+            ItemStack stack = items.get(i);
+            if (!stack.isEmpty() && stack.getCount() > 1) {
+                stack.setCount(1);
+            }
+        }
+    }
+
+    private void onInventoryChanged() {
+        enforceInputStackLimits();
+        clampCompletedSmelts();
+        int oreCount = countOreInputs();
+        updateCookTimeTotal(oreCount);
+        if (oreCount == 0 && completedSmelts == 0 && cookTime == 0) {
+            cookTimeTotal = COOK_TIME_TOTAL;
+        }
     }
 
     private boolean storeOutput(ItemStack result) {
@@ -257,6 +350,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     public ItemStack removeItem(int index, int count) {
         ItemStack stack = ItemStackHelper.removeItem(items, index, count);
         if (!stack.isEmpty()) {
+            onInventoryChanged();
             setChanged();
         }
         return stack;
@@ -264,7 +358,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
     @Override
     public ItemStack removeItemNoUpdate(int index) {
-        return ItemStackHelper.takeItem(items, index);
+        ItemStack stack = ItemStackHelper.takeItem(items, index);
+        if (!stack.isEmpty()) {
+            onInventoryChanged();
+            setChanged();
+        }
+        return stack;
     }
 
     @Override
@@ -275,10 +374,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             stack.setCount(max);
         }
 
-        if (index < GRID_SLOT_COUNT && stack.getItem() == ModItems.PURE_IRON_ORE.get()) {
-            cookTime = 0;
-            cookTimeTotal = COOK_TIME_TOTAL;
-        }
+        onInventoryChanged();
 
         setChanged();
     }
@@ -302,8 +398,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         for (int i = 0; i < items.size(); ++i) {
             items.set(i, ItemStack.EMPTY);
         }
-        cookTime = 0;
-        cookTimeTotal = COOK_TIME_TOTAL;
+        resetCookingProgress();
         burnTime = 0;
         burnTimeTotal = 0;
         setChanged();
@@ -316,10 +411,14 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             items.set(i, ItemStack.EMPTY);
         }
         ItemStackHelper.loadAllItems(nbt, items);
+        enforceInputStackLimits();
         burnTime = nbt.getInt("BurnTime");
         burnTimeTotal = nbt.getInt("BurnTimeTotal");
         cookTime = nbt.getInt("CookTime");
         cookTimeTotal = Math.max(1, nbt.getInt("CookTimeTotal"));
+        completedSmelts = Math.max(0, nbt.getInt("CompletedSmelts"));
+        clampCompletedSmelts();
+        updateCookTimeTotal(countOreInputs());
     }
 
     @Override
@@ -330,6 +429,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         nbt.putInt("BurnTimeTotal", burnTimeTotal);
         nbt.putInt("CookTime", cookTime);
         nbt.putInt("CookTimeTotal", cookTimeTotal);
+        nbt.putInt("CompletedSmelts", completedSmelts);
         return nbt;
     }
 
