@@ -48,8 +48,8 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         int progressWidth = this.menu.getProcessingScaled(24);
         if (progressWidth > 0) {
             this.minecraft.getTextureManager().bind(FURNACE_TEXTURE);
-            int progressX = this.leftPos + 94;
-            int progressY = this.topPos + 32;
+            int progressX = this.leftPos + this.imageWidth - 24 - 8;
+            int progressY = this.topPos + 6;
             this.blit(matrixStack, progressX, progressY, 176, 14, progressWidth + 1, 16);
         }
     }

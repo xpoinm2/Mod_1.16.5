@@ -1,6 +1,7 @@
 package com.example.examplemod.container;
 
 import com.example.examplemod.ModContainers;
+import com.example.examplemod.ModItems;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -29,6 +30,7 @@ public class FirepitContainer extends Container {
         this.firepitInv = tileEntity;
         this.dataAccess = tileEntity.getDataAccess();
         checkContainerSize(this.firepitInv, 14);
+        checkContainerSize(this.firepitInv, 13);
         this.firepitInv.startOpen(playerInv.player);
         this.addDataSlots(this.dataAccess);
 
@@ -36,20 +38,24 @@ public class FirepitContainer extends Container {
         // startX = (176 - 4*18)/2 = 52; startY = 20
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 4; ++col) {
-                this.addSlot(new Slot(firepitInv, col + row * 4, 52 + col * 18, 20 + row * 18));
+                final int slotIndex = col + row * 4;
+                this.addSlot(new Slot(firepitInv, slotIndex, 52 + col * 18, 20 + row * 18) {
+                    @Override
+                    public boolean mayPlace(ItemStack stack) {
+                        return tileEntity != null && (tileEntity.isSmeltable(stack)
+                                || stack.getItem() == ModItems.CALCINED_IRON_ORE.get());
+                    }
+
+                    @Override
+                    public int getMaxStackSize() {
+                        return 1;
+                    }
+                });
             }
         }
 
-        // Input slot (index 12) - accepts only pure iron ore
-        this.addSlot(new Slot(firepitInv, 12, 136, 38) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return tileEntity != null && tileEntity.isSmeltable(stack);
-            }
-        });
-
-        // Fuel slot (index 13)
-        this.addSlot(new Slot(firepitInv, 13, 136, 56) {
+        // Fuel slot (index 12)
+        this.addSlot(new Slot(firepitInv, 12, 136, 56) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return AbstractFurnaceTileEntity.isFuel(stack);
@@ -118,27 +124,33 @@ public class FirepitContainer extends Container {
             ItemStack stack = slot.getItem();
             result = stack.copy();
 
-            if (index < 14) {
-                if (!this.moveItemStackTo(stack, 14, this.slots.size(), true)) {
+            int containerSlots = 13;
+            int playerInvStart = containerSlots;
+            int playerInvEnd = playerInvStart + 27;
+            int hotbarStart = playerInvEnd;
+            int hotbarEnd = hotbarStart + 9;
+
+            if (index < containerSlots) {
+                if (!this.moveItemStackTo(stack, containerSlots, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else if (tileEntity != null && tileEntity.isSmeltable(stack)) {
-                if (!this.moveItemStackTo(stack, 12, 13, false)) {
+                if (!this.moveItemStackTo(stack, 0, 12, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (AbstractFurnaceTileEntity.isFuel(stack)) {
-                if (!this.moveItemStackTo(stack, 13, 14, false)) {
+                if (!this.moveItemStackTo(stack, 12, 13, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (index >= 14 && index < 41) {
-                if (!this.moveItemStackTo(stack, 41, this.slots.size(), false)) {
+            } else if (index >= playerInvStart && index < playerInvEnd) {
+                if (!this.moveItemStackTo(stack, hotbarStart, hotbarEnd, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (index >= 41 && index < this.slots.size()) {
-                if (!this.moveItemStackTo(stack, 14, 41, false)) {
+            } else if (index >= hotbarStart && index < hotbarEnd) {
+                if (!this.moveItemStackTo(stack, playerInvStart, playerInvEnd, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(stack, 14, this.slots.size(), false)) {
+            } else if (!this.moveItemStackTo(stack, containerSlots, this.slots.size(), false)) {
                 return ItemStack.EMPTY;
             }
 

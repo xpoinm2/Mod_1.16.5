@@ -25,7 +25,9 @@ import javax.annotation.Nullable;
 
 public class FirepitTileEntity extends LockableTileEntity implements ITickableTileEntity {
     private static final int COOK_TIME_TOTAL = 200;
-    private final NonNullList<ItemStack> items = NonNullList.withSize(14, ItemStack.EMPTY);
+    private static final int GRID_SLOT_COUNT = 12;
+    private static final int FUEL_SLOT = GRID_SLOT_COUNT;
+    private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SLOT_COUNT + 1, ItemStack.EMPTY);
 
     private int burnTime;
     private int burnTimeTotal;
@@ -92,8 +94,8 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             burnTime--;
         }
 
-        ItemStack fuelStack = items.get(13);
-        boolean hasInput = !items.get(12).isEmpty();
+        ItemStack fuelStack = items.get(FUEL_SLOT);
+        boolean hasInput = findInputSlot() != -1;
         boolean canSmelt = canSmelt();
 
         if (isBurning() || (!fuelStack.isEmpty() && hasInput)) {
@@ -105,7 +107,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                     ItemStack containerItem = fuelStack.getContainerItem();
                     fuelStack.shrink(1);
                     if (fuelStack.isEmpty()) {
-                        items.set(13, containerItem);
+                        items.set(FUEL_SLOT, containerItem);
                     }
                 }
             }
@@ -149,13 +151,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     }
 
     private boolean canSmelt() {
-        ItemStack input = items.get(12);
-        if (input.isEmpty() || input.getItem() != ModItems.PURE_IRON_ORE.get()) {
-            return false;
-        }
-
-        ItemStack result = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
-        return hasOutputSpace(result);
+        return findInputSlot() != -1;
     }
 
     private boolean smeltItem() {
@@ -163,55 +159,39 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return false;
         }
 
-        ItemStack input = items.get(12);
-        ItemStack result = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
-
-        if (!storeOutput(result.copy())) {
+        int slot = findInputSlot();
+        if (slot < 0) {
             return false;
         }
 
-        input.shrink(1);
-        if (input.isEmpty()) {
-            items.set(12, ItemStack.EMPTY);
+        ItemStack stack = items.get(slot);
+        if (stack.getCount() > 1) {
+            stack.shrink(1);
+            ItemStack result = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+            if (!storeOutput(result)) {
+                stack.grow(1);
+                return false;
+            }
+        } else {
+            items.set(slot, new ItemStack(ModItems.CALCINED_IRON_ORE.get()));
         }
-
         return true;
     }
 
-    public boolean isBurning() {
-        return burnTime > 0;
-    }
-
-    public boolean isSmeltable(ItemStack stack) {
-        return stack.getItem() == ModItems.PURE_IRON_ORE.get();
-    }
-
-    private boolean hasOutputSpace(ItemStack result) {
-        for (int i = 0; i < 12; ++i) {
-            ItemStack stack = items.get(i);
-            if (stack.isEmpty()) {
-                return true;
-            }
-            if (ItemStack.isSame(stack, result) && ItemStack.tagMatches(stack, result)) {
-                if (stack.getCount() + result.getCount() <= stack.getMaxStackSize()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private boolean storeOutput(ItemStack result) {
-        for (int i = 0; i < 12 && !result.isEmpty(); ++i) {
+        for (int i = 0; i < GRID_SLOT_COUNT && !result.isEmpty(); ++i) {
             ItemStack stack = items.get(i);
             if (stack.isEmpty()) {
-                items.set(i, result.copy());
+                ItemStack copy = result.copy();
+                copy.setCount(Math.min(copy.getCount(), 1));
+                items.set(i, copy);
                 result.setCount(0);
                 break;
             }
 
             if (ItemStack.isSame(stack, result) && ItemStack.tagMatches(stack, result)) {
-                int transferable = Math.min(result.getCount(), stack.getMaxStackSize() - stack.getCount());
+                int slotLimit = 1;
+                int transferable = Math.min(result.getCount(), slotLimit - stack.getCount());
                 if (transferable > 0) {
                     stack.grow(transferable);
                     result.shrink(transferable);
@@ -220,6 +200,24 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         }
 
         return result.isEmpty();
+    }
+
+    private int findInputSlot() {
+        for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+            ItemStack stack = items.get(i);
+            if (!stack.isEmpty() && stack.getItem() == ModItems.PURE_IRON_ORE.get()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean isBurning() {
+        return burnTime > 0;
+    }
+
+    public boolean isSmeltable(ItemStack stack) {
+        return stack.getItem() == ModItems.PURE_IRON_ORE.get();
     }
 
 
@@ -272,11 +270,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     @Override
     public void setItem(int index, ItemStack stack) {
         items.set(index, stack);
-        if (stack.getCount() > getMaxStackSize()) {
-            stack.setCount(getMaxStackSize());
+        int max = (index < GRID_SLOT_COUNT) ? 1 : getMaxStackSize();
+        if (stack.getCount() > max) {
+            stack.setCount(max);
         }
 
-        if (index == 12 && !stack.isEmpty()) {
+        if (index < GRID_SLOT_COUNT && stack.getItem() == ModItems.PURE_IRON_ORE.get()) {
             cookTime = 0;
             cookTimeTotal = COOK_TIME_TOTAL;
         }
