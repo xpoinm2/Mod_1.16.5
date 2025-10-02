@@ -29,7 +29,10 @@ public class FirepitContainer extends Container {
         this.tileEntity = tileEntity;
         this.firepitInv = tileEntity;
         this.dataAccess = tileEntity.getDataAccess();
-        checkContainerSize(this.firepitInv, 14);
+        // FirepitTileEntity exposes 13 inventory slots (12 inputs + 1 fuel).
+        // The previous double check (for 14 and then 13 slots) caused the
+        // container construction to throw, preventing the GUI from opening.
+        // Validate against the correct inventory size only once.
         checkContainerSize(this.firepitInv, 13);
         this.firepitInv.startOpen(playerInv.player);
         this.addDataSlots(this.dataAccess);
