@@ -48,14 +48,16 @@ public abstract class AbstractQuestScreen extends Screen {
         this.panelHeight = this.height - PANEL_MARGIN * 2;
 
         if (this.backButton != null) {
-            this.removeWidget(this.backButton);
+            this.children.remove(this.backButton);
+            this.buttons.remove(this.backButton);
         }
         this.backButton = new FramedButton(panelX + 5, panelY + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent));
         this.addButton(this.backButton);
 
         if (this.confirmButton != null) {
-            this.removeWidget(this.confirmButton);
+            this.children.remove(this.confirmButton);
+            this.buttons.remove(this.confirmButton);
         }
         this.confirmButton = new FramedButton(0, 0, 120, 20, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
