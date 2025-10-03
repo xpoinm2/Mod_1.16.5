@@ -18,6 +18,7 @@ public class QuestManager {
     private static boolean startHammersCompleted = false;
     private static boolean ironClusterCompleted = false;
     private static boolean pureIronOreCompleted = false;
+    private static boolean firepitCompleted = false;
 
 
     public static boolean isPlanksCompleted() {
@@ -157,6 +158,14 @@ public class QuestManager {
         pureIronOreCompleted = value;
     }
 
+    public static boolean isFirepitCompleted() {
+        return firepitCompleted;
+    }
+
+    public static void setFirepitCompleted(boolean value) {
+        firepitCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
@@ -175,5 +184,6 @@ public class QuestManager {
         startHammersCompleted = false;
         ironClusterCompleted = false;
         pureIronOreCompleted = false;
+        firepitCompleted = false;
     }
 }

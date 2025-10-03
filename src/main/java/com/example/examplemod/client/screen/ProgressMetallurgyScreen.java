@@ -20,6 +20,7 @@ import com.example.examplemod.client.screen.PureIronOreQuestScreen;
 public class ProgressMetallurgyScreen extends Screen {
     private final Screen parent;
     private ItemIconButton startSmithingButton;
+    private ItemIconButton firepitButton;
     private ItemIconButton ironClusterButton;
     private ItemIconButton pureIronOreButton;
 
@@ -46,7 +47,18 @@ public class ProgressMetallurgyScreen extends Screen {
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.startSmithingButton);
 
-        this.ironClusterButton = new ItemIconButton(x + spacingX, y,
+        this.firepitButton = new ItemIconButton(x + spacingX, y,
+                new ItemStack(ModItems.FIREPIT_BLOCK.get()),
+                b -> this.minecraft.setScreen(new FirepitQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Кострище")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Начало кузнечного дела")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.firepitButton);
+
+        this.ironClusterButton = new ItemIconButton(x + spacingX * 2, y,
                 new ItemStack(ModItems.IRON_CLUSTER.get()),
                 b -> this.minecraft.setScreen(new IronClusterQuestScreen(this)),
                 () -> Arrays.asList(
@@ -56,7 +68,7 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .append(new StringTextComponent("Стартовые молоты")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.ironClusterButton);
-        this.pureIronOreButton = new ItemIconButton(x + spacingX * 2, y,
+        this.pureIronOreButton = new ItemIconButton(x + spacingX * 3, y,
                 new ItemStack(ModItems.PURE_IRON_ORE.get()),
                 b -> this.minecraft.setScreen(new PureIronOreQuestScreen(this)),
                 () -> Arrays.asList(
@@ -89,6 +101,16 @@ public class ProgressMetallurgyScreen extends Screen {
             color = 0xFF00BFFF;
         }
         this.startSmithingButton.setBorderColor(color);
+
+        int firepitColor;
+        if (!QuestManager.isStartSmithingCompleted()) {
+            firepitColor = 0xFFFF0000;
+        } else if (QuestManager.isFirepitCompleted()) {
+            firepitColor = 0xFF00FF00;
+        } else {
+            firepitColor = 0xFF00BFFF;
+        }
+        this.firepitButton.setBorderColor(firepitColor);
 
         int ironColor;
         if (!QuestManager.isStartHammersCompleted()) {
