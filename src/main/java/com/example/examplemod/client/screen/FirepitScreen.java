@@ -25,6 +25,9 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
             new ResourceLocation("examplemod", "textures/gui/firepit.png");
     private static final int PROGRESS_FRAME_COUNT = 16;
     private static final int PROGRESS_FRAME_SIZE = 16;
+    private static final int FUEL_SLOT_LEFT_X = 136;
+    private static final int FUEL_SLOT_COUNT = 2;
+    private static final int SLOT_SPACING = 18;
     /**
      * Individual 16×16 frame textures stored at
      * assets/examplemod/textures/gui/firepit_progress/frame_XX.png.
@@ -76,7 +79,9 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
                     PROGRESS_FRAME_COUNT - 1);
             ResourceLocation frameTexture = PROGRESS_FRAMES[frameIndex];
             this.minecraft.getTextureManager().bind(frameTexture);
-            int progressX = this.leftPos + this.imageWidth - PROGRESS_FRAME_SIZE - 8;
+            int fuelSlotsWidth = FUEL_SLOT_COUNT * SLOT_SPACING;
+            int progressCenterOffset = FUEL_SLOT_LEFT_X + fuelSlotsWidth / 2;
+            int progressX = this.leftPos + progressCenterOffset - PROGRESS_FRAME_SIZE / 2;
             int progressY = this.topPos + 6;
             this.blit(matrixStack, progressX, progressY, 0, 0, PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE,
                     PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE);
