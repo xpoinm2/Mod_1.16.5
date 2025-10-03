@@ -9,30 +9,27 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.LockableTileEntity;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.tags.ItemTags;
 
 import javax.annotation.Nullable;
-
-import net.minecraftforge.common.ForgeHooks;
 
 public class FirepitTileEntity extends LockableTileEntity implements ITickableTileEntity {
     public static final int COOK_TIME_TOTAL = 200;
     public static final int GRID_SLOT_COUNT = 12;
     public static final int FUEL_SLOT = GRID_SLOT_COUNT;
     public static final int MAX_HEAT = 100;
-    public static final int HEAT_UNITS_PER_COAL = 20;
-    public static final int FURNACE_TICKS_PER_COAL = 1600;
-    public static final int HEAT_TICKS_PER_UNIT = FURNACE_TICKS_PER_COAL / HEAT_UNITS_PER_COAL;
+    public static final int SPECIFIC_HEAT_PER_HEAT_UNIT = 80;
+    public static final int CONSUMPTION_INTERVAL_TICKS = 40;
     public static final int MIN_HEAT_FOR_SMELTING = 80;
     public static final int COOLING_INTERVAL_TICKS = 200;
     public static final int COOLING_AMOUNT = 4;
@@ -42,7 +39,6 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
     private int heat;
     private int heatingTicks;
-    private int heatTickRemainder;
     private int cookProgress;
     private int cookProgressTotal = COOK_TIME_TOTAL;
     private int coolingTicks;
@@ -71,7 +67,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                     heat = Math.max(0, Math.min(MAX_HEAT, value));
                     break;
                 case 1:
-                    heatingTicks = Math.max(0, value);
+                    heatingTicks = Math.max(0, Math.min(CONSUMPTION_INTERVAL_TICKS, value));
                     break;
                 case 2:
                     cookProgress = value;
@@ -102,20 +98,6 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
         boolean changed = false;
 
-        if (heatingTicks > 0) {
-            heatingTicks--;
-            if (heat < MAX_HEAT) {
-                heatTickRemainder++;
-                while (heatTickRemainder >= HEAT_TICKS_PER_UNIT && heat < MAX_HEAT) {
-                    heatTickRemainder -= HEAT_TICKS_PER_UNIT;
-                    heat++;
-                    changed = true;
-                }
-            } else if (heatTickRemainder >= HEAT_TICKS_PER_UNIT) {
-                heatTickRemainder = HEAT_TICKS_PER_UNIT - 1;
-            }
-        }
-
         if (heat > 0) {
             coolingTicks++;
             if (coolingTicks >= COOLING_INTERVAL_TICKS) {
@@ -133,19 +115,30 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
         ItemStack fuelStack = items.get(FUEL_SLOT);
         boolean hasInput = hasSmeltableInput();
+        int specificHeat = getSpecificHeat(fuelStack);
 
-        if (heatingTicks == 0 && heat < MAX_HEAT && !fuelStack.isEmpty()
-                && AbstractFurnaceTileEntity.isFuel(fuelStack)) {
-            int burnTime = ForgeHooks.getBurnTime(fuelStack, IRecipeType.SMELTING);
-            if (burnTime > 0) {
+        if (heat < MAX_HEAT && specificHeat > 0) {
+            if (heatingTicks < CONSUMPTION_INTERVAL_TICKS) {
+                heatingTicks++;
+            }
+            if (heatingTicks >= CONSUMPTION_INTERVAL_TICKS) {
+                heatingTicks = 0;
                 ItemStack containerItem = fuelStack.getContainerItem();
                 fuelStack.shrink(1);
                 if (fuelStack.isEmpty()) {
                     items.set(FUEL_SLOT, containerItem);
                 }
-                heatingTicks = burnTime;
+                int heatGain = Math.max(1, specificHeat / SPECIFIC_HEAT_PER_HEAT_UNIT);
+                int newHeat = Math.min(MAX_HEAT, heat + heatGain);
+                if (newHeat != heat) {
+                    heat = newHeat;
+                    changed = true;
+                }
                 changed = true;
             }
+        } else if (heatingTicks != 0) {
+            heatingTicks = 0;
+            changed = true;
         }
 
         if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
@@ -234,7 +227,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     }
 
     public boolean isHeating() {
-        return heatingTicks > 0;
+        return heatingTicks > 0 || (heat < MAX_HEAT && getSpecificHeat(items.get(FUEL_SLOT)) > 0);
     }
 
     public int getHeat() {
@@ -334,7 +327,6 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         resetCookingProgress();
         heat = 0;
         heatingTicks = 0;
-        heatTickRemainder = 0;
         coolingTicks = 0;
         setChanged();
     }
@@ -348,9 +340,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         ItemStackHelper.loadAllItems(nbt, items);
         enforceInputStackLimits();
         heat = Math.max(0, Math.min(MAX_HEAT, nbt.getInt("Heat")));
-        heatingTicks = Math.max(0, nbt.getInt("HeatingTicks"));
+        heatingTicks = Math.max(0,
+                Math.min(CONSUMPTION_INTERVAL_TICKS, nbt.getInt("HeatingTicks")));
         coolingTicks = Math.max(0, Math.min(COOLING_INTERVAL_TICKS, nbt.getInt("CoolingTicks")));
-        heatTickRemainder = Math.max(0, Math.min(HEAT_TICKS_PER_UNIT - 1, nbt.getInt("HeatTickRemainder")));
         int[] savedCookTimes = nbt.getIntArray("SlotCookTimes");
         if (savedCookTimes.length == GRID_SLOT_COUNT) {
             System.arraycopy(savedCookTimes, 0, slotCookTimes, 0, GRID_SLOT_COUNT);
@@ -373,7 +365,6 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         nbt.putInt("Heat", heat);
         nbt.putInt("HeatingTicks", heatingTicks);
         nbt.putInt("CoolingTicks", coolingTicks);
-        nbt.putInt("HeatTickRemainder", Math.max(0, Math.min(heatTickRemainder, HEAT_TICKS_PER_UNIT - 1)));
         nbt.putIntArray("SlotCookTimes", slotCookTimes);
         nbt.putInt("CookProgress", cookProgress);
         nbt.putInt("CookProgressTotal", cookProgressTotal);
@@ -400,5 +391,24 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     @Override
     public Container createMenu(int id, PlayerInventory playerInventory) {
         return new FirepitContainer(id, playerInventory, this);
+    }
+
+    private int getSpecificHeat(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        if (stack.getItem() == Items.COAL || stack.getItem() == Items.CHARCOAL) {
+            return 1600;
+        }
+        if (stack.getItem().is(ItemTags.PLANKS)) {
+            return 160;
+        }
+        if (stack.getItem().is(ItemTags.LOGS)) {
+            return 320;
+        }
+        if (stack.getItem() == Items.STICK) {
+            return 80;
+        }
+        return 0;
     }
 }
