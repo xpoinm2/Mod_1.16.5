@@ -16,10 +16,12 @@ import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -453,6 +455,25 @@ public class ModBlocks {
                 super.onRemove(state, world, pos, newState, isMoving);
             } else {
                 super.onRemove(state, world, pos, newState, isMoving);
+            }
+        }
+
+        @Override
+        public void entityInside(BlockState state, World world, BlockPos pos, Entity entity) {
+            super.entityInside(state, world, pos, entity);
+            if (world.isClientSide) {
+                return;
+            }
+
+            BlockPos masterPos = getMasterPos(pos, state);
+            TileEntity tile = world.getBlockEntity(masterPos);
+            if (tile instanceof FirepitTileEntity) {
+                FirepitTileEntity firepit = (FirepitTileEntity) tile;
+                if (firepit.getHeat() >= FirepitTileEntity.MIN_HEAT_FOR_SMELTING
+                        && !entity.fireImmune()
+                        && !entity.isSteppingCarefully()) {
+                    entity.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                }
             }
         }
 

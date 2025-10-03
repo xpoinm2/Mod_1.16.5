@@ -25,6 +25,7 @@ import com.example.examplemod.item.HorseradishItem;
 import com.example.examplemod.item.GingerItem;
 import com.example.examplemod.item.PyriteFlintItem;
 import com.example.examplemod.item.HeavenTicketItem;
+import com.example.examplemod.item.BranchItem;
 
 
 public class ModItems {
@@ -44,7 +45,7 @@ public class ModItems {
 
     // Ветка: выпадает с листвы
     public static final RegistryObject<Item> BRANCH = ITEMS.register("branch",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new BranchItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Листочек: выпадает с листвы
     public static final RegistryObject<Item> LEAF = ITEMS.register("leaf",
