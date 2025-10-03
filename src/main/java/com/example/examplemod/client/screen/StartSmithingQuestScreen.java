@@ -27,8 +27,8 @@ public class StartSmithingQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Создайте железный слиток", 0xFFFFFF00);
-        ItemStack stack = new ItemStack(ModItems.IRON_INGOT.get());
+        y = drawParagraph(ms, x, y, "Получите обожжённую руду", 0xFFFFFF00);
+        ItemStack stack = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;
         }
@@ -39,14 +39,14 @@ public class StartSmithingQuestScreen extends AbstractQuestScreen {
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, "Переплавьте чистую железную руду", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "в печи для получения слитка", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "в кострище, чтобы получить обожжённую руду", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected boolean hasRequiredItems() {
         return this.minecraft.player != null
-                && this.minecraft.player.inventory.contains(new ItemStack(ModItems.IRON_INGOT.get()));
+                && this.minecraft.player.inventory.contains(new ItemStack(ModItems.CALCINED_IRON_ORE.get()));
     }
 
     @Override
