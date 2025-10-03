@@ -19,18 +19,18 @@ public class BoneToolsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Заострённые кости", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "крупного рогатого", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "скота, закреплённые", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "в деревянных держателях", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Заострённые кости", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "крупного рогатого", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "скота, закреплённые", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "в деревянных держателях", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Сделать костяной набор", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "инструментов:", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Сделать костяной набор", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "инструментов:", 0xFFFFFF00);
         y += 4;
         ItemStack[] stacks = new ItemStack[]{
                 new ItemStack(ModItems.BONE_PICKAXE.get()),
@@ -54,10 +54,10 @@ public class BoneToolsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Деревянные инструменты", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "недоступны, поэтому", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "можно начать", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "с костяных.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Деревянные инструменты", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "недоступны, поэтому", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "можно начать", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "с костяных.", 0xFFFFFF00);
         return y;
     }
 

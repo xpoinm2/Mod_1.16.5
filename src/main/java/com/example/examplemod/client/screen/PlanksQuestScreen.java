@@ -20,15 +20,15 @@ public class PlanksQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Люди работали топорами, чтобы", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "разделывать бревна.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Люди работали топорами, чтобы", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "разделывать бревна.", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Нужно получить 4 доски", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Нужно получить 4 доски", 0xFFFFFF00);
         int itemsPerRow = Math.max(1, innerWidth / 20);
         int index = 0;
         for (Item plank : ItemTags.PLANKS.getValues()) {
@@ -50,7 +50,7 @@ public class PlanksQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        return drawParagraph(ms, x, y, "Крафт досок через топор", 0xFFFFFF00);
+        return drawParagraph(ms, x, y, innerWidth, "Крафт досок через топор", 0xFFFFFF00);
     }
 
     @Override

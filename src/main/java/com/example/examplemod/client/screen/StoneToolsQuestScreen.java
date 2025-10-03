@@ -19,15 +19,15 @@ public class StoneToolsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Каменные инструменты", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "служат началом прогресса", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Каменные инструменты", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "служат началом прогресса", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Создать набор каменных инструментов", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Создать набор каменных инструментов", 0xFFFFFF00);
         ItemStack[] tools = {
                 new ItemStack(Items.STONE_PICKAXE),
                 new ItemStack(Items.STONE_AXE),
@@ -51,8 +51,8 @@ public class StoneToolsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Крафтите инструменты из", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "камня и палок", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Крафтите инструменты из", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "камня и палок", 0xFFFFFF00);
         return y;
     }
 

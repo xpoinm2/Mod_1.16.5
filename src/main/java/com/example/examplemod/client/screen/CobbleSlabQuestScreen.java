@@ -19,16 +19,16 @@ public class CobbleSlabQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Каменная поверхность", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "для дальнейших", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "изобретений", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Каменная поверхность", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "для дальнейших", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "изобретений", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Создать 4 булыжные плиты", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Создать 4 булыжные плиты", 0xFFFFFF00);
         y += 6;
         ItemStack stack = new ItemStack(Items.COBBLESTONE_SLAB, 4);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
@@ -41,8 +41,8 @@ public class CobbleSlabQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Скрафтить булыжные", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "плиты", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Скрафтить булыжные", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "плиты", 0xFFFFFF00);
         return y;
     }
 
@@ -50,6 +50,11 @@ public class CobbleSlabQuestScreen extends AbstractQuestScreen {
     protected boolean hasRequiredItems() {
         return this.minecraft.player != null
                 && this.minecraft.player.inventory.countItem(Items.COBBLESTONE_SLAB) >= 4;
+    }
+
+    @Override
+    protected boolean isQuestUnlocked() {
+        return QuestManager.isSlabsCompleted();
     }
 
     @Override

@@ -20,18 +20,19 @@ public class SlabsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Плиты бывают", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "деревянные и каменные", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Плиты бывают", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "деревянные и каменные", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Для задания нужны все деревянные", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Получить 6 плит", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Получить 6 плит", 0xFFFFFF00);
         int itemsPerRow = Math.max(1, innerWidth / 20);
         int index = 0;
-        for (Item slab : ItemTags.SLABS.getValues()) {
+        for (Item slab : ItemTags.WOODEN_SLABS.getValues()) {
             ItemStack stack = new ItemStack(slab, 6);
             int itemX = x + (index % itemsPerRow) * 20;
             int itemY = y + (index / itemsPerRow) * 22;
@@ -50,7 +51,8 @@ public class SlabsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        return drawParagraph(ms, x, y, "Крафт плит на верстаке", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Крафт плит на верстаке", 0xFFFFFF00);
+        return drawParagraph(ms, x, y, innerWidth, "Выбирайте любые деревянные варианты", 0xFFFFFF00);
     }
 
     @Override
@@ -60,7 +62,7 @@ public class SlabsQuestScreen extends AbstractQuestScreen {
         }
         int count = 0;
         for (ItemStack stack : this.minecraft.player.inventory.items) {
-            if (stack.getItem().is(ItemTags.SLABS)) {
+            if (stack.getItem().is(ItemTags.WOODEN_SLABS)) {
                 count += stack.getCount();
                 if (count >= 6) {
                     return true;

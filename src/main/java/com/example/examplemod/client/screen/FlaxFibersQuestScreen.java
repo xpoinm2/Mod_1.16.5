@@ -21,17 +21,17 @@ public class FlaxFibersQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Лён нужен в", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "изготовлении множества", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "предметов.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Лён нужен в", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "изготовлении множества", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "предметов.", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Сделать 10 волокон", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "льна", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Сделать 10 волокон", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "льна", 0xFFFFFF00);
         ItemStack stack = new ItemStack(ModItems.FLAX_FIBERS.get(), 10);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;

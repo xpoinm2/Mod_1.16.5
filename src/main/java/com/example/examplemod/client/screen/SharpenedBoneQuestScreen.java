@@ -19,16 +19,16 @@ public class SharpenedBoneQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Старейший нож —", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "затаченная кость", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "или камень.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Старейший нож —", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "затаченная кость", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "или камень.", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Создать заточенную кость", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Создать заточенную кость", 0xFFFFFF00);
         ItemStack stack = new ItemStack(ModItems.SHARPENED_BONE.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;
@@ -39,8 +39,8 @@ public class SharpenedBoneQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Используйте точильный", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "камень на кости", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Используйте точильный", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "камень на кости", 0xFFFFFF00);
         return y;
     }
 

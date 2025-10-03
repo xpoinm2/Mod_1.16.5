@@ -19,18 +19,18 @@ public class IronClusterQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Подготовка руды:", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "дробление молотами", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "и сортировка на куски", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "2-5 см", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Подготовка руды:", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "дробление молотами", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "и сортировка на куски", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "2-5 см", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Добыть 8", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "железных кластеров", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Добыть 8", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "железных кластеров", 0xFFFFFF00);;
         ItemStack stack = new ItemStack(ModItems.IRON_CLUSTER.get(), 8);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;
@@ -41,9 +41,9 @@ public class IronClusterQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Разбейте молотом", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "железную руду", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "с примесями", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Разбейте молотом", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "железную руду", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "с примесями", 0xFFFFFF00);
         return y;
     }
 

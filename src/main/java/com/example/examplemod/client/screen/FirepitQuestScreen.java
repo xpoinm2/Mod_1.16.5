@@ -23,25 +23,25 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Устройство кострища", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "для прогрева плит:", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "Основание: выровняйте", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "площадку 1×1.5 м", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "и застелите щебнем", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "для дренажа", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "Укладка плит: плоские", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "сланец/песчаник", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "в ряд с зазором 2 см", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "Топливо: тонкие ветки", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "для розжига, затем", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "полешки дуба/бука", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Устройство кострища", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "для прогрева плит:", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Основание: выровняйте", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "площадку 1×1.5 м", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "и застелите щебнем", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "для дренажа", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Укладка плит: плоские", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "сланец/песчаник", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "в ряд с зазором 2 см", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Топливо: тонкие ветки", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "для розжига, затем", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "полешки дуба/бука", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Создать мультиструктуру", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Создать мультиструктуру", 0xFFFFFF00);
         y += 6;
         ItemStack firepitStack = new ItemStack(ModItems.FIREPIT_BLOCK.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, firepitStack, x, y, mouseX, mouseY)) {
@@ -55,10 +55,10 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
         hoveredLayoutName = null;
-        y = drawParagraph(ms, x, y, "Нажмите кнопку ниже,", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "чтобы увидеть схему", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "и активируйте", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "пиритовым огнивом", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Нажмите кнопку ниже,", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "чтобы увидеть схему", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "и активируйте", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "пиритовым огнивом", 0xFFFFFF00);
         ItemStack pyrite = new ItemStack(ModItems.PYRITE_FLINT.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, pyrite, x, y, mouseX, mouseY)) {
             hoveredStack = pyrite;
@@ -87,7 +87,9 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
 
     @Override
     protected boolean isQuestUnlocked() {
-        return QuestManager.isStartSmithingCompleted();
+        return QuestManager.isPureIronOreCompleted()
+                && QuestManager.isCobbleSlabsCompleted()
+                && QuestManager.isBrushwoodCompleted();
     }
 
     @Override
@@ -161,9 +163,10 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
             }
         }
         int legendY = y + layoutHeight + 6;
-        legendY = drawParagraph(ms, x, legendY, "Х - хворост (углы)", 0xFFFFFF00);
-        legendY = drawParagraph(ms, x, legendY, "Д - деревянные плиты", 0xFFFFFF00);
-        legendY = drawParagraph(ms, x, legendY, "К - каменные плиты", 0xFFFFFF00);
+        int legendWidth = instructionsArea != null ? instructionsArea.getViewportWidth() : 0;
+        legendY = drawParagraph(ms, x, legendY, legendWidth, "Х - хворост (углы)", 0xFFFFFF00);
+        legendY = drawParagraph(ms, x, legendY, legendWidth, "Д - деревянные плиты", 0xFFFFFF00);
+        legendY = drawParagraph(ms, x, legendY, legendWidth, "К - каменные плиты", 0xFFFFFF00);
         return legendY;
     }
 

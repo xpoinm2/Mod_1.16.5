@@ -21,15 +21,15 @@ public class StartHammersQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Молот нужен для", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "дробления руды", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Молот нужен для", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "дробления руды", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Создайте каменный молот", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Создайте каменный молот", 0xFFFFFF00);
         ItemStack stack = new ItemStack(ModItems.STONE_HAMMER.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;

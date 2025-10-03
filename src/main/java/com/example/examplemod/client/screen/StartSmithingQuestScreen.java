@@ -13,22 +13,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class StartSmithingQuestScreen extends AbstractQuestScreen {
 
     public StartSmithingQuestScreen(Screen parent) {
-        super(parent, "Начало кузнечества");
+        super(parent, "Начало кузнечного дела");
     }
 
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Постройте наковальню", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "и подготовьте кузню", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Постройте наковальню", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "и подготовьте кузню", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Получите обожжённую руду", 0xFFFFFF00);
-        ItemStack stack = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+        y = drawParagraph(ms, x, y, innerWidth, "Добыть железную руду с примесями", 0xFFFFFF00);
+        ItemStack stack = new ItemStack(ModItems.IMPURE_IRON_ORE.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;
         }
@@ -38,20 +38,20 @@ public class StartSmithingQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Переплавьте чистую железную руду", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "в кострище, чтобы получить обожжённую руду", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Ищите жилы железной руды с примесями", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "и добывайте их каменными или костяными кирками", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected boolean hasRequiredItems() {
         return this.minecraft.player != null
-                && this.minecraft.player.inventory.contains(new ItemStack(ModItems.CALCINED_IRON_ORE.get()));
+                && this.minecraft.player.inventory.contains(new ItemStack(ModItems.IMPURE_IRON_ORE.get()));
     }
 
     @Override
     protected boolean isQuestUnlocked() {
-        return QuestManager.isPureIronOreCompleted();
+        return QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted();
     }
 
     @Override

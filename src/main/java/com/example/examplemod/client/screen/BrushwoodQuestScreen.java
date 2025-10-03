@@ -19,14 +19,14 @@ public class BrushwoodQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Кучка веток", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Кучка веток", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Создать 4 хвороста", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Создать 4 хвороста", 0xFFFFFF00);
         y += 6;
         ItemStack stack = new ItemStack(ModItems.BRUSHWOOD_SLAB.get(), 4);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
@@ -39,7 +39,7 @@ public class BrushwoodQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Скрафтить хворост", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Скрафтить хворост", 0xFFFFFF00);
         return y;
     }
 

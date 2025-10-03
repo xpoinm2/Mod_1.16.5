@@ -47,18 +47,7 @@ public class ProgressMetallurgyScreen extends Screen {
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.startSmithingButton);
 
-        this.firepitButton = new ItemIconButton(x + spacingX, y,
-                new ItemStack(ModItems.FIREPIT_BLOCK.get()),
-                b -> this.minecraft.setScreen(new FirepitQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Кострище")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Начало кузнечного дела")
-                                        .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.firepitButton);
-
-        this.ironClusterButton = new ItemIconButton(x + spacingX * 2, y,
+        this.ironClusterButton = new ItemIconButton(x + spacingX, y,
                 new ItemStack(ModItems.IRON_CLUSTER.get()),
                 b -> this.minecraft.setScreen(new IronClusterQuestScreen(this)),
                 () -> Arrays.asList(
@@ -68,7 +57,7 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .append(new StringTextComponent("Стартовые молоты")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.ironClusterButton);
-        this.pureIronOreButton = new ItemIconButton(x + spacingX * 3, y,
+        this.pureIronOreButton = new ItemIconButton(x + spacingX * 2, y,
                 new ItemStack(ModItems.PURE_IRON_ORE.get()),
                 b -> this.minecraft.setScreen(new PureIronOreQuestScreen(this)),
                 () -> Arrays.asList(
@@ -78,6 +67,23 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .append(new StringTextComponent("Железный кластер")
                                         .withStyle(TextFormatting.BLUE))));
         this.addButton(this.pureIronOreButton);
+
+        this.firepitButton = new ItemIconButton(x + spacingX * 3, y,
+                new ItemStack(ModItems.FIREPIT_BLOCK.get()),
+                b -> this.minecraft.setScreen(new FirepitQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Кострище")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Чистая железная руда")
+                                        .withStyle(TextFormatting.BLUE)),
+                        new StringTextComponent("Также нужно: ")
+                                .append(new StringTextComponent("Булыжная плита")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(" и "))
+                                .append(new StringTextComponent("Хворост")
+                                        .withStyle(TextFormatting.BLUE))));
+        this.addButton(this.firepitButton);
         super.init();
     }
 
@@ -102,8 +108,12 @@ public class ProgressMetallurgyScreen extends Screen {
         }
         this.startSmithingButton.setBorderColor(color);
 
+        boolean firepitUnlocked = QuestManager.isPureIronOreCompleted()
+                && QuestManager.isCobbleSlabsCompleted()
+                && QuestManager.isBrushwoodCompleted();
+
         int firepitColor;
-        if (!QuestManager.isStartSmithingCompleted()) {
+        if (!firepitUnlocked) {
             firepitColor = 0xFFFF0000;
         } else if (QuestManager.isFirepitCompleted()) {
             firepitColor = 0xFF00FF00;

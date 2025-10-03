@@ -19,15 +19,15 @@ public class BigBoneQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Добывали с крупного", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "рогатого скота", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Добывали с крупного", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "рогатого скота", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Добыть 10 больших костей", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Добыть 10 больших костей", 0xFFFFFF00);
         y += 6;
         ItemStack stack = new ItemStack(ModItems.BIG_BONE.get(), 10);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
@@ -40,8 +40,8 @@ public class BigBoneQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Добываются с животных", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "(Не всех)", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Добываются с животных", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "(Не всех)", 0xFFFFFF00);
         return y;
     }
 

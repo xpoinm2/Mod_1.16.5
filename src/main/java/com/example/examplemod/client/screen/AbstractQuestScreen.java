@@ -8,6 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Base implementation for quest detail screens that provides a common layout
  * with scrollable description, goal and instruction panels.
@@ -37,6 +40,7 @@ public abstract class AbstractQuestScreen extends Screen {
     private static final int CONFIRM_BUTTON_SPACING = 10;
     private static final int INSTRUCTIONS_VERTICAL_SHIFT = 10;
     private static final float SECTION_LABEL_SCALE = 1.15f;
+    private static final int LINE_SPACING = 4;
 
     protected AbstractQuestScreen(Screen parent, String title) {
         super(new StringTextComponent(title));
@@ -145,13 +149,16 @@ public abstract class AbstractQuestScreen extends Screen {
 
     protected void drawTitle(MatrixStack ms, int centerX, int y) {
         String title = this.title.getString();
+        int titleHeight = (int) Math.ceil(this.font.lineHeight * TITLE_SCALE);
+        int titleY = y - titleHeight;
         ms.pushPose();
         ms.scale(TITLE_SCALE, TITLE_SCALE, TITLE_SCALE);
-        drawCenteredString(ms, this.font, title, (int) (centerX / (float) TITLE_SCALE), (int) (y / (float) TITLE_SCALE), 0xFF00BFFF);
+        drawCenteredString(ms, this.font, title, (int) (centerX / (float) TITLE_SCALE),
+                (int) (titleY / (float) TITLE_SCALE), 0xFF00BFFF);
         ms.popPose();
         if (isQuestCompleted()) {
             int titleWidth = this.font.width(title) * TITLE_SCALE;
-            drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, y, 0xFF00FF00);
+            drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, titleY, 0xFF00FF00);
         }
     }
 
@@ -170,9 +177,134 @@ public abstract class AbstractQuestScreen extends Screen {
         fill(ms, x, underlineY, x + width, underlineY + 1, color);
     }
 
-    protected int drawParagraph(MatrixStack ms, int x, int y, String text, int color) {
-        this.font.draw(ms, text, x, y, color);
-        return y + this.font.lineHeight + 4;
+    protected int drawParagraph(MatrixStack ms, int x, int y, int innerWidth, String text, int color) {
+        if (text == null || text.isEmpty()) {
+            return y;
+        }
+        if (innerWidth <= 0) {
+            this.font.draw(ms, text, x, y, color);
+            return y + this.font.lineHeight + LINE_SPACING;
+        }
+
+        List<String> wrapped = wrapText(text, innerWidth);
+        int lineHeight = this.font.lineHeight;
+        for (int i = 0; i < wrapped.size(); i++) {
+            String line = wrapped.get(i);
+            boolean lastLine = i == wrapped.size() - 1;
+            if (!lastLine && shouldJustify(line)) {
+                drawJustifiedLine(ms, x, y, innerWidth, line, color);
+            } else {
+                this.font.draw(ms, line, x, y, color);
+            }
+            y += lineHeight + LINE_SPACING;
+        }
+        return y;
+    }
+
+    private boolean shouldJustify(String line) {
+        if (line == null) {
+            return false;
+        }
+        int firstSpace = line.indexOf(' ');
+        int lastSpace = line.lastIndexOf(' ');
+        return firstSpace != -1 && firstSpace != lastSpace;
+    }
+
+    private void drawJustifiedLine(MatrixStack ms, int x, int y, int innerWidth, String line, int color) {
+        String[] words = line.split(" ");
+        int wordCount = 0;
+        int wordsWidth = 0;
+        for (String word : words) {
+            if (word.isEmpty()) {
+                continue;
+            }
+            wordsWidth += this.font.width(word);
+            wordCount++;
+        }
+        if (wordCount <= 1) {
+            this.font.draw(ms, line.trim(), x, y, color);
+            return;
+        }
+
+        int spaceWidth = this.font.width(" ");
+        int gaps = wordCount - 1;
+        int totalBaseSpace = spaceWidth * gaps;
+        int extra = innerWidth - wordsWidth - totalBaseSpace;
+        if (extra <= 0) {
+            this.font.draw(ms, line, x, y, color);
+            return;
+        }
+
+        float extraPerGap = extra / (float) gaps;
+        float carry = 0.0f;
+        float currentX = x;
+        int rendered = 0;
+        for (String word : words) {
+            if (word.isEmpty()) {
+                continue;
+            }
+            this.font.draw(ms, word, currentX, y, color);
+            currentX += this.font.width(word);
+            rendered++;
+            if (rendered >= wordCount) {
+                break;
+            }
+            float spacing = spaceWidth + extraPerGap;
+            int spacingInt = spaceWidth;
+            if (spacing > spaceWidth) {
+                carry += spacing - spaceWidth;
+                spacingInt += (int) carry;
+                carry -= (int) carry;
+            }
+            currentX += spacingInt;
+        }
+    }
+
+    private List<String> wrapText(String text, int innerWidth) {
+        List<String> lines = new ArrayList<>();
+        int spaceWidth = this.font.width(" ");
+        for (String paragraph : text.split("\\n")) {
+            if (paragraph.isEmpty()) {
+                lines.add("");
+                continue;
+            }
+            String[] words = paragraph.split(" ");
+            StringBuilder current = new StringBuilder();
+            int currentWidth = 0;
+            for (String word : words) {
+                if (word.isEmpty()) {
+                    continue;
+                }
+                int wordWidth = this.font.width(word);
+                if (current.length() == 0) {
+                    current.append(word);
+                    currentWidth = wordWidth;
+                    continue;
+                }
+                int projected = currentWidth + spaceWidth + wordWidth;
+                if (projected <= innerWidth) {
+                    current.append(' ').append(word);
+                    currentWidth = projected;
+                } else {
+                    lines.add(current.toString());
+                    current.setLength(0);
+                    if (wordWidth > innerWidth) {
+                        lines.add(word);
+                        currentWidth = 0;
+                    } else {
+                        current.append(word);
+                        currentWidth = wordWidth;
+                    }
+                }
+            }
+            if (current.length() > 0) {
+                lines.add(current.toString());
+            }
+        }
+        if (lines.isEmpty()) {
+            lines.add("");
+        }
+        return lines;
     }
 
     protected abstract int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,

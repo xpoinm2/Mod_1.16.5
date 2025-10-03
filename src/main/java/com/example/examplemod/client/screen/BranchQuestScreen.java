@@ -19,15 +19,15 @@ public class BranchQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Можно собирать ветки", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "с деревьев.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Можно собирать ветки", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "с деревьев.", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Собрать 20 веток", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Собрать 20 веток", 0xFFFFFF00);
         y += 6;
         ItemStack stack = new ItemStack(ModItems.BRANCH.get(), 20);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
@@ -40,7 +40,7 @@ public class BranchQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Падают с листвы", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Падают с листвы", 0xFFFFFF00);
         return y;
     }
 

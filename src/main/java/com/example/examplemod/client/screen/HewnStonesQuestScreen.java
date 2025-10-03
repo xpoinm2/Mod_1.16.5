@@ -19,19 +19,19 @@ public class HewnStonesQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Сбор обломков: люди искали уже", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "отщепленные природой или ледниками", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "куски кремня и базальта на", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "поверхности, особенно в речных", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "галечниках и моренах.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Сбор обломков: люди искали уже", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "отщепленные природой или ледниками", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "куски кремня и базальта на", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "поверхности, особенно в речных", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "галечниках и моренах.", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Нужно получить 10", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "оттёсанных камней", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Нужно получить 10", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "оттёсанных камней", 0xFFFFFF00);
         ItemStack stack = new ItemStack(ModItems.HEWN_STONE.get(), 10);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;
@@ -42,8 +42,8 @@ public class HewnStonesQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Камни находятся в реках", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "и на равнинах", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Камни находятся в реках", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "и на равнинах", 0xFFFFFF00);
         return y;
     }
 

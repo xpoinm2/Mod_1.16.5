@@ -19,15 +19,15 @@ public class CombsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Необходимая вещь в", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, "обращении с волокнами", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Необходимая вещь в", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "обращении с волокнами", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Сделать один гребень", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Сделать один гребень", 0xFFFFFF00);
         y += 6;
         ItemStack[] stacks = new ItemStack[]{
                 new ItemStack(ModItems.WOODEN_COMB.get()),
@@ -47,7 +47,7 @@ public class CombsQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, "Делаем любой гребень", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Делаем любой гребень", 0xFFFFFF00);
         return y;
     }
 
