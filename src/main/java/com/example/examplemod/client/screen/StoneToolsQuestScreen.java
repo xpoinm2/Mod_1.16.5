@@ -15,6 +15,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StoneToolsQuestScreen extends Screen {
+    private static final int LAYOUT_SHIFT = 10;
+    private static final int CONFIRM_BUTTON_BOTTOM_MARGIN = 5;
+    private static final float SECTION_LABEL_SCALE = 1.15f;
     private final Screen parent;
     private int scrollOffset = 0;
     private int maxScroll = 0;
@@ -36,7 +39,7 @@ public class StoneToolsQuestScreen extends Screen {
         int btnWidth = 100;
         int btnHeight = 20;
         int btnX = (this.width - btnWidth) / 2;
-        int btnY = this.height - btnHeight - 15;
+        int btnY = this.height - btnHeight - CONFIRM_BUTTON_BOTTOM_MARGIN;
         this.confirmButton = new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
                 b -> {
                     if (hasRequiredItems() && QuestManager.isHewnStonesCompleted()
@@ -56,7 +59,7 @@ public class StoneToolsQuestScreen extends Screen {
         int x0 = 10;
         int y0 = 10;
         int width = this.width - 20;
-        int height = this.height - 20;
+        int height = this.height - 20 + LAYOUT_SHIFT;
         GuiUtil.drawPanel(ms, x0, y0, width, height);
         boolean unlocked = QuestManager.isHewnStonesCompleted() && QuestManager.isFlaxFibersCompleted() && QuestManager.isBranchCompleted();
         this.confirmButton.visible = unlocked && !QuestManager.isStoneToolsCompleted();
@@ -64,7 +67,7 @@ public class StoneToolsQuestScreen extends Screen {
 
         int leftX = x0 + 20;
         int leftY = y0 + 40 - scrollOffset;
-        drawScaledUnderlined(ms, "Описание", leftX, leftY, 0xFFFFFFFF, 4f/3f);
+        drawSectionLabel(ms, "Описание", leftX, leftY);
         leftY += 30;
         drawString(ms, this.font, "Прежде чем откалывать породы,", leftX, leftY, 0xFFFFFF00);
         leftY += 10;
@@ -78,7 +81,7 @@ public class StoneToolsQuestScreen extends Screen {
 
         int rightX = x0 + width / 2 + 20;
         int rightY = y0 + 40 - scrollOffset;
-        drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
+        drawSectionLabel(ms, "Цель", rightX, rightY);
         rightY += 30;
         drawString(ms, this.font, "Сделать кирку,", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
@@ -97,8 +100,8 @@ public class StoneToolsQuestScreen extends Screen {
                 hoveredStack = stacks[i];
             }
         }
-        rightY += 40;
-        drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
+        rightY += 40 + LAYOUT_SHIFT;
+        drawSectionLabel(ms, "Инструкция", rightX, rightY);
         rightY += 30;
         drawString(ms, this.font, "Деревянные инструменты", rightX, rightY, 0xFFFFFF00);
         rightY += 10;
@@ -131,6 +134,10 @@ public class StoneToolsQuestScreen extends Screen {
             int titleWidth = this.font.width(title) * 2;
             drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, y, 0xFF00FF00);
         }
+    }
+
+    private void drawSectionLabel(MatrixStack ms, String text, int x, int y) {
+        drawScaledUnderlined(ms, text, x, y, 0xFFFFFFFF, SECTION_LABEL_SCALE);
     }
 
     private void drawScaledUnderlined(MatrixStack ms, String text, int x, int y, int color, float scale) {

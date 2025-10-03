@@ -33,6 +33,10 @@ public abstract class AbstractQuestScreen extends Screen {
     private static final int COLUMN_GAP = 12;
     private static final int TITLE_OFFSET_Y = 18;
     private static final int TITLE_SCALE = 2;
+    private static final int CONFIRM_BUTTON_BOTTOM_MARGIN = 5;
+    private static final int CONFIRM_BUTTON_SPACING = 10;
+    private static final int INSTRUCTIONS_VERTICAL_SHIFT = 10;
+    private static final float SECTION_LABEL_SCALE = 1.15f;
 
     protected AbstractQuestScreen(Screen parent, String title) {
         super(new StringTextComponent(title));
@@ -68,7 +72,7 @@ public abstract class AbstractQuestScreen extends Screen {
         this.addButton(this.confirmButton);
 
         int contentTop = panelY + 50;
-        int contentBottomPadding = 45;
+        int contentBottomPadding = CONFIRM_BUTTON_SPACING + this.confirmButton.getHeight() + CONFIRM_BUTTON_BOTTOM_MARGIN;
         int availableHeight = panelHeight - (contentTop - panelY) - contentBottomPadding;
         int availableWidth = panelWidth - CONTENT_MARGIN * 2;
         int leftWidth = (int) Math.round(availableWidth * 0.55);
@@ -84,13 +88,20 @@ public abstract class AbstractQuestScreen extends Screen {
 
         int goalsX = descriptionX + leftWidth + COLUMN_GAP;
         int goalsY = contentTop;
-        int goalsHeight = (availableHeight - COLUMN_GAP) / 2;
-        int instructionsY = goalsY + goalsHeight + COLUMN_GAP;
-        int instructionsHeight = availableHeight - goalsHeight - COLUMN_GAP;
+        int goalsHeight = (availableHeight - COLUMN_GAP - INSTRUCTIONS_VERTICAL_SHIFT) / 2;
+        if (goalsHeight < 40) {
+            goalsHeight = 40;
+        }
+        int instructionsY = goalsY + goalsHeight + COLUMN_GAP + INSTRUCTIONS_VERTICAL_SHIFT;
+        int instructionsHeight = availableHeight - goalsHeight - COLUMN_GAP - INSTRUCTIONS_VERTICAL_SHIFT;
+        if (instructionsHeight < 40) {
+            instructionsHeight = 40;
+            instructionsY = goalsY + availableHeight - instructionsHeight;
+        }
         this.goalsArea = new ScrollArea(goalsX, goalsY, rightWidth, goalsHeight);
         this.instructionsArea = new ScrollArea(goalsX, instructionsY, rightWidth, instructionsHeight);
 
-        int confirmY = panelY + panelHeight - contentBottomPadding + 10;
+        int confirmY = panelY + panelHeight - CONFIRM_BUTTON_BOTTOM_MARGIN - this.confirmButton.getHeight();
         this.confirmButton.x = panelX + (panelWidth - this.confirmButton.getWidth()) / 2;
         this.confirmButton.y = confirmY;
     }
@@ -145,7 +156,7 @@ public abstract class AbstractQuestScreen extends Screen {
     }
 
     private void drawSectionLabel(MatrixStack ms, String text, int x, int y) {
-        drawScaledUnderlined(ms, text, x, y, 0xFFFFFFFF, 4f / 3f);
+        drawScaledUnderlined(ms, text, x, y, 0xFFFFFFFF, SECTION_LABEL_SCALE);
     }
 
     protected void drawScaledUnderlined(MatrixStack ms, String text, int x, int y, int color, float scale) {
