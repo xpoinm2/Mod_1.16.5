@@ -1,7 +1,6 @@
 package com.example.examplemod.client.screen;
 
 import com.example.examplemod.ModItems;
-import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -10,167 +9,162 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.glfw.GLFW;
 
 @OnlyIn(Dist.CLIENT)
-public class FirepitQuestScreen extends Screen {
-    private final Screen parent;
-    private int scrollOffset = 0;
-    private int maxScroll = 0;
-    private ItemStack hoveredStack = ItemStack.EMPTY;
-    private FramedButton confirmButton;
-    private FramedButton layoutButton;
+public class FirepitQuestScreen extends AbstractQuestScreen {
     private boolean showLayout = false;
+    private Rect layoutButtonRect = null;
+    private String hoveredLayoutName = null;
 
     public FirepitQuestScreen(Screen parent) {
-        super(new StringTextComponent("Кострище"));
-        this.parent = parent;
+        super(parent, "Кострище");
     }
 
     @Override
-    protected void init() {
-        int x0 = 10;
-        int y0 = 10;
-        this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
-                b -> this.minecraft.setScreen(parent)));
-
-        int btnWidth = 100;
-        int btnHeight = 20;
-        int btnX = (this.width - btnWidth) / 2;
-        int btnY = this.height - btnHeight - 15;
-        this.confirmButton = new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
-                b -> {
-                    if (hasRequiredItems() && QuestManager.isStartSmithingCompleted()) {
-                        QuestManager.setFirepitCompleted(true);
-                    }
-                });
-        this.addButton(this.confirmButton);
-
-        this.layoutButton = new FramedButton(0, 0, 120, 20, "Показать схему", 0xFFFFFF00, 0xFFFFFFFF,
-                b -> {
-                    showLayout = !showLayout;
-                    layoutButton.setMessage(new StringTextComponent(showLayout ? "Скрыть схему" : "Показать схему"));
-                });
-        this.addButton(this.layoutButton);
-        super.init();
+    protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
+                                    int mouseX, int mouseY, float partialTicks) {
+        y = drawParagraph(ms, x, y, "Устройство кострища", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "для прогрева плит:", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "Основание: выровняйте", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "площадку 1×1.5 м", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "и застелите щебнем", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "для дренажа", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "Укладка плит: плоские", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "сланец/песчаник", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "в ряд с зазором 2 см", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "Топливо: тонкие ветки", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "для розжига, затем", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "полешки дуба/бука", 0xFFFFFF00);
+        return y;
     }
 
     @Override
-    public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
-        this.renderBackground(ms);
-        hoveredStack = ItemStack.EMPTY;
-        int x0 = 10;
-        int y0 = 10;
-        int width = this.width - 20;
-        int height = this.height - 20;
-        GuiUtil.drawPanel(ms, x0, y0, width, height);
-        boolean unlocked = QuestManager.isStartSmithingCompleted();
-        this.confirmButton.visible = unlocked && !QuestManager.isFirepitCompleted();
-        drawTitle(ms, x0 + width / 2, y0 + 15);
-
-        int leftX = x0 + 20;
-        int leftY = y0 + 40 - scrollOffset;
-        drawScaledUnderlined(ms, "Описание", leftX, leftY, 0xFFFFFFFF, 4f / 3f);
-        leftY += 30;
-        drawString(ms, this.font, "Устройство кострища", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "для прогрева плит:", leftX, leftY, 0xFFFFFF00);
-        leftY += 20;
-        drawString(ms, this.font, "Основание: выровняйте", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "площадку 1×1.5 м", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "и застелите щебнем", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "для дренажа", leftX, leftY, 0xFFFFFF00);
-        leftY += 20;
-        drawString(ms, this.font, "Укладка плит: плоские", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "сланец/песчаник", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "в ряд с зазором 2 см", leftX, leftY, 0xFFFFFF00);
-        leftY += 20;
-        drawString(ms, this.font, "Топливо: тонкие ветки", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "для розжига, затем", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "полешки дуба/бука", leftX, leftY, 0xFFFFFF00);
-
-        int leftBottom = leftY;
-
-        int rightX = x0 + width / 2 + 20;
-        int rightY = y0 + 40 - scrollOffset;
-        drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f / 3f);
-        rightY += 30;
-        drawString(ms, this.font, "Создать мультиструктуру", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
+    protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
+                              int mouseX, int mouseY, float partialTicks) {
+        y = drawParagraph(ms, x, y, "Создать мультиструктуру", 0xFFFFFF00);
+        y += 6;
         ItemStack firepitStack = new ItemStack(ModItems.FIREPIT_BLOCK.get());
-        if (GuiUtil.renderItemWithTooltip(this, ms, firepitStack, rightX, rightY + 10, mouseX, mouseY)) {
+        if (GuiUtil.renderItemWithTooltip(this, ms, firepitStack, x, y, mouseX, mouseY)) {
             hoveredStack = firepitStack;
         }
-        rightY += 40;
-        drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f / 3f);
-        rightY += 30;
-        drawString(ms, this.font, "Нажмите кнопку ниже,", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "чтобы увидеть схему", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "и активируйте", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        drawString(ms, this.font, "пиритовым огнивом", rightX, rightY, 0xFFFFFF00);
-        rightY += 10;
-        ItemStack pyriteStack = new ItemStack(ModItems.PYRITE_FLINT.get());
-        if (GuiUtil.renderItemWithTooltip(this, ms, pyriteStack, rightX, rightY + 5, mouseX, mouseY)) {
-            hoveredStack = pyriteStack;
-        }
-        rightY += 35;
-
-        this.layoutButton.x = rightX;
-        this.layoutButton.y = rightY;
-        this.layoutButton.visible = true;
-        rightY += this.layoutButton.getHeight() + 5;
-
-        int layoutBottom = rightY;
-        if (showLayout) {
-            layoutBottom = drawLayout(ms, rightX, rightY);
-            rightY = layoutBottom;
-        }
-
-        int contentBottom = Math.max(leftBottom, rightY);
-        if (showLayout) {
-            contentBottom = Math.max(contentBottom, layoutBottom);
-        }
-        maxScroll = Math.max(0, contentBottom - (y0 + height - 10));
-        super.render(ms, mouseX, mouseY, pt);
+        y += 22;
+        return y;
     }
 
-    private int drawLayout(MatrixStack ms, int startX, int startY) {
+    @Override
+    protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
+                                     int mouseX, int mouseY, float partialTicks) {
+        hoveredLayoutName = null;
+        y = drawParagraph(ms, x, y, "Нажмите кнопку ниже,", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "чтобы увидеть схему", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "и активируйте", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "пиритовым огнивом", 0xFFFFFF00);
+        ItemStack pyrite = new ItemStack(ModItems.PYRITE_FLINT.get());
+        if (GuiUtil.renderItemWithTooltip(this, ms, pyrite, x, y, mouseX, mouseY)) {
+            hoveredStack = pyrite;
+        }
+        y += 24;
+
+        int buttonWidth = 120;
+        int buttonHeight = 20;
+        int buttonX = x;
+        int buttonY = y;
+        layoutButtonRect = new Rect(buttonX, buttonY, buttonWidth, buttonHeight);
+        drawToggleButton(ms, buttonX, buttonY, buttonWidth, buttonHeight, mouseX, mouseY);
+        y += buttonHeight + 8;
+
+        if (showLayout) {
+            y = drawLayout(ms, x, y, mouseX, mouseY);
+        }
+        return y;
+    }
+
+    @Override
+    protected boolean hasRequiredItems() {
+        return this.minecraft.player != null
+                && this.minecraft.player.inventory.countItem(ModItems.PYRITE_FLINT.get()) > 0;
+    }
+
+    @Override
+    protected boolean isQuestUnlocked() {
+        return QuestManager.isStartSmithingCompleted();
+    }
+
+    @Override
+    protected boolean isQuestCompleted() {
+        return QuestManager.isFirepitCompleted();
+    }
+
+    @Override
+    protected void markCompleted() {
+        QuestManager.setFirepitCompleted(true);
+    }
+
+    @Override
+    protected void renderAdditional(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+        super.renderAdditional(ms, mouseX, mouseY, partialTicks);
+        if (hoveredLayoutName != null && instructionsArea.isPointInsideViewport(mouseX, mouseY)) {
+            this.renderTooltip(ms, new StringTextComponent(hoveredLayoutName), mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && layoutButtonRect != null
+                && layoutButtonRect.contains(mouseX, mouseY)
+                && instructionsArea.isVisible(layoutButtonRect.x, layoutButtonRect.y,
+                layoutButtonRect.width, layoutButtonRect.height)) {
+            showLayout = !showLayout;
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void drawToggleButton(MatrixStack ms, int x, int y, int width, int height, int mouseX, int mouseY) {
+        int background = showLayout ? 0xAA337733 : 0xAA444444;
+        if (layoutButtonRect != null && layoutButtonRect.contains(mouseX, mouseY)) {
+            background = showLayout ? 0xCC449944 : 0xCC666666;
+        }
+        fill(ms, x, y, x + width, y + height, background);
+        fill(ms, x, y, x + width, y + 1, 0xFF000000);
+        fill(ms, x, y + height - 1, x + width, y + height, 0xFF000000);
+        fill(ms, x, y, x + 1, y + height, 0xFF000000);
+        fill(ms, x + width - 1, y, x + width, y + height, 0xFF000000);
+        StringTextComponent text = new StringTextComponent(showLayout ? "Скрыть схему" : "Показать схему");
+        drawCenteredString(ms, this.font, text, x + width / 2,
+                y + (height - this.font.lineHeight) / 2, 0xFFFFFFFF);
+    }
+
+    private int drawLayout(MatrixStack ms, int x, int y, int mouseX, int mouseY) {
+        int cells = 4;
         int cellSize = 18;
         int padding = 2;
-        int layoutWidth = cellSize * 4;
-        int layoutHeight = cellSize * 4;
-        fill(ms, startX - 2, startY - 2, startX + layoutWidth + 2, startY + layoutHeight + 2, 0xFF000000);
-        for (int row = 0; row < 4; row++) {
-            for (int col = 0; col < 4; col++) {
-                int cellX0 = startX + col * cellSize;
-                int cellY0 = startY + row * cellSize;
+        int layoutWidth = cells * cellSize;
+        int layoutHeight = cells * cellSize;
+        fill(ms, x - 2, y - 2, x + layoutWidth + 2, y + layoutHeight + 2, 0xFF000000);
+        for (int row = 0; row < cells; row++) {
+            for (int col = 0; col < cells; col++) {
+                int cellX0 = x + col * cellSize;
+                int cellY0 = y + row * cellSize;
                 int cellX1 = cellX0 + cellSize - padding;
                 int cellY1 = cellY0 + cellSize - padding;
                 int color = getCellColor(col, row);
                 fill(ms, cellX0, cellY0, cellX1, cellY1, color);
                 String label = getCellLabel(col, row);
-                int textCenterX = cellX0 + (cellX1 - cellX0) / 2;
-                int textTop = cellY0 + ((cellY1 - cellY0) - this.font.lineHeight) / 2;
-                drawCenteredString(ms, this.font, label, textCenterX, textTop, 0xFF000000);
+                int textX = cellX0 + (cellX1 - cellX0) / 2;
+                int textY = cellY0 + ((cellY1 - cellY0) - this.font.lineHeight) / 2;
+                drawCenteredString(ms, this.font, label, textX, textY, 0xFF000000);
+                if (instructionsArea.isPointInsideViewport(mouseX, mouseY)
+                        && mouseX >= cellX0 && mouseX <= cellX1 && mouseY >= cellY0 && mouseY <= cellY1) {
+                    hoveredLayoutName = getCellName(col, row);
+                }
             }
         }
-        int legendY = startY + layoutHeight + 6;
-        drawString(ms, this.font, "Х - хворост (углы)", startX, legendY, 0xFFFFFF00);
-        legendY += 10;
-        drawString(ms, this.font, "Д - деревянные плиты", startX, legendY, 0xFFFFFF00);
-        legendY += 10;
-        drawString(ms, this.font, "К - каменные плиты", startX, legendY, 0xFFFFFF00);
-        return legendY + this.font.lineHeight;
+        int legendY = y + layoutHeight + 6;
+        legendY = drawParagraph(ms, x, legendY, "Х - хворост (углы)", 0xFFFFFF00);
+        legendY = drawParagraph(ms, x, legendY, "Д - деревянные плиты", 0xFFFFFF00);
+        legendY = drawParagraph(ms, x, legendY, "К - каменные плиты", 0xFFFFFF00);
+        return legendY;
     }
 
     private int getCellColor(int col, int row) {
@@ -195,70 +189,32 @@ public class FirepitQuestScreen extends Screen {
         return "К";
     }
 
-    private boolean hasRequiredItems() {
-        return this.minecraft.player != null &&
-                this.minecraft.player.inventory.countItem(ModItems.PYRITE_FLINT.get()) > 0;
-    }
-
-    private void drawTitle(MatrixStack ms, int centerX, int y) {
-        String title = this.title.getString();
-        ms.pushPose();
-        ms.scale(2.0F, 2.0F, 2.0F);
-        drawCenteredString(ms, this.font, title, (int) (centerX / 2f), (int) (y / 2f), 0xFF00BFFF);
-        ms.popPose();
-        if (QuestManager.isFirepitCompleted()) {
-            int titleWidth = this.font.width(title) * 2;
-            drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, y, 0xFF00FF00);
+    private String getCellName(int col, int row) {
+        boolean corner = (col == 0 || col == 3) && (row == 0 || row == 3);
+        if (corner) {
+            return "Хворост";
         }
-    }
-
-    private void drawScaledUnderlined(MatrixStack ms, String text, int x, int y, int color, float scale) {
-        ms.pushPose();
-        ms.scale(scale, scale, scale);
-        float inv = 1.0F / scale;
-        this.font.draw(ms, text, x * inv, y * inv, color);
-        ms.popPose();
-        int width = (int) (this.font.width(text) * scale);
-        int underlineY = (int) (y + this.font.lineHeight * scale);
-        fill(ms, x, underlineY, x + width, underlineY + 1, color);
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!hoveredStack.isEmpty()) {
-            if (button == 0) {
-                GuiUtil.openRecipe(hoveredStack);
-                return true;
-            }
-            if (button == 1) {
-                GuiUtil.openUsage(hoveredStack);
-                return true;
-            }
+        if (col == 0 || col == 3 || row == 0 || row == 3) {
+            return "Деревянная плита";
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return "Каменная плита";
     }
 
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (!hoveredStack.isEmpty()) {
-            if (keyCode == GLFW.GLFW_KEY_R) {
-                GuiUtil.openRecipe(hoveredStack);
-                return true;
-            }
-            if (keyCode == GLFW.GLFW_KEY_U) {
-                GuiUtil.openUsage(hoveredStack);
-                return true;
-            }
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
-    }
+    private static class Rect {
+        final int x;
+        final int y;
+        final int width;
+        final int height;
 
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (delta != 0) {
-            scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * 10));
-            return true;
+        Rect(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
         }
-        return super.mouseScrolled(mouseX, mouseY, delta);
+
+        boolean contains(double px, double py) {
+            return px >= x && px <= x + width && py >= y && py <= y + height;
+        }
     }
 }

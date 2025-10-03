@@ -1,163 +1,77 @@
 package com.example.examplemod.client.screen;
 
 import com.example.examplemod.ModItems;
-import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.StringTextComponent;
-import org.lwjgl.glfw.GLFW;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class CombsQuestScreen extends Screen {
-    private final Screen parent;
-    private int scrollOffset = 0;
-    private int maxScroll = 0;
-    private ItemStack hoveredStack = ItemStack.EMPTY;
-    private FramedButton confirmButton;
-
+public class CombsQuestScreen extends AbstractQuestScreen {
 
     public CombsQuestScreen(Screen parent) {
-        super(new StringTextComponent("Гребни"));
-        this.parent = parent;
+        super(parent, "Гребни");
     }
 
     @Override
-    protected void init() {
-        int x0 = 10;
-        int y0 = 10;
-        this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
-                b -> this.minecraft.setScreen(parent)));
-
-        int btnWidth = 100;
-        int btnHeight = 20;
-        int btnX = (this.width - btnWidth) / 2;
-        int btnY = this.height - btnHeight - 15;
-        this.confirmButton = new FramedButton(btnX, btnY, btnWidth, btnHeight, "Подтвердить", 0xFF00FF00, 0xFFFFFFFF,
-                b -> {
-                    if (hasRequiredItems() && QuestManager.isBigBonesCompleted()
-                            && QuestManager.isHewnStonesCompleted()
-                            && QuestManager.isBranchCompleted()) {
-                        QuestManager.setCombsCompleted(true);
-                    }
-                });
-        this.addButton(this.confirmButton);
-        super.init();
+    protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
+                                    int mouseX, int mouseY, float partialTicks) {
+        y = drawParagraph(ms, x, y, "Необходимая вещь в", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, "обращении с волокнами", 0xFFFFFF00);
+        return y;
     }
 
     @Override
-    public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
-        this.renderBackground(ms);
-        hoveredStack = ItemStack.EMPTY;
-        int x0 = 10;
-        int y0 = 10;
-        int width = this.width - 20;
-        int height = this.height - 20;
-        GuiUtil.drawPanel(ms, x0, y0, width, height);
-        boolean unlocked = QuestManager.isBigBonesCompleted() && QuestManager.isHewnStonesCompleted() && QuestManager.isBranchCompleted();
-        this.confirmButton.visible = unlocked && !QuestManager.isCombsCompleted();
-        drawTitle(ms, x0 + width / 2, y0 + 15);
-
-        int leftX = x0 + 20;
-        int leftY = y0 + 40 - scrollOffset;
-        drawScaledUnderlined(ms, "Описание", leftX, leftY, 0xFFFFFFFF, 4f/3f);
-        leftY += 30;
-        drawString(ms, this.font, "Необходимая вещь в", leftX, leftY, 0xFFFFFF00);
-        leftY += 10;
-        drawString(ms, this.font, "обращении с волокнами", leftX, leftY, 0xFFFFFF00);
-
-        int rightX = x0 + width / 2 + 20;
-        int rightY = y0 + 40 - scrollOffset;
-        drawScaledUnderlined(ms, "Цель", rightX, rightY, 0xFFFFFFFF, 4f/3f);
-        rightY += 30;
-        drawString(ms, this.font, "Сделать 1 гребень", rightX, rightY, 0xFFFFFF00);
+    protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
+                              int mouseX, int mouseY, float partialTicks) {
+        y = drawParagraph(ms, x, y, "Сделать один гребень", 0xFFFFFF00);
+        y += 6;
         ItemStack[] stacks = new ItemStack[]{
                 new ItemStack(ModItems.WOODEN_COMB.get()),
                 new ItemStack(ModItems.BONE_COMB.get())
         };
-        for (int i = 0; i < stacks.length; i++) {
-            if (GuiUtil.renderItemWithTooltip(this, ms, stacks[i], rightX + i * 20, rightY + 10, mouseX, mouseY)) {
-                hoveredStack = stacks[i];
+        int itemX = x;
+        for (ItemStack stack : stacks) {
+            if (GuiUtil.renderItemWithTooltip(this, ms, stack, itemX, y, mouseX, mouseY)) {
+                hoveredStack = stack;
             }
+            itemX += 20;
         }
-        rightY += 40;
-        drawScaledUnderlined(ms, "Инструкция", rightX, rightY, 0xFFFFFFFF, 4f/3f);
-        rightY += 30;
-        drawString(ms, this.font, "Делаем любой гребень", rightX, rightY, 0xFFFFFF00);
-        int contentBottom = Math.max(leftY, rightY);
-        maxScroll = Math.max(0, contentBottom - (y0 + height - 10));
-        super.render(ms, mouseX, mouseY, pt);
-    }
-
-    private boolean hasRequiredItems() {
-        return this.minecraft.player != null &&
-                (this.minecraft.player.inventory.countItem(ModItems.WOODEN_COMB.get()) >= 1 ||
-                        this.minecraft.player.inventory.countItem(ModItems.BONE_COMB.get()) >= 1);
-    }
-
-    private void drawTitle(MatrixStack ms, int centerX, int y) {
-        String title = this.title.getString();
-        ms.pushPose();
-        ms.scale(2.0F, 2.0F, 2.0F);
-        drawCenteredString(ms, this.font, title, (int) (centerX / 2f), (int) (y / 2f), 0xFF00BFFF);
-        ms.popPose();
-        if (QuestManager.isCombsCompleted()) {
-            int titleWidth = this.font.width(title) * 2;
-            drawString(ms, this.font, " (Выполнено)", centerX + titleWidth / 2 + 5, y, 0xFF00FF00);
-        }
-    }
-
-    private void drawScaledUnderlined(MatrixStack ms, String text, int x, int y, int color, float scale) {
-        ms.pushPose();
-        ms.scale(scale, scale, scale);
-        float inv = 1.0F / scale;
-        this.font.draw(ms, text, x * inv, y * inv, color);
-        ms.popPose();
-        int width = (int) (this.font.width(text) * scale);
-        int underlineY = (int) (y + this.font.lineHeight * scale);
-        fill(ms, x, underlineY, x + width, underlineY + 1, color);
+        y += 22;
+        return y;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!hoveredStack.isEmpty()) {
-            if (button == 0) {
-                GuiUtil.openRecipe(hoveredStack);
-                return true;
-            }
-            if (button == 1) {
-                GuiUtil.openUsage(hoveredStack);
-                return true;
-            }
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
+    protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
+                                     int mouseX, int mouseY, float partialTicks) {
+        y = drawParagraph(ms, x, y, "Делаем любой гребень", 0xFFFFFF00);
+        return y;
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (!hoveredStack.isEmpty()) {
-            if (keyCode == GLFW.GLFW_KEY_R) {
-                GuiUtil.openRecipe(hoveredStack);
-                return true;
-            }
-            if (keyCode == GLFW.GLFW_KEY_U) {
-                GuiUtil.openUsage(hoveredStack);
-                return true;
-            }
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+    protected boolean hasRequiredItems() {
+        return this.minecraft.player != null && (
+                this.minecraft.player.inventory.countItem(ModItems.WOODEN_COMB.get()) >= 1
+                        || this.minecraft.player.inventory.countItem(ModItems.BONE_COMB.get()) >= 1);
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (delta != 0) {
-            scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - delta * 10));
-            return true;
-        }
-        return super.mouseScrolled(mouseX, mouseY, delta);
+    protected boolean isQuestUnlocked() {
+        return QuestManager.isBigBonesCompleted()
+                && QuestManager.isHewnStonesCompleted()
+                && QuestManager.isBranchCompleted();
+    }
+
+    @Override
+    protected boolean isQuestCompleted() {
+        return QuestManager.isCombsCompleted();
+    }
+
+    @Override
+    protected void markCompleted() {
+        QuestManager.setCombsCompleted(true);
     }
 }
