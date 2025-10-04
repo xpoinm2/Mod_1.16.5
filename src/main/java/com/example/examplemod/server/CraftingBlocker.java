@@ -4,7 +4,12 @@ package com.example.examplemod.server;
 import com.example.examplemod.ExampleMod;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.HoeItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ShovelItem;
+import net.minecraft.item.SwordItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,10 +47,12 @@ public class CraftingBlocker {
             return false;
         }
 
-        return stack.is(ItemTags.PICKAXES)
-                || stack.is(ItemTags.AXES)
-                || stack.is(ItemTags.SHOVELS)
-                || stack.is(ItemTags.HOES)
-                || stack.is(ItemTags.SWORDS);
+        Item item = stack.getItem();
+
+        return item instanceof PickaxeItem
+                || item instanceof AxeItem
+                || item instanceof ShovelItem
+                || item instanceof HoeItem
+                || item instanceof SwordItem;
     }
 }
