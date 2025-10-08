@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "S  ",
+    " F ",
+    "  B"
+  ],
+  "key": {
+    "S": {
+      "item": "examplemod:hewn_stone"
+    },
+    "F": {
+      "item": "examplemod:flax_fibers"
+    },
+    "B": {
+      "item": "examplemod:branch"
+    }
+  },
+  "result": {
+    "item": "examplemod:rough_stone_knife"
+  }
+}

@@ -6,6 +6,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.TallBlockItem;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemTier;
 import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.ShovelItem;
@@ -134,6 +135,10 @@ public class ModItems {
     public static final RegistryObject<Item> FLAX_FIBERS = ITEMS.register("flax_fibers",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Выскобленная кожа: простое сырьё
+    public static final RegistryObject<Item> SCRAPED_HIDE = ITEMS.register("scraped_hide",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Деревянный гребень: получается из ветки и отесанного камня
     public static final RegistryObject<Item> WOODEN_COMB = ITEMS.register("wooden_comb",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
@@ -141,6 +146,18 @@ public class ModItems {
     // Костяной гребень: получается из большой кости и отесанного камня
     public static final RegistryObject<Item> BONE_COMB = ITEMS.register("bone_comb",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Грубый каменный нож: базовый инструмент
+    public static final RegistryObject<Item> ROUGH_STONE_KNIFE = ITEMS.register("rough_stone_knife",
+            () -> new Item(new Item.Properties()
+                    .tab(ItemGroup.TAB_TOOLS)
+                    .durability(30)));
+
+    // Грубый костяной нож: улучшенный инструмент
+    public static final RegistryObject<Item> ROUGH_BONE_KNIFE = ITEMS.register("rough_bone_knife",
+            () -> new Item(new Item.Properties()
+                    .tab(ItemGroup.TAB_TOOLS)
+                    .durability(50)));
 
     // === Stone Tools ===
     public static final RegistryObject<Item> STONE_PICKAXE = ITEMS.register("stone_pickaxe",

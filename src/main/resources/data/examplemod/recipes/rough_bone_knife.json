@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B  ",
+    " F ",
+    "  R"
+  ],
+  "key": {
+    "B": {
+      "item": "examplemod:sharpened_bone"
+    },
+    "F": {
+      "item": "examplemod:flax_fibers"
+    },
+    "R": {
+      "item": "examplemod:branch"
+    }
+  },
+  "result": {
+    "item": "examplemod:rough_bone_knife"
+  }
+}

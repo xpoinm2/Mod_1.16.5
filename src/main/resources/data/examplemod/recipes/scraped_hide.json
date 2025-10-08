@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:leather"
+    },
+    {
+      "tag": "examplemod:rough_knives"
+    }
+  ],
+  "result": {
+    "item": "examplemod:scraped_hide"
+  }
+}
