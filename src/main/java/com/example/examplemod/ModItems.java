@@ -6,7 +6,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.TallBlockItem;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemTier;
 import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.ShovelItem;
@@ -150,13 +149,13 @@ public class ModItems {
     // Грубый каменный нож: базовый инструмент
     public static final RegistryObject<Item> ROUGH_STONE_KNIFE = ITEMS.register("rough_stone_knife",
             () -> new Item(new Item.Properties()
-                    .tab(ItemGroup.TAB_TOOLS)
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
                     .durability(30)));
 
     // Грубый костяной нож: улучшенный инструмент
     public static final RegistryObject<Item> ROUGH_BONE_KNIFE = ITEMS.register("rough_bone_knife",
             () -> new Item(new Item.Properties()
-                    .tab(ItemGroup.TAB_TOOLS)
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
                     .durability(50)));
 
     // === Stone Tools ===
