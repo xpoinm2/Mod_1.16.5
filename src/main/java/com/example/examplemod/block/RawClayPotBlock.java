@@ -23,8 +23,8 @@ public class RawClayPotBlock extends Block {
 
     public RawClayPotBlock() {
         super(AbstractBlock.Properties.of(Material.CLAY)
-                .hardnessAndResistance(0.8F, 0.8F)
-                .notSolid()
+                .strength(0.8F, 0.8F)
+                .noOcclusion()
         );
     }
 
