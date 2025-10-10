@@ -75,5 +75,6 @@
   "block.examplemod.firepit_block": "Кострище",
   "item.examplemod.firepit_block": "Кострище",
   "key.examplemod.progress": "Технологический прогресс",
+  "block.examplemod.raw_clay_pot": "Сырой глиняный горшок",
   "item.examplemod.raw_clay_pot": "Сырой глиняный горшок"
 }

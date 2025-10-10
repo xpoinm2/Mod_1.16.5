@@ -140,7 +140,8 @@ public class ModItems {
 
     // Сырой глиняный горшок: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_POT = ITEMS.register("raw_clay_pot",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new BlockItem(ModBlocks.RAW_CLAY_POT.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Деревянный гребень: получается из ветки и отесанного камня
     public static final RegistryObject<Item> WOODEN_COMB = ITEMS.register("wooden_comb",

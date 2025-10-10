@@ -75,5 +75,6 @@
   "block.examplemod.firepit_block": "Firepit",
   "item.examplemod.firepit_block": "Firepit",
   "key.examplemod.progress": "Technology Progress",
+  "block.examplemod.raw_clay_pot": "Raw Clay Pot",
   "item.examplemod.raw_clay_pot": "Raw Clay Pot"
 }
