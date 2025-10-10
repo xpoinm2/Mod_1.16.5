@@ -12,17 +12,17 @@ import net.minecraft.world.IBlockReader;
 
 public class RawClayPotBlock extends Block {
     private static final VoxelShape SHAPE = VoxelShapes.or(
-            Block.makeCuboidShape(6, 0, 6, 10, 1, 10),
-            Block.makeCuboidShape(6, 1, 6, 10, 2, 10),
-            Block.makeCuboidShape(5, 2, 5, 11, 3, 11),
-            Block.makeCuboidShape(4, 3, 4, 12, 5, 12),
-            Block.makeCuboidShape(4, 5, 4, 12, 7, 12),
-            Block.makeCuboidShape(5, 7, 5, 11, 8, 11),
-            Block.makeCuboidShape(4, 7.75, 4, 12, 8, 12)
+            Block.box(6.0D, 0.0D, 6.0D, 10.0D, 1.0D, 10.0D),
+            Block.box(6.0D, 1.0D, 6.0D, 10.0D, 2.0D, 10.0D),
+            Block.box(5.0D, 2.0D, 5.0D, 11.0D, 3.0D, 11.0D),
+            Block.box(4.0D, 3.0D, 4.0D, 12.0D, 5.0D, 12.0D),
+            Block.box(4.0D, 5.0D, 4.0D, 12.0D, 7.0D, 12.0D),
+            Block.box(5.0D, 7.0D, 5.0D, 11.0D, 8.0D, 11.0D),
+            Block.box(4.0D, 7.75D, 4.0D, 12.0D, 8.0D, 12.0D)
     );
 
     public RawClayPotBlock() {
-        super(AbstractBlock.Properties.create(Material.CLAY)
+        super(AbstractBlock.Properties.of(Material.CLAY)
                 .hardnessAndResistance(0.8F)
                 .notSolid()
         );
