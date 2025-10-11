@@ -1,8 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "examplemod:block/raw_clay_pot",
-      "x": 180
+      "model": "examplemod:block/raw_clay_pot"
     }
   }
 }
