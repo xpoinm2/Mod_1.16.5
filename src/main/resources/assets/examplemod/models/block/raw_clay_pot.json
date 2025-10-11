@@ -2,6 +2,7 @@
   "parent": "block/block",
   "ambientocclusion": false,
   "textures": {
+    "particle": "examplemod:block/raw_clay_pot",
     "all": "examplemod:block/raw_clay_pot"
   },
   "elements": [
