@@ -105,50 +105,6 @@ public class ClayCupItem extends Item {
         if (currentAmount < CAPACITY) {
             return ActionResult.pass(stack);
         }
-
-        if (world.dimensionType().ultraWarm()) {
-            // Evaporate in the Nether similar to vanilla bucket behaviour
-            world.playSound(player, hitPos, SoundEvents.FIRE_EXTINGUISH, SoundCategory.PLAYERS, 0.5F, 2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
-            if (!world.isClientSide) {
-                handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE);
-            }
-            player.awardStat(Stats.ITEM_USED.get(this));
-            return ActionResult.sidedSuccess(stack, world.isClientSide());
-        }
-
-        BlockPos targetPos;
-        BlockState hitState = world.getBlockState(hitPos);
-        if (hitState.getBlock() instanceof ILiquidContainer && ((ILiquidContainer) hitState.getBlock()).canPlaceLiquid(world, hitPos, hitState, Fluids.WATER)) {
-            targetPos = hitPos;
-        } else {
-            targetPos = placePos;
-        }
-
-        BlockState targetState = world.getBlockState(targetPos);
-        boolean replaced = false;
-        if (targetState.getBlock() instanceof ILiquidContainer) {
-            ILiquidContainer container = (ILiquidContainer) targetState.getBlock();
-            if (container.canPlaceLiquid(world, targetPos, targetState, Fluids.WATER)) {
-                if (!world.isClientSide) {
-                    container.placeLiquid(world, targetPos, targetState, Fluids.WATER.defaultFluidState());
-                    handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE);
-                }
-                replaced = true;
-            }
-        } else if (targetState.isAir() || targetState.getMaterial().isReplaceable() || targetState.getFluidState().isEmpty()) {
-            if (!world.isClientSide) {
-                world.setBlock(targetPos, Blocks.WATER.defaultBlockState(), 11);
-                handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE);
-            }
-            replaced = true;
-        }
-
-        if (replaced) {
-            world.playSound(player, targetPos, SoundEvents.BUCKET_EMPTY, SoundCategory.PLAYERS, 1.0F, 1.0F);
-            player.awardStat(Stats.ITEM_USED.get(this));
-            return ActionResult.sidedSuccess(stack, world.isClientSide());
-        }
-
         return ActionResult.pass(stack);
     }
 

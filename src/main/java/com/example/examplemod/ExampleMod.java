@@ -28,10 +28,12 @@ import com.example.examplemod.server.RedMushroomHandler;
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.model.ItemModelsProperties;
 import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -113,6 +115,12 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(ModBlocks.RAW_CLAY_POT.get(), RenderType.cutout());
+
+        event.enqueueWork(() -> ItemModelsProperties.register(ModItems.CLAY_CUP.get(),
+                new ResourceLocation(ExampleMod.MODID, "filled"),
+                (stack, world, entity) -> stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+                        .map(handler -> handler.getFluidInTank(0).getAmount() > 0 ? 1.0F : 0.0F)
+                        .orElse(0.0F)));
     }
 
     private static void registerDimensionRenderInfo(ResourceLocation key, DimensionRenderInfo info) {

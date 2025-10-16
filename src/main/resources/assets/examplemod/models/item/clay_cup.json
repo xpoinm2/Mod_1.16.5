@@ -2,5 +2,13 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "examplemod:item/clay_cup"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "examplemod:filled": 1
+      },
+      "model": "examplemod:item/clay_cup_filled"
+    }
+  ]
 }
