@@ -27,6 +27,7 @@ import com.example.examplemod.item.PyriteFlintItem;
 import com.example.examplemod.item.HeavenTicketItem;
 import com.example.examplemod.item.BranchItem;
 import com.example.examplemod.item.ClayCupItem;
+import com.example.examplemod.item.ClayShardsBlockItem;
 
 
 public class ModItems {
@@ -155,6 +156,11 @@ public class ModItems {
     // Глиняный горшок: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_POT = ITEMS.register("clay_pot",
             () -> new BlockItem(ModBlocks.CLAY_POT.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Глиняные осколки
+    public static final RegistryObject<Item> CLAY_SHARDS = ITEMS.register("clay_shards",
+            () -> new ClayShardsBlockItem(ModBlocks.CLAY_SHARDS.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Деревянный гребень: получается из ветки и отесанного камня

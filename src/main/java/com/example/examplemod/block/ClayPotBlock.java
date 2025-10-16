@@ -1,5 +1,6 @@
 package com.example.examplemod.block;
 
+import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -16,6 +17,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraft.world.Explosion;
+import net.minecraft.stats.Stats;
 
 public class ClayPotBlock extends Block {
     private static final VoxelShape SHAPE = VoxelShapes.or(
@@ -64,5 +67,23 @@ public class ClayPotBlock extends Block {
         }
 
         return ActionResultType.sidedSuccess(world.isClientSide);
+    }
+
+    @Override
+    public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState state,
+                              @javax.annotation.Nullable net.minecraft.tileentity.TileEntity tile, ItemStack stack) {
+        player.awardStat(Stats.BLOCK_MINED.get(this));
+        player.causeFoodExhaustion(0.005F);
+        if (!world.isClientSide) {
+            world.setBlock(pos, ModBlocks.CLAY_SHARDS.get().defaultBlockState(), 3);
+        }
+    }
+
+    @Override
+    public void onBlockExploded(BlockState state, World world, BlockPos pos, Explosion explosion) {
+        super.onBlockExploded(state, world, pos, explosion);
+        if (!world.isClientSide) {
+            world.setBlock(pos, ModBlocks.CLAY_SHARDS.get().defaultBlockState(), 3);
+        }
     }
 }

@@ -80,6 +80,8 @@
   "item.examplemod.raw_clay_cup": "Сырая глиняная чашка",
   "block.examplemod.clay_pot": "Глиняный горшок",
   "item.examplemod.clay_pot": "Глиняный горшок",
+  "block.examplemod.clay_shards": "Глиняные осколки",
+  "item.examplemod.clay_shards": "Глиняные осколки",
   "item.examplemod.clay_cup": "Глиняная чашка",
   "tooltip.examplemod.clay_cup.empty": "Пусто",
   "tooltip.examplemod.clay_cup.water": "Вода: %s / %s мб"
