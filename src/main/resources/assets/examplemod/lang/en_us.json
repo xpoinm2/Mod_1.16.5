@@ -77,6 +77,8 @@
   "key.examplemod.progress": "Technology Progress",
   "block.examplemod.raw_clay_pot": "Raw Clay Pot",
   "item.examplemod.raw_clay_pot": "Raw Clay Pot",
+  "item.examplemod.raw_clay_cup": "Raw Clay Cup",
   "block.examplemod.clay_pot": "Clay Pot",
-  "item.examplemod.clay_pot": "Clay Pot"
+  "item.examplemod.clay_pot": "Clay Pot",
+  "item.examplemod.clay_cup": "Clay Cup"
 }

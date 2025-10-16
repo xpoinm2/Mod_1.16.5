@@ -138,6 +138,14 @@ public class ModItems {
     public static final RegistryObject<Item> SCRAPED_HIDE = ITEMS.register("scraped_hide",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Сырая глиняная чашка: заготовка перед обжигом
+    public static final RegistryObject<Item> RAW_CLAY_CUP = ITEMS.register("raw_clay_cup",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Глиняная чашка: готовое изделие после обжига
+    public static final RegistryObject<Item> CLAY_CUP = ITEMS.register("clay_cup",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Сырой глиняный горшок: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_POT = ITEMS.register("raw_clay_pot",
             () -> new BlockItem(ModBlocks.RAW_CLAY_POT.get(),

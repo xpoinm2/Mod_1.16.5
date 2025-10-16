@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A A",
+    " A ",
+    "   "
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "item": "examplemod:raw_clay_cup"
+  }
+}
