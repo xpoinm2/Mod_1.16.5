@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "examplemod:clay_pot_from_campfire"
+    ]
+  },
+  "criteria": {
+    "has_raw_clay_pot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "examplemod:raw_clay_pot"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "examplemod:clay_pot_from_campfire"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_raw_clay_pot",
+      "has_the_recipe"
+    ]
+  ]
+}

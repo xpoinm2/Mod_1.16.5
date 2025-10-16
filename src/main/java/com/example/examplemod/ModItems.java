@@ -143,6 +143,10 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.RAW_CLAY_POT.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Глиняный горшок: готовое изделие после обжига
+    public static final RegistryObject<Item> CLAY_POT = ITEMS.register("clay_pot",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Деревянный гребень: получается из ветки и отесанного камня
     public static final RegistryObject<Item> WOODEN_COMB = ITEMS.register("wooden_comb",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
