@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import com.example.examplemod.block.DanilkaBlock;
 import com.example.examplemod.block.ParadiseDoorBlock;
+import com.example.examplemod.block.ClayPotBlock;
 import com.example.examplemod.block.RawClayPotBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
@@ -48,6 +49,10 @@ public class ModBlocks {
     // Сырой глиняный горшок
     public static final RegistryObject<Block> RAW_CLAY_POT = BLOCKS.register("raw_clay_pot",
             RawClayPotBlock::new);
+
+    // Глиняный горшок
+    public static final RegistryObject<Block> CLAY_POT = BLOCKS.register("clay_pot",
+            ClayPotBlock::new);
 
     // Блок Данилка
     public static final RegistryObject<Block> DANILKA_BLOCK = BLOCKS.register("danilka_block",

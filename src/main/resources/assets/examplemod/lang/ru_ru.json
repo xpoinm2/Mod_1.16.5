@@ -77,5 +77,6 @@
   "key.examplemod.progress": "Технологический прогресс",
   "block.examplemod.raw_clay_pot": "Сырой глиняный горшок",
   "item.examplemod.raw_clay_pot": "Сырой глиняный горшок",
+  "block.examplemod.clay_pot": "Глиняный горшок",
   "item.examplemod.clay_pot": "Глиняный горшок"
 }
