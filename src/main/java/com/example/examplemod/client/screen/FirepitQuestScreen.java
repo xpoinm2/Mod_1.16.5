@@ -89,7 +89,8 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
     protected boolean isQuestUnlocked() {
         return QuestManager.isPureIronOreCompleted()
                 && QuestManager.isCobbleSlabsCompleted()
-                && QuestManager.isBrushwoodCompleted();
+                && QuestManager.isBrushwoodCompleted()
+                && QuestManager.isPyriteFlintCompleted();
     }
 
     @Override

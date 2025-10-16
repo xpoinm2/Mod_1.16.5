@@ -1,12 +1,10 @@
 package com.example.examplemod.client.screen;
 
-import com.example.examplemod.client.FramedButton;
-import com.example.examplemod.client.ItemIconButton;
-import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.ModItems;
+import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.client.GuiUtil;
+import com.example.examplemod.client.ItemIconButton;
 import com.example.examplemod.quest.QuestManager;
-import com.example.examplemod.client.screen.StartHammersQuestScreen;
-import com.example.examplemod.client.screen.CobbleSlabQuestScreen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,11 +14,22 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public class ProgressProductionScreen extends Screen {
+    private static final int PANEL_MARGIN = 10;
+    private static final int MAP_PADDING = 15;
+
     private final Screen parent;
+
+    private final List<QuestNode> nodes = new ArrayList<>();
+    private final List<QuestConnection> connections = new ArrayList<>();
+
     private ItemIconButton planksButton;
     private ItemIconButton slabsButton;
     private ItemIconButton cobbleSlabButton;
@@ -28,6 +37,47 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton boneToolsButton;
     private ItemIconButton combButton;
     private ItemIconButton startHammersButton;
+    private ItemIconButton roughKnivesButton;
+    private ItemIconButton scrapedLeatherButton;
+    private ItemIconButton clayPotButton;
+
+    private int offsetX;
+    private int offsetY;
+    private boolean panning;
+    private int mapLeft;
+    private int mapTop;
+    private int mapRight;
+    private int mapBottom;
+
+    private enum QuestState {
+        LOCKED,
+        AVAILABLE,
+        COMPLETED
+    }
+
+    private static class QuestNode {
+        final ItemIconButton button;
+        final int baseX;
+        final int baseY;
+
+        QuestNode(ItemIconButton button, int baseX, int baseY) {
+            this.button = button;
+            this.baseX = baseX;
+            this.baseY = baseY;
+        }
+    }
+
+    private static class QuestConnection {
+        final QuestNode from;
+        final QuestNode to;
+        final Supplier<QuestState> toStateSupplier;
+
+        QuestConnection(QuestNode from, QuestNode to, Supplier<QuestState> toStateSupplier) {
+            this.from = from;
+            this.to = to;
+            this.toStateSupplier = toStateSupplier;
+        }
+    }
 
     public ProgressProductionScreen(Screen parent) {
         super(new StringTextComponent("Производство"));
@@ -38,55 +88,88 @@ public class ProgressProductionScreen extends Screen {
     protected void init() {
         this.addButton(new FramedButton(5, 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
-        int x = 40;
-        int y = 60;
-        int spacingX = 50;
-        int spacingY = 23;
-        this.planksButton = new ItemIconButton(x, y, new ItemStack(Items.OAK_PLANKS),
+
+                nodes.clear();
+        connections.clear();
+
+        int baseX = 80;
+        int baseY = 90;
+        int spacingX = 70;
+        int spacingY = 60;
+
+        this.planksButton = new ItemIconButton(baseX, baseY, new ItemStack(Items.OAK_PLANKS),
                 b -> this.minecraft.setScreen(new PlanksQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Доски")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
-        this.addButton(this.planksButton);
+        QuestNode planksNode = registerNode(this.planksButton, baseX, baseY);
 
-        this.slabsButton = new ItemIconButton(x + spacingX, y, new ItemStack(Items.OAK_SLAB),
-                b -> this.minecraft.setScreen(new SlabsQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Плиты")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Доски")
+                this.slabsButton = new ItemIconButton(baseX + spacingX, baseY, new ItemStack(Items.OAK_SLAB),
+                        b -> this.minecraft.setScreen(new SlabsQuestScreen(this)),
+                        () -> Arrays.asList(
+                                new StringTextComponent("Плиты")
+                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                                new StringTextComponent("Требуется: ")
+                                        .append(new StringTextComponent("Доски")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode slabsNode = registerNode(this.slabsButton, baseX + spacingX, baseY);
+
+                this.stoneToolsButton = new ItemIconButton(baseX + spacingX * 2, baseY,
+                        new ItemStack(ModItems.STONE_PICKAXE.get()),
+                        b -> this.minecraft.setScreen(new StoneToolsQuestScreen(this)),
+                        () -> Arrays.asList(
+                                new StringTextComponent("Каменные инструменты")
+                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                                new StringTextComponent("Требуется: ")
+                                        .append(new StringTextComponent("Оттёсанный камень")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Волокна льна")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Ветка")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode stoneToolsNode = registerNode(this.stoneToolsButton, baseX + spacingX * 2, baseY);
+
+                this.combButton = new ItemIconButton(baseX + spacingX * 3, baseY,
+                        new ItemStack(ModItems.BONE_COMB.get()),
+                        b -> this.minecraft.setScreen(new CombsQuestScreen(this)),
+                        () -> Arrays.asList(
+        new StringTextComponent("Гребни")
+                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Большая кость")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Оттёсанный камень")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Ветка")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode combNode = registerNode(this.combButton, baseX + spacingX * 3, baseY);
+
+                this.clayPotButton = new ItemIconButton(baseX, baseY + spacingY,
+                        new ItemStack(ModItems.CLAY_POT.get()),
+                        b -> this.minecraft.setScreen(new ClayPotQuestScreen(this)),
+                        () -> Arrays.asList(
+        new StringTextComponent("Глиняный горшок")
+                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Кострище")
                                         .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.slabsButton);
+        registerNode(this.clayPotButton, baseX, baseY + spacingY);
 
-        this.cobbleSlabButton = new ItemIconButton(x + spacingX, y + spacingY,
+        this.cobbleSlabButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
                 new ItemStack(Items.COBBLESTONE_SLAB),
                 b -> this.minecraft.setScreen(new CobbleSlabQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Булыжная плита")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
-        this.addButton(this.cobbleSlabButton);
+        QuestNode cobbleNode = registerNode(this.cobbleSlabButton, baseX + spacingX, baseY + spacingY);
 
-        this.stoneToolsButton = new ItemIconButton(x + spacingX * 2, y,
-                new ItemStack(ModItems.STONE_PICKAXE.get()),
-                b -> this.minecraft.setScreen(new StoneToolsQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Каменные инструменты")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Оттёсанный камень")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Волокна льна")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Ветка")
-                                        .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.stoneToolsButton);
-
-        this.boneToolsButton = new ItemIconButton(x + spacingX * 2, y + spacingY,
+        this.boneToolsButton = new ItemIconButton(baseX + spacingX * 2, baseY + spacingY,
                 new ItemStack(ModItems.BONE_PICKAXE.get()),
                 b -> this.minecraft.setScreen(new BoneToolsQuestScreen(this)),
                 () -> Arrays.asList(
@@ -96,46 +179,65 @@ public class ProgressProductionScreen extends Screen {
                                 .append(new StringTextComponent("Заостренная кость")
                                         .withStyle(TextFormatting.BLUE))
                                 .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Волокна льна")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Ветка")
-                                        .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.boneToolsButton);
+                                        .append(new StringTextComponent("Волокна льна")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Ветка")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode boneToolsNode = registerNode(this.boneToolsButton, baseX + spacingX * 2, baseY + spacingY);
 
-        this.combButton = new ItemIconButton(x + spacingX * 3, y,
-                new ItemStack(ModItems.BONE_COMB.get()),
-                b -> this.minecraft.setScreen(new CombsQuestScreen(this)),
+                this.startHammersButton = new ItemIconButton(baseX + spacingX * 3, baseY + spacingY,
+                        new ItemStack(ModItems.STONE_HAMMER.get()),
+                        b -> this.minecraft.setScreen(new StartHammersQuestScreen(this)),
+                        () -> Arrays.asList(
+                                new StringTextComponent("Стартовые молоты")
+                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                                new StringTextComponent("Требуется: ")
+                                        .append(new StringTextComponent("Начало кузнечного дела")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Костяные инструменты")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Каменные инструменты")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode hammersNode = registerNode(this.startHammersButton, baseX + spacingX * 3, baseY + spacingY);
+
+        this.roughKnivesButton = new ItemIconButton(baseX + spacingX * 2, baseY + spacingY * 2,
+                new ItemStack(ModItems.ROUGH_STONE_KNIFE.get()),
+                b -> this.minecraft.setScreen(new RoughKnivesQuestScreen(this)),
                 () -> Arrays.asList(
-                        new StringTextComponent("Гребни")
+                        new StringTextComponent("Первые грубые ножи")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Большая кость")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Оттёсанный камень")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Ветка")
-                                        .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.combButton);
-
-        this.startHammersButton = new ItemIconButton(x + spacingX * 3, y + spacingY,
-                new ItemStack(ModItems.STONE_HAMMER.get()),
-                b -> this.minecraft.setScreen(new StartHammersQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Стартовые молоты")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Начало кузнечного дела")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
-                                .append(new StringTextComponent("Костяные инструменты")
-                                        .withStyle(TextFormatting.BLUE))
-                                .append(new StringTextComponent(", "))
                                 .append(new StringTextComponent("Каменные инструменты")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(" или "))
+                                .append(new StringTextComponent("Костяные инструменты")
                                         .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.startHammersButton);
+        QuestNode roughKnivesNode = registerNode(this.roughKnivesButton, baseX + spacingX * 2, baseY + spacingY * 2);
+
+        this.scrapedLeatherButton = new ItemIconButton(baseX + spacingX * 3, baseY + spacingY * 2,
+                new ItemStack(ModItems.SCRAPED_HIDE.get()),
+                b -> this.minecraft.setScreen(new ScrapedLeatherQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Выскобленная кожа")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Первые грубые ножи")
+                                        .withStyle(TextFormatting.BLUE))));
+        QuestNode scrapedLeatherNode = registerNode(this.scrapedLeatherButton, baseX + spacingX * 3, baseY + spacingY * 2);
+
+        addConnection(planksNode, slabsNode, this::getSlabsState);
+        addConnection(slabsNode, cobbleNode, this::getCobbleSlabState);
+        addConnection(stoneToolsNode, hammersNode, this::getStartHammersState);
+        addConnection(boneToolsNode, hammersNode, this::getStartHammersState);
+        addConnection(stoneToolsNode, roughKnivesNode, this::getRoughKnivesState);
+        addConnection(boneToolsNode, roughKnivesNode, this::getRoughKnivesState);
+        addConnection(roughKnivesNode, scrapedLeatherNode, this::getScrapedLeatherState);
+
+        updateNodePositions();
+        updateMapBounds();
         super.init();
     }
 
@@ -145,93 +247,192 @@ public class ProgressProductionScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
-        this.renderBackground(ms);
-        int x0 = 10;
-        int y0 = 10;
-        GuiUtil.drawPanel(ms, x0, y0, this.width - 20, this.height - 20);
-        drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
+        public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+            this.renderBackground(ms);
+            updateMapBounds();
+            GuiUtil.drawPanel(ms, PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
+            drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
 
-        // Update button states and colors based on quest progress
-        this.planksButton.setBorderColor(
-                QuestManager.isPlanksCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+            updateNodePositions();
 
-        int slabsColor;
-        if (!QuestManager.isPlanksCompleted()) {
-            slabsColor = 0xFFFF0000; // locked
-        } else if (QuestManager.isSlabsCompleted()) {
-            slabsColor = 0xFF00FF00; // completed
-        } else {
-            slabsColor = 0xFF00BFFF; // available
+            this.planksButton.setBorderColor(colorForState(getPlanksState()));
+            this.slabsButton.setBorderColor(colorForState(getSlabsState()));
+            this.cobbleSlabButton.setBorderColor(colorForState(getCobbleSlabState()));
+            this.stoneToolsButton.setBorderColor(colorForState(getStoneToolsState()));
+            this.boneToolsButton.setBorderColor(colorForState(getBoneToolsState()));
+            this.combButton.setBorderColor(colorForState(getCombState()));
+            this.startHammersButton.setBorderColor(colorForState(getStartHammersState()));
+            this.roughKnivesButton.setBorderColor(colorForState(getRoughKnivesState()));
+            this.scrapedLeatherButton.setBorderColor(colorForState(getScrapedLeatherState()));
+            this.clayPotButton.setBorderColor(colorForState(getClayPotState()));
+
+            renderConnections(ms);
+
+            super.render(ms, mouseX, mouseY, partialTicks);
         }
-        this.slabsButton.setBorderColor(slabsColor);
 
-        this.cobbleSlabButton.setBorderColor(
-                QuestManager.isCobbleSlabsCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
-
-        boolean stoneUnlocked = QuestManager.isHewnStonesCompleted() &&
-                QuestManager.isFlaxFibersCompleted() &&
-                QuestManager.isBranchCompleted();
-        int toolsColor;
-        if (!stoneUnlocked) {
-            toolsColor = 0xFFFF0000; // locked
-        } else if (QuestManager.isStoneToolsCompleted()) {
-            toolsColor = 0xFF00FF00; // completed
-        } else {
-            toolsColor = 0xFF00BFFF; // available
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (button == 1 && isInMap(mouseX, mouseY)) {
+                panning = true;
+                return true;
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
         }
-        this.stoneToolsButton.setBorderColor(toolsColor);
 
-        boolean boneUnlocked = QuestManager.isSharpenedBoneCompleted() &&
-                QuestManager.isFlaxFibersCompleted() &&
-                QuestManager.isBranchCompleted();
-        int boneColor;
-        if (!boneUnlocked) {
-            boneColor = 0xFFFF0000; // locked
-        } else if (QuestManager.isBoneToolsCompleted()) {
-            boneColor = 0xFF00FF00; // completed
-        } else {
-            boneColor = 0xFF00BFFF; // available
+        @Override
+        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+            if (panning && button == 1) {
+                offsetX += (int) Math.round(dragX);
+                offsetY += (int) Math.round(dragY);
+                updateNodePositions();
+                return true;
+            }
+            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         }
-        this.boneToolsButton.setBorderColor(boneColor);
 
-        boolean combUnlocked = QuestManager.isBigBonesCompleted() &&
-                QuestManager.isHewnStonesCompleted() &&
-                QuestManager.isBranchCompleted();
-        int combColor;
-        if (!combUnlocked) {
-            combColor = 0xFFFF0000;
-        } else if (QuestManager.isCombsCompleted()) {
-            combColor = 0xFF00FF00;
-        } else {
-            combColor = 0xFF00BFFF;
+        @Override
+        public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            if (button == 1 && panning) {
+                panning = false;
+                return true;
+            }
+            return super.mouseReleased(mouseX, mouseY, button);
         }
-        this.combButton.setBorderColor(combColor);
 
-        boolean hammerUnlocked = QuestManager.isStartSmithingCompleted() &&
-                QuestManager.isBoneToolsCompleted() && QuestManager.isStoneToolsCompleted();
-        int hammerColor;
-        if (!hammerUnlocked) {
-            hammerColor = 0xFFFF0000;
-        } else if (QuestManager.isStartHammersCompleted()) {
-            hammerColor = 0xFF00FF00;
-        } else {
-            hammerColor = 0xFF00BFFF;
+        private QuestNode registerNode(ItemIconButton button, int baseX, int baseY) {
+            QuestNode node = new QuestNode(button, baseX, baseY);
+            nodes.add(node);
+            this.addButton(button);
+            return node;
         }
-        this.startHammersButton.setBorderColor(hammerColor);
 
-        drawConnection(ms, this.planksButton, this.slabsButton);
-        drawConnection(ms, this.slabsButton, this.cobbleSlabButton);
+        private void addConnection(QuestNode from, QuestNode to, Supplier<QuestState> toStateSupplier) {
+            connections.add(new QuestConnection(from, to, toStateSupplier));
+        }
 
-        super.render(ms, mouseX, mouseY, pt);
+        private void updateNodePositions() {
+            for (QuestNode node : nodes) {
+                node.button.x = node.baseX + offsetX;
+                node.button.y = node.baseY + offsetY;
+            }
+        }
+
+        private void updateMapBounds() {
+            mapLeft = PANEL_MARGIN + MAP_PADDING;
+            mapRight = this.width - PANEL_MARGIN - MAP_PADDING;
+            mapTop = PANEL_MARGIN + 45;
+            mapBottom = this.height - PANEL_MARGIN - MAP_PADDING;
+        }
+
+        private boolean isInMap(double mouseX, double mouseY) {
+            return mouseX >= mapLeft && mouseX <= mapRight && mouseY >= mapTop && mouseY <= mapBottom;
+        }
+
+        private void renderConnections(MatrixStack ms) {
+            for (QuestConnection connection : connections) {
+                QuestState state = connection.toStateSupplier.get();
+                int color = state == QuestState.LOCKED ? 0xFF7F7F7F : 0xFFFFFFFF;
+                ItemIconButton fromButton = connection.from.button;
+                ItemIconButton toButton = connection.to.button;
+                int x1 = fromButton.x + fromButton.getWidth() / 2;
+                int y1 = fromButton.y + fromButton.getHeight() / 2;
+                int x2 = toButton.x + toButton.getWidth() / 2;
+                int y2 = toButton.y + toButton.getHeight() / 2;
+                if (x1 != x2) {
+                    AbstractGui.fill(ms, Math.min(x1, x2), y1, Math.max(x1, x2), y1 + 1, color);
+                }
+                if (y1 != y2) {
+                    AbstractGui.fill(ms, x2, Math.min(y1, y2), x2 + 1, Math.max(y1, y2), color);
+                }
+            }
+        }
+
+        private int colorForState(QuestState state) {
+            switch (state) {
+                case COMPLETED:
+                    return 0xFF00FF00;
+                case AVAILABLE:
+                    return 0xFF00BFFF;
+                default:
+                    return 0xFFFF0000;
+            }
+        }
+
+        private QuestState getPlanksState() {
+            return QuestManager.isPlanksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+        }
+
+        private QuestState getSlabsState() {
+            if (!QuestManager.isPlanksCompleted()) {
+            return QuestState.LOCKED;
+}
+        return QuestManager.isSlabsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
-    private void drawConnection(MatrixStack ms, ItemIconButton from, ItemIconButton to) {
-        int x1 = from.x + from.getWidth() / 2;
-        int y1 = from.y + from.getHeight() / 2;
-        int x2 = to.x + to.getWidth() / 2;
-        int y2 = to.y + to.getHeight() / 2;
-        AbstractGui.fill(ms, Math.min(x1, x2), y1, Math.max(x1, x2), y1 + 1, 0xFFFFFFFF);
-        AbstractGui.fill(ms, x2, Math.min(y1, y2), x2 + 1, Math.max(y1, y2), 0xFFFFFFFF);
+private QuestState getCobbleSlabState() {
+    return QuestManager.isCobbleSlabsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getStoneToolsState() {
+    boolean unlocked = QuestManager.isHewnStonesCompleted()
+            && QuestManager.isFlaxFibersCompleted()
+            && QuestManager.isBranchCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
     }
+    return QuestManager.isStoneToolsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getBoneToolsState() {
+    boolean unlocked = QuestManager.isSharpenedBoneCompleted()
+            && QuestManager.isFlaxFibersCompleted()
+            && QuestManager.isBranchCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isBoneToolsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getCombState() {
+    boolean unlocked = QuestManager.isBigBonesCompleted()
+            && QuestManager.isHewnStonesCompleted()
+            && QuestManager.isBranchCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isCombsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getStartHammersState() {
+    boolean unlocked = QuestManager.isStartSmithingCompleted()
+            && QuestManager.isBoneToolsCompleted()
+            && QuestManager.isStoneToolsCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isStartHammersCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getRoughKnivesState() {
+    boolean unlocked = QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isRoughKnivesCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getScrapedLeatherState() {
+    if (!QuestManager.isRoughKnivesCompleted()) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isScrapedLeatherCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getClayPotState() {
+    if (!QuestManager.isFirepitCompleted()) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isClayPotCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
 }

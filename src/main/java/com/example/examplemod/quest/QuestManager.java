@@ -19,6 +19,12 @@ public class QuestManager {
     private static boolean ironClusterCompleted = false;
     private static boolean pureIronOreCompleted = false;
     private static boolean firepitCompleted = false;
+    private static boolean pyriteCompleted = false;
+    private static boolean pyriteFlintCompleted = false;
+    private static boolean roughKnivesCompleted = false;
+    private static boolean scrapedLeatherCompleted = false;
+    private static boolean calcinedIronOreCompleted = false;
+    private static boolean clayPotCompleted = false;
 
 
     public static boolean isPlanksCompleted() {
@@ -166,6 +172,54 @@ public class QuestManager {
         firepitCompleted = value;
     }
 
+    public static boolean isPyriteCompleted() {
+        return pyriteCompleted;
+    }
+
+    public static void setPyriteCompleted(boolean value) {
+        pyriteCompleted = value;
+    }
+
+    public static boolean isPyriteFlintCompleted() {
+        return pyriteFlintCompleted;
+    }
+
+    public static void setPyriteFlintCompleted(boolean value) {
+        pyriteFlintCompleted = value;
+    }
+
+    public static boolean isRoughKnivesCompleted() {
+        return roughKnivesCompleted;
+    }
+
+    public static void setRoughKnivesCompleted(boolean value) {
+        roughKnivesCompleted = value;
+    }
+
+    public static boolean isScrapedLeatherCompleted() {
+        return scrapedLeatherCompleted;
+    }
+
+    public static void setScrapedLeatherCompleted(boolean value) {
+        scrapedLeatherCompleted = value;
+    }
+
+    public static boolean isCalcinedIronOreCompleted() {
+        return calcinedIronOreCompleted;
+    }
+
+    public static void setCalcinedIronOreCompleted(boolean value) {
+        calcinedIronOreCompleted = value;
+    }
+
+    public static boolean isClayPotCompleted() {
+        return clayPotCompleted;
+    }
+
+    public static void setClayPotCompleted(boolean value) {
+        clayPotCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
@@ -185,5 +239,11 @@ public class QuestManager {
         ironClusterCompleted = false;
         pureIronOreCompleted = false;
         firepitCompleted = false;
+        pyriteCompleted = false;
+        pyriteFlintCompleted = false;
+        roughKnivesCompleted = false;
+        scrapedLeatherCompleted = false;
+        calcinedIronOreCompleted = false;
+        clayPotCompleted = false;
     }
 }

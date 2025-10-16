@@ -2,12 +2,8 @@ package com.example.examplemod.client.screen;
 
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
-import com.example.examplemod.client.ItemIconButton;
 import com.example.examplemod.client.GuiUtil;
-import com.example.examplemod.client.screen.BranchQuestScreen;
-import com.example.examplemod.client.screen.FlaxFibersQuestScreen;
-import com.example.examplemod.client.screen.InitialFaunaQuestScreen;
-import com.example.examplemod.client.screen.BrushwoodQuestScreen;
+import com.example.examplemod.client.ItemIconButton;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
@@ -17,18 +13,67 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public class ProgressGatheringScreen extends Screen {
+    private static final int PANEL_MARGIN = 10;
+    private static final int MAP_PADDING = 15;
+
     private final Screen parent;
-    private ItemIconButton hewnStoneButton;
+
+    private final List<QuestNode> nodes = new ArrayList<>();
+    private final List<QuestConnection> connections = new ArrayList<>();
     private ItemIconButton branchButton;
+    private ItemIconButton initialFaunaButton;
+    private ItemIconButton brushwoodButton;
+    private ItemIconButton hewnStoneButton;
     private ItemIconButton bigBoneButton;
     private ItemIconButton sharpBoneButton;
     private ItemIconButton flaxFibersButton;
-    private ItemIconButton initialFaunaButton;
-    private ItemIconButton brushwoodButton;
+
+
+    private int offsetX;
+    private int offsetY;
+    private boolean panning;
+    private int mapLeft;
+    private int mapTop;
+    private int mapRight;
+    private int mapBottom;
+
+    private enum QuestState {
+        LOCKED,
+        AVAILABLE,
+        COMPLETED
+    }
+
+    private static class QuestNode {
+        final ItemIconButton button;
+        final int baseX;
+        final int baseY;
+
+        QuestNode(ItemIconButton button, int baseX, int baseY) {
+            this.button = button;
+            this.baseX = baseX;
+            this.baseY = baseY;
+        }
+    }
+
+    private static class QuestConnection {
+        final QuestNode from;
+        final QuestNode to;
+        final Supplier<QuestState> toStateSupplier;
+
+        QuestConnection(QuestNode from, QuestNode to, Supplier<QuestState> toStateSupplier) {
+            this.from = from;
+            this.to = to;
+            this.toStateSupplier = toStateSupplier;
+        }
+    }
 
     public ProgressGatheringScreen(Screen parent) {
         super(new StringTextComponent("Собирательство"));
@@ -39,29 +84,42 @@ public class ProgressGatheringScreen extends Screen {
     protected void init() {
         this.addButton(new FramedButton(5, 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
-        int x = 40;
-        int y = 60;
-        int spacingX = 50;
-        int spacingY = 23;
 
-        this.branchButton = new ItemIconButton(x, y, new ItemStack(ModItems.BRANCH.get()),
+        nodes.clear();
+        connections.clear();
+
+        int baseX = 80;
+        int baseY = 90;
+        int spacingX = 70;
+        int spacingY = 60;
+
+        this.branchButton = new ItemIconButton(baseX, baseY, new ItemStack(ModItems.BRANCH.get()),
                 b -> this.minecraft.setScreen(new BranchQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Ветка")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
-        this.addButton(this.branchButton);
+        QuestNode branchNode = registerNode(this.branchButton, baseX, baseY);
 
-        this.initialFaunaButton = new ItemIconButton(x + spacingX, y,
+        this.initialFaunaButton = new ItemIconButton(baseX + spacingX, baseY,
                 new ItemStack(ModItems.RASPBERRY.get()),
                 b -> this.minecraft.setScreen(new InitialFaunaQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Начальная фауна")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
-        this.addButton(this.initialFaunaButton);
+        registerNode(this.initialFaunaButton, baseX + spacingX, baseY);
 
-        this.brushwoodButton = new ItemIconButton(x + spacingX, y + spacingY,
+        this.hewnStoneButton = new ItemIconButton(baseX, baseY + spacingY,
+                new ItemStack(ModItems.HEWN_STONE.get()),
+                b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Оттёсанный камень")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
+        registerNode(this.hewnStoneButton, baseX, baseY + spacingY);
+
+        this.brushwoodButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
                 new ItemStack(ModItems.BRUSHWOOD_SLAB.get()),
                 b -> this.minecraft.setScreen(new BrushwoodQuestScreen(this)),
                 () -> Arrays.asList(
@@ -70,15 +128,8 @@ public class ProgressGatheringScreen extends Screen {
                         new StringTextComponent("Требуется: ")
                                 .append(new StringTextComponent("Ветка")
                                         .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.brushwoodButton);
-
-        this.hewnStoneButton = new ItemIconButton(x, y + spacingY, new ItemStack(ModItems.HEWN_STONE.get()),
-                b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Оттёсанный камень")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований")));
-        this.addButton(this.hewnStoneButton);
+        this.bigBoneButton = new ItemIconButton(baseX, baseY + spacingY * 2,
+                new ItemStack(ModItems.BIG_BONE.get()),
 
         this.bigBoneButton = new ItemIconButton(x, y + spacingY * 2, new ItemStack(ModItems.BIG_BONE.get()),
                 b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
@@ -86,8 +137,9 @@ public class ProgressGatheringScreen extends Screen {
                         new StringTextComponent("Большая кость")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
-        this.addButton(this.bigBoneButton);
-        this.sharpBoneButton = new ItemIconButton(x + spacingX, y + spacingY * 2,
+        QuestNode bigBoneNode = registerNode(this.bigBoneButton, baseX, baseY + spacingY * 2);
+
+        this.sharpBoneButton = new ItemIconButton(baseX + spacingX, baseY + spacingY * 2,
                 new ItemStack(ModItems.SHARPENED_BONE.get()),
                 b -> this.minecraft.setScreen(new SharpenedBoneQuestScreen(this)),
                 () -> Arrays.asList(
@@ -96,15 +148,22 @@ public class ProgressGatheringScreen extends Screen {
                         new StringTextComponent("Требуется: ")
                                 .append(new StringTextComponent("Большая кость")
                                         .withStyle(TextFormatting.BLUE))));
-        this.addButton(this.sharpBoneButton);
-        this.flaxFibersButton = new ItemIconButton(x, y + spacingY * 3,
+        QuestNode sharpBoneNode = registerNode(this.sharpBoneButton, baseX + spacingX, baseY + spacingY * 2);
+
+        this.flaxFibersButton = new ItemIconButton(baseX, baseY + spacingY * 3,
                 new ItemStack(ModItems.FLAX_FIBERS.get()),
                 b -> this.minecraft.setScreen(new FlaxFibersQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Волокна льна")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нет требований")));
-        this.addButton(this.flaxFibersButton);
+        registerNode(this.flaxFibersButton, baseX, baseY + spacingY * 3);
+
+        addConnection(branchNode, brushwoodNode, this::getBrushwoodState);
+        addConnection(bigBoneNode, sharpBoneNode, this::getSharpBoneState);
+
+        updateNodePositions();
+        updateMapBounds();
         super.init();
     }
 
@@ -114,55 +173,146 @@ public class ProgressGatheringScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
+    public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(ms);
-        int x0 = 10;
-        int y0 = 10;
-        GuiUtil.drawPanel(ms, x0, y0, this.width - 20, this.height - 20);
+        updateMapBounds();
+        GuiUtil.drawPanel(ms, PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
 
-        // Update button color based on quest state
-        this.hewnStoneButton.setBorderColor(
-                QuestManager.isHewnStonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
-        this.branchButton.setBorderColor(
-                QuestManager.isBranchCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
-        this.initialFaunaButton.setBorderColor(
-                QuestManager.isInitialFaunaCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
-        int brushColor;
-        if (!QuestManager.isBranchCompleted()) {
-            brushColor = 0xFFFF0000;
-        } else if (QuestManager.isBrushwoodCompleted()) {
-            brushColor = 0xFF00FF00;
-        } else {
-            brushColor = 0xFF00BFFF;
-        }
-        this.brushwoodButton.setBorderColor(brushColor);
-        this.bigBoneButton.setBorderColor(
-                QuestManager.isBigBonesCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
-        int sharpColor;
-        if (!QuestManager.isBigBonesCompleted()) {
-            sharpColor = 0xFFFF0000;
-        } else if (QuestManager.isSharpenedBoneCompleted()) {
-            sharpColor = 0xFF00FF00;
-        } else {
-            sharpColor = 0xFF00BFFF;
-        }
-        this.sharpBoneButton.setBorderColor(sharpColor);
-        this.flaxFibersButton.setBorderColor(
-                QuestManager.isFlaxFibersCompleted() ? 0xFF00FF00 : 0xFF00BFFF);
+        updateNodePositions();
 
-        drawConnection(ms, this.bigBoneButton, this.sharpBoneButton);
-        drawConnection(ms, this.branchButton, this.brushwoodButton);
+        this.branchButton.setBorderColor(colorForState(getBranchState()));
+        this.initialFaunaButton.setBorderColor(colorForState(getInitialFaunaState()));
+        this.brushwoodButton.setBorderColor(colorForState(getBrushwoodState()));
+        this.hewnStoneButton.setBorderColor(colorForState(getHewnStoneState()));
+        this.bigBoneButton.setBorderColor(colorForState(getBigBoneState()));
+        this.sharpBoneButton.setBorderColor(colorForState(getSharpBoneState()));
+        this.flaxFibersButton.setBorderColor(colorForState(getFlaxFibersState()));
 
-        super.render(ms, mouseX, mouseY, pt);
+        renderConnections(ms);
+
+        super.render(ms, mouseX, mouseY, partialTicks);
     }
 
-    private void drawConnection(MatrixStack ms, ItemIconButton from, ItemIconButton to) {
-        int x1 = from.x + from.getWidth();
-        int y1 = from.y + from.getHeight() / 2;
-        int x2 = to.x;
-        int y2 = to.y + to.getHeight() / 2;
-        AbstractGui.fill(ms, x1, y1, x2, y1 + 1, 0xFFFFFFFF);
-        AbstractGui.fill(ms, x2 - 1, Math.min(y1, y2), x2, Math.max(y1, y2), 0xFFFFFFFF);
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 1 && isInMap(mouseX, mouseY)) {
+            panning = true;
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (panning && button == 1) {
+            offsetX += (int) Math.round(dragX);
+            offsetY += (int) Math.round(dragY);
+            updateNodePositions();
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 1 && panning) {
+            panning = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    private QuestNode registerNode(ItemIconButton button, int baseX, int baseY) {
+        QuestNode node = new QuestNode(button, baseX, baseY);
+        nodes.add(node);
+        this.addButton(button);
+        return node;
+    }
+
+    private void addConnection(QuestNode from, QuestNode to, Supplier<QuestState> toStateSupplier) {
+        connections.add(new QuestConnection(from, to, toStateSupplier));
+    }
+
+    private void updateNodePositions() {
+        for (QuestNode node : nodes) {
+            node.button.x = node.baseX + offsetX;
+            node.button.y = node.baseY + offsetY;
+        }
+    }
+
+    private void updateMapBounds() {
+        mapLeft = PANEL_MARGIN + MAP_PADDING;
+        mapRight = this.width - PANEL_MARGIN - MAP_PADDING;
+        mapTop = PANEL_MARGIN + 45;
+        mapBottom = this.height - PANEL_MARGIN - MAP_PADDING;
+    }
+
+    private boolean isInMap(double mouseX, double mouseY) {
+        return mouseX >= mapLeft && mouseX <= mapRight && mouseY >= mapTop && mouseY <= mapBottom;
+    }
+
+    private void renderConnections(MatrixStack ms) {
+        for (QuestConnection connection : connections) {
+            QuestState state = connection.toStateSupplier.get();
+            int color = state == QuestState.LOCKED ? 0xFF7F7F7F : 0xFFFFFFFF;
+            ItemIconButton fromButton = connection.from.button;
+            ItemIconButton toButton = connection.to.button;
+            int x1 = fromButton.x + fromButton.getWidth() / 2;
+            int y1 = fromButton.y + fromButton.getHeight() / 2;
+            int x2 = toButton.x + toButton.getWidth() / 2;
+            int y2 = toButton.y + toButton.getHeight() / 2;
+            if (x1 != x2) {
+                AbstractGui.fill(ms, Math.min(x1, x2), y1, Math.max(x1, x2), y1 + 1, color);
+            }
+            if (y1 != y2) {
+                AbstractGui.fill(ms, x2, Math.min(y1, y2), x2 + 1, Math.max(y1, y2), color);
+            }
+        }
+    }
+
+    private int colorForState(QuestState state) {
+        switch (state) {
+            case COMPLETED:
+                return 0xFF00FF00;
+            case AVAILABLE:
+                return 0xFF00BFFF;
+            default:
+                return 0xFFFF0000;
+        }
+    }
+
+    private QuestState getBranchState() {
+        return QuestManager.isBranchCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getInitialFaunaState() {
+        return QuestManager.isInitialFaunaCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getBrushwoodState() {
+        if (!QuestManager.isBranchCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isBrushwoodCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getHewnStoneState() {
+        return QuestManager.isHewnStonesCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getBigBoneState() {
+        return QuestManager.isBigBonesCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getSharpBoneState() {
+        if (!QuestManager.isBigBonesCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isSharpenedBoneCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getFlaxFibersState() {
+        return QuestManager.isFlaxFibersCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 }
