@@ -28,7 +28,7 @@ import com.example.examplemod.server.RedMushroomHandler;
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.ItemModelsProperties;
+import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.common.MinecraftForge;
