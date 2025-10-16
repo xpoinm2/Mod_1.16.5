@@ -25,7 +25,8 @@ public class ClayShardsBlock extends Block {
     private static final VoxelShape SHAPE = VoxelShapes.or(
             Block.box(2.0D, 0.0D, 2.0D, 6.0D, 2.0D, 6.0D),
             Block.box(9.0D, 0.0D, 3.0D, 13.0D, 2.0D, 8.0D),
-            Block.box(4.0D, 0.0D, 9.0D, 12.0D, 2.0D, 13.0D)
+            Block.box(4.0D, 0.0D, 9.0D, 12.0D, 2.0D, 13.0D),
+            Block.box(1.0D, 0.0D, 10.0D, 5.0D, 2.0D, 14.0D)
     );
 
     public ClayShardsBlock() {
@@ -50,6 +51,16 @@ public class ClayShardsBlock extends Block {
         super.stepOn(world, pos, entity);
         if (!world.isClientSide) {
             entity.hurt(DamageSource.CACTUS, 1.0F);
+        }
+    }
+
+    @Override
+    public void entityInside(BlockState state, World world, BlockPos pos, Entity entity) {
+        super.entityInside(state, world, pos, entity);
+        if (!world.isClientSide && entity instanceof net.minecraft.entity.LivingEntity) {
+            if (entity.tickCount % 10 == 0) {
+                entity.hurt(DamageSource.CACTUS, 1.0F);
+            }
         }
     }
 
