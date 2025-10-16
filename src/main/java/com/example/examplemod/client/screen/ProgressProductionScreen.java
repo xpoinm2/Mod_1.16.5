@@ -40,6 +40,7 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton roughKnivesButton;
     private ItemIconButton scrapedLeatherButton;
     private ItemIconButton clayPotButton;
+    private ItemIconButton clayCupButton;
 
     private int offsetX;
     private int offsetY;
@@ -149,16 +150,27 @@ public class ProgressProductionScreen extends Screen {
                                                 .withStyle(TextFormatting.BLUE))));
         QuestNode combNode = registerNode(this.combButton, baseX + spacingX * 3, baseY);
 
-                this.clayPotButton = new ItemIconButton(baseX, baseY + spacingY,
-                        new ItemStack(ModItems.CLAY_POT.get()),
-                        b -> this.minecraft.setScreen(new ClayPotQuestScreen(this)),
-                        () -> Arrays.asList(
-        new StringTextComponent("Глиняный горшок")
-                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                new StringTextComponent("Требуется: ")
+        this.clayPotButton = new ItemIconButton(baseX, baseY + spacingY,
+                new ItemStack(ModItems.CLAY_POT.get()),
+                b -> this.minecraft.setScreen(new ClayPotQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Глиняный горшок")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
                                 .append(new StringTextComponent("Кострище")
                                         .withStyle(TextFormatting.BLUE))));
-        registerNode(this.clayPotButton, baseX, baseY + spacingY);
+        QuestNode clayPotNode = registerNode(this.clayPotButton, baseX, baseY + spacingY);
+
+        this.clayCupButton = new ItemIconButton(baseX, baseY + spacingY * 2,
+                new ItemStack(ModItems.CLAY_CUP.get()),
+                b -> this.minecraft.setScreen(new ClayCupQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Глиняная чашка")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Кострище")
+                                        .withStyle(TextFormatting.BLUE))));
+        QuestNode clayCupNode = registerNode(this.clayCupButton, baseX, baseY + spacingY * 2);
 
         this.cobbleSlabButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
                 new ItemStack(Items.COBBLESTONE_SLAB),
@@ -235,6 +247,7 @@ public class ProgressProductionScreen extends Screen {
         addConnection(stoneToolsNode, roughKnivesNode, this::getRoughKnivesState);
         addConnection(boneToolsNode, roughKnivesNode, this::getRoughKnivesState);
         addConnection(roughKnivesNode, scrapedLeatherNode, this::getScrapedLeatherState);
+        addConnection(clayPotNode, clayCupNode, this::getClayCupState);
 
         updateNodePositions();
         updateMapBounds();
@@ -265,6 +278,7 @@ public class ProgressProductionScreen extends Screen {
             this.roughKnivesButton.setBorderColor(colorForState(getRoughKnivesState()));
             this.scrapedLeatherButton.setBorderColor(colorForState(getScrapedLeatherState()));
             this.clayPotButton.setBorderColor(colorForState(getClayPotState()));
+            this.clayCupButton.setBorderColor(colorForState(getClayCupState()));
 
             renderConnections(ms);
 
@@ -435,4 +449,11 @@ private QuestState getClayPotState() {
     }
     return QuestManager.isClayPotCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
 }
+
+    private QuestState getClayCupState() {
+        if (!QuestManager.isFirepitCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isClayCupCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
 }

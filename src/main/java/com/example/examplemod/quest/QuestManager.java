@@ -25,6 +25,7 @@ public class QuestManager {
     private static boolean scrapedLeatherCompleted = false;
     private static boolean calcinedIronOreCompleted = false;
     private static boolean clayPotCompleted = false;
+    private static boolean clayCupCompleted = false;
 
 
     public static boolean isPlanksCompleted() {
@@ -220,6 +221,14 @@ public class QuestManager {
         clayPotCompleted = value;
     }
 
+    public static boolean isClayCupCompleted() {
+        return clayCupCompleted;
+    }
+
+    public static void setClayCupCompleted(boolean value) {
+        clayCupCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
@@ -245,5 +254,6 @@ public class QuestManager {
         scrapedLeatherCompleted = false;
         calcinedIronOreCompleted = false;
         clayPotCompleted = false;
+        clayCupCompleted = false;
     }
 }
