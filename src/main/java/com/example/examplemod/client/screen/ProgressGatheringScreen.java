@@ -128,10 +128,10 @@ public class ProgressGatheringScreen extends Screen {
                         new StringTextComponent("Требуется: ")
                                 .append(new StringTextComponent("Ветка")
                                         .withStyle(TextFormatting.BLUE))));
+        QuestNode brushwoodNode = registerNode(this.brushwoodButton, baseX + spacingX, baseY + spacingY);
         this.bigBoneButton = new ItemIconButton(baseX, baseY + spacingY * 2,
                 new ItemStack(ModItems.BIG_BONE.get()),
 
-        this.bigBoneButton = new ItemIconButton(x, y + spacingY * 2, new ItemStack(ModItems.BIG_BONE.get()),
                 b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Большая кость")
