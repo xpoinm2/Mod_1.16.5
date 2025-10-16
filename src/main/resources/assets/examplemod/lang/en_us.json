@@ -80,5 +80,7 @@
   "item.examplemod.raw_clay_cup": "Raw Clay Cup",
   "block.examplemod.clay_pot": "Clay Pot",
   "item.examplemod.clay_pot": "Clay Pot",
-  "item.examplemod.clay_cup": "Clay Cup"
+  "item.examplemod.clay_cup": "Clay Cup",
+  "tooltip.examplemod.clay_cup.empty": "Empty",
+  "tooltip.examplemod.clay_cup.water": "Water: %s / %s mB"
 }

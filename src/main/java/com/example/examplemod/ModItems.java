@@ -26,6 +26,7 @@ import com.example.examplemod.item.GingerItem;
 import com.example.examplemod.item.PyriteFlintItem;
 import com.example.examplemod.item.HeavenTicketItem;
 import com.example.examplemod.item.BranchItem;
+import com.example.examplemod.item.ClayCupItem;
 
 
 public class ModItems {
@@ -144,7 +145,7 @@ public class ModItems {
 
     // Глиняная чашка: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_CUP = ITEMS.register("clay_cup",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new ClayCupItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Сырой глиняный горшок: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_POT = ITEMS.register("raw_clay_pot",
