@@ -84,5 +84,8 @@
   "item.examplemod.clay_shards": "Clay Shards",
   "item.examplemod.clay_cup": "Clay Cup",
   "tooltip.examplemod.clay_cup.empty": "Empty",
-  "tooltip.examplemod.clay_cup.water": "Water: %s / %s mB"
+  "tooltip.examplemod.clay_cup.water": "Water: %s / %s",
+  "tooltip.examplemod.clay_pot.capacity": "Capacity: %s",
+  "tooltip.examplemod.fluid.liters": "%s L",
+  "tooltip.examplemod.fluid.milliliters": "%s mL"
 }

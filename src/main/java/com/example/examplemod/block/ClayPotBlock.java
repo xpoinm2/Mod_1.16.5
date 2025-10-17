@@ -2,6 +2,8 @@ package com.example.examplemod.block;
 
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
+import com.example.examplemod.ModTileEntities;
+import com.example.examplemod.tileentity.ClayPotTileEntity;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,6 +21,9 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.Explosion;
 import net.minecraft.stats.Stats;
+import net.minecraft.tileentity.TileEntity;
+
+import javax.annotation.Nullable;
 
 public class ClayPotBlock extends Block {
     private static final VoxelShape SHAPE = VoxelShapes.or(
@@ -58,7 +63,17 @@ public class ClayPotBlock extends Block {
             return ActionResultType.PASS;
         }
 
-        if (!world.isClientSide && player.getItemInHand(hand).isEmpty()) {
+        ItemStack heldStack = player.getItemInHand(hand);
+
+        if (!heldStack.isEmpty()) {
+            return ActionResultType.PASS;
+        }
+
+        if (!world.isClientSide) {
+            TileEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof ClayPotTileEntity) {
+                ((ClayPotTileEntity) tile).clear();
+            }
             ItemStack stack = new ItemStack(ModItems.CLAY_POT.get());
             if (!player.addItem(stack)) {
                 player.drop(stack, false);
@@ -67,6 +82,25 @@ public class ClayPotBlock extends Block {
         }
 
         return ActionResultType.sidedSuccess(world.isClientSide);
+    }
+
+    @Override
+    public boolean hasTileEntity(BlockState state) {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+        return ModTileEntities.CLAY_POT.get().create();
+    }
+
+    @Override
+    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean moving) {
+        if (!state.is(newState.getBlock())) {
+            super.onRemove(state, world, pos, newState, moving);
+            world.removeBlockEntity(pos);
+        }
     }
 
     @Override

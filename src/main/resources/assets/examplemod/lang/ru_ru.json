@@ -84,5 +84,8 @@
   "item.examplemod.clay_shards": "Глиняные осколки",
   "item.examplemod.clay_cup": "Глиняная чашка",
   "tooltip.examplemod.clay_cup.empty": "Пусто",
-  "tooltip.examplemod.clay_cup.water": "Вода: %s / %s мб"
+  "tooltip.examplemod.clay_cup.water": "Вода: %s / %s",
+  "tooltip.examplemod.clay_pot.capacity": "Ёмкость: %s",
+  "tooltip.examplemod.fluid.liters": "%s л",
+  "tooltip.examplemod.fluid.milliliters": "%s мл"
 }
