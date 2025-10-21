@@ -1,7 +1,33 @@
 {
-  "variants": {
-    "": {
-      "model": "examplemod:block/clay_pot"
+  "multipart": [
+    {
+      "apply": {
+        "model": "examplemod:block/clay_pot"
+      }
+    },
+    {
+      "when": { "level": "1" },
+      "apply": {
+        "model": "examplemod:block/clay_pot_water_quarter"
+      }
+    },
+    {
+      "when": { "level": "2" },
+      "apply": {
+        "model": "examplemod:block/clay_pot_water_half"
+      }
+    },
+    {
+      "when": { "level": "3" },
+      "apply": {
+        "model": "examplemod:block/clay_pot_water_three_quarters"
+      }
+    },
+    {
+      "when": { "level": "4" },
+      "apply": {
+        "model": "examplemod:block/clay_pot_water_full"
+      }
     }
-  }
+  ]
 }

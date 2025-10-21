@@ -22,6 +22,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.Explosion;
 import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.state.IntegerProperty;
+import net.minecraft.state.StateContainer;
 
 import javax.annotation.Nullable;
 
@@ -34,11 +36,19 @@ public class ClayPotBlock extends Block {
             Block.box(5.0D, 6.5D, 5.0D, 11.0D, 7.5D, 11.0D)
     );
 
+    public static final IntegerProperty FILL_LEVEL = IntegerProperty.create("level", 0, 4);
+
     public ClayPotBlock() {
         super(AbstractBlock.Properties.of(Material.CLAY)
                 .strength(0.8F, 0.8F)
                 .noOcclusion()
         );
+        this.registerDefaultState(this.stateDefinition.any().setValue(FILL_LEVEL, 0));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+        builder.add(FILL_LEVEL);
     }
 
     @Override

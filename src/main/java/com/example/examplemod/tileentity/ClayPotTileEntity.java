@@ -1,12 +1,14 @@
 package com.example.examplemod.tileentity;
 
 import com.example.examplemod.ModTileEntities;
+import com.example.examplemod.block.ClayPotBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -25,7 +27,9 @@ public class ClayPotTileEntity extends TileEntity {
             super.onContentsChanged();
             ClayPotTileEntity.this.setChanged();
             if (level != null && !level.isClientSide) {
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                BlockState previous = getBlockState();
+                updateFillLevel();
+                level.sendBlockUpdated(worldPosition, previous, getBlockState(), 3);
             }
         }
 
@@ -48,6 +52,22 @@ public class ClayPotTileEntity extends TileEntity {
     public void clear() {
         tank.setFluid(FluidStack.EMPTY);
         setChanged();
+    }
+
+    private void updateFillLevel() {
+        if (level == null) {
+            return;
+        }
+
+        BlockState state = getBlockState();
+        if (!state.hasProperty(ClayPotBlock.FILL_LEVEL)) {
+            return;
+        }
+
+        int fill = MathHelper.clamp((tank.getFluidAmount() * 4) / CAPACITY, 0, 4);
+        if (state.getValue(ClayPotBlock.FILL_LEVEL) != fill) {
+            level.setBlock(worldPosition, state.setValue(ClayPotBlock.FILL_LEVEL, fill), 3);
+        }
     }
 
     @Override
@@ -77,6 +97,14 @@ public class ClayPotTileEntity extends TileEntity {
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
         load(getBlockState(), pkt.getTag());
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide) {
+            updateFillLevel();
+        }
     }
 
     @Nonnull
