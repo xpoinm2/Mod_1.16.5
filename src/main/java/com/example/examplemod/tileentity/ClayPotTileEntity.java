@@ -64,7 +64,7 @@ public class ClayPotTileEntity extends TileEntity {
             return;
         }
 
-        int fill = MathHelper.clamp((tank.getFluidAmount() * 4) / CAPACITY, 0, 4);
+        int fill = MathHelper.clamp((tank.getFluidAmount() * 8) / CAPACITY, 0, 8);
         if (state.getValue(ClayPotBlock.FILL_LEVEL) != fill) {
             level.setBlock(worldPosition, state.setValue(ClayPotBlock.FILL_LEVEL, fill), 3);
         }

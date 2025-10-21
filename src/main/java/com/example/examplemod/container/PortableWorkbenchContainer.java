@@ -12,8 +12,8 @@ import net.minecraft.util.IWorldPosCallable;
  */
 public class PortableWorkbenchContainer extends WorkbenchContainer {
 
-    public PortableWorkbenchContainer(int windowId, PlayerInventory inventory) {
-        super(windowId, inventory, IWorldPosCallable.NULL);
+    public PortableWorkbenchContainer(int windowId, PlayerInventory inventory, PlayerEntity player) {
+        super(windowId, inventory, IWorldPosCallable.create(player.level, player.blockPosition()));
     }
 
     @Override

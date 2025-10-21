@@ -25,7 +25,7 @@ public class OpenCraftingPacket {
             ServerPlayerEntity player = ctx.get().getSender();
             if (player != null) {
                 INamedContainerProvider provider = new SimpleNamedContainerProvider(
-                        (id, inv, plyr) -> new PortableWorkbenchContainer(id, inv),
+                        (id, inv, plyr) -> new PortableWorkbenchContainer(id, inv, plyr),
                         new StringTextComponent("\u0421\u043e\u0437\u0434\u0430\u043d\u0438\u0435")
                 );
                 NetworkHooks.openGui(player, provider);

@@ -36,7 +36,7 @@ public class ClayPotBlock extends Block {
             Block.box(5.0D, 6.5D, 5.0D, 11.0D, 7.5D, 11.0D)
     );
 
-    public static final IntegerProperty FILL_LEVEL = IntegerProperty.create("level", 0, 4);
+    public static final IntegerProperty FILL_LEVEL = IntegerProperty.create("level", 0, 8);
 
     public ClayPotBlock() {
         super(AbstractBlock.Properties.of(Material.CLAY)
