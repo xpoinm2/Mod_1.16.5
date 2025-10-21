@@ -154,6 +154,10 @@ public class HiddenValuesScreen extends Screen {
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(parent);
+        if (this.minecraft != null && this.minecraft.player != null && this.minecraft.level != null && parent != null) {
+            this.minecraft.setScreen(parent);
+        } else {
+            super.onClose();
+        }
     }
 }
