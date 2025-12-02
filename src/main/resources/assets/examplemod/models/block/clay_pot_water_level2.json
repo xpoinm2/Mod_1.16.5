@@ -8,29 +8,27 @@
   },
   "elements": [
     {
-      "name": "level1_full",
-      "from": [7.1, 0.1, 7.1],
-      "to": [8.9, 0.9, 8.9],
+      "from": [7.0, 0.0, 7.0],
+      "to": [9.0, 1.0, 9.0],
       "faces": {
-        "up": { "texture": "#water", "tintindex": 0 },
-        "down": { "texture": "#water", "tintindex": 0 },
-        "north": { "texture": "#water", "tintindex": 0 },
-        "south": { "texture": "#water", "tintindex": 0 },
-        "west": { "texture": "#water", "tintindex": 0 },
-        "east": { "texture": "#water", "tintindex": 0 }
+        "up": { "uv": [7, 7, 9, 9], "texture": "#water", "tintindex": 0 },
+        "down": { "uv": [7, 7, 9, 9], "texture": "#water", "tintindex": 0 },
+        "north": { "uv": [7, 15, 9, 16], "texture": "#water", "tintindex": 0 },
+        "south": { "uv": [7, 15, 9, 16], "texture": "#water", "tintindex": 0 },
+        "west": { "uv": [7, 15, 9, 16], "texture": "#water", "tintindex": 0 },
+        "east": { "uv": [7, 15, 9, 16], "texture": "#water", "tintindex": 0 }
       }
     },
     {
-      "name": "level2_partial",
-      "from": [6.3, 1.0, 6.3],
-      "to": [9.7, 1.9, 9.7],
+      "from": [6.2, 1.0, 6.2],
+      "to": [9.8, 1.9, 9.8],
       "faces": {
-        "up": { "texture": "#water", "tintindex": 0 },
-        "down": { "texture": "#water", "tintindex": 0 },
-        "north": { "texture": "#water", "tintindex": 0 },
-        "south": { "texture": "#water", "tintindex": 0 },
-        "west": { "texture": "#water", "tintindex": 0 },
-        "east": { "texture": "#water", "tintindex": 0 }
+        "up": { "uv": [6, 6, 10, 10], "texture": "#water", "tintindex": 0 },
+        "down": { "uv": [6, 6, 10, 10], "texture": "#water", "tintindex": 0 },
+        "north": { "uv": [6, 14, 10, 15], "texture": "#water", "tintindex": 0 },
+        "south": { "uv": [6, 14, 10, 15], "texture": "#water", "tintindex": 0 },
+        "west": { "uv": [6, 14, 10, 15], "texture": "#water", "tintindex": 0 },
+        "east": { "uv": [6, 14, 10, 15], "texture": "#water", "tintindex": 0 }
       }
     }
   ]
