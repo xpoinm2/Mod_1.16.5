@@ -2,7 +2,7 @@ package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModEntities;
-import com.example.examplemod.tileentity.ModTileEntities;
+import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.client.render.ClayPotWaterRenderer;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import com.example.examplemod.client.render.ClayPotWaterRenderer;
