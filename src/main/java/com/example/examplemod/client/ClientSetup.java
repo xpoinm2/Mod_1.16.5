@@ -22,6 +22,6 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(ModEntities.BEAVER.get(), BeaverRenderer::new);
-        ClientRegistry.bindTileEntityRenderer(ModTileEntities.CLAY_POT.get(), ClayPotWaterRenderer::new);
+        // ClientRegistry.bindTileEntityRenderer(ModTileEntities.CLAY_POT.get(), ClayPotWaterRenderer::new);
     }
 }
