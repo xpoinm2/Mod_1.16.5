@@ -1,0 +1,119 @@
+[1mdiff --git a/src/main/java/com/example/examplemod/client/ClientSetup.java b/src/main/java/com/example/examplemod/client/ClientSetup.java[m
+[1mindex f1816a4..c56fd31 100644[m
+[1m--- a/src/main/java/com/example/examplemod/client/ClientSetup.java[m
+[1m+++ b/src/main/java/com/example/examplemod/client/ClientSetup.java[m
+[36m@@ -2,7 +2,7 @@[m [mpackage com.example.examplemod.client;[m
+ [m
+ import com.example.examplemod.ExampleMod;[m
+ import com.example.examplemod.ModEntities;[m
+[31m-import com.example.examplemod.tileentity.ModTileEntities;[m
+[32m+[m[32mimport com.example.examplemod.ModTileEntities;[m
+ import com.example.examplemod.client.render.ClayPotWaterRenderer;[m
+ import net.minecraftforge.fml.client.registry.ClientRegistry;[m
+ import com.example.examplemod.client.render.ClayPotWaterRenderer;[m
+[1mdiff --git a/src/main/java/com/example/examplemod/client/render/ClayPotWaterRenderer.java b/src/main/java/com/example/examplemod/client/render/ClayPotWaterRenderer.java[m
+[1mindex c3563e0..6152682 100644[m
+[1m--- a/src/main/java/com/example/examplemod/client/render/ClayPotWaterRenderer.java[m
+[1m+++ b/src/main/java/com/example/examplemod/client/render/ClayPotWaterRenderer.java[m
+[36m@@ -39,21 +39,126 @@[m [mpublic class ClayPotWaterRenderer extends TileEntityRenderer<ClayPotTileEntity>[m
+         float g = ((color >> 8) & 0xFF) / 255.0F;[m
+         float b = (color & 0xFF) / 255.0F;[m
+         float a = 0.7F;[m
+[31m-// Inner bottom[m
+[31m-        matrix.pushPose();[m
+[31m-        matrix.translate(0, 0.1, 0);[m
+[31m-        matrix.scale(0.92F, 0.01F, 0.92F);[m
+[31m-        renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);[m
+[31m-        matrix.popPose();[m
+[31m-// Inner curved walls (8 секций)[m
+[31m-        float wallHeight = fill * 0.8F;[m
+[31m-        for (int i = 0; i < 8; i++) {[m
+[32m+[m
+[32m+[m[32m        float waterHeight = fill * 7.5F; // Общая высота горшка 7.5 блоков[m
+[32m+[m
+[32m+[m[32m        // Определяем уровни воды и их размеры (внутренние размеры, уменьшенные на толщину стенок)[m
+[32m+[m[32m        // Уровень 0: дно (0.0-0.0625), внутренний размер: 0.875x0.0625x0.875[m
+[32m+[m[32m        // Уровень 1: 0.0625-0.1875, внутренний размер: 0.75x0.125x0.75[m
+[32m+[m[32m        // Уровень 2: 0.1875-0.3125, внутренний размер: 0.625x0.125x0.625[m
+[32m+[m[32m        // Уровень 3: 0.3125-0.40625, внутренний размер: 0.75x0.09375x0.75[m
+[32m+[m[32m        // Уровень 4: 0.40625-0.46875, внутренний размер: 0.625x0.0625x0.625[m
+[32m+[m
+[32m+[m[32m        // Рисуем воду по уровням снизу вверх[m
+[32m+[m[32m        float currentHeight = 0.0F;[m
+[32m+[m
+[32m+[m[32m        // Уровень 1: дно (высота 0.0625)[m
+[32m+[m[32m        if (waterHeight > currentHeight) {[m
+[32m+[m[32m            float levelHeight = Math.min(waterHeight - currentHeight, 0.0625F);[m
+[32m+[m[32m            matrix.pushPose();[m
+[32m+[m[32m            matrix.translate(0, currentHeight + levelHeight/2, 0);[m
+[32m+[m[32m            matrix.scale(0.875F, levelHeight, 0.875F);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);[m
+[32m+[m[32m            matrix.popPose();[m
+[32m+[m
+[32m+[m[32m            // Боковые стенки уровня 1[m
+[32m+[m[32m            renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,[m
+[32m+[m[32m                           currentHeight, currentHeight + levelHeight, 0.875F, 0.875F);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        currentHeight += 0.0625F;[m
+[32m+[m
+[32m+[m[32m        // Уровень 2: средний широкий (высота 0.125)[m
+[32m+[m[32m        if (waterHeight > currentHeight) {[m
+[32m+[m[32m            float levelHeight = Math.min(waterHeight - currentHeight, 0.125F);[m
+[32m+[m[32m            matrix.pushPose();[m
+[32m+[m[32m            matrix.translate(0, currentHeight + levelHeight/2, 0);[m
+[32m+[m[32m            matrix.scale(0.75F, levelHeight, 0.75F);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);[m
+[32m+[m[32m            matrix.popPose();[m
+[32m+[m
+[32m+[m[32m            // Боковые стенки уровня 2[m
+[32m+[m[32m            renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,[m
+[32m+[m[32m                           currentHeight, currentHeight + levelHeight, 0.75F, 0.75F);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        currentHeight += 0.125F;[m
+[32m+[m
+[32m+[m[32m        // Уровень 3: самый широкий (высота 0.125)[m
+[32m+[m[32m        if (waterHeight > currentHeight) {[m
+[32m+[m[32m            float levelHeight = Math.min(waterHeight - currentHeight, 0.125F);[m
+[32m+[m[32m            matrix.pushPose();[m
+[32m+[m[32m            matrix.translate(0, currentHeight + levelHeight/2, 0);[m
+[32m+[m[32m            matrix.scale(0.625F, levelHeight, 0.625F);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);[m
+[32m+[m[32m            matrix.popPose();[m
+[32m+[m
+[32m+[m[32m            // Боковые стенки уровня 3[m
+[32m+[m[32m            renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,[m
+[32m+[m[32m                           currentHeight, currentHeight + levelHeight, 0.625F, 0.625F);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        currentHeight += 0.125F;[m
+[32m+[m
+[32m+[m[32m        // Уровень 4: средний узкий (высота 0.09375)[m
+[32m+[m[32m        if (waterHeight > currentHeight) {[m
+[32m+[m[32m            float levelHeight = Math.min(waterHeight - currentHeight, 0.09375F);[m
+[32m+[m[32m            matrix.pushPose();[m
+[32m+[m[32m            matrix.translate(0, currentHeight + levelHeight/2, 0);[m
+[32m+[m[32m            matrix.scale(0.75F, levelHeight, 0.75F);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);[m
+[32m+[m[32m            matrix.popPose();[m
+[32m+[m
+[32m+[m[32m            // Боковые стенки уровня 4[m
+[32m+[m[32m            renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,[m
+[32m+[m[32m                           currentHeight, currentHeight + levelHeight, 0.75F, 0.75F);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        currentHeight += 0.09375F;[m
+[32m+[m
+[32m+[m[32m        // Уровень 5: верхний широкий (высота 0.0625)[m
+[32m+[m[32m        if (waterHeight > currentHeight) {[m
+[32m+[m[32m            float levelHeight = Math.min(waterHeight - currentHeight, 0.0625F);[m
+[32m+[m[32m            matrix.pushPose();[m
+[32m+[m[32m            matrix.translate(0, currentHeight + levelHeight/2, 0);[m
+[32m+[m[32m            matrix.scale(0.625F, levelHeight, 0.625F);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);[m
+[32m+[m[32m            renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);[m
+[32m+[m[32m            matrix.popPose();[m
+[32m+[m
+[32m+[m[32m            // Боковые стенки уровня 5[m
+[32m+[m[32m            renderLevelWalls(matrix

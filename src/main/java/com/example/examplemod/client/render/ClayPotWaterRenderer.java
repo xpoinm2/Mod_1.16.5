@@ -43,92 +43,92 @@ public class ClayPotWaterRenderer extends TileEntityRenderer<ClayPotTileEntity> 
         float waterHeight = fill * 7.5F; // Общая высота горшка 7.5 блоков
 
         // Определяем уровни воды и их размеры (внутренние размеры, уменьшенные на толщину стенок)
-        // Уровень 0: дно (0.0-0.0625), внутренний размер: 0.875x0.0625x0.875
-        // Уровень 1: 0.0625-0.1875, внутренний размер: 0.75x0.125x0.75
-        // Уровень 2: 0.1875-0.3125, внутренний размер: 0.625x0.125x0.625
-        // Уровень 3: 0.3125-0.40625, внутренний размер: 0.75x0.09375x0.75
-        // Уровень 4: 0.40625-0.46875, внутренний размер: 0.625x0.0625x0.625
+        // Уровень 1: 0.0-1.0, внутренний размер: 0.875x1.0x0.875
+        // Уровень 2: 1.0-3.0, внутренний размер: 0.75x2.0x0.75
+        // Уровень 3: 3.0-5.0, внутренний размер: 0.625x2.0x0.625
+        // Уровень 4: 5.0-6.5, внутренний размер: 0.75x1.5x0.75
+        // Уровень 5: 6.5-7.5, внутренний размер: 0.625x1.0x0.625
 
         // Рисуем воду по уровням снизу вверх
         float currentHeight = 0.0F;
 
-        // Уровень 1: дно (высота 0.0625)
+        // Уровень 1: дно (высота 1.0)
         if (waterHeight > currentHeight) {
-            float levelHeight = Math.min(waterHeight - currentHeight, 0.0625F);
+            float levelHeight = Math.min(waterHeight - currentHeight, 1.0F);
             matrix.pushPose();
             matrix.translate(0, currentHeight + levelHeight/2, 0);
-            matrix.scale(0.875F, levelHeight, 0.875F);
+            matrix.scale(0.92F, levelHeight, 0.92F);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);
             matrix.popPose();
 
             // Боковые стенки уровня 1
             renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,
-                           currentHeight, currentHeight + levelHeight, 0.875F, 0.875F);
+                           currentHeight, currentHeight + levelHeight, 0.92F, 0.92F);
         }
-        currentHeight += 0.0625F;
+        currentHeight += 1.0F;
 
-        // Уровень 2: средний широкий (высота 0.125)
+        // Уровень 2: средний широкий (высота 2.0)
         if (waterHeight > currentHeight) {
-            float levelHeight = Math.min(waterHeight - currentHeight, 0.125F);
+            float levelHeight = Math.min(waterHeight - currentHeight, 2.0F);
             matrix.pushPose();
             matrix.translate(0, currentHeight + levelHeight/2, 0);
-            matrix.scale(0.75F, levelHeight, 0.75F);
+            matrix.scale(0.8F, levelHeight, 0.8F);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);
             matrix.popPose();
 
             // Боковые стенки уровня 2
             renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,
-                           currentHeight, currentHeight + levelHeight, 0.75F, 0.75F);
+                           currentHeight, currentHeight + levelHeight, 0.8F, 0.8F);
         }
-        currentHeight += 0.125F;
+        currentHeight += 2.0F;
 
-        // Уровень 3: самый широкий (высота 0.125)
+        // Уровень 3: самый широкий (высота 2.0)
         if (waterHeight > currentHeight) {
-            float levelHeight = Math.min(waterHeight - currentHeight, 0.125F);
+            float levelHeight = Math.min(waterHeight - currentHeight, 2.0F);
             matrix.pushPose();
             matrix.translate(0, currentHeight + levelHeight/2, 0);
-            matrix.scale(0.625F, levelHeight, 0.625F);
+            matrix.scale(0.68F, levelHeight, 0.68F);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);
             matrix.popPose();
 
             // Боковые стенки уровня 3
             renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,
-                           currentHeight, currentHeight + levelHeight, 0.625F, 0.625F);
+                           currentHeight, currentHeight + levelHeight, 0.68F, 0.68F);
         }
-        currentHeight += 0.125F;
+        currentHeight += 2.0F;
 
-        // Уровень 4: средний узкий (высота 0.09375)
+        // Уровень 4: средний узкий (высота 1.5)
         if (waterHeight > currentHeight) {
-            float levelHeight = Math.min(waterHeight - currentHeight, 0.09375F);
+            float levelHeight = Math.min(waterHeight - currentHeight, 1.5F);
             matrix.pushPose();
             matrix.translate(0, currentHeight + levelHeight/2, 0);
-            matrix.scale(0.75F, levelHeight, 0.75F);
+            matrix.scale(0.8F, levelHeight, 0.8F);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);
             matrix.popPose();
 
             // Боковые стенки уровня 4
             renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,
-                           currentHeight, currentHeight + levelHeight, 0.75F, 0.75F);
+                           currentHeight, currentHeight + levelHeight, 0.8F, 0.8F);
         }
-        currentHeight += 0.09375F;
+        currentHeight += 1.5F;
 
-        // Уровень 5: верхний широкий (высота 0.0625)
+        // Уровень 5: верхний широкий (высота 1.0)
         if (waterHeight > currentHeight) {
-            float levelHeight = Math.min(waterHeight - currentHeight, 0.0625F);
+            float levelHeight = Math.min(waterHeight - currentHeight, 1.0F);
             matrix.pushPose();
             matrix.translate(0, currentHeight + levelHeight/2, 0);
-            matrix.scale(0.625F, levelHeight, 0.625F);
+            matrix.scale(0.68F, levelHeight, 0.68F);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.UP);
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, Direction.DOWN);
             matrix.popPose();
 
             // Боковые стенки уровня 5
             renderLevelWalls(matrix, builder, sprite, light, overlay, r, g, b, a,
-                           currentHeight, currentHeight + levelHeight, 0.625F, 0.625F);
+                           currentHeight, currentHeight + levelHeight, 0.68F, 0.68F);
         }
     }
 
