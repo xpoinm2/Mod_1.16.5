@@ -1,0 +1,13 @@
+This is a placeholder file for the smoke animation texture.
+
+Please create a 16x128 pixel PNG image with the following specifications:
+- Dimensions: 16 pixels wide, 128 pixels tall (8 frames × 16 pixels each)
+- 8 frames stacked vertically, each 16×16 pixels
+- Pixel art style matching Minecraft vanilla textures
+- Swirling gray smoke rising from fire
+- Semi-transparent wispy clouds
+- Subtle motion blur between frames
+- Dark background for transparency
+- Looping animation compatible with vanilla Minecraft texture pack
+
+Replace this file with the actual PNG texture named 'smoke_animation.png'
