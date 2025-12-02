@@ -1,0 +1,21 @@
+{
+  "parent": "examplemod:block/clay_pot",
+  "textures": {
+    "water": "minecraft:block/water_still"
+  },
+  "elements": [
+    {
+      "from": [5, 1, 5],
+      "to": [11, 5, 11],
+      "faces": {
+        "up": { "uv": [5, 5, 11, 11], "texture": "#water" },
+        "down": { "uv": [5, 5, 11, 11], "texture": "#water" },
+        "north": { "uv": [5, 11, 11, 15], "texture": "#water" },
+        "south": { "uv": [5, 11, 11, 15], "texture": "#water" },
+        "west": { "uv": [5, 11, 11, 15], "texture": "#water" },
+        "east": { "uv": [5, 11, 11, 15], "texture": "#water" }
+      }
+    }
+  ]
+}
+
