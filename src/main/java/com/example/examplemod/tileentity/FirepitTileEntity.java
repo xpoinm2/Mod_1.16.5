@@ -1,11 +1,13 @@
 package com.example.examplemod.tileentity;
 
+import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.container.FirepitContainer;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
@@ -98,6 +100,20 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return;
         }
 
+        // Check if the multiblock structure is still intact
+        if (!isMultiblockIntact()) {
+            // Structure is damaged, disable functionality
+            if (heat > 0) {
+                heat = 0;
+                heatingTicks = 0;
+                coolingTicks = 0;
+                resetCookingProgress();
+                setChanged();
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+            return;
+        }
+
         boolean changed = false;
 
         if (heat > 0) {
@@ -183,8 +199,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                     // If we just cooked raw clay to finished clay, start the overcooking stage
                     if (isRawClayItem(stack) && slotCookingStages[i] == 0) {
                         slotCookingStages[i] = 1; // Start overcooking stage
+                        storeCookingStage(result, 1); // Store stage in the result item
                     } else {
                         slotCookingStages[i] = 0; // Reset stage
+                        storeCookingStage(result, 0); // Store stage in the result item
                     }
 
                     changed = true;
@@ -197,12 +215,58 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return changed;
     }
 
+    private boolean isMultiblockIntact() {
+        if (level == null) {
+            return false;
+        }
+
+        // Calculate the start position of the 4x4 structure
+        // Master block is at (1,1) in the structure, so start is at (-1,-1) from master
+        BlockPos startPos = worldPosition.offset(-1, 0, -1);
+
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                BlockPos checkPos = startPos.offset(x, 0, z);
+                BlockState state = level.getBlockState(checkPos);
+
+                if (state.getBlock() != ModBlocks.FIREPIT_BLOCK.get()) {
+                    return false;
+                }
+
+                // Check if the block has the correct X and Z properties
+                if (state.getValue(ModBlocks.FirepitBlock.X) != x ||
+                    state.getValue(ModBlocks.FirepitBlock.Z) != z) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private boolean isRawClayItem(ItemStack stack) {
         return stack.getItem() == ModItems.RAW_CLAY_CUP.get() || stack.getItem() == ModItems.RAW_CLAY_POT.get();
     }
 
     private boolean isFinishedClayItem(ItemStack stack) {
         return stack.getItem() == ModItems.CLAY_CUP.get() || stack.getItem() == ModItems.CLAY_POT.get();
+    }
+
+    private void storeCookingStage(ItemStack stack, int stage) {
+        if (!stack.isEmpty() && (isRawClayItem(stack) || isFinishedClayItem(stack))) {
+            CompoundNBT nbt = stack.getOrCreateTag();
+            nbt.putInt("CookingStage", stage);
+        }
+    }
+
+    private int getStoredCookingStage(ItemStack stack) {
+        if (!stack.isEmpty() && stack.hasTag()) {
+            CompoundNBT nbt = stack.getTag();
+            if (nbt != null && nbt.contains("CookingStage")) {
+                return nbt.getInt("CookingStage");
+            }
+        }
+        return -1; // No stored stage
     }
 
     private int getRequiredCookTime(ItemStack stack, int stage) {
@@ -267,9 +331,23 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     private void onInventoryChanged() {
         enforceInputStackLimits();
         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
-            if (!isSmeltable(items.get(i))) {
+            ItemStack stack = items.get(i);
+            if (!isSmeltable(stack)) {
                 slotCookTimes[i] = 0;
                 slotCookingStages[i] = 0;
+            } else {
+                // Check if the item has stored cooking stage in NBT
+                int storedStage = getStoredCookingStage(stack);
+                if (storedStage >= 0) {
+                    slotCookingStages[i] = storedStage;
+                } else if (isFinishedClayItem(stack)) {
+                    // Finished clay items should start overcooking immediately
+                    slotCookingStages[i] = 1;
+                } else if (isRawClayItem(stack)) {
+                    // Raw clay items start at stage 0
+                    slotCookingStages[i] = 0;
+                }
+                // For other items (like iron ore), keep stage 0
             }
         }
         updateCookProgress();
@@ -331,6 +409,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     public ItemStack removeItem(int index, int count) {
         ItemStack stack = ItemStackHelper.removeItem(items, index, count);
         if (!stack.isEmpty()) {
+            // Store the current cooking stage in the item before removing it
+            if (index < GRID_SLOT_COUNT) {
+                storeCookingStage(stack, slotCookingStages[index]);
+            }
             onInventoryChanged();
             setChanged();
         }
@@ -341,6 +423,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     public ItemStack removeItemNoUpdate(int index) {
         ItemStack stack = ItemStackHelper.takeItem(items, index);
         if (!stack.isEmpty()) {
+            // Store the current cooking stage in the item before removing it
+            if (index < GRID_SLOT_COUNT) {
+                storeCookingStage(stack, slotCookingStages[index]);
+            }
             onInventoryChanged();
             setChanged();
         }
