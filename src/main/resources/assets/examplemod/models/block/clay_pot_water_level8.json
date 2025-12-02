@@ -1,9 +1,5 @@
 {
-  "parent": "block/block",
-  "render_type": "cutout",
-  "ambientocclusion": false,
   "textures": {
-    "particle": "minecraft:block/water_still",
     "water": "minecraft:block/water_still"
   },
   "elements": [
