@@ -1,0 +1,614 @@
+﻿C:.
+│   tree.txt
+│
+├── generated
+│   └── resources
+├── main
+│   ├── java
+│   │   └── com
+│   │       └── example
+│   │           └── examplemod
+│   │               ├── CommonModEvents.java
+│   │               ├── Config.java
+│   │               ├── ExampleMod.java
+│   │               ├── ModBlocks.java
+│   │               ├── ModContainers.java
+│   │               ├── ModCreativeTabs.java
+│   │               ├── ModEntities.java
+│   │               ├── ModEntityTypes.java
+│   │               ├── ModItems.java
+│   │               ├── ModSounds.java
+│   │               ├── ModTileEntities.java
+│   │               │
+│   │               ├── block
+│   │               │   ├── ClayPotBlock.java
+│   │               │   ├── ClayShardsBlock.java
+│   │               │   ├── DanilkaBlock.java
+│   │               │   ├── ParadiseDoorBlock.java
+│   │               │   └── RawClayPotBlock.java
+│   │               │
+│   │               ├── capability
+│   │               │   ├── CapabilityHandler.java
+│   │               │   ├── IPlayerStats.java
+│   │               │   ├── PlayerStats.java
+│   │               │   ├── PlayerStatsProvider.java
+│   │               │   └── PlayerStatsStorage.java
+│   │               │
+│   │               ├── client
+│   │               │   ├── ActivityKeyHandler.java
+│   │               │   ├── ClientEventHandler.java
+│   │               │   ├── ClientInteractionHandler.java
+│   │               │   ├── ClientSetup.java
+│   │               │   ├── FramedButton.java
+│   │               │   ├── GlobalTextureHandler.java
+│   │               │   ├── GreenManButton.java
+│   │               │   ├── GuiUtil.java
+│   │               │   ├── ItemIconButton.java
+│   │               │   ├── MainPageKeyHandler.java
+│   │               │   └── ProgressKeyHandler.java
+│   │               │   │
+│   │               │   ├── model
+│   │               │   │   └── BeaverModel.java
+│   │               │   │
+│   │               │   ├── render
+│   │               │   │   ├── BeaverRenderer.java
+│   │               │   │   ├── HeavenBrightnessOverlay.java
+│   │               │   │   ├── HeavenDimensionRenderInfo.java
+│   │               │   │   └──ClayPotWaterRenderer
+│   │               │   │
+│   │               │   └── screen
+│   │               │       ├── AbstractQuestScreen.java
+│   │               │       ├── ActivityScreen.java
+│   │               │       ├── BigBoneQuestScreen.java
+│   │               │       ├── BoneToolsQuestScreen.java
+│   │               │       ├── BranchQuestScreen.java
+│   │               │       ├── BrushwoodQuestScreen.java
+│   │               │       ├── CalcinedIronOreQuestScreen.java
+│   │               │       ├── ClayCupQuestScreen.java
+│   │               │       ├── ClayPotQuestScreen.java
+│   │               │       ├── CobbleSlabQuestScreen.java
+│   │               │       ├── CombsQuestScreen.java
+│   │               │       ├── CraftInfoScreen.java
+│   │               │       ├── DiseasesScreen.java
+│   │               │       ├── FirepitQuestScreen.java
+│   │               │       ├── FirepitScreen.java
+│   │               │       ├── FlaxFibersQuestScreen.java
+│   │               │       ├── HealthScreen.java
+│   │               │       ├── HewnStonesQuestScreen.java
+│   │               │       ├── HiddenValuesScreen.java
+│   │               │       ├── InfoScreen.java
+│   │               │       ├── InitialFaunaQuestScreen.java
+│   │               │       ├── IronClusterQuestScreen.java
+│   │               │       ├── PlanksQuestScreen.java
+│   │               │       ├── PlayerInterfaceScreen.java
+│   │               │       ├── ProgressEraScreen.java
+│   │               │       ├── ProgressGatheringScreen.java
+│   │               │       ├── ProgressMetallurgyScreen.java
+│   │               │       ├── ProgressProductionScreen.java
+│   │               │       ├── ProgressScreen.java
+│   │               │       ├── PureIronOreQuestScreen.java
+│   │               │       ├── PyriteFlintQuestScreen.java
+│   │               │       ├── PyriteQuestScreen.java
+│   │               │       ├── RoughKnivesQuestScreen.java
+│   │               │       ├── ScrapedLeatherQuestScreen.java
+│   │               │       ├── ScrollArea.java
+│   │               │       ├── SharpenedBoneQuestScreen.java
+│   │               │       ├── SlabsQuestScreen.java
+│   │               │       ├── StartHammersQuestScreen.java
+│   │               │       ├── StartSmithingQuestScreen.java
+│   │               │       ├── StoneToolsQuestScreen.java
+│   │               │       ├── SystemInfoScreen.java
+│   │               │       └── WaterChoiceScreen.java
+│   │               │
+│   │               ├── container
+│   │               │   ├── FirepitContainer.java
+│   │               │   └── PortableWorkbenchContainer.java
+│   │               │
+│   │               ├── entity
+│   │               │   └── BeaverEntity.java
+│   │               │
+│   │               ├── item
+│   │               │   ├── AngelicaRootItem.java
+│   │               │   ├── BranchItem.java
+│   │               │   ├── ClayCupItem.java
+│   │               │   ├── ClayPotBlockItem.java
+│   │               │   ├── ClayShardsBlockItem.java
+│   │               │   ├── ElderberryItem.java
+│   │               │   ├── GingerItem.java
+│   │               │   ├── HealingItem.java
+│   │               │   ├── HeavenTicketItem.java
+│   │               │   ├── HorseradishItem.java
+│   │               │   └── PyriteFlintItem.java
+│   │               │
+│   │               ├── network
+│   │               │   ├── ActivityPacket.java
+│   │               │   ├── DrinkWaterPacket.java
+│   │               │   ├── MixWaterPacket.java
+│   │               │   ├── ModNetworkHandler.java
+│   │               │   ├── OpenCraftingPacket.java
+│   │               │   ├── SyncColdPacket.java
+│   │               │   ├── SyncHypothermiaPacket.java
+│   │               │   ├── SyncPoisonPacket.java
+│   │               │   ├── SyncStatsPacket.java
+│   │               │   └── SyncVirusPacket.java
+│   │               │
+│   │               ├── quest
+│   │               │   └── QuestManager.java
+│   │               │
+│   │               ├── server
+│   │               │   ├── AutoSaveHandler.java
+│   │               │   ├── BigBoneDropHandler.java
+│   │               │   ├── BiomeTeleportCommands.java
+│   │               │   ├── BlockBreakHandler.java
+│   │               │   ├── BlockTeleportCommand.java
+│   │               │   ├── ColdHandler.java
+│   │               │   ├── CraftingBlocker.java
+│   │               │   ├── DayNightCycleHandler.java
+│   │               │   ├── FirepitStructureHandler.java
+│   │               │   ├── FlaxDryingHandler.java
+│   │               │   ├── FlaxSoakHandler.java
+│   │               │   ├── ForeignItemRemovalHandler.java
+│   │               │   ├── HewnStoneSpawnHandler.java
+│   │               │   ├── HypothermiaHandler.java
+│   │               │   ├── IronClusterWashHandler.java
+│   │               │   ├── NaturalRegenerationDisabler.java
+│   │               │   ├── PebbleSpawnHandler.java
+│   │               │   ├── PyramidDebugCommands.java
+│   │               │   ├── QuestCommands.java
+│   │               │   ├── RedMushroomHandler.java
+│   │               │   ├── RestHandler.java
+│   │               │   ├── SharpBoneHandler.java
+│   │               │   ├── StatsCommands.java
+│   │               │   ├── SunBlindnessHandler.java
+│   │               │   ├── ThirstHandler.java
+│   │               │   └── VirusHandler.java
+│   │               │
+│   │               ├── tileentity
+│   │               │   ├── ClayPotTileEntity.java
+│   │               │   └── FirepitTileEntity.java
+│   │               │
+│   │               ├── util
+│   │               │   └── FluidTextUtil.java
+│   │               │
+│   │               └── world
+│   │                   ├── AngelicaWorldGen.java
+│   │                   ├── CranberryBushWorldGen.java
+│   │                   ├── DesertPyramidWorldGen.java
+│   │                   ├── ElderberryBushWorldGen.java
+│   │                   ├── FlaxWorldGen.java
+│   │                   ├── GingerPlantWorldGen.java
+│   │                   ├── HorseradishWorldGen.java
+│   │                   ├── ModBiomes.java
+│   │                   ├── ModFeatures.java
+│   │                   ├── ModSurfaceBuilders.java
+│   │                   ├── PyriteWorldGen.java
+│   │                   ├── RaspberryBushWorldGen.java
+│   │                   ├── VanillaMushroomRemoval.java
+│   │                   ├── VanillaOreRemoval.java
+│   │                   ├── WorldGenRegistry.java
+│   │                   │
+│   │                   ├── biome
+│   │                   │   ├── BasaltMountainsBiome.java
+│   │                   │   └── BasaltMountainsBiomeEvents.java
+│   │                   │
+│   │                   ├── feature
+│   │                   │   ├── BasaltMountainFeature.java
+│   │                   │   └── DesertPyramidFeature.java
+│   │                   │
+│   │                   └── heaven
+│   │                       └── HeavenManager.java
+│   │
+│   └── resources
+│       ├── pack.mcmeta
+│       │
+│       ├── assets
+│       │   └── examplemod
+│       │       ├── sounds.json
+│       │       │
+│       │       ├── animations
+│       │       ├── blockstates
+│       │       │   ├── angelica.json
+│       │       │   ├── bone_block.json
+│       │       │   ├── brushwood_slab.json
+│       │       │   ├── brushwood_slab_burnt.json
+│       │       │   ├── clay_pot.json
+│       │       │   ├── clay_shards.json
+│       │       │   ├── cranberry_bush.json
+│       │       │   ├── danilka_block.json
+│       │       │   ├── dried_flax.json
+│       │       │   ├── elderberry_bush.json
+│       │       │   ├── firepit_block.json
+│       │       │   ├── flax_plant.json
+│       │       │   ├── ginger_plant.json
+│       │       │   ├── hanging_flax.json
+│       │       │   ├── horseradish_plant.json
+│       │       │   ├── impure_iron_ore.json
+│       │       │   ├── paradise_block.json
+│       │       │   ├── paradise_door.json
+│       │       │   ├── paradise_fence.json
+│       │       │   ├── pyrite.json
+│       │       │   ├── raspberry_bush.json
+│       │       │   └── raw_clay_pot.json
+│       │       │
+│       │       ├── geo
+│       │       ├── lang
+│       │       │   ├── en_us.json
+│       │       │   └── ru_ru.json
+│       │       │
+│       │       ├── models
+│       │       │   ├── block
+│       │       │   │   ├── angelica.json
+│       │       │   │   ├── bone_block.json
+│       │       │   │   ├── brushwood_block.json
+│       │       │   │   ├── brushwood_block_burnt.json
+│       │       │   │   ├── brushwood_slab.json
+│       │       │   │   ├── brushwood_slab_burnt.json
+│       │       │   │   ├── brushwood_slab_burnt_top.json
+│       │       │   │   ├── brushwood_slab_top.json
+│       │       │   │   ├── bush.json
+│       │       │   │   ├── clay_pot.json
+│       │       │   │   ├── clay_pot_water_level1.json
+│   │       │   │   ├── clay_pot_water_level2.json
+│   │       │   │   ├── clay_pot_water_level3.json
+│   │       │   │   ├── clay_pot_water_level4.json
+│   │       │   │   ├── clay_pot_water_level5.json
+│   │       │   │   ├── clay_pot_water_level6.json
+│   │       │   │   ├── clay_pot_water_level7.json
+│   │       │   │   ├── clay_pot_water_level8.json
+│   │       │   │   ├── clay_shards.json
+│   │       │   │   ├── cranberry_bush.json
+│   │       │   │   ├── cross_lowered.json
+│   │       │   │   ├── danilka_block.json
+│   │       │   │   ├── dried_flax.json
+│   │       │   │   ├── elderberry_bush.json
+│   │       │   │   ├── firepit_0_0.json
+│   │       │   │   ├── firepit_0_1.json
+│   │       │   │   ├── firepit_0_2.json
+│   │       │   │   ├── firepit_0_3.json
+│   │       │   │   ├── firepit_1_0.json
+│   │       │   │   ├── firepit_1_1.json
+│   │       │   │   ├── firepit_1_2.json
+│   │       │   │   ├── firepit_1_3.json
+│   │       │   │   ├── firepit_2_0.json
+│   │       │   │   ├── firepit_2_1.json
+│   │       │   │   ├── firepit_2_2.json
+│   │       │   │   ├── firepit_2_3.json
+│   │       │   │   ├── firepit_3_0.json
+│   │       │   │   ├── firepit_3_1.json
+│   │       │   │   ├── firepit_3_2.json
+│   │       │   │   ├── firepit_3_3.json
+│   │       │   │   ├── flax_plant.json
+│   │       │   │   ├── ginger_plant.json
+│   │       │   │   ├── hanging_flax.json
+│   │       │   │   ├── horseradish_plant.json
+│   │       │   │   ├── impure_iron_ore.json
+│   │       │   │   ├── paradise_block.json
+│   │       │   │   ├── paradise_door_bottom.json
+│   │       │   │   ├── paradise_door_bottom_hinge.json
+│   │       │   │   ├── paradise_door_top.json
+│   │       │   │   ├── paradise_door_top_hinge.json
+│   │       │   │   ├── paradise_fence_post.json
+│   │       │   │   ├── paradise_fence_side.json
+│   │       │   │   ├── paradise_fence_side_tall.json
+│   │       │   │   ├── pyrite.json
+│   │       │   │   ├── raspberry_bush.json
+│   │       │   │   └── raw_clay_pot.json
+│   │       │   │
+│   │       │   └── item
+│   │       │       ├── angelica.json
+│   │       │       ├── angelica_root.json
+│   │       │       ├── beaver_spawn_egg.json
+│   │       │       ├── big_bone.json
+│   │       │       ├── bone_axe.json
+│   │       │       ├── bone_block.json
+│   │       │       ├── bone_comb.json
+│   │       │       ├── bone_hammer.json
+│   │       │       ├── bone_hoe.json
+│   │       │       ├── bone_pickaxe.json
+│   │       │       ├── bone_shovel.json
+│   │       │       ├── bone_sword.json
+│   │       │       ├── branch.json
+│   │       │       ├── brushwood_slab.json
+│   │       │       ├── brushwood_slab_burnt.json
+│   │       │       ├── calcined_iron_ore.json
+│   │       │       ├── clay_cup.json
+│   │       │       ├── clay_cup_filled.json
+│   │       │       ├── clay_pot.json
+│   │       │       ├── clay_shards.json
+│   │       │       ├── cranberry.json
+│   │       │       ├── cranberry_bush.json
+│   │       │       ├── danilka_block.json
+│   │       │       ├── elderberry.json
+│   │       │       ├── elderberry_bush.json
+│   │       │       ├── example_icon.json
+│   │       │       ├── firepit_block.json
+│   │       │       ├── flax.json
+│   │       │       ├── flax_fibers.json
+│   │       │       ├── flax_plant.json
+│   │       │       ├── flax_seeds.json
+│   │       │       ├── ginger.json
+│   │       │       ├── ginger_plant.json
+│   │       │       ├── healing_item.json
+│   │       │       ├── heaven_ticket.json
+│   │       │       ├── hewn_stone.json
+│   │       │       ├── horseradish.json
+│   │       │       ├── horseradish_plant.json
+│   │       │       ├── impure_iron_ore.json
+│   │       │       ├── iron_cluster.json
+│   │       │       ├── leaf.json
+│   │       │       ├── paradise_block.json
+│   │       │       ├── paradise_door.json
+│   │       │       ├── paradise_fence.json
+│   │       │       ├── pure_iron_ore.json
+│   │       │       ├── pyrite.json
+│   │       │       ├── pyrite_flint.json
+│   │       │       ├── pyrite_piece.json
+│   │       │       ├── raspberry.json
+│   │       │       ├── raspberry_bush.json
+│   │       │       ├── raw_clay_cup.json
+│   │       │       ├── raw_clay_pot.json
+│   │       │       ├── rough_bone_knife.json
+│   │       │       ├── rough_stone_knife.json
+│   │       │       ├── scraped_hide.json
+│   │       │       ├── sharpened_bone.json
+│   │       │       ├── soaked_flax.json
+│   │       │       ├── stone_axe.json
+│   │       │       ├── stone_hammer.json
+│   │       │       ├── stone_hoe.json
+│   │       │       ├── stone_pickaxe.json
+│   │       │       ├── stone_shovel.json
+│   │       │       ├── stone_sword.json
+│   │       │       └── wooden_comb.json
+│   │       │
+│   │       └── sounds
+│   │           └── block
+│   │               └── danilka_tap.ogg
+│   │
+│   └── textures
+│       ├── block
+│       │   ├── angelica.png
+│       │   ├── bone_block.png
+│       │   ├── brushwood_slab.png
+│       │   ├── brushwood_slab_burnt.png
+│       │   ├── bush.png
+│       │   ├── clay_pot.png
+│       │   ├── clay_shards.png
+│       │   ├── cranberry_bush.png
+│       │   ├── danilka_block.png
+│       │   ├── elderberry_bush.png
+│       │   ├── firepit_0_0.png
+│       │   ├── firepit_0_1.png
+│       │   ├── firepit_0_2.png
+│       │   ├── firepit_0_3.png
+│       │   ├── firepit_1_0.png
+│       │   ├── firepit_1_1.png
+│       │   ├── firepit_1_2.png
+│       │   ├── firepit_1_3.png
+│       │   ├── firepit_2_0.png
+│       │   ├── firepit_2_1.png
+│       │   ├── firepit_2_2.png
+│       │   ├── firepit_2_3.png
+│       │   ├── firepit_3_0.png
+│       │   ├── firepit_3_1.png
+│       │   ├── firepit_3_2.png
+│       │   ├── firepit_3_3.png
+│       │   ├── flax_plant.png
+│       │   ├── ginger_plant.png
+│       │   ├── horseradish_plant.png
+│       │   ├── impure_iron_ore.png
+│       │   ├── paradise_block.png
+│       │   ├── paradise_door_bottom.png
+│       │   ├── paradise_door_top.png
+│       │   ├── paradise_wall.png
+│       │   ├── pyrite.png
+│       │   ├── raspberry_bush.png
+│       │   ├── raw_clay_pot.png
+│       │   └── soaked_flax.png
+│       │
+│       ├── entity
+│       │   └── beaver
+│       │       └── beaver.png
+│       │
+│       ├── environment
+│       │   ├── skybox_back.png
+│       │   ├── skybox_bottom.png
+│       │   ├── skybox_front.png
+│       │   ├── skybox_left.png
+│       │   ├── skybox_right.png
+│       │   └── skybox_top.png
+│       │
+│       ├── gui
+│       │   ├── firepit.png
+│       │   │
+│       │   └── firepit_progress
+│       │       ├── frame_01.png
+│       │       ├── frame_02.png
+│       │       ├── frame_03.png
+│       │       ├── frame_04.png
+│       │       ├── frame_05.png
+│       │       ├── frame_06.png
+│       │       ├── frame_07.png
+│       │       ├── frame_08.png
+│       │       ├── frame_09.png
+│       │       ├── frame_10.png
+│       │       ├── frame_11.png
+│       │       ├── frame_12.png
+│       │       ├── frame_13.png
+│       │       ├── frame_14.png
+│       │       ├── frame_15.png
+│       │       └── frame_16.png
+│       │
+│       └── item
+│           ├── angelica_root.png
+│           ├── big_bone.png
+│           ├── bone_axe.png
+│           ├── bone_block.png
+│           ├── bone_comb.png
+│           ├── bone_hammer.png
+│           ├── bone_hoe.png
+│           ├── bone_pickaxe.png
+│           ├── bone_shovel.png
+│           ├── bone_sword.png
+│           ├── branch.png
+│           ├── brushwood_slab.png
+│           ├── calcined_iron_ore.png
+│           ├── clay_cup.png
+│           ├── clay_cup_water.png
+│           ├── clay_pot.png
+│           ├── clay_shards.png
+│           ├── cranberry.png
+│           ├── elderberry.png
+│           ├── example_icon.png
+│           ├── flax.png
+│           ├── flax_fibers.png
+│           ├── flax_seeds.png
+│           ├── ginger.png
+│           ├── healing_item.png
+│           ├── heaven_ticket.png
+│           ├── hewn_stone.png
+│           ├── horseradish.png
+│           ├── iron_cluster.png
+│           ├── leaf.png
+│           ├── paradise_door.png
+│           ├── pure_iron_ore.png
+│           ├── pyrite_flint.png
+│           ├── pyrite_piece.png
+│           ├── raspberry.png
+│           ├── raw_clay_cup.png
+│           ├── raw_clay_pot.png
+│           ├── rough_bone_knife.png
+│           ├── rough_stone_knife.png
+│           ├── scraped_hide.png
+│           ├── sharpened_bone.png
+│           ├── soaked_flax.png
+│           ├── stone_hammer.png
+│           └── wooden_comb.png
+│
+├── data
+│   ├── examplemod
+│   │   ├── advancements
+│   │   │   └── recipes
+│   │   │       └── misc
+│   │   │           ├── calcined_iron_ore_from_campfire.json
+│   │   │           └── clay_pot_from_campfire.json
+│   │   │
+│   │   ├── dimension
+│   │   │   └── heaven.json
+│   │   │
+│   │   ├── dimension_type
+│   │   │   └── heaven.json
+│   │   │
+│   │   ├── loot_tables
+│   │   │   └── blocks
+│   │   │       ├── angelica.json
+│   │   │       ├── clay_shards.json
+│   │   │       ├── danilka_block.json
+│   │   │       ├── flax_plant.json
+│   │   │       ├── ginger_plant.json
+│   │   │       ├── grass.json
+│   │   │       ├── horseradish_plant.json
+│   │   │       ├── paradise_block.json
+│   │   │       ├── paradise_door.json
+│   │   │       ├── paradise_fence.json
+│   │   │       ├── pyrite.json
+│   │   │       ├── raw_clay_pot.json
+│   │   │       └── tall_grass.json
+│   │   │
+│   │   ├── recipes
+│   │   │   ├── acacia_slab.json
+│   │   │   ├── birch_slab.json
+│   │   │   ├── bone_axe.json
+│   │   │   ├── bone_block.json
+│   │   │   ├── bone_comb.json
+│   │   │   ├── bone_hammer.json
+│   │   │   ├── bone_hoe.json
+│   │   │   ├── bone_pickaxe.json
+│   │   │   ├── bone_shovel.json
+│   │   │   ├── bone_sword.json
+│   │   │   ├── brushwood_slab.json
+│   │   │   ├── calcined_iron_ore_from_campfire.json
+│   │   │   ├── clay_cup_from_campfire.json
+│   │   │   ├── clay_pot_from_campfire.json
+│   │   │   ├── cobblestone_slab.json
+│   │   │   ├── crimson_slab.json
+│   │   │   ├── dark_oak_slab.json
+│   │   │   ├── jungle_slab.json
+│   │   │   ├── oak_slab.json
+│   │   │   ├── pyrite_flint.json
+│   │   │   ├── raw_clay_cup.json
+│   │   │   ├── raw_clay_cup_alt.json
+│   │   │   ├── raw_clay_pot.json
+│   │   │   ├── rough_bone_knife.json
+│   │   │   ├── rough_stone_knife.json
+│   │   │   ├── scraped_hide.json
+│   │   │   ├── spruce_slab.json
+│   │   │   ├── stone_axe.json
+│   │   │   ├── stone_axe_from_cobblestone.json
+│   │   │   ├── stone_hammer.json
+│   │   │   ├── stone_hoe.json
+│   │   │   ├── stone_hoe_from_cobblestone.json
+│   │   │   ├── stone_pickaxe.json
+│   │   │   ├── stone_pickaxe_from_cobblestone.json
+│   │   │   ├── stone_shovel.json
+│   │   │   ├── stone_shovel_from_cobblestone.json
+│   │   │   ├── stone_sword.json
+│   │   │   ├── stone_sword_from_cobblestone.json
+│   │   │   ├── warped_slab.json
+│   │   │   └── wooden_comb.json
+│   │   │
+│   │   └── tags
+│   │       └── items
+│   │           └── rough_knives.json
+│   │
+│   ├── forge
+│   │   └── tags
+│   │       └── items
+│   │           └── rods
+│   │               └── wooden.json
+│   │
+│   └── minecraft
+│       ├── recipes
+│       │   ├── acacia_planks.json
+│       │   ├── acacia_slab.json
+│       │   ├── birch_planks.json
+│       │   ├── birch_slab.json
+│       │   ├── bone_block.json
+│       │   ├── campfire.json
+│       │   ├── cobblestone_slab.json
+│       │   ├── cobblestone_slab_from_cobblestone_stonecutting.json
+│       │   ├── crimson_planks.json
+│       │   ├── crimson_slab.json
+│       │   ├── dark_oak_planks.json
+│       │   ├── dark_oak_slab.json
+│       │   ├── jungle_planks.json
+│       │   ├── jungle_slab.json
+│       │   ├── oak_planks.json
+│       │   ├── oak_slab.json
+│       │   ├── spruce_planks.json
+│       │   ├── spruce_slab.json
+│       │   ├── warped_planks.json
+│       │   └── warped_slab.json
+│       │
+│       └── tags
+│           ├── blocks
+│           │   └── walls.json
+│           │
+│           └── items
+│               ├── axes.json
+│               ├── coals.json
+│               └── walls.json
+│
+├── datapacks
+│   └── disable_vanilla
+│       ├── pack.mcmeta
+│       │
+│       └── data
+│           └── minecraft
+│               └── recipes
+│
+└── META-INF
+    └── mods.toml
+│
+└── test
+    ├── java
+    └── resources

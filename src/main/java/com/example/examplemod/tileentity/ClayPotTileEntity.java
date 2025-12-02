@@ -21,6 +21,11 @@ import javax.annotation.Nullable;
 public class ClayPotTileEntity extends TileEntity {
     public static final int CAPACITY = 8000;
 
+       // Добавлено: getter для TESR (строки 45-48)
+               public int getWaterLevel() {
+               return MathHelper.clamp((tank.getFluidAmount() * 8) / CAPACITY, 0, 8);
+           }
+
     private final FluidTank tank = new FluidTank(CAPACITY) {
         @Override
         protected void onContentsChanged() {
@@ -30,6 +35,8 @@ public class ClayPotTileEntity extends TileEntity {
                 BlockState previous = getBlockState();
                 updateFillLevel();
                 level.sendBlockUpdated(worldPosition, previous, getBlockState(), 3);
+                // Добавлено: extra update для TESR (строки 60-61)
+                level.blockUpdated(worldPosition, getBlockState().getBlock());
             }
         }
 
@@ -64,7 +71,7 @@ public class ClayPotTileEntity extends TileEntity {
             return;
         }
 
-        int fill = MathHelper.clamp((tank.getFluidAmount() * 8) / CAPACITY, 0, 8);
+        int fill = getWaterLevel();  // Добавлено: через getter (строка 86)
         if (state.getValue(ClayPotBlock.FILL_LEVEL) != fill) {
             level.setBlock(worldPosition, state.setValue(ClayPotBlock.FILL_LEVEL, fill), 3);
         }
