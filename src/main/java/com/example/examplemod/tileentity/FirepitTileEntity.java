@@ -24,7 +24,8 @@ import net.minecraft.tags.ItemTags;
 import javax.annotation.Nullable;
 
 public class FirepitTileEntity extends LockableTileEntity implements ITickableTileEntity {
-    public static final int COOK_TIME_TOTAL = 200;
+    public static final int COOK_TIME_TOTAL = 400;
+    public static final int CLAY_OVERCOOK_TIME = 300; // 15 seconds for clay items to turn into shards
     public static final int GRID_SLOT_COUNT = 12;
     public static final int FUEL_SLOT = GRID_SLOT_COUNT;
     public static final int MAX_HEAT = 100;
@@ -36,6 +37,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SLOT_COUNT + 1, ItemStack.EMPTY);
 
     private final int[] slotCookTimes = new int[GRID_SLOT_COUNT];
+    private final int[] slotCookingStages = new int[GRID_SLOT_COUNT]; // 0: not cooking, 1: raw->finished, 2: finished->shards
 
     private int heat;
     private int heatingTicks;
@@ -172,21 +174,67 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             ItemStack stack = items.get(i);
             if (isSmeltable(stack)) {
                 slotCookTimes[i]++;
-                if (slotCookTimes[i] >= COOK_TIME_TOTAL) {
-                    items.set(i, new ItemStack(ModItems.CALCINED_IRON_ORE.get()));
+                int requiredTime = getRequiredCookTime(stack, slotCookingStages[i]);
+                if (slotCookTimes[i] >= requiredTime) {
+                    ItemStack result = getCookingResult(stack, slotCookingStages[i]);
+                    items.set(i, result);
                     slotCookTimes[i] = 0;
+
+                    // If we just cooked raw clay to finished clay, start the overcooking stage
+                    if (isRawClayItem(stack) && slotCookingStages[i] == 0) {
+                        slotCookingStages[i] = 1; // Start overcooking stage
+                    } else {
+                        slotCookingStages[i] = 0; // Reset stage
+                    }
+
                     changed = true;
                 }
             } else if (slotCookTimes[i] != 0) {
                 slotCookTimes[i] = 0;
+                slotCookingStages[i] = 0;
             }
         }
         return changed;
     }
 
+    private boolean isRawClayItem(ItemStack stack) {
+        return stack.getItem() == ModItems.RAW_CLAY_CUP.get() || stack.getItem() == ModItems.RAW_CLAY_POT.get();
+    }
+
+    private boolean isFinishedClayItem(ItemStack stack) {
+        return stack.getItem() == ModItems.CLAY_CUP.get() || stack.getItem() == ModItems.CLAY_POT.get();
+    }
+
+    private int getRequiredCookTime(ItemStack stack, int stage) {
+        if (stack.getItem() == ModItems.PURE_IRON_ORE.get()) {
+            return COOK_TIME_TOTAL;
+        } else if (isRawClayItem(stack) && stage == 0) {
+            return COOK_TIME_TOTAL;
+        } else if (isFinishedClayItem(stack) && stage == 1) {
+            return CLAY_OVERCOOK_TIME;
+        }
+        return COOK_TIME_TOTAL;
+    }
+
+    private ItemStack getCookingResult(ItemStack stack, int stage) {
+        if (stack.getItem() == ModItems.PURE_IRON_ORE.get()) {
+            return new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+        } else if (stack.getItem() == ModItems.RAW_CLAY_CUP.get() && stage == 0) {
+            return new ItemStack(ModItems.CLAY_CUP.get());
+        } else if (stack.getItem() == ModItems.CLAY_CUP.get() && stage == 1) {
+            return new ItemStack(ModItems.CLAY_SHARDS.get());
+        } else if (stack.getItem() == ModItems.RAW_CLAY_POT.get() && stage == 0) {
+            return new ItemStack(ModItems.CLAY_POT.get());
+        } else if (stack.getItem() == ModItems.CLAY_POT.get() && stage == 1) {
+            return new ItemStack(ModItems.CLAY_SHARDS.get());
+        }
+        return stack; // fallback
+    }
+
     private void resetCookingProgress() {
         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
             slotCookTimes[i] = 0;
+            slotCookingStages[i] = 0;
         }
         cookProgress = 0;
         cookProgressTotal = COOK_TIME_TOTAL;
@@ -221,6 +269,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
             if (!isSmeltable(items.get(i))) {
                 slotCookTimes[i] = 0;
+                slotCookingStages[i] = 0;
             }
         }
         updateCookProgress();
@@ -235,7 +284,14 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     }
 
     public boolean isSmeltable(ItemStack stack) {
-        return !stack.isEmpty() && stack.getItem() == ModItems.PURE_IRON_ORE.get();
+        if (stack.isEmpty()) {
+            return false;
+        }
+        return stack.getItem() == ModItems.PURE_IRON_ORE.get()
+                || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
+                || stack.getItem() == ModItems.CLAY_CUP.get()
+                || stack.getItem() == ModItems.RAW_CLAY_POT.get()
+                || stack.getItem() == ModItems.CLAY_POT.get();
     }
 
 
@@ -351,6 +407,14 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                 slotCookTimes[i] = 0;
             }
         }
+        int[] savedCookingStages = nbt.getIntArray("SlotCookingStages");
+        if (savedCookingStages.length == GRID_SLOT_COUNT) {
+            System.arraycopy(savedCookingStages, 0, slotCookingStages, 0, GRID_SLOT_COUNT);
+        } else {
+            for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+                slotCookingStages[i] = 0;
+            }
+        }
         cookProgress = nbt.contains("CookProgress") ? nbt.getInt("CookProgress") : 0;
         cookProgressTotal = nbt.contains("CookProgressTotal")
                 ? Math.max(1, nbt.getInt("CookProgressTotal"))
@@ -366,6 +430,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         nbt.putInt("HeatingTicks", heatingTicks);
         nbt.putInt("CoolingTicks", coolingTicks);
         nbt.putIntArray("SlotCookTimes", slotCookTimes);
+        nbt.putIntArray("SlotCookingStages", slotCookingStages);
         nbt.putInt("CookProgress", cookProgress);
         nbt.putInt("CookProgressTotal", cookProgressTotal);
         return nbt;
