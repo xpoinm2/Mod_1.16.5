@@ -5,54 +5,6 @@
       "apply": {
         "model": "examplemod:block/clay_pot"
       }
-    },
-    {
-      "when": { "level": "1" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level1"
-      }
-    },
-    {
-      "when": { "level": "2" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level2"
-      }
-    },
-    {
-      "when": { "level": "3" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level3"
-      }
-    },
-    {
-      "when": { "level": "4" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level4"
-      }
-    },
-    {
-      "when": { "level": "5" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level5"
-      }
-    },
-    {
-      "when": { "level": "6" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level6"
-      }
-    },
-    {
-      "when": { "level": "7" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level7"
-      }
-    },
-    {
-      "when": { "level": "8" },
-      "apply": {
-        "model": "examplemod:block/clay_pot_water_level8"
-      }
     }
   ]
 }

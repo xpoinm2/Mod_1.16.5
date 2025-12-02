@@ -1,11 +1,8 @@
 package com.example.examplemod.client.render;
 
-import com.example.examplemod.block.ClayPotBlock;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
@@ -14,6 +11,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 public class ClayPotWaterRenderer extends TileEntityRenderer<ClayPotTileEntity> {
     private static final ResourceLocation WATER_STILL = new ResourceLocation("minecraft", "block/water_still");
@@ -22,12 +20,14 @@ public class ClayPotWaterRenderer extends TileEntityRenderer<ClayPotTileEntity> 
     }
     @Override
     public void render(ClayPotTileEntity tile, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int light, int overlay) {
-        BlockState state = tile.getBlockState();
-        int level = state.getValue(ClayPotBlock.FILL_LEVEL);
-        if (level == 0) return;
+        int fluidAmount = tile.getTank().getFluidAmount();
+        if (fluidAmount <= 0) {
+            return;
+        }
+
         matrix.pushPose();
         matrix.translate(0.5D, 0, 0.5D);
-        float fill = (level / 8.0F) + (partialTicks / 8.0F);
+        float fill = MathHelper.clamp(fluidAmount / (float) ClayPotTileEntity.CAPACITY, 0.0F, 1.0F);
         renderInnerWater(matrix, buffer, light, overlay, fill);
         matrix.popPose();
     }
