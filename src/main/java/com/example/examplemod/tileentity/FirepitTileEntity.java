@@ -215,7 +215,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return changed;
     }
 
-    private boolean isMultiblockIntact() {
+    public boolean isMultiblockIntact() {
         if (level == null) {
             return false;
         }

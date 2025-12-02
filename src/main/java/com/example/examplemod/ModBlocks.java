@@ -451,7 +451,14 @@ public class ModBlocks {
                 BlockPos masterPos = getMasterPos(pos, state);
                 TileEntity tile = world.getBlockEntity(masterPos);
                 if (tile instanceof FirepitTileEntity) {
-                    NetworkHooks.openGui((ServerPlayerEntity) player, (FirepitTileEntity) tile, masterPos);
+                    FirepitTileEntity firepit = (FirepitTileEntity) tile;
+                    // Check if the multiblock structure is still intact
+                    if (firepit.isMultiblockIntact()) {
+                        NetworkHooks.openGui((ServerPlayerEntity) player, firepit, masterPos);
+                    } else {
+                        // Structure is damaged, show message or just do nothing
+                        return ActionResultType.FAIL;
+                    }
                 }
             }
             return ActionResultType.sidedSuccess(world.isClientSide);
