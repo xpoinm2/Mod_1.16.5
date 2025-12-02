@@ -1,5 +1,4 @@
 {
-  "parent": "examplemod:block/clay_pot",
   "textures": {
     "water": "minecraft:block/water_still"
   },
@@ -18,4 +17,3 @@
     }
   ]
 }
-

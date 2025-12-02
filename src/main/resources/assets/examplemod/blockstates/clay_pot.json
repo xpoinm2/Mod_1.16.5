@@ -1,13 +1,39 @@
 {
-  "variants": {
-    "level=0": { "model": "examplemod:block/clay_pot" },
-    "level=1": { "model": "examplemod:block/clay_pot_water_level1" },
-    "level=2": { "model": "examplemod:block/clay_pot_water_level2" },
-    "level=3": { "model": "examplemod:block/clay_pot_water_level3" },
-    "level=4": { "model": "examplemod:block/clay_pot_water_level4" },
-    "level=5": { "model": "examplemod:block/clay_pot_water_level5" },
-    "level=6": { "model": "examplemod:block/clay_pot_water_level6" },
-    "level=7": { "model": "examplemod:block/clay_pot_water_level7" },
-    "level=8": { "model": "examplemod:block/clay_pot_water_level8" }
-  }
+  "multipart": [
+    {
+      "apply": { "model": "examplemod:block/clay_pot" }
+    },
+    {
+      "when": { "level": 1 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level1" }
+    },
+    {
+      "when": { "level": 2 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level2" }
+    },
+    {
+      "when": { "level": 3 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level3" }
+    },
+    {
+      "when": { "level": 4 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level4" }
+    },
+    {
+      "when": { "level": 5 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level5" }
+    },
+    {
+      "when": { "level": 6 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level6" }
+    },
+    {
+      "when": { "level": 7 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level7" }
+    },
+    {
+      "when": { "level": 8 },
+      "apply": { "model": "examplemod:block/clay_pot_water_level8" }
+    }
+  ]
 }
