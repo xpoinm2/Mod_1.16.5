@@ -141,6 +141,14 @@ public class ModBlocks {
                     .harvestTool(net.minecraftforge.common.ToolType.SHOVEL)
                     .harvestLevel(0)));
 
+    // Неочищенная оловянная руда
+    public static final RegistryObject<Block> UNREFINED_TIN_ORE = BLOCKS.register("unrefined_tin_ore",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
+
+    // Неочищенная золотая руда
+    public static final RegistryObject<Block> UNREFINED_GOLD_ORE = BLOCKS.register("unrefined_gold_ore",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.GOLD_ORE)));
+
 
     // Райский блок
     public static final RegistryObject<Block> PARADISE_BLOCK = BLOCKS.register("paradise_block",

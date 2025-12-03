@@ -298,7 +298,8 @@ public class ModItems {
 
     // Неочищенная оловянная руда
     public static final RegistryObject<Item> UNREFINED_TIN_ORE = ITEMS.register("unrefined_tin_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new BlockItem(ModBlocks.UNREFINED_TIN_ORE.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Грязная гравийная золотая руда
     public static final RegistryObject<Item> DIRTY_GRAVEL_GOLD_ORE = ITEMS.register("dirty_gravel_gold_ore",
@@ -307,7 +308,13 @@ public class ModItems {
 
     // Неочищенная золотая руда
     public static final RegistryObject<Item> UNREFINED_GOLD_ORE = ITEMS.register("unrefined_gold_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new BlockItem(ModBlocks.UNREFINED_GOLD_ORE.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+    
+    // Оловянная руда как предмет
+    public static final RegistryObject<Item> TIN_ORE = ITEMS.register("tin_ore",
+            () -> new BlockItem(ModBlocks.TIN_ORE.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Пиритовое огниво
     public static final RegistryObject<Item> PYRITE_FLINT = ITEMS.register("pyrite_flint",
