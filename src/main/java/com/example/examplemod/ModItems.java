@@ -296,11 +296,6 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.TIN_GRAVEL_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Оловянная руда как предмет
-    public static final RegistryObject<Item> TIN_ORE = ITEMS.register("tin_ore",
-            () -> new BlockItem(ModBlocks.TIN_ORE.get(),
-                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
     // Неочищенная оловянная руда
     public static final RegistryObject<Item> UNREFINED_TIN_ORE = ITEMS.register("unrefined_tin_ore",
             () -> new BlockItem(ModBlocks.TIN_ORE.get(),
