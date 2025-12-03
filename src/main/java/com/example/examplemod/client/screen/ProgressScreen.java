@@ -32,6 +32,8 @@ public class ProgressScreen extends Screen {
                 b -> this.minecraft.setScreen(parent)));
         this.addButton(new FramedButton(x, y, btnW, btnH, "Древний мир", 0xFF000000, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new ProgressEraScreen(this))));
+        this.addButton(new FramedButton(x, y + 35, btnW, btnH, "Древняя металлургия", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new AncientMetallurgyEraScreen(this))));
         super.init();
     }
 
