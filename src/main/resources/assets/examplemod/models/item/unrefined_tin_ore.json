@@ -1,3 +1,6 @@
 {
-  "parent": "examplemod:block/unrefined_tin_ore_block"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "examplemod:item/unrefined_tin_ore"
+  }
 }
