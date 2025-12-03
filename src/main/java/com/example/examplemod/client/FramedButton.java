@@ -9,7 +9,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 /** Simple button with colored border and custom text color. */
 public class FramedButton extends Button {
-    private final int borderColor;
+    private int borderColor;
     private final int fillColor;
     private final int textColor;
 
@@ -18,6 +18,14 @@ public class FramedButton extends Button {
         this.borderColor = borderColor;
         this.fillColor = 0xFF333333;
         this.textColor = textColor;
+    }
+
+    /**
+     * Changes the color of the button's border allowing screens to reflect
+     * quest states (locked, available, completed) using different colors.
+     */
+    public void setBorderColor(int color) {
+        this.borderColor = color;
     }
 
     @Override
