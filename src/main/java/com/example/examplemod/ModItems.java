@@ -270,8 +270,20 @@ public class ModItems {
     public static final RegistryObject<Item> HEAVEN_TICKET = ITEMS.register("heaven_ticket",
             () -> new HeavenTicketItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB).stacksTo(1)));
 
-    // Железный кластер: результат дробления руды
-    public static final RegistryObject<Item> IRON_CLUSTER = ITEMS.register("iron_cluster",
+    // Железный рудный гравий: результат дробления руды
+    public static final RegistryObject<Item> IRON_ORE_GRAVEL = ITEMS.register("iron_ore_gravel",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Оловянный рудный гравий
+    public static final RegistryObject<Item> TIN_ORE_GRAVEL = ITEMS.register("tin_ore_gravel",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Золотой рудный гравий
+    public static final RegistryObject<Item> GOLD_ORE_GRAVEL = ITEMS.register("gold_ore_gravel",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Шлак: побочный продукт дробления
+    public static final RegistryObject<Item> SLAG = ITEMS.register("slag",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Чистая железная руда: результат промывки кластера

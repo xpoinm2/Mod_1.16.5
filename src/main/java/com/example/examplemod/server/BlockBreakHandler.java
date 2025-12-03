@@ -12,9 +12,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -85,19 +87,24 @@ public class BlockBreakHandler {
             return;
         }
 
-        // Crushing impure iron ore with hammers
         if (state.getBlock() == ModBlocks.IMPURE_IRON_ORE.get()) {
-            ItemStack held = player.getMainHandItem();
-            if (held.getItem() == ModItems.STONE_HAMMER.get() || held.getItem() == ModItems.BONE_HAMMER.get()) {
-                event.setCanceled(true);
-                world.destroyBlock(event.getPos(), false);
-                Block.popResource(world, event.getPos(), new ItemStack(ModItems.IRON_CLUSTER.get()));
-                held.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(Hand.MAIN_HAND));
+            if (tryCrushOreWithHammer(world, event, player, ModItems.IRON_ORE_GRAVEL.get())) {
                 return;
-            } else {
-                event.setCanceled(true);
-                world.destroyBlock(event.getPos(), false);
-                Block.popResource(world, event.getPos(), new ItemStack(ModBlocks.IMPURE_IRON_ORE.get()));
+            }
+            event.setCanceled(true);
+            world.destroyBlock(event.getPos(), false);
+            Block.popResource(world, event.getPos(), new ItemStack(ModBlocks.IMPURE_IRON_ORE.get()));
+            return;
+        }
+
+        if (state.getBlock() == ModBlocks.UNREFINED_TIN_ORE.get()) {
+            if (tryCrushOreWithHammer(world, event, player, ModItems.TIN_ORE_GRAVEL.get())) {
+                return;
+            }
+        }
+
+        if (state.getBlock() == ModBlocks.UNREFINED_GOLD_ORE.get()) {
+            if (tryCrushOreWithHammer(world, event, player, ModItems.GOLD_ORE_GRAVEL.get())) {
                 return;
             }
         }
@@ -123,5 +130,24 @@ public class BlockBreakHandler {
                 );
             }
         }
+    }
+
+    private static boolean tryCrushOreWithHammer(World world, BreakEvent event, PlayerEntity player, Item gravelItem) {
+        ItemStack held = player.getMainHandItem();
+        if (held.getItem() != ModItems.STONE_HAMMER.get() && held.getItem() != ModItems.BONE_HAMMER.get()) {
+            return false;
+        }
+        event.setCanceled(true);
+        world.destroyBlock(event.getPos(), false);
+        dropOreGravelAndSlag(world, event.getPos(), gravelItem);
+        held.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(Hand.MAIN_HAND));
+        return true;
+    }
+
+    private static void dropOreGravelAndSlag(World world, BlockPos pos, Item gravelItem) {
+        int gravelCount = world.random.nextBoolean() ? 1 : 2;
+        int slagCount = world.random.nextBoolean() ? 1 : 2;
+        Block.popResource(world, pos, new ItemStack(gravelItem, gravelCount));
+        Block.popResource(world, pos, new ItemStack(ModItems.SLAG.get(), slagCount));
     }
 }

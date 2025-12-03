@@ -1,6 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "examplemod:item/iron_cluster"
+    "layer0": "examplemod:item/slag"
   }
 }
+

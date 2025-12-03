@@ -20,7 +20,7 @@ public class IronClusterWashHandler {
     @SubscribeEvent
     public static void onUse(PlayerInteractEvent.RightClickItem event) {
         ItemStack stack = event.getItemStack();
-        if (stack.getItem() != ModItems.IRON_CLUSTER.get()) return;
+        if (stack.getItem() != ModItems.IRON_ORE_GRAVEL.get()) return;
 
         PlayerEntity player = event.getPlayer();
         if (player.level.isClientSide) return;

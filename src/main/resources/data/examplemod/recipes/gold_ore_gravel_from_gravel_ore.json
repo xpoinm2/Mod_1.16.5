@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "examplemod:gold_gravel_ore" },
+    { "item": "examplemod:gold_gravel_ore" },
+    { "item": "examplemod:gold_gravel_ore" }
+  ],
+  "result": {
+    "item": "examplemod:gold_ore_gravel"
+  }
+}
+

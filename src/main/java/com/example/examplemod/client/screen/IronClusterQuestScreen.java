@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class IronClusterQuestScreen extends AbstractQuestScreen {
 
     public IronClusterQuestScreen(Screen parent) {
-        super(parent, "Железный кластер");
+        super(parent, "Железный рудный гравий");
     }
 
     @Override
@@ -30,8 +30,8 @@ public class IronClusterQuestScreen extends AbstractQuestScreen {
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth, "Добыть 8", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "железных кластеров", 0xFFFFFF00);;
-        ItemStack stack = new ItemStack(ModItems.IRON_CLUSTER.get(), 8);
+        y = drawParagraph(ms, x, y, innerWidth, "железного рудного гравия", 0xFFFFFF00);
+        ItemStack stack = new ItemStack(ModItems.IRON_ORE_GRAVEL.get(), 8);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;
         }
@@ -50,7 +50,7 @@ public class IronClusterQuestScreen extends AbstractQuestScreen {
     @Override
     protected boolean hasRequiredItems() {
         return this.minecraft.player != null
-                && this.minecraft.player.inventory.countItem(ModItems.IRON_CLUSTER.get()) >= 8;
+                && this.minecraft.player.inventory.countItem(ModItems.IRON_ORE_GRAVEL.get()) >= 8;
     }
 
     @Override

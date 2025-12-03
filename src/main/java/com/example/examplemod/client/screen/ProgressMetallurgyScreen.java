@@ -104,10 +104,10 @@ public class ProgressMetallurgyScreen extends Screen {
         QuestNode startNode = registerNode(this.startSmithingButton, baseX, baseY);
 
                 this.ironClusterButton = new ItemIconButton(baseX + spacingX, baseY,
-                        new ItemStack(ModItems.IRON_CLUSTER.get()),
+                        new ItemStack(ModItems.IRON_ORE_GRAVEL.get()),
                         b -> this.minecraft.setScreen(new IronClusterQuestScreen(this)),
                         () -> Arrays.asList(
-                                new StringTextComponent("Железный кластер")
+                                new StringTextComponent("Железный рудный гравий")
                                         .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                                 new StringTextComponent("Требуется: ")
                                         .append(new StringTextComponent("Стартовые молоты")
@@ -121,7 +121,7 @@ public class ProgressMetallurgyScreen extends Screen {
                         new StringTextComponent("Чистая железная руда")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Железный кластер")
+                                .append(new StringTextComponent("Железный рудный гравий")
                                         .withStyle(TextFormatting.BLUE))));
         QuestNode pureNode = registerNode(this.pureIronOreButton, baseX + spacingX * 2, baseY);
 
