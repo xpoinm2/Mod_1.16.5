@@ -10,6 +10,7 @@ import com.example.examplemod.block.RawClayPotBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
+import net.minecraft.block.FallingBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -118,6 +119,27 @@ public class ModBlocks {
     // Пиритовая жила
     public static final RegistryObject<Block> PYRITE = BLOCKS.register("pyrite",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.COAL_ORE)));
+
+    // Гравийная оловянная руда
+    public static final RegistryObject<Block> TIN_GRAVEL_ORE = BLOCKS.register("tin_gravel_ore",
+            () -> new FallingBlock(AbstractBlock.Properties.copy(Blocks.GRAVEL)
+                    .strength(0.6F)
+                    .harvestTool(net.minecraftforge.common.ToolType.SHOVEL)
+                    .harvestLevel(0)));
+
+    // Оловянная руда
+    public static final RegistryObject<Block> TIN_ORE = BLOCKS.register("tin_ore",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)
+                    .strength(1.5F, 6.0F)
+                    .harvestTool(net.minecraftforge.common.ToolType.PICKAXE)
+                    .harvestLevel(1)));
+
+    // Гравийная золотая руда
+    public static final RegistryObject<Block> GOLD_GRAVEL_ORE = BLOCKS.register("gold_gravel_ore",
+            () -> new FallingBlock(AbstractBlock.Properties.copy(Blocks.GRAVEL)
+                    .strength(0.6F)
+                    .harvestTool(net.minecraftforge.common.ToolType.SHOVEL)
+                    .harvestLevel(0)));
 
     // Райский блок
     public static final RegistryObject<Block> PARADISE_BLOCK = BLOCKS.register("paradise_block",

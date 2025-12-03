@@ -69,6 +69,14 @@ public class BlockBreakHandler {
             return;
         }
 
+        // Replace gold ore drop with unrefined gold ore
+        if (state.getBlock() == Blocks.GOLD_ORE) {
+            event.setCanceled(true);
+            world.destroyBlock(event.getPos(), false);
+            Block.popResource(world, event.getPos(), new ItemStack(ModItems.UNREFINED_GOLD_ORE.get()));
+            return;
+        }
+
         // Crushing impure iron ore with hammers
         if (state.getBlock() == ModBlocks.IMPURE_IRON_ORE.get()) {
             ItemStack held = player.getMainHandItem();

@@ -30,6 +30,9 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> GINGER_PATCH;
     public static ConfiguredFeature<?, ?> FLAX_PATCH;
     public static ConfiguredFeature<?, ?> PYRITE_ORE;
+    public static ConfiguredFeature<?, ?> TIN_GRAVEL_ORE;
+    public static ConfiguredFeature<?, ?> TIN_ORE;
+    public static ConfiguredFeature<?, ?> GOLD_GRAVEL_ORE;
     public static ConfiguredFeature<?, ?> BASALT_MOUNTAIN;
     public static ConfiguredFeature<?, ?> DESERT_PYRAMID;
 
@@ -42,6 +45,9 @@ public class WorldGenRegistry {
         GINGER_PATCH = register("ginger_patch", 1, ModBlocks.GINGER_PLANT.get().defaultBlockState());
         FLAX_PATCH = register("flax_patch", 1, ModBlocks.FLAX_PLANT.get().defaultBlockState());
         PYRITE_ORE = registerPyriteOre();
+        TIN_GRAVEL_ORE = registerTinGravelOre();
+        TIN_ORE = registerTinOre();
+        GOLD_GRAVEL_ORE = registerGoldGravelOre();
         BASALT_MOUNTAIN = registerBasaltMountain();
         DESERT_PYRAMID = registerDesertPyramid();
     }
@@ -67,6 +73,45 @@ public class WorldGenRegistry {
                 .configured(config).range(64).squared().count(6);
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "pyrite_ore"), feature);
+        return feature;
+    }
+
+    private static ConfiguredFeature<?, ?> registerTinGravelOre() {
+        net.minecraft.world.gen.feature.OreFeatureConfig config =
+                new net.minecraft.world.gen.feature.OreFeatureConfig(
+                        new net.minecraft.world.gen.feature.template.BlockMatchRuleTest(net.minecraft.block.Blocks.GRAVEL),
+                        ModBlocks.TIN_GRAVEL_ORE.get().defaultBlockState(),
+                        1);
+        ConfiguredFeature<?, ?> feature = net.minecraft.world.gen.feature.Feature.ORE
+                .configured(config).range(64).squared().count(4); // 3-5 blocks per chunk
+        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
+                new ResourceLocation(ExampleMod.MODID, "tin_gravel_ore"), feature);
+        return feature;
+    }
+
+    private static ConfiguredFeature<?, ?> registerTinOre() {
+        net.minecraft.world.gen.feature.OreFeatureConfig config =
+                new net.minecraft.world.gen.feature.OreFeatureConfig(
+                        net.minecraft.world.gen.feature.OreFeatureConfig.FillerBlockType.NATURAL_STONE,
+                        ModBlocks.TIN_ORE.get().defaultBlockState(),
+                        4);
+        ConfiguredFeature<?, ?> feature = net.minecraft.world.gen.feature.Feature.ORE
+                .configured(config).range(40).squared().count(6); // Y=10-50, ~1.5x less than iron
+        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
+                new ResourceLocation(ExampleMod.MODID, "tin_ore"), feature);
+        return feature;
+    }
+
+    private static ConfiguredFeature<?, ?> registerGoldGravelOre() {
+        net.minecraft.world.gen.feature.OreFeatureConfig config =
+                new net.minecraft.world.gen.feature.OreFeatureConfig(
+                        new net.minecraft.world.gen.feature.template.BlockMatchRuleTest(net.minecraft.block.Blocks.GRAVEL),
+                        ModBlocks.GOLD_GRAVEL_ORE.get().defaultBlockState(),
+                        1);
+        ConfiguredFeature<?, ?> feature = net.minecraft.world.gen.feature.Feature.ORE
+                .configured(config).range(64).squared().count(4); // 3-5 blocks per chunk
+        Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
+                new ResourceLocation(ExampleMod.MODID, "gold_gravel_ore"), feature);
         return feature;
     }
 
