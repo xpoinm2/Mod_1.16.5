@@ -93,10 +93,7 @@ public class ProgressJewelryScreen extends Screen {
 
         updateNodePositions();
 
-        // Обновление цветов кнопок (пока все доступны)
-        for (QuestNode node : nodes) {
-            node.button.setBorderColor(0xFF00BFFF);
-        }
+        // Пока нет кнопок, поэтому ничего не обновляем
 
         renderConnections(ms);
 

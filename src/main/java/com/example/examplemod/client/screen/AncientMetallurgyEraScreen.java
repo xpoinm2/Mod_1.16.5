@@ -13,6 +13,17 @@ public class AncientMetallurgyEraScreen extends Screen {
     private final Screen parent;
     private ScrollArea scrollArea;
 
+    private FramedButton gatheringButton;
+    private FramedButton metallurgyButton;
+    private FramedButton productionButton;
+    private FramedButton agricultureButton;
+    private FramedButton clothingButton;
+    private FramedButton transportButton;
+    private FramedButton medicineButton;
+    private FramedButton jewelryButton;
+    private FramedButton warButton;
+    private FramedButton constructionButton;
+
     public AncientMetallurgyEraScreen(Screen parent) {
         super(new StringTextComponent("Древняя металлургия"));
         this.parent = parent;
@@ -29,6 +40,44 @@ public class AncientMetallurgyEraScreen extends Screen {
         int panelHeight = this.height - 60;
 
         this.scrollArea = new ScrollArea(panelX, panelY, panelWidth, panelHeight);
+
+        // Создаем кнопки направлений
+        int tabW = (int)(120 * 1.4);
+        int tabH = (int)(20 * 1.4);
+        int centerX = panelX + (panelWidth - tabW) / 2;
+
+        this.gatheringButton = new FramedButton(centerX, 0, tabW, tabH, "Собирательство", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressGatheringScreen(this)));
+        this.metallurgyButton = new FramedButton(centerX, 0, tabW, tabH, "Металлургия", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressMetallurgyScreen(this)));
+        this.productionButton = new FramedButton(centerX, 0, tabW, tabH, "Производство", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressProductionScreen(this)));
+        this.agricultureButton = new FramedButton(centerX, 0, tabW, tabH, "Сельское хозяйство/Еда", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressAgricultureScreen(this)));
+        this.clothingButton = new FramedButton(centerX, 0, tabW, tabH, "Одежда/Текстиль", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressClothingScreen(this)));
+        this.transportButton = new FramedButton(centerX, 0, tabW, tabH, "Транспорт", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressTransportScreen(this)));
+        this.medicineButton = new FramedButton(centerX, 0, tabW, tabH, "Медицина/Таблетки", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressMedicineScreen(this)));
+        this.jewelryButton = new FramedButton(centerX, 0, tabW, tabH, "Украшения/Ювелирка", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressJewelryScreen(this)));
+        this.warButton = new FramedButton(centerX, 0, tabW, tabH, "Война/Оружие", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressWarScreen(this)));
+        this.constructionButton = new FramedButton(centerX, 0, tabW, tabH, "Строительство/Жилище", 0xFF000000, 0xFFFF0000,
+                b -> this.minecraft.setScreen(new ProgressConstructionScreen(this)));
+
+        // Добавляем кнопки в список (для обработки кликов)
+        this.addButton(gatheringButton);
+        this.addButton(metallurgyButton);
+        this.addButton(productionButton);
+        this.addButton(agricultureButton);
+        this.addButton(clothingButton);
+        this.addButton(transportButton);
+        this.addButton(medicineButton);
+        this.addButton(jewelryButton);
+        this.addButton(warButton);
+        this.addButton(constructionButton);
 
         super.init();
     }
@@ -51,69 +100,52 @@ public class AncientMetallurgyEraScreen extends Screen {
     }
 
     private int renderDirections(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth, int mouseX, int mouseY, float partialTicks) {
-        int tabW = 120;
-        int tabH = 20;
-        int spacing = 25;
+        int tabW = (int)(120 * 1.4); // Увеличено в 1.4 раза
+        int spacing = (int)(25 * 1.4); // Увеличено в 1.4 раза
         int currentY = y;
 
-        // Собирательство
-        FramedButton gatheringButton = new FramedButton(x, currentY, tabW, tabH, "Собирательство", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressGatheringScreen(this)));
-        gatheringButton.render(ms, mouseX, mouseY, partialTicks);
+        // Центрирование кнопок по горизонтали
+        int centerX = x + (innerWidth - tabW) / 2;
+
+        // Позиционируем и отображаем кнопки
+        gatheringButton.x = centerX;
+        gatheringButton.y = currentY;
         currentY += spacing;
 
-        // Металлургия
-        FramedButton metallurgyButton = new FramedButton(x, currentY, tabW, tabH, "Металлургия", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressMetallurgyScreen(this)));
-        metallurgyButton.render(ms, mouseX, mouseY, partialTicks);
+        metallurgyButton.x = centerX;
+        metallurgyButton.y = currentY;
         currentY += spacing;
 
-        // Производство
-        FramedButton productionButton = new FramedButton(x, currentY, tabW, tabH, "Производство", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressProductionScreen(this)));
-        productionButton.render(ms, mouseX, mouseY, partialTicks);
+        productionButton.x = centerX;
+        productionButton.y = currentY;
         currentY += spacing;
 
-        // Сельское хозяйство/Еда
-        FramedButton agricultureButton = new FramedButton(x, currentY, tabW, tabH, "Сельское хозяйство/Еда", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressAgricultureScreen(this)));
-        agricultureButton.render(ms, mouseX, mouseY, partialTicks);
+        agricultureButton.x = centerX;
+        agricultureButton.y = currentY;
         currentY += spacing;
 
-        // Одежда/Текстиль
-        FramedButton clothingButton = new FramedButton(x, currentY, tabW, tabH, "Одежда/Текстиль", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressClothingScreen(this)));
-        clothingButton.render(ms, mouseX, mouseY, partialTicks);
+        clothingButton.x = centerX;
+        clothingButton.y = currentY;
         currentY += spacing;
 
-        // Транспорт
-        FramedButton transportButton = new FramedButton(x, currentY, tabW, tabH, "Транспорт", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressTransportScreen(this)));
-        transportButton.render(ms, mouseX, mouseY, partialTicks);
+        transportButton.x = centerX;
+        transportButton.y = currentY;
         currentY += spacing;
 
-        // Медицина/Таблетки
-        FramedButton medicineButton = new FramedButton(x, currentY, tabW, tabH, "Медицина/Таблетки", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressMedicineScreen(this)));
-        medicineButton.render(ms, mouseX, mouseY, partialTicks);
+        medicineButton.x = centerX;
+        medicineButton.y = currentY;
         currentY += spacing;
 
-        // Украшения/Ювелирка
-        FramedButton jewelryButton = new FramedButton(x, currentY, tabW, tabH, "Украшения/Ювелирка", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressJewelryScreen(this)));
-        jewelryButton.render(ms, mouseX, mouseY, partialTicks);
+        jewelryButton.x = centerX;
+        jewelryButton.y = currentY;
         currentY += spacing;
 
-        // Война/Оружие
-        FramedButton warButton = new FramedButton(x, currentY, tabW, tabH, "Война/Оружие", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressWarScreen(this)));
-        warButton.render(ms, mouseX, mouseY, partialTicks);
+        warButton.x = centerX;
+        warButton.y = currentY;
         currentY += spacing;
 
-        // Строительство/Жилище
-        FramedButton constructionButton = new FramedButton(x, currentY, tabW, tabH, "Строительство/Жилище", 0xFF000000, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new ProgressConstructionScreen(this)));
-        constructionButton.render(ms, mouseX, mouseY, partialTicks);
+        constructionButton.x = centerX;
+        constructionButton.y = currentY;
         currentY += spacing;
 
         return currentY;
