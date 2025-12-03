@@ -77,6 +77,14 @@ public class BlockBreakHandler {
             return;
         }
 
+        // Replace tin ore drop with unrefined tin ore
+        if (state.getBlock() == ModBlocks.TIN_ORE.get()) {
+            event.setCanceled(true);
+            world.destroyBlock(event.getPos(), false);
+            Block.popResource(world, event.getPos(), new ItemStack(ModItems.UNREFINED_TIN_ORE.get()));
+            return;
+        }
+
         // Crushing impure iron ore with hammers
         if (state.getBlock() == ModBlocks.IMPURE_IRON_ORE.get()) {
             ItemStack held = player.getMainHandItem();
