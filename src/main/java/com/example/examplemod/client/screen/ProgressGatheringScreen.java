@@ -39,6 +39,8 @@ public class ProgressGatheringScreen extends Screen {
     private ItemIconButton flaxFibersButton;
     private ItemIconButton unrefinedTinButton;
     private ItemIconButton unrefinedGoldButton;
+    private ItemIconButton cleanedTinButton;
+    private ItemIconButton cleanedGoldButton;
 
 
     private int offsetX;
@@ -183,6 +185,7 @@ public class ProgressGatheringScreen extends Screen {
         int baseX = 80;
         int baseY = 90;
         int spacingX = 90;
+        int spacingY = 80;
 
         this.unrefinedTinButton = new ItemIconButton(baseX, baseY,
                 new ItemStack(ModItems.UNREFINED_TIN_ORE.get()),
@@ -193,7 +196,7 @@ public class ProgressGatheringScreen extends Screen {
                         new StringTextComponent("Нужно для открытия: ")
                                 .append(new StringTextComponent("Пройти древний мир")
                                         .withStyle(TextFormatting.GOLD))));
-        registerNode(this.unrefinedTinButton, baseX, baseY);
+        QuestNode unrefinedTinNode = registerNode(this.unrefinedTinButton, baseX, baseY);
 
         this.unrefinedGoldButton = new ItemIconButton(baseX + spacingX, baseY,
                 new ItemStack(ModItems.UNREFINED_GOLD_ORE.get()),
@@ -204,7 +207,32 @@ public class ProgressGatheringScreen extends Screen {
                         new StringTextComponent("Нужно для открытия: ")
                                 .append(new StringTextComponent("Пройти древний мир")
                                         .withStyle(TextFormatting.GOLD))));
-        registerNode(this.unrefinedGoldButton, baseX + spacingX, baseY);
+        QuestNode unrefinedGoldNode = registerNode(this.unrefinedGoldButton, baseX + spacingX, baseY);
+
+        this.cleanedTinButton = new ItemIconButton(baseX, baseY + spacingY,
+                new ItemStack(ModItems.CLEANED_GRAVEL_TIN_ORE.get()),
+                b -> this.minecraft.setScreen(new CleanedGravelTinOreQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Очищённая гравийная оловянная руда")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Неочищенная оловянная руда")
+                                        .withStyle(TextFormatting.GOLD))));
+        QuestNode cleanedTinNode = registerNode(this.cleanedTinButton, baseX, baseY + spacingY);
+
+        this.cleanedGoldButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
+                new ItemStack(ModItems.CLEANED_GRAVEL_GOLD_ORE.get()),
+                b -> this.minecraft.setScreen(new CleanedGravelGoldOreQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Очищённая гравийная золотая руда")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Неочищенная золотая руда")
+                                        .withStyle(TextFormatting.GOLD))));
+        QuestNode cleanedGoldNode = registerNode(this.cleanedGoldButton, baseX + spacingX, baseY + spacingY);
+
+        addConnection(unrefinedTinNode, cleanedTinNode, this::getCleanedTinState);
+        addConnection(unrefinedGoldNode, cleanedGoldNode, this::getCleanedGoldState);
     }
 
     @Override
@@ -236,6 +264,12 @@ public class ProgressGatheringScreen extends Screen {
             }
             if (this.unrefinedGoldButton != null) {
                 this.unrefinedGoldButton.setBorderColor(colorForState(getUnrefinedGoldState()));
+            }
+            if (this.cleanedTinButton != null) {
+                this.cleanedTinButton.setBorderColor(colorForState(getCleanedTinState()));
+            }
+            if (this.cleanedGoldButton != null) {
+                this.cleanedGoldButton.setBorderColor(colorForState(getCleanedGoldState()));
             }
         }
 
@@ -295,6 +329,20 @@ public class ProgressGatheringScreen extends Screen {
             return QuestState.LOCKED;
         }
         return QuestManager.isUnrefinedGoldOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getCleanedTinState() {
+        if (!QuestManager.isUnrefinedTinOreCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isCleanedGravelTinOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getCleanedGoldState() {
+        if (!QuestManager.isUnrefinedGoldOreCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isCleanedGravelGoldOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
     @Override
