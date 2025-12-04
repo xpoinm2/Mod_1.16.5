@@ -284,10 +284,16 @@ public class ProgressGatheringScreen extends Screen {
     }
 
     private QuestState getUnrefinedTinState() {
+        if (!QuestManager.isAncientWorldCompleted()) {
+            return QuestState.LOCKED;
+        }
         return QuestManager.isUnrefinedTinOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
     private QuestState getUnrefinedGoldState() {
+        if (!QuestManager.isAncientWorldCompleted()) {
+            return QuestState.LOCKED;
+        }
         return QuestManager.isUnrefinedGoldOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 

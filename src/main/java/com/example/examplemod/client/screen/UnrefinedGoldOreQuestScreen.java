@@ -57,6 +57,11 @@ public class UnrefinedGoldOreQuestScreen extends AbstractQuestScreen {
     }
 
     @Override
+    protected boolean isQuestUnlocked() {
+        return QuestManager.isAncientWorldCompleted();
+    }
+
+    @Override
     protected void markCompleted() {
         QuestManager.setUnrefinedGoldOreCompleted(true);
     }

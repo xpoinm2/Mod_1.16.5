@@ -247,6 +247,34 @@ public class QuestManager {
         unrefinedGoldOreCompleted = value;
     }
 
+    public static boolean isAncientWorldCompleted() {
+        return planksCompleted
+                && slabsCompleted
+                && cobbleSlabsCompleted
+                && hewnStonesCompleted
+                && bigBonesCompleted
+                && sharpenedBoneCompleted
+                && stoneToolsCompleted
+                && boneToolsCompleted
+                && combsCompleted
+                && flaxFibersCompleted
+                && branchCompleted
+                && brushwoodCompleted
+                && startSmithingCompleted
+                && initialFaunaCompleted
+                && startHammersCompleted
+                && ironClusterCompleted
+                && pureIronOreCompleted
+                && firepitCompleted
+                && pyriteCompleted
+                && pyriteFlintCompleted
+                && roughKnivesCompleted
+                && scrapedLeatherCompleted
+                && calcinedIronOreCompleted
+                && clayPotCompleted
+                && clayCupCompleted;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
