@@ -209,7 +209,8 @@ public class BlockBreakHandler {
         if (item == ModItems.STONE_HAMMER.get() || item == ModItems.BONE_HAMMER.get()) {
             return true;
         }
-        if (item instanceof TieredItem tiered) {
+        if (item instanceof TieredItem) {
+            TieredItem tiered = (TieredItem) item;
             return tiered.getTier().getLevel() >= 1;
         }
         return false;
