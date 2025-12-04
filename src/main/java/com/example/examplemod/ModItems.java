@@ -323,6 +323,14 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.UNREFINED_GOLD_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
     
+    // Очищённая гравийная оловянная руда
+    public static final RegistryObject<Item> CLEANED_GRAVEL_TIN_ORE = ITEMS.register("cleaned_gravel_tin_ore",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Очищённая гравийная золотая руда
+    public static final RegistryObject<Item> CLEANED_GRAVEL_GOLD_ORE = ITEMS.register("cleaned_gravel_gold_ore",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Оловянная руда как предмет
     public static final RegistryObject<Item> TIN_ORE = ITEMS.register("tin_ore",
             () -> new BlockItem(ModBlocks.TIN_ORE.get(),
