@@ -29,13 +29,6 @@ public class ProgressMetallurgyScreen extends Screen {
     private final List<QuestNode> nodes = new ArrayList<>();
     private final List<QuestConnection> connections = new ArrayList<>();
 
-    private ItemIconButton startSmithingButton;
-    private ItemIconButton ironClusterButton;
-    private ItemIconButton pureIronOreButton;
-    private ItemIconButton firepitButton;
-    private ItemIconButton pyriteButton;
-    private ItemIconButton pyriteFlintButton;
-    private ItemIconButton calcinedIronOreButton;
 
     private int offsetX;
     private int offsetY;
@@ -84,106 +77,8 @@ public class ProgressMetallurgyScreen extends Screen {
     protected void init() {
         this.addButton(new FramedButton(5, 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
-                nodes.clear();
+        nodes.clear();
         connections.clear();
-
-        int baseX = 80;
-        int baseY = 90;
-        int spacingX = 70;
-        int spacingY = 60;
-
-        this.startSmithingButton = new ItemIconButton(baseX, baseY,
-                new ItemStack(ModItems.IMPURE_IRON_ORE.get()),
-                b -> this.minecraft.setScreen(new StartSmithingQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Начало кузнечного дела")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Каменные или костяные инструменты")
-                                        .withStyle(TextFormatting.BLUE))));
-        QuestNode startNode = registerNode(this.startSmithingButton, baseX, baseY);
-
-                this.ironClusterButton = new ItemIconButton(baseX + spacingX, baseY,
-                        new ItemStack(ModItems.IRON_ORE_GRAVEL.get()),
-                        b -> this.minecraft.setScreen(new IronClusterQuestScreen(this)),
-                        () -> Arrays.asList(
-                                new StringTextComponent("Железный рудный гравий")
-                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                                new StringTextComponent("Требуется: ")
-                                        .append(new StringTextComponent("Стартовые молоты")
-                                                .withStyle(TextFormatting.BLUE))));
-                QuestNode ironNode = registerNode(this.ironClusterButton, baseX + spacingX, baseY);
-
-        this.pureIronOreButton = new ItemIconButton(baseX + spacingX * 2, baseY,
-                new ItemStack(ModItems.PURE_IRON_ORE.get()),
-                b -> this.minecraft.setScreen(new PureIronOreQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Чистая железная руда")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Железный рудный гравий")
-                                        .withStyle(TextFormatting.BLUE))));
-        QuestNode pureNode = registerNode(this.pureIronOreButton, baseX + spacingX * 2, baseY);
-
-        this.pyriteButton = new ItemIconButton(baseX, baseY + spacingY,
-                new ItemStack(ModItems.PYRITE_PIECE.get()),
-                b -> this.minecraft.setScreen(new PyriteQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Пирит")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Каменные или костяные инструменты")
-                                        .withStyle(TextFormatting.BLUE))));
-        QuestNode pyriteNode = registerNode(this.pyriteButton, baseX, baseY + spacingY);
-
-        this.pyriteFlintButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
-                new ItemStack(ModItems.PYRITE_FLINT.get()),
-                b -> this.minecraft.setScreen(new PyriteFlintQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Пиритовое огниво")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Пирит")
-                                        .withStyle(TextFormatting.BLUE))));
-        QuestNode pyriteFlintNode = registerNode(this.pyriteFlintButton, baseX + spacingX, baseY + spacingY);
-
-                this.firepitButton = new ItemIconButton(baseX + spacingX * 2, baseY + spacingY,
-                        new ItemStack(ModItems.FIREPIT_BLOCK.get()),
-                        b -> this.minecraft.setScreen(new FirepitQuestScreen(this)),
-                        () -> Arrays.asList(
-                                new StringTextComponent("Кострище")
-                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                                new StringTextComponent("Требуется: ")
-                                        .append(new StringTextComponent("Чистая железная руда")
-                                                .withStyle(TextFormatting.BLUE)),
-                                new StringTextComponent("Также нужно: ")
-                                        .append(new StringTextComponent("Булыжная плита")
-                                                .withStyle(TextFormatting.BLUE))
-                                        .append(new StringTextComponent(", "))
-                                        .append(new StringTextComponent("Хворост")
-                                                .withStyle(TextFormatting.BLUE))
-                                        .append(new StringTextComponent(" и "))
-                                        .append(new StringTextComponent("Пиритовое огниво")
-                                                .withStyle(TextFormatting.BLUE))));
-        QuestNode firepitNode = registerNode(this.firepitButton, baseX + spacingX * 2, baseY + spacingY);
-
-        this.calcinedIronOreButton = new ItemIconButton(baseX + spacingX * 3, baseY + spacingY,
-                new ItemStack(ModItems.CALCINED_IRON_ORE.get()),
-                b -> this.minecraft.setScreen(new CalcinedIronOreQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Обожжённая железная руда")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Кострище")
-                                        .withStyle(TextFormatting.BLUE))));
-        QuestNode calcinedNode = registerNode(this.calcinedIronOreButton, baseX + spacingX * 3, baseY + spacingY);
-
-        addConnection(startNode, ironNode, this::getIronClusterState);
-        addConnection(ironNode, pureNode, this::getPureIronOreState);
-        addConnection(pureNode, firepitNode, this::getFirepitState);
-        addConnection(pyriteNode, pyriteFlintNode, this::getPyriteFlintState);
-        addConnection(pyriteFlintNode, firepitNode, this::getFirepitState);
-        addConnection(firepitNode, calcinedNode, this::getCalcinedIronOreState);
 
         updateNodePositions();
         updateMapBounds();
@@ -203,14 +98,6 @@ public class ProgressMetallurgyScreen extends Screen {
             drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
 
                 updateNodePositions();
-
-                this.startSmithingButton.setBorderColor(colorForState(getStartSmithingState()));
-                this.ironClusterButton.setBorderColor(colorForState(getIronClusterState()));
-                this.pureIronOreButton.setBorderColor(colorForState(getPureIronOreState()));
-                this.firepitButton.setBorderColor(colorForState(getFirepitState()));
-                this.pyriteButton.setBorderColor(colorForState(getPyriteState()));
-                this.pyriteFlintButton.setBorderColor(colorForState(getPyriteFlintState()));
-                this.calcinedIronOreButton.setBorderColor(colorForState(getCalcinedIronOreState()));
 
                 renderConnections(ms);
 
@@ -303,54 +190,4 @@ public class ProgressMetallurgyScreen extends Screen {
                     }
                 }
 
-                private QuestState getStartSmithingState() {
-                    if (!(QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted())) {
-                        return QuestState.LOCKED;
-                    }
-                    return QuestManager.isStartSmithingCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-                }
-
-                private QuestState getIronClusterState() {
-                    if (!QuestManager.isStartHammersCompleted()) {
-                        return QuestState.LOCKED;
-                    }
-                    return QuestManager.isIronClusterCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-                }
-                private QuestState getPureIronOreState() {
-                    if (!QuestManager.isIronClusterCompleted()) {
-                        return QuestState.LOCKED;
-                    }
-                    return QuestManager.isPureIronOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-                }
-
-                private QuestState getPyriteState() {
-                    if (!(QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted())) {
-                        return QuestState.LOCKED;
-                    }
-                    return QuestManager.isPyriteCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-                }
-
-                private QuestState getPyriteFlintState() {
-                    if (!QuestManager.isPyriteCompleted()) {
-                        return QuestState.LOCKED;
-                    }
-                    return QuestManager.isPyriteFlintCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-                }
-                private QuestState getFirepitState() {
-                    boolean unlocked = QuestManager.isPureIronOreCompleted()
-                            && QuestManager.isCobbleSlabsCompleted()
-                            && QuestManager.isBrushwoodCompleted()
-                            && QuestManager.isPyriteFlintCompleted();
-                    if (!unlocked) {
-                        return QuestState.LOCKED;
-                    }
-                    return QuestManager.isFirepitCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-                }
-
-                private QuestState getCalcinedIronOreState() {
-                    if (!QuestManager.isFirepitCompleted()) {
-                        return QuestState.LOCKED;
-                    }
-                    return QuestManager.isCalcinedIronOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-                }
             }

@@ -28,13 +28,6 @@ public class ProgressGatheringScreen extends Screen {
 
     private final List<QuestNode> nodes = new ArrayList<>();
     private final List<QuestConnection> connections = new ArrayList<>();
-    private ItemIconButton branchButton;
-    private ItemIconButton initialFaunaButton;
-    private ItemIconButton brushwoodButton;
-    private ItemIconButton hewnStoneButton;
-    private ItemIconButton bigBoneButton;
-    private ItemIconButton sharpBoneButton;
-    private ItemIconButton flaxFibersButton;
 
 
     private int offsetX;
@@ -88,80 +81,6 @@ public class ProgressGatheringScreen extends Screen {
         nodes.clear();
         connections.clear();
 
-        int baseX = 80;
-        int baseY = 90;
-        int spacingX = 70;
-        int spacingY = 60;
-
-        this.branchButton = new ItemIconButton(baseX, baseY, new ItemStack(ModItems.BRANCH.get()),
-                b -> this.minecraft.setScreen(new BranchQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Ветка")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований")));
-        QuestNode branchNode = registerNode(this.branchButton, baseX, baseY);
-
-        this.initialFaunaButton = new ItemIconButton(baseX + spacingX, baseY,
-                new ItemStack(ModItems.RASPBERRY.get()),
-                b -> this.minecraft.setScreen(new InitialFaunaQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Начальная фауна")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований")));
-        registerNode(this.initialFaunaButton, baseX + spacingX, baseY);
-
-        this.hewnStoneButton = new ItemIconButton(baseX, baseY + spacingY,
-                new ItemStack(ModItems.HEWN_STONE.get()),
-                b -> this.minecraft.setScreen(new HewnStonesQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Оттёсанный камень")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований")));
-        registerNode(this.hewnStoneButton, baseX, baseY + spacingY);
-
-        this.brushwoodButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
-                new ItemStack(ModItems.BRUSHWOOD_SLAB.get()),
-                b -> this.minecraft.setScreen(new BrushwoodQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Хворост")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Ветка")
-                                        .withStyle(TextFormatting.BLUE))));
-        QuestNode brushwoodNode = registerNode(this.brushwoodButton, baseX + spacingX, baseY + spacingY);
-        this.bigBoneButton = new ItemIconButton(baseX, baseY + spacingY * 2,
-                new ItemStack(ModItems.BIG_BONE.get()),
-
-                b -> this.minecraft.setScreen(new BigBoneQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Большая кость")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований")));
-        QuestNode bigBoneNode = registerNode(this.bigBoneButton, baseX, baseY + spacingY * 2);
-
-        this.sharpBoneButton = new ItemIconButton(baseX + spacingX, baseY + spacingY * 2,
-                new ItemStack(ModItems.SHARPENED_BONE.get()),
-                b -> this.minecraft.setScreen(new SharpenedBoneQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Заостренная кость")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Большая кость")
-                                        .withStyle(TextFormatting.BLUE))));
-        QuestNode sharpBoneNode = registerNode(this.sharpBoneButton, baseX + spacingX, baseY + spacingY * 2);
-
-        this.flaxFibersButton = new ItemIconButton(baseX, baseY + spacingY * 3,
-                new ItemStack(ModItems.FLAX_FIBERS.get()),
-                b -> this.minecraft.setScreen(new FlaxFibersQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Волокна льна")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Нет требований")));
-        registerNode(this.flaxFibersButton, baseX, baseY + spacingY * 3);
-
-        addConnection(branchNode, brushwoodNode, this::getBrushwoodState);
-        addConnection(bigBoneNode, sharpBoneNode, this::getSharpBoneState);
-
         updateNodePositions();
         updateMapBounds();
         super.init();
@@ -180,14 +99,6 @@ public class ProgressGatheringScreen extends Screen {
         drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
 
         updateNodePositions();
-
-        this.branchButton.setBorderColor(colorForState(getBranchState()));
-        this.initialFaunaButton.setBorderColor(colorForState(getInitialFaunaState()));
-        this.brushwoodButton.setBorderColor(colorForState(getBrushwoodState()));
-        this.hewnStoneButton.setBorderColor(colorForState(getHewnStoneState()));
-        this.bigBoneButton.setBorderColor(colorForState(getBigBoneState()));
-        this.sharpBoneButton.setBorderColor(colorForState(getSharpBoneState()));
-        this.flaxFibersButton.setBorderColor(colorForState(getFlaxFibersState()));
 
         renderConnections(ms);
 
@@ -282,37 +193,4 @@ public class ProgressGatheringScreen extends Screen {
         }
     }
 
-    private QuestState getBranchState() {
-        return QuestManager.isBranchCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
-
-    private QuestState getInitialFaunaState() {
-        return QuestManager.isInitialFaunaCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
-
-    private QuestState getBrushwoodState() {
-        if (!QuestManager.isBranchCompleted()) {
-            return QuestState.LOCKED;
-        }
-        return QuestManager.isBrushwoodCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
-
-    private QuestState getHewnStoneState() {
-        return QuestManager.isHewnStonesCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
-
-    private QuestState getBigBoneState() {
-        return QuestManager.isBigBonesCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
-
-    private QuestState getSharpBoneState() {
-        if (!QuestManager.isBigBonesCompleted()) {
-            return QuestState.LOCKED;
-        }
-        return QuestManager.isSharpenedBoneCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
-
-    private QuestState getFlaxFibersState() {
-        return QuestManager.isFlaxFibersCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
 }
