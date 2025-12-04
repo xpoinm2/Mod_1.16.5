@@ -39,7 +39,7 @@ public class AncientMetallurgyEraScreen extends Screen {
         int panelWidth = this.width - 20;
         int panelHeight = this.height - 60;
 
-        this.scrollArea = new ScrollArea(panelX, panelY, panelWidth, panelHeight);
+        this.scrollArea = new ScrollArea(panelX, panelY, panelWidth, panelHeight, 10, 10, this.width - 20, this.height - 20);
 
         // Создаем кнопки направлений
         int tabW = (int)(120 * 1.4);
