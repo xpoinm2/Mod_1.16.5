@@ -88,7 +88,7 @@ public abstract class AbstractQuestScreen extends Screen {
 
         int descriptionX = panelX + CONTENT_MARGIN;
         int descriptionY = contentTop;
-        this.descriptionArea = new ScrollArea(descriptionX, descriptionY, leftWidth, availableHeight, panelX, panelY, panelWidth, panelHeight, false);
+        this.descriptionArea = new ScrollArea(descriptionX, descriptionY, leftWidth, availableHeight, panelX, panelY, panelWidth, panelHeight, false, false);
 
         int goalsX = descriptionX + leftWidth + COLUMN_GAP;
         int goalsY = contentTop;
@@ -102,8 +102,8 @@ public abstract class AbstractQuestScreen extends Screen {
             instructionsHeight = 40;
             instructionsY = goalsY + availableHeight - instructionsHeight;
         }
-        this.goalsArea = new ScrollArea(goalsX, goalsY, rightWidth, goalsHeight, panelX, panelY, panelWidth, panelHeight, false);
-        this.instructionsArea = new ScrollArea(goalsX, instructionsY, rightWidth, instructionsHeight, panelX, panelY, panelWidth, panelHeight, false);
+        this.goalsArea = new ScrollArea(goalsX, goalsY, rightWidth, goalsHeight, panelX, panelY, panelWidth, panelHeight, false, false);
+        this.instructionsArea = new ScrollArea(goalsX, instructionsY, rightWidth, instructionsHeight, panelX, panelY, panelWidth, panelHeight, false, false);
 
         int confirmY = panelY + panelHeight - CONFIRM_BUTTON_BOTTOM_MARGIN - this.confirmButton.getHeight();
         this.confirmButton.x = panelX + (panelWidth - this.confirmButton.getWidth()) / 2;

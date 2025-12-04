@@ -24,6 +24,7 @@ public class ScrollArea {
     private int panelWidth;
     private int panelHeight;
     private boolean shouldDrawPanel;
+    private boolean usePanelBoundsForScissor;
 
     private int scrollOffset;
     private int contentHeight;
@@ -45,6 +46,7 @@ public class ScrollArea {
         this.panelWidth = width;
         this.panelHeight = height;
         this.shouldDrawPanel = true;
+        this.usePanelBoundsForScissor = false;
     }
 
     public ScrollArea(int x, int y, int width, int height, int panelX, int panelY, int panelWidth, int panelHeight, boolean shouldDrawPanel) {
@@ -57,6 +59,20 @@ public class ScrollArea {
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         this.shouldDrawPanel = shouldDrawPanel;
+        this.usePanelBoundsForScissor = false;
+    }
+
+    public ScrollArea(int x, int y, int width, int height, int panelX, int panelY, int panelWidth, int panelHeight, boolean shouldDrawPanel, boolean usePanelBoundsForScissor) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.panelX = panelX;
+        this.panelY = panelY;
+        this.panelWidth = panelWidth;
+        this.panelHeight = panelHeight;
+        this.shouldDrawPanel = shouldDrawPanel;
+        this.usePanelBoundsForScissor = usePanelBoundsForScissor;
     }
 
     public int getX() {
@@ -183,8 +199,12 @@ public class ScrollArea {
         }
 
         int contentStartY = viewportY - scrollOffset;
-        // Use ScrollArea bounds for scissor to clip content within the scroll area itself
-        enableScissor(x, y, width, height);
+        // Use panel bounds or area bounds for scissor depending on configuration
+        if (usePanelBoundsForScissor) {
+            enableScissor(panelX, panelY, panelWidth, panelHeight);
+        } else {
+            enableScissor(x, y, width, height);
+        }
         int contentBottom = renderer.render(this, ms, viewportX, contentStartY, viewportWidth, mouseX, mouseY, partialTicks);
         disableScissor();
 
