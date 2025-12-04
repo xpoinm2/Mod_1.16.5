@@ -58,6 +58,8 @@
   "item.examplemod.slag": "Шлак",
   "item.examplemod.pure_iron_ore": "Чистая железная руда",
   "item.examplemod.calcined_iron_ore": "Обожжённая железная руда",
+  "item.examplemod.calcined_tin_ore": "Обожжённая оловянная руда",
+  "item.examplemod.calcined_gold_ore": "Обожжённая золотая руда",
   "block.examplemod.pyrite": "Пирит",
   "item.examplemod.pyrite": "Пирит",
   "item.examplemod.pyrite_piece": "Кусочек пирита",

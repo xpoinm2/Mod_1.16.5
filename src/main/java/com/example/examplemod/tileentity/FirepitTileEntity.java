@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -270,7 +271,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     }
 
     private int getRequiredCookTime(ItemStack stack, int stage) {
-        if (stack.getItem() == ModItems.PURE_IRON_ORE.get() || stack.getItem() == ModItems.IRON_ORE_GRAVEL.get()) {
+        if (isOreItem(stack)) {
             return COOK_TIME_TOTAL;
         } else if (isRawClayItem(stack) && stage == 0) {
             return COOK_TIME_TOTAL;
@@ -281,10 +282,19 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     }
 
     private ItemStack getCookingResult(ItemStack stack, int stage) {
-        if (stack.getItem() == ModItems.PURE_IRON_ORE.get()) {
-            return rollOreCookingResult(0.8D);
-        } else if (stack.getItem() == ModItems.IRON_ORE_GRAVEL.get()) {
-            return rollOreCookingResult(0.5D);
+        Item item = stack.getItem();
+        if (item == ModItems.PURE_IRON_ORE.get()) {
+            return rollOreCookingResult(ModItems.CALCINED_IRON_ORE.get(), 0.8D);
+        } else if (item == ModItems.IRON_ORE_GRAVEL.get()) {
+            return rollOreCookingResult(ModItems.CALCINED_IRON_ORE.get(), 0.5D);
+        } else if (item == ModItems.CLEANED_GRAVEL_TIN_ORE.get()) {
+            return rollOreCookingResult(ModItems.CALCINED_TIN_ORE.get(), 0.8D);
+        } else if (item == ModItems.TIN_ORE_GRAVEL.get()) {
+            return rollOreCookingResult(ModItems.CALCINED_TIN_ORE.get(), 0.5D);
+        } else if (item == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()) {
+            return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.8D);
+        } else if (item == ModItems.GOLD_ORE_GRAVEL.get()) {
+            return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.5D);
         } else if (stack.getItem() == ModItems.RAW_CLAY_CUP.get() && stage == 0) {
             return new ItemStack(ModItems.CLAY_CUP.get());
         } else if (stack.getItem() == ModItems.CLAY_CUP.get() && stage == 1) {
@@ -297,12 +307,25 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return stack; // fallback
     }
 
-    private ItemStack rollOreCookingResult(double successChance) {
+    private ItemStack rollOreCookingResult(Item resultItem, double successChance) {
         double roll = level != null ? level.random.nextDouble() : Math.random();
         if (roll < successChance) {
-            return new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+            return new ItemStack(resultItem);
         }
         return new ItemStack(ModItems.SLAG.get(), 3);
+    }
+
+    private boolean isOreItem(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        Item item = stack.getItem();
+        return item == ModItems.PURE_IRON_ORE.get()
+                || item == ModItems.IRON_ORE_GRAVEL.get()
+                || item == ModItems.CLEANED_GRAVEL_TIN_ORE.get()
+                || item == ModItems.TIN_ORE_GRAVEL.get()
+                || item == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()
+                || item == ModItems.GOLD_ORE_GRAVEL.get();
     }
 
     private void resetCookingProgress() {
@@ -377,6 +400,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         }
         return stack.getItem() == ModItems.PURE_IRON_ORE.get()
                 || stack.getItem() == ModItems.IRON_ORE_GRAVEL.get()
+                || stack.getItem() == ModItems.TIN_ORE_GRAVEL.get()
+                || stack.getItem() == ModItems.GOLD_ORE_GRAVEL.get()
+                || stack.getItem() == ModItems.CLEANED_GRAVEL_TIN_ORE.get()
+                || stack.getItem() == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()
                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
                 || stack.getItem() == ModItems.CLAY_CUP.get()
                 || stack.getItem() == ModItems.RAW_CLAY_POT.get()

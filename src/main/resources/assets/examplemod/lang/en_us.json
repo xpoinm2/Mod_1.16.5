@@ -58,6 +58,8 @@
   "item.examplemod.slag": "Slag",
   "item.examplemod.pure_iron_ore": "Pure Iron Ore",
   "item.examplemod.calcined_iron_ore": "Calcined Iron Ore",
+  "item.examplemod.calcined_tin_ore": "Calcined Tin Ore",
+  "item.examplemod.calcined_gold_ore": "Calcined Gold Ore",
   "block.examplemod.pyrite": "Pyrite",
   "item.examplemod.pyrite": "Pyrite",
   "item.examplemod.pyrite_piece": "Pyrite Shard",
