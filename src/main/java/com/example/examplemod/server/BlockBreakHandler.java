@@ -1,6 +1,11 @@
 // === FILE src/main/java/com/example/examplemod/BlockBreakHandler.java
 package com.example.examplemod.server;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
@@ -14,6 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.TieredItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +34,27 @@ public class BlockBreakHandler {
 
     private static final String KEY_FATIGUE = "fatigue";
     private static final String KEY_THIRST = "thirst";
+    private static final Set<Block> VANILLA_ORES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            Blocks.COAL_ORE,
+            Blocks.DEEPSLATE_COAL_ORE,
+            Blocks.IRON_ORE,
+            Blocks.DEEPSLATE_IRON_ORE,
+            Blocks.GOLD_ORE,
+            Blocks.DEEPSLATE_GOLD_ORE,
+            Blocks.COPPER_ORE,
+            Blocks.DEEPSLATE_COPPER_ORE,
+            Blocks.REDSTONE_ORE,
+            Blocks.DEEPSLATE_REDSTONE_ORE,
+            Blocks.LAPIS_ORE,
+            Blocks.DEEPSLATE_LAPIS_ORE,
+            Blocks.DIAMOND_ORE,
+            Blocks.DEEPSLATE_DIAMOND_ORE,
+            Blocks.EMERALD_ORE,
+            Blocks.DEEPSLATE_EMERALD_ORE,
+            Blocks.NETHER_QUARTZ_ORE,
+            Blocks.NETHER_GOLD_ORE,
+            Blocks.ANCIENT_DEBRIS
+    )));
 
     private static CompoundNBT getStatsTag(PlayerEntity player) {
         CompoundNBT root = player.getPersistentData();
@@ -59,9 +86,17 @@ public class BlockBreakHandler {
         }
 
         PlayerEntity player = (PlayerEntity) event.getPlayer();
+        if (player == null) {
+            return;
+        }
 
         // 2) Получаем состояние блока
         BlockState state = event.getState();
+
+        if (isOreBlock(state.getBlock()) && !canMineOre(player)) {
+            event.setCanceled(true);
+            return;
+        }
 
         // Replace iron ore drop with impure iron ore block
         if (state.getBlock() == Blocks.IRON_ORE) {
@@ -149,5 +184,34 @@ public class BlockBreakHandler {
         int slagCount = world.random.nextBoolean() ? 1 : 2;
         Block.popResource(world, pos, new ItemStack(gravelItem, gravelCount));
         Block.popResource(world, pos, new ItemStack(ModItems.SLAG.get(), slagCount));
+    }
+
+    private static boolean isOreBlock(Block block) {
+        return VANILLA_ORES.contains(block) || isModOre(block);
+    }
+
+    private static boolean isModOre(Block block) {
+        return block == ModBlocks.IMPURE_IRON_ORE.get()
+                || block == ModBlocks.PYRITE.get()
+                || block == ModBlocks.TIN_GRAVEL_ORE.get()
+                || block == ModBlocks.TIN_ORE.get()
+                || block == ModBlocks.GOLD_GRAVEL_ORE.get()
+                || block == ModBlocks.UNREFINED_TIN_ORE.get()
+                || block == ModBlocks.UNREFINED_GOLD_ORE.get();
+    }
+
+    private static boolean canMineOre(PlayerEntity player) {
+        ItemStack held = player.getMainHandItem();
+        if (held.isEmpty()) {
+            return false;
+        }
+        Item item = held.getItem();
+        if (item == ModItems.STONE_HAMMER.get() || item == ModItems.BONE_HAMMER.get()) {
+            return true;
+        }
+        if (item instanceof TieredItem tiered) {
+            return tiered.getTier().getLevel() >= 1;
+        }
+        return false;
     }
 }
