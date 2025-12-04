@@ -37,6 +37,8 @@ public class ProgressGatheringScreen extends Screen {
     private ItemIconButton bigBoneButton;
     private ItemIconButton sharpBoneButton;
     private ItemIconButton flaxFibersButton;
+    private ItemIconButton unrefinedTinButton;
+    private ItemIconButton unrefinedGoldButton;
 
 
     private int offsetX;
@@ -90,9 +92,10 @@ public class ProgressGatheringScreen extends Screen {
         nodes.clear();
         connections.clear();
 
-        // Only show quests if coming from Ancient World era, not Ancient Metallurgy era
         if (parent instanceof ProgressEraScreen) {
             initQuests();
+        } else if (parent instanceof AncientMetallurgyEraScreen) {
+            initMetallurgyQuests();
         }
 
         updateNodePositions();
@@ -176,6 +179,34 @@ public class ProgressGatheringScreen extends Screen {
         addConnection(bigBoneNode, sharpBoneNode, this::getSharpBoneState);
     }
 
+    private void initMetallurgyQuests() {
+        int baseX = 80;
+        int baseY = 90;
+        int spacingX = 90;
+
+        this.unrefinedTinButton = new ItemIconButton(baseX, baseY,
+                new ItemStack(ModItems.UNREFINED_TIN_ORE.get()),
+                b -> this.minecraft.setScreen(new UnrefinedTinOreQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Неочищенная оловянная руда")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Пройти древний мир")
+                                        .withStyle(TextFormatting.GOLD))));
+        registerNode(this.unrefinedTinButton, baseX, baseY);
+
+        this.unrefinedGoldButton = new ItemIconButton(baseX + spacingX, baseY,
+                new ItemStack(ModItems.UNREFINED_GOLD_ORE.get()),
+                b -> this.minecraft.setScreen(new UnrefinedGoldOreQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Неочищенная золотая руда")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Пройти древний мир")
+                                        .withStyle(TextFormatting.GOLD))));
+        registerNode(this.unrefinedGoldButton, baseX + spacingX, baseY);
+    }
+
     @Override
     public boolean isPauseScreen() {
         return true;
@@ -199,6 +230,13 @@ public class ProgressGatheringScreen extends Screen {
             this.bigBoneButton.setBorderColor(colorForState(getBigBoneState()));
             this.sharpBoneButton.setBorderColor(colorForState(getSharpBoneState()));
             this.flaxFibersButton.setBorderColor(colorForState(getFlaxFibersState()));
+        } else if (parent instanceof AncientMetallurgyEraScreen) {
+            if (this.unrefinedTinButton != null) {
+                this.unrefinedTinButton.setBorderColor(colorForState(getUnrefinedTinState()));
+            }
+            if (this.unrefinedGoldButton != null) {
+                this.unrefinedGoldButton.setBorderColor(colorForState(getUnrefinedGoldState()));
+            }
         }
 
         // Clip content within panel bounds
@@ -243,6 +281,14 @@ public class ProgressGatheringScreen extends Screen {
 
     private QuestState getFlaxFibersState() {
         return QuestManager.isFlaxFibersCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getUnrefinedTinState() {
+        return QuestManager.isUnrefinedTinOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getUnrefinedGoldState() {
+        return QuestManager.isUnrefinedGoldOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
     @Override

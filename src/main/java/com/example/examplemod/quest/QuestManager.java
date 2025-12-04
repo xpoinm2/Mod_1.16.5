@@ -26,6 +26,8 @@ public class QuestManager {
     private static boolean calcinedIronOreCompleted = false;
     private static boolean clayPotCompleted = false;
     private static boolean clayCupCompleted = false;
+    private static boolean unrefinedTinOreCompleted = false;
+    private static boolean unrefinedGoldOreCompleted = false;
 
 
     public static boolean isPlanksCompleted() {
@@ -229,6 +231,22 @@ public class QuestManager {
         clayCupCompleted = value;
     }
 
+    public static boolean isUnrefinedTinOreCompleted() {
+        return unrefinedTinOreCompleted;
+    }
+
+    public static void setUnrefinedTinOreCompleted(boolean value) {
+        unrefinedTinOreCompleted = value;
+    }
+
+    public static boolean isUnrefinedGoldOreCompleted() {
+        return unrefinedGoldOreCompleted;
+    }
+
+    public static void setUnrefinedGoldOreCompleted(boolean value) {
+        unrefinedGoldOreCompleted = value;
+    }
+
     public static void resetAll() {
         planksCompleted = false;
         slabsCompleted = false;
@@ -255,5 +273,7 @@ public class QuestManager {
         calcinedIronOreCompleted = false;
         clayPotCompleted = false;
         clayCupCompleted = false;
+        unrefinedTinOreCompleted = false;
+        unrefinedGoldOreCompleted = false;
     }
 }
