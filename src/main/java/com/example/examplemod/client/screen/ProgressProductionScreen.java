@@ -30,6 +30,18 @@ public class ProgressProductionScreen extends Screen {
     private final List<QuestNode> nodes = new ArrayList<>();
     private final List<QuestConnection> connections = new ArrayList<>();
 
+    private ItemIconButton planksButton;
+    private ItemIconButton slabsButton;
+    private ItemIconButton cobbleSlabButton;
+    private ItemIconButton stoneToolsButton;
+    private ItemIconButton boneToolsButton;
+    private ItemIconButton combButton;
+    private ItemIconButton startHammersButton;
+    private ItemIconButton roughKnivesButton;
+    private ItemIconButton scrapedLeatherButton;
+    private ItemIconButton clayPotButton;
+    private ItemIconButton clayCupButton;
+
 
     private int offsetX;
     private int offsetY;
@@ -79,12 +91,175 @@ public class ProgressProductionScreen extends Screen {
         this.addButton(new FramedButton(5, 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
 
-        nodes.clear();
+                nodes.clear();
         connections.clear();
+
+        // Only show quests if coming from Ancient World era, not Ancient Metallurgy era
+        if (parent instanceof ProgressEraScreen) {
+            initQuests();
+        }
 
         updateNodePositions();
         updateMapBounds();
         super.init();
+    }
+
+    private void initQuests() {
+        int baseX = 80;
+        int baseY = 90;
+        int spacingX = 70;
+        int spacingY = 60;
+
+        this.planksButton = new ItemIconButton(baseX, baseY, new ItemStack(Items.OAK_PLANKS),
+                b -> this.minecraft.setScreen(new PlanksQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Доски")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
+        QuestNode planksNode = registerNode(this.planksButton, baseX, baseY);
+
+                this.slabsButton = new ItemIconButton(baseX + spacingX, baseY, new ItemStack(Items.OAK_SLAB),
+                        b -> this.minecraft.setScreen(new SlabsQuestScreen(this)),
+                        () -> Arrays.asList(
+                                new StringTextComponent("Плиты")
+                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                                new StringTextComponent("Требуется: ")
+                                        .append(new StringTextComponent("Доски")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode slabsNode = registerNode(this.slabsButton, baseX + spacingX, baseY);
+
+                this.stoneToolsButton = new ItemIconButton(baseX + spacingX * 2, baseY,
+                        new ItemStack(ModItems.STONE_PICKAXE.get()),
+                        b -> this.minecraft.setScreen(new StoneToolsQuestScreen(this)),
+                        () -> Arrays.asList(
+                                new StringTextComponent("Каменные инструменты")
+                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                                new StringTextComponent("Требуется: ")
+                                        .append(new StringTextComponent("Оттёсанный камень")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Волокна льна")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Ветка")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode stoneToolsNode = registerNode(this.stoneToolsButton, baseX + spacingX * 2, baseY);
+
+                this.combButton = new ItemIconButton(baseX + spacingX * 3, baseY,
+                        new ItemStack(ModItems.BONE_COMB.get()),
+                        b -> this.minecraft.setScreen(new CombsQuestScreen(this)),
+                        () -> Arrays.asList(
+        new StringTextComponent("Гребни")
+                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Большая кость")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Оттёсанный камень")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Ветка")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode combNode = registerNode(this.combButton, baseX + spacingX * 3, baseY);
+
+        this.clayPotButton = new ItemIconButton(baseX, baseY + spacingY,
+                new ItemStack(ModItems.CLAY_POT.get()),
+                b -> this.minecraft.setScreen(new ClayPotQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Глиняный горшок")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Кострище")
+                                        .withStyle(TextFormatting.BLUE))));
+        QuestNode clayPotNode = registerNode(this.clayPotButton, baseX, baseY + spacingY);
+
+        this.clayCupButton = new ItemIconButton(baseX, baseY + spacingY * 2,
+                new ItemStack(ModItems.CLAY_CUP.get()),
+                b -> this.minecraft.setScreen(new ClayCupQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Глиняная чашка")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Кострище")
+                                        .withStyle(TextFormatting.BLUE))));
+        QuestNode clayCupNode = registerNode(this.clayCupButton, baseX, baseY + spacingY * 2);
+
+        this.cobbleSlabButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
+                new ItemStack(Items.COBBLESTONE_SLAB),
+                b -> this.minecraft.setScreen(new CobbleSlabQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Булыжная плита")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нет требований")));
+        QuestNode cobbleNode = registerNode(this.cobbleSlabButton, baseX + spacingX, baseY + spacingY);
+
+        this.boneToolsButton = new ItemIconButton(baseX + spacingX * 2, baseY + spacingY,
+                new ItemStack(ModItems.BONE_PICKAXE.get()),
+                b -> this.minecraft.setScreen(new BoneToolsQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Костяные инструменты")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Заостренная кость")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Волокна льна")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Ветка")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode boneToolsNode = registerNode(this.boneToolsButton, baseX + spacingX * 2, baseY + spacingY);
+
+                this.startHammersButton = new ItemIconButton(baseX + spacingX * 3, baseY + spacingY,
+                        new ItemStack(ModItems.STONE_HAMMER.get()),
+                        b -> this.minecraft.setScreen(new StartHammersQuestScreen(this)),
+                        () -> Arrays.asList(
+                                new StringTextComponent("Стартовые молоты")
+                                        .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                                new StringTextComponent("Требуется: ")
+                                        .append(new StringTextComponent("Начало кузнечного дела")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Костяные инструменты")
+                                                .withStyle(TextFormatting.BLUE))
+                                        .append(new StringTextComponent(", "))
+                                        .append(new StringTextComponent("Каменные инструменты")
+                                                .withStyle(TextFormatting.BLUE))));
+        QuestNode hammersNode = registerNode(this.startHammersButton, baseX + spacingX * 3, baseY + spacingY);
+
+        this.roughKnivesButton = new ItemIconButton(baseX + spacingX * 2, baseY + spacingY * 2,
+                new ItemStack(ModItems.ROUGH_STONE_KNIFE.get()),
+                b -> this.minecraft.setScreen(new RoughKnivesQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Первые грубые ножи")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Каменные инструменты")
+                                        .withStyle(TextFormatting.BLUE))
+                                .append(new StringTextComponent(" или "))
+                                .append(new StringTextComponent("Костяные инструменты")
+                                        .withStyle(TextFormatting.BLUE))));
+        QuestNode roughKnivesNode = registerNode(this.roughKnivesButton, baseX + spacingX * 2, baseY + spacingY * 2);
+
+        this.scrapedLeatherButton = new ItemIconButton(baseX + spacingX * 3, baseY + spacingY * 2,
+                new ItemStack(ModItems.SCRAPED_HIDE.get()),
+                b -> this.minecraft.setScreen(new ScrapedLeatherQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Выскобленная кожа")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Первые грубые ножи")
+                                        .withStyle(TextFormatting.BLUE))));
+        QuestNode scrapedLeatherNode = registerNode(this.scrapedLeatherButton, baseX + spacingX * 3, baseY + spacingY * 2);
+
+        addConnection(planksNode, slabsNode, this::getSlabsState);
+        addConnection(slabsNode, cobbleNode, this::getCobbleSlabState);
+        addConnection(stoneToolsNode, hammersNode, this::getStartHammersState);
+        addConnection(boneToolsNode, hammersNode, this::getStartHammersState);
+        addConnection(stoneToolsNode, roughKnivesNode, this::getRoughKnivesState);
+        addConnection(boneToolsNode, roughKnivesNode, this::getRoughKnivesState);
+        addConnection(roughKnivesNode, scrapedLeatherNode, this::getScrapedLeatherState);
+        addConnection(clayPotNode, clayCupNode, this::getClayCupState);
     }
 
     @Override
@@ -100,6 +275,21 @@ public class ProgressProductionScreen extends Screen {
             drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
 
             updateNodePositions();
+
+            // Only render quests if coming from Ancient World era
+            if (parent instanceof ProgressEraScreen) {
+                this.planksButton.setBorderColor(colorForState(getPlanksState()));
+                this.slabsButton.setBorderColor(colorForState(getSlabsState()));
+                this.cobbleSlabButton.setBorderColor(colorForState(getCobbleSlabState()));
+                this.stoneToolsButton.setBorderColor(colorForState(getStoneToolsState()));
+                this.boneToolsButton.setBorderColor(colorForState(getBoneToolsState()));
+                this.combButton.setBorderColor(colorForState(getCombState()));
+                this.startHammersButton.setBorderColor(colorForState(getStartHammersState()));
+                this.roughKnivesButton.setBorderColor(colorForState(getRoughKnivesState()));
+                this.scrapedLeatherButton.setBorderColor(colorForState(getScrapedLeatherState()));
+                this.clayPotButton.setBorderColor(colorForState(getClayPotState()));
+                this.clayCupButton.setBorderColor(colorForState(getClayCupState()));
+            }
 
             renderConnections(ms);
 
@@ -193,5 +383,89 @@ public class ProgressProductionScreen extends Screen {
                     return 0xFFFF0000;
             }
         }
+
+private QuestState getPlanksState() {
+    return QuestManager.isPlanksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getSlabsState() {
+    if (!QuestManager.isPlanksCompleted()) {
+    return QuestState.LOCKED;
+}
+    return QuestManager.isSlabsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getCobbleSlabState() {
+    return QuestManager.isCobbleSlabsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getStoneToolsState() {
+    boolean unlocked = QuestManager.isHewnStonesCompleted()
+            && QuestManager.isFlaxFibersCompleted()
+            && QuestManager.isBranchCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isStoneToolsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getBoneToolsState() {
+    boolean unlocked = QuestManager.isSharpenedBoneCompleted()
+            && QuestManager.isFlaxFibersCompleted()
+            && QuestManager.isBranchCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isBoneToolsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getCombState() {
+    boolean unlocked = QuestManager.isBigBonesCompleted()
+            && QuestManager.isHewnStonesCompleted()
+            && QuestManager.isBranchCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isCombsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getStartHammersState() {
+    boolean unlocked = QuestManager.isStartSmithingCompleted()
+            && QuestManager.isBoneToolsCompleted()
+            && QuestManager.isStoneToolsCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isStartHammersCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getRoughKnivesState() {
+    boolean unlocked = QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted();
+    if (!unlocked) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isRoughKnivesCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getScrapedLeatherState() {
+    if (!QuestManager.isRoughKnivesCompleted()) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isScrapedLeatherCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+private QuestState getClayPotState() {
+    if (!QuestManager.isFirepitCompleted()) {
+        return QuestState.LOCKED;
+    }
+    return QuestManager.isClayPotCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+}
+
+    private QuestState getClayCupState() {
+        if (!QuestManager.isFirepitCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isClayCupCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
 
 }
