@@ -6,6 +6,8 @@ import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.ItemIconButton;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
@@ -204,29 +206,34 @@ public class ProgressMetallurgyScreen extends Screen {
     }
 
     @Override
-        public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
-            this.renderBackground(ms);
-            updateMapBounds();
-            GuiUtil.drawPanel(ms, PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
-            drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
+    public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(ms);
+        updateMapBounds();
+        GuiUtil.drawPanel(ms, PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
+        drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
 
-                updateNodePositions();
+        updateNodePositions();
 
-                // Only render quests if coming from Ancient World era
-                if (parent instanceof ProgressEraScreen) {
-                    this.startSmithingButton.setBorderColor(colorForState(getStartSmithingState()));
-                    this.ironClusterButton.setBorderColor(colorForState(getIronClusterState()));
-                    this.pureIronOreButton.setBorderColor(colorForState(getPureIronOreState()));
-                    this.firepitButton.setBorderColor(colorForState(getFirepitState()));
-                    this.pyriteButton.setBorderColor(colorForState(getPyriteState()));
-                    this.pyriteFlintButton.setBorderColor(colorForState(getPyriteFlintState()));
-                    this.calcinedIronOreButton.setBorderColor(colorForState(getCalcinedIronOreState()));
-                }
+        // Only render quests if coming from Ancient World era
+        if (parent instanceof ProgressEraScreen) {
+            this.startSmithingButton.setBorderColor(colorForState(getStartSmithingState()));
+            this.ironClusterButton.setBorderColor(colorForState(getIronClusterState()));
+            this.pureIronOreButton.setBorderColor(colorForState(getPureIronOreState()));
+            this.firepitButton.setBorderColor(colorForState(getFirepitState()));
+            this.pyriteButton.setBorderColor(colorForState(getPyriteState()));
+            this.pyriteFlintButton.setBorderColor(colorForState(getPyriteFlintState()));
+            this.calcinedIronOreButton.setBorderColor(colorForState(getCalcinedIronOreState()));
+        }
 
-                renderConnections(ms);
+        // Clip content within panel bounds
+        enableScissor(PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
 
-                super.render(ms, mouseX, mouseY, partialTicks);
-            }
+        renderConnections(ms);
+
+        super.render(ms, mouseX, mouseY, partialTicks);
+
+        disableScissor();
+    }
 
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -366,3 +373,22 @@ public class ProgressMetallurgyScreen extends Screen {
                 }
 
             }
+
+    private static void enableScissor(int x, int y, int width, int height) {
+        Minecraft mc = Minecraft.getInstance();
+        double scale = mc.getWindow().getGuiScale();
+        int scissorX = (int) Math.round(x * scale);
+        int scissorY = (int) Math.round(mc.getWindow().getScreenHeight() - (y + height) * scale);
+        int scissorW = (int) Math.round(width * scale);
+        int scissorH = (int) Math.round(height * scale);
+        if (scissorW <= 0 || scissorH <= 0) {
+            return;
+        }
+        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
+    }
+
+    private static void disableScissor() {
+        RenderSystem.disableScissor();
+    }
+
+}

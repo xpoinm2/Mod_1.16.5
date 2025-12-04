@@ -6,6 +6,8 @@ import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.ItemIconButton;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
@@ -199,9 +201,14 @@ public class ProgressGatheringScreen extends Screen {
             this.flaxFibersButton.setBorderColor(colorForState(getFlaxFibersState()));
         }
 
+        // Clip content within panel bounds
+        enableScissor(PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
+
         renderConnections(ms);
 
         super.render(ms, mouseX, mouseY, partialTicks);
+
+        disableScissor();
     }
 
     private QuestState getBranchState() {
@@ -324,6 +331,23 @@ public class ProgressGatheringScreen extends Screen {
             default:
                 return 0xFFFF0000;
         }
+    }
+
+    private static void enableScissor(int x, int y, int width, int height) {
+        Minecraft mc = Minecraft.getInstance();
+        double scale = mc.getWindow().getGuiScale();
+        int scissorX = (int) Math.round(x * scale);
+        int scissorY = (int) Math.round(mc.getWindow().getScreenHeight() - (y + height) * scale);
+        int scissorW = (int) Math.round(width * scale);
+        int scissorH = (int) Math.round(height * scale);
+        if (scissorW <= 0 || scissorH <= 0) {
+            return;
+        }
+        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
+    }
+
+    private static void disableScissor() {
+        RenderSystem.disableScissor();
     }
 
 }
