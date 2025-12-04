@@ -23,6 +23,7 @@ public class ScrollArea {
     private int panelY;
     private int panelWidth;
     private int panelHeight;
+    private boolean shouldDrawPanel;
 
     private int scrollOffset;
     private int contentHeight;
@@ -43,9 +44,10 @@ public class ScrollArea {
         this.panelY = y;
         this.panelWidth = width;
         this.panelHeight = height;
+        this.shouldDrawPanel = true;
     }
 
-    public ScrollArea(int x, int y, int width, int height, int panelX, int panelY, int panelWidth, int panelHeight) {
+    public ScrollArea(int x, int y, int width, int height, int panelX, int panelY, int panelWidth, int panelHeight, boolean shouldDrawPanel) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -54,6 +56,7 @@ public class ScrollArea {
         this.panelY = panelY;
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
+        this.shouldDrawPanel = shouldDrawPanel;
     }
 
     public int getX() {
@@ -120,8 +123,8 @@ public class ScrollArea {
         }
         int scrollbarX0 = getScrollbarX0();
         int scrollbarX1 = scrollbarX0 + SCROLLBAR_WIDTH;
-        int scrollbarY0 = Math.max(getViewportY(), panelY + PADDING);
-        int scrollbarY1 = Math.min(getViewportY() + getViewportHeight(), panelY + panelHeight - PADDING);
+        int scrollbarY0 = Math.max(getViewportY(), y + PADDING);
+        int scrollbarY1 = Math.min(getViewportY() + getViewportHeight(), y + height - PADDING);
         if (mouseX < scrollbarX0 || mouseX > scrollbarX1 || mouseY < scrollbarY0 || mouseY > scrollbarY1) {
             return false;
         }
@@ -163,7 +166,9 @@ public class ScrollArea {
     }
 
     public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks, Renderer renderer) {
-        GuiUtil.drawPanel(ms, panelX, panelY, panelWidth, panelHeight);
+        if (shouldDrawPanel) {
+            GuiUtil.drawPanel(ms, panelX, panelY, panelWidth, panelHeight);
+        }
 
         int viewportX = getViewportX();
         int viewportY = getViewportY();
@@ -178,8 +183,8 @@ public class ScrollArea {
         }
 
         int contentStartY = viewportY - scrollOffset;
-        // Use panel bounds for scissor to allow content to go behind the black border
-        enableScissor(panelX, panelY, panelWidth, panelHeight);
+        // Use ScrollArea bounds for scissor to clip content within the scroll area itself
+        enableScissor(x, y, width, height);
         int contentBottom = renderer.render(this, ms, viewportX, contentStartY, viewportWidth, mouseX, mouseY, partialTicks);
         disableScissor();
 
@@ -194,9 +199,9 @@ public class ScrollArea {
     private void drawScrollbar(MatrixStack ms, int viewportX, int viewportY, int viewportHeight) {
         int scrollbarX0 = getScrollbarX0();
         int scrollbarX1 = scrollbarX0 + SCROLLBAR_WIDTH;
-        // Draw scrollbar background only within viewport bounds
-        int scrollbarY0 = Math.max(viewportY, panelY + PADDING);
-        int scrollbarY1 = Math.min(viewportY + viewportHeight, panelY + panelHeight - PADDING);
+        // Draw scrollbar background within ScrollArea bounds
+        int scrollbarY0 = Math.max(viewportY, y + PADDING);
+        int scrollbarY1 = Math.min(viewportY + viewportHeight, y + height - PADDING);
         AbstractGui.fill(ms, scrollbarX0, scrollbarY0, scrollbarX1, scrollbarY1, 0x66000000);
         if (maxScroll <= 0) {
             knobTop = scrollbarY0;
@@ -223,7 +228,7 @@ public class ScrollArea {
     }
 
     private boolean isInside(double mouseX, double mouseY) {
-        return mouseX >= panelX && mouseX <= panelX + panelWidth && mouseY >= panelY && mouseY <= panelY + panelHeight;
+        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
     private static void enableScissor(int x, int y, int width, int height) {
