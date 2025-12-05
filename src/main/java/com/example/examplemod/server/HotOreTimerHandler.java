@@ -4,10 +4,12 @@ package com.example.examplemod.server;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.ModItems;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -50,6 +52,9 @@ public class HotOreTimerHandler {
 
         // Проверяем offhand
         checkInventory(player.inventory.offhand, player);
+
+        // Проверяем предметы на земле вокруг игрока
+        checkGroundItems(player);
     }
 
     private static void checkInventory(NonNullList<ItemStack> inventory, ServerPlayerEntity player) {
@@ -61,6 +66,32 @@ public class HotOreTimerHandler {
                     // Преобразуем горячую руду в обычную
                     ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
                     inventory.set(i, resultStack);
+
+                    // Можно добавить эффект частиц или звук здесь, если нужно
+                }
+            }
+        }
+    }
+
+    private static void checkGroundItems(ServerPlayerEntity player) {
+        if (player.level == null) return;
+
+        // Ищем все ItemEntity в радиусе 16 блоков от игрока
+        AxisAlignedBB searchBox = new AxisAlignedBB(
+            player.getX() - 16, player.getY() - 8, player.getZ() - 16,
+            player.getX() + 16, player.getY() + 8, player.getZ() + 16
+        );
+
+        var itemEntities = player.level.getEntitiesOfClass(ItemEntity.class, searchBox);
+
+        for (ItemEntity itemEntity : itemEntities) {
+            ItemStack stack = itemEntity.getItem();
+
+            if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
+                if (HotRoastedOreItem.isTimerExpired(stack)) {
+                    // Преобразуем горячую руду в обычную
+                    ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
+                    itemEntity.setItem(resultStack);
 
                     // Можно добавить эффект частиц или звук здесь, если нужно
                 }
