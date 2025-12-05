@@ -146,8 +146,9 @@ public class HotOreTimerHandler {
             if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
                 // Проверяем, находится ли предмет в воде для ускоренного охлаждения
                 float speedMultiplier = isItemInWater(itemEntity) ? 10.0f : 1.0f;
+                boolean inWater = speedMultiplier > 1.0f;
 
-                if (HotRoastedOreItem.isTimerExpired(stack, speedMultiplier)) {
+                if (HotRoastedOreItem.isTimerExpired(stack, speedMultiplier, inWater)) {
                     // Преобразуем горячую руду в обычную
                     ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
                     itemEntity.setItem(resultStack);
@@ -180,8 +181,9 @@ public class HotOreTimerHandler {
             if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
                 // Проверяем, находится ли предмет в воде для ускоренного охлаждения
                 float speedMultiplier = isItemInWater(itemEntity) ? 10.0f : 1.0f;
+                boolean inWater = speedMultiplier > 1.0f;
 
-                if (HotRoastedOreItem.isTimerExpired(stack, speedMultiplier)) {
+                if (HotRoastedOreItem.isTimerExpired(stack, speedMultiplier, inWater)) {
                     // Преобразуем горячую руду в обычную
                     ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
                     itemEntity.setItem(resultStack);
