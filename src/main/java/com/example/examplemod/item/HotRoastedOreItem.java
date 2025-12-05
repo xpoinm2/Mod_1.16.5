@@ -19,6 +19,11 @@ public class HotRoastedOreItem extends Item {
 
     // Получить оставшееся время таймера в секундах
     public static int getRemainingTime(ItemStack stack) {
+        return getRemainingTime(stack, 1.0f); // По умолчанию скорость 1.0 (нормальная)
+    }
+
+    // Получить оставшееся время таймера в секундах с множителем скорости
+    public static int getRemainingTime(ItemStack stack, float speedMultiplier) {
         CompoundNBT nbt = stack.getOrCreateTag();
         long creationTime = nbt.getLong(TIMER_TAG);
         if (creationTime == 0) {
@@ -28,7 +33,7 @@ public class HotRoastedOreItem extends Item {
         }
 
         long currentTime = System.currentTimeMillis() / 1000;
-        int elapsedSeconds = (int) (currentTime - creationTime);
+        int elapsedSeconds = (int) ((currentTime - creationTime) * speedMultiplier);
         return Math.max(0, MAX_TIMER - elapsedSeconds);
     }
 
@@ -41,7 +46,12 @@ public class HotRoastedOreItem extends Item {
 
     // Проверить, истек ли таймер
     public static boolean isTimerExpired(ItemStack stack) {
-        return getRemainingTime(stack) <= 0;
+        return getRemainingTime(stack, 1.0f) <= 0;
+    }
+
+    // Проверить, истек ли таймер с множителем скорости
+    public static boolean isTimerExpired(ItemStack stack, float speedMultiplier) {
+        return getRemainingTime(stack, speedMultiplier) <= 0;
     }
 
     // Преобразовать предмет в обычную обожженную руду

@@ -4,6 +4,7 @@ package com.example.examplemod.server;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.ModItems;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
@@ -133,7 +135,10 @@ public class HotOreTimerHandler {
             ItemStack stack = itemEntity.getItem();
 
             if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
-                if (HotRoastedOreItem.isTimerExpired(stack)) {
+                // Проверяем, находится ли предмет в воде для ускоренного охлаждения
+                float speedMultiplier = isItemInWater(itemEntity) ? 10.0f : 1.0f;
+
+                if (HotRoastedOreItem.isTimerExpired(stack, speedMultiplier)) {
                     // Преобразуем горячую руду в обычную
                     ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
                     itemEntity.setItem(resultStack);
@@ -142,6 +147,14 @@ public class HotOreTimerHandler {
                 }
             }
         }
+    }
+
+    private static boolean isItemInWater(ItemEntity itemEntity) {
+        World world = itemEntity.level;
+        BlockPos pos = itemEntity.blockPosition();
+
+        // Проверяем блок, в котором находится предмет
+        return world.getBlockState(pos).getBlock() == Blocks.WATER;
     }
 
     private static void checkAllWorldItems(World world) {
@@ -155,7 +168,10 @@ public class HotOreTimerHandler {
             ItemStack stack = itemEntity.getItem();
 
             if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
-                if (HotRoastedOreItem.isTimerExpired(stack)) {
+                // Проверяем, находится ли предмет в воде для ускоренного охлаждения
+                float speedMultiplier = isItemInWater(itemEntity) ? 10.0f : 1.0f;
+
+                if (HotRoastedOreItem.isTimerExpired(stack, speedMultiplier)) {
                     // Преобразуем горячую руду в обычную
                     ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
                     itemEntity.setItem(resultStack);
