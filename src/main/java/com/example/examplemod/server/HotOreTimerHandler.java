@@ -10,11 +10,13 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,6 +24,8 @@ import java.util.UUID;
 public class HotOreTimerHandler {
     private static final Map<UUID, Integer> TICK_COUNTERS = new HashMap<>();
     private static final int TICKS_PER_SECOND = 20; // 20 тиков в секунду
+    private static int WORLD_TICK_COUNTER = 0;
+    private static final int WORLD_CHECK_INTERVAL = 10 * TICKS_PER_SECOND; // Проверяем весь мир каждые 10 секунд
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -43,6 +47,20 @@ public class HotOreTimerHandler {
         TICK_COUNTERS.put(playerId, tickCount);
     }
 
+    @SubscribeEvent
+    public static void onWorldTick(TickEvent.WorldTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (event.world.isClientSide()) return;
+
+        WORLD_TICK_COUNTER++;
+
+        // Проверяем весь мир каждые 10 секунд
+        if (WORLD_TICK_COUNTER >= WORLD_CHECK_INTERVAL) {
+            WORLD_TICK_COUNTER = 0;
+            checkAllWorldItems(event.world);
+        }
+    }
+
     private static void checkAndUpdateHotOres(ServerPlayerEntity player) {
         // Проверяем основной инвентарь
         checkInventory(player.inventory.items, player);
@@ -52,9 +70,6 @@ public class HotOreTimerHandler {
 
         // Проверяем offhand
         checkInventory(player.inventory.offhand, player);
-
-        // Проверяем предметы на земле вокруг игрока
-        checkGroundItems(player);
     }
 
     private static void checkInventory(NonNullList<ItemStack> inventory, ServerPlayerEntity player) {
@@ -85,6 +100,28 @@ public class HotOreTimerHandler {
         var itemEntities = player.level.getEntitiesOfClass(ItemEntity.class, searchBox);
 
         for (ItemEntity itemEntity : itemEntities) {
+            ItemStack stack = itemEntity.getItem();
+
+            if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
+                if (HotRoastedOreItem.isTimerExpired(stack)) {
+                    // Преобразуем горячую руду в обычную
+                    ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
+                    itemEntity.setItem(resultStack);
+
+                    // Можно добавить эффект частиц или звук здесь, если нужно
+                }
+            }
+        }
+    }
+
+    private static void checkAllWorldItems(World world) {
+        // Получаем все ItemEntity во всем мире
+        List<ItemEntity> allItemEntities = world.getEntitiesOfClass(ItemEntity.class, new AxisAlignedBB(
+            Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+            Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY
+        ));
+
+        for (ItemEntity itemEntity : allItemEntities) {
             ItemStack stack = itemEntity.getItem();
 
             if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
