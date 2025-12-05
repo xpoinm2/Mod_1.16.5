@@ -97,7 +97,7 @@ public class HotOreTimerHandler {
             player.getX() + 16, player.getY() + 8, player.getZ() + 16
         );
 
-        var itemEntities = player.level.getEntitiesOfClass(ItemEntity.class, searchBox);
+        List<ItemEntity> itemEntities = player.level.getEntitiesOfClass(ItemEntity.class, searchBox);
 
         for (ItemEntity itemEntity : itemEntities) {
             ItemStack stack = itemEntity.getItem();
