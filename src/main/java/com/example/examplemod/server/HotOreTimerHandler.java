@@ -18,6 +18,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,7 @@ public class HotOreTimerHandler {
     private static final int TICKS_PER_SECOND = 20; // 20 тиков в секунду
     private static int WORLD_TICK_COUNTER = 0;
     private static final int WORLD_CHECK_INTERVAL = 10 * TICKS_PER_SECOND; // Проверяем весь мир каждые 10 секунд
-    private static boolean hasPlayersOnline = false; // Флаг наличия онлайн игроков
+    private static boolean hasPlayersOnline = false; // Флаг наличия игроков онлайн
 
     public static boolean hasPlayersOnline() {
         return hasPlayersOnline;
@@ -38,27 +39,14 @@ public class HotOreTimerHandler {
 
     @SubscribeEvent
     public static void onServerStarted(FMLServerStartedEvent event) {
-        // При запуске сервера проверяем есть ли игроки онлайн
-        hasPlayersOnline = !event.getServer().getPlayerList().getPlayers().isEmpty();
+        // При запуске сервера сбрасываем флаг
+        hasPlayersOnline = false;
     }
 
     @SubscribeEvent
-    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getPlayer() instanceof ServerPlayerEntity)) return;
-        hasPlayersOnline = true;
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (!(event.getPlayer() instanceof ServerPlayerEntity)) return;
-        // Проверим, остались ли ещё игроки онлайн через небольшой delay,
-        // чтобы избежать проблем с асинхронностью
-        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-        if (player.getServer() != null) {
-            player.getServer().execute(() -> {
-                hasPlayersOnline = !player.getServer().getPlayerList().getPlayers().isEmpty();
-            });
-        }
+    public static void onServerStopping(FMLServerStoppingEvent event) {
+        // При остановке сервера сбрасываем флаг
+        hasPlayersOnline = false;
     }
 
     @SubscribeEvent
@@ -85,7 +73,14 @@ public class HotOreTimerHandler {
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (event.world.isClientSide()) return;
-        // Проверка руд работает всегда, независимо от игроков
+
+        // Обновляем флаг наличия игроков на сервере (проверяем только в overworld, чтобы не дублировать)
+        if (event.world.dimension().equals(net.minecraft.world.Dimension.OVERWORLD)) {
+            hasPlayersOnline = event.world.getServer() != null && !event.world.getServer().getPlayerList().getPlayers().isEmpty();
+        }
+
+        // Проверка руд работает только когда есть игроки на сервере
+        if (!hasPlayersOnline) return;
 
         WORLD_TICK_COUNTER++;
 

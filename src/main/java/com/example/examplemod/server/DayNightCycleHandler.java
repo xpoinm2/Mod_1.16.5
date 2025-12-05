@@ -13,7 +13,7 @@ public class DayNightCycleHandler {
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.world instanceof ServerWorld)) return;
-        // Цикл день/ночь работает всегда, независимо от игроков
+        if (!HotOreTimerHandler.hasPlayersOnline()) return; // Останавливаемся если нет игроков в мире
 
         ServerWorld world = (ServerWorld) event.world;
         long time = world.getDayTime();
