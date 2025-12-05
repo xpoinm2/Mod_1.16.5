@@ -4,6 +4,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.item.HotRoastedOreItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -310,7 +311,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     private ItemStack rollOreCookingResult(Item resultItem, double successChance) {
         double roll = level != null ? level.random.nextDouble() : Math.random();
         if (roll < successChance) {
-            return new ItemStack(resultItem);
+            ItemStack resultStack = new ItemStack(resultItem);
+            // Если результат - горячая руда, устанавливаем время создания
+            if (resultItem instanceof HotRoastedOreItem) {
+                HotRoastedOreItem.setCreationTime(resultStack, System.currentTimeMillis() / 1000);
+            }
+            return resultStack;
         }
         return new ItemStack(ModItems.SLAG.get(), 3);
     }

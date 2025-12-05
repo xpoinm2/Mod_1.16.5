@@ -29,6 +29,7 @@ import com.example.examplemod.item.BranchItem;
 import com.example.examplemod.item.ClayCupItem;
 import com.example.examplemod.item.ClayPotBlockItem;
 import com.example.examplemod.item.ClayShardsBlockItem;
+import com.example.examplemod.item.HotRoastedOreItem;
 
 
 public class ModItems {
@@ -304,15 +305,15 @@ public class ModItems {
 
     // Горячая обожжённая оловянная руда
     public static final RegistryObject<Item> HOT_TIN_ROASTED_ORE = ITEMS.register("hot_tin_roasted_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new HotRoastedOreItem(CALCINED_TIN_ORE.get(), new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Горячая обожжённая золотая руда
     public static final RegistryObject<Item> HOT_GOLD_ROASTED_ORE = ITEMS.register("hot_gold_roasted_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new HotRoastedOreItem(CALCINED_GOLD_ORE.get(), new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Горячая обожжённая железная руда
     public static final RegistryObject<Item> HOT_IRON_ROASTED_ORE = ITEMS.register("hot_iron_roasted_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new HotRoastedOreItem(CALCINED_IRON_ORE.get(), new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Кусочек пирита
     public static final RegistryObject<Item> PYRITE_PIECE = ITEMS.register("pyrite_piece",
