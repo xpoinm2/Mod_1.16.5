@@ -8,12 +8,16 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +30,36 @@ public class HotOreTimerHandler {
     private static final int TICKS_PER_SECOND = 20; // 20 тиков в секунду
     private static int WORLD_TICK_COUNTER = 0;
     private static final int WORLD_CHECK_INTERVAL = 10 * TICKS_PER_SECOND; // Проверяем весь мир каждые 10 секунд
+    private static boolean hasPlayersOnline = false; // Флаг наличия онлайн игроков
+
+    public static boolean hasPlayersOnline() {
+        return hasPlayersOnline;
+    }
+
+    @SubscribeEvent
+    public static void onServerStarted(FMLServerStartedEvent event) {
+        // При запуске сервера проверяем есть ли игроки онлайн
+        hasPlayersOnline = !event.getServer().getPlayerList().getPlayers().isEmpty();
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getPlayer() instanceof ServerPlayerEntity)) return;
+        hasPlayersOnline = true;
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (!(event.getPlayer() instanceof ServerPlayerEntity)) return;
+        // Проверим, остались ли ещё игроки онлайн через небольшой delay,
+        // чтобы избежать проблем с асинхронностью
+        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+        if (player.getServer() != null) {
+            player.getServer().execute(() -> {
+                hasPlayersOnline = !player.getServer().getPlayerList().getPlayers().isEmpty();
+            });
+        }
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -51,6 +85,7 @@ public class HotOreTimerHandler {
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (event.world.isClientSide()) return;
+        // Проверка руд работает всегда, независимо от игроков
 
         WORLD_TICK_COUNTER++;
 
