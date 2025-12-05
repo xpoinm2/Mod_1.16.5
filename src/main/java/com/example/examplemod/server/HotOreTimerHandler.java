@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -105,10 +106,14 @@ public class HotOreTimerHandler {
     }
 
     private static void checkInventory(NonNullList<ItemStack> inventory, ServerPlayerEntity player) {
+        boolean hasHotOres = false;
+
         for (int i = 0; i < inventory.size(); i++) {
             ItemStack stack = inventory.get(i);
 
             if (!stack.isEmpty() && stack.getItem() instanceof HotRoastedOreItem) {
+                hasHotOres = true;
+
                 if (HotRoastedOreItem.isTimerExpired(stack)) {
                     // Преобразуем горячую руду в обычную
                     ItemStack resultStack = HotRoastedOreItem.getResultItemStack(stack);
@@ -117,6 +122,11 @@ public class HotOreTimerHandler {
                     // Можно добавить эффект частиц или звук здесь, если нужно
                 }
             }
+        }
+
+        // Наносим урон игроку, если в инвентаре есть горячие руды (1 сердце в секунду = 2 HP)
+        if (hasHotOres) {
+            player.hurt(DamageSource.ON_FIRE, 2.0f);
         }
     }
 
