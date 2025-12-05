@@ -106,7 +106,7 @@ public class BoneTongsItem extends Item {
         if (inserted.get()) {
             if (!world.isClientSide) {
                 tongs.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
-                world.playSound(null, pos, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, SoundCategory.PLAYERS, 0.8f, 1f);
+                world.playSound(null, pos, SoundEvents.ARMOR_EQUIP_IRON, SoundCategory.PLAYERS, 0.8f, 1f);
                 if (world instanceof ServerWorld) {
                     ((ServerWorld) world).sendParticles(ParticleTypes.LARGE_SMOKE,
                             pos.getX() + 0.5, pos.getY() + 0.85, pos.getZ() + 0.5,
