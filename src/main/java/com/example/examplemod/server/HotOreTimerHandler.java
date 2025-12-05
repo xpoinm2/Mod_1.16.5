@@ -3,21 +3,17 @@ package com.example.examplemod.server;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.item.HotRoastedOreItem;
-import com.example.examplemod.ModItems;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
@@ -103,6 +99,9 @@ public class HotOreTimerHandler {
 
         // Проверяем offhand
         checkInventory(player.inventory.offhand, player);
+
+        // Проверяем предметы на земле рядом с игроком
+        checkGroundItems(player);
     }
 
     private static void checkInventory(NonNullList<ItemStack> inventory, ServerPlayerEntity player) {
@@ -163,8 +162,9 @@ public class HotOreTimerHandler {
         World world = itemEntity.level;
         BlockPos pos = itemEntity.blockPosition();
 
-        // Проверяем блок, в котором находится предмет
-        return world.getBlockState(pos).getBlock() == Blocks.WATER;
+        // Проверяем, находится ли предмет в воде (включая текущий блок и fluid)
+        FluidState fluidState = world.getFluidState(pos);
+        return fluidState.is(FluidTags.WATER);
     }
 
     private static void checkAllWorldItems(World world) {
