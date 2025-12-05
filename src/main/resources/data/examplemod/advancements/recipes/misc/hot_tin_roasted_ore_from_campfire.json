@@ -1,17 +1,17 @@
 {
   "parent": "minecraft:recipes/root",
   "rewards": {
-      "recipes": [
-      "examplemod:roasted_iron_ore_from_campfire"
+    "recipes": [
+      "examplemod:hot_tin_roasted_ore_from_campfire"
     ]
   },
   "criteria": {
-    "has_pure_iron_ore": {
+    "has_tin_ore_gravel": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "item": "examplemod:pure_iron_ore"
+            "item": "examplemod:tin_ore_gravel"
           }
         ]
       }
@@ -19,13 +19,13 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "examplemod:roasted_iron_ore_from_campfire"
+        "recipe": "examplemod:hot_tin_roasted_ore_from_campfire"
       }
     }
   },
   "requirements": [
     [
-      "has_pure_iron_ore",
+      "has_tin_ore_gravel",
       "has_the_recipe"
     ]
   ]

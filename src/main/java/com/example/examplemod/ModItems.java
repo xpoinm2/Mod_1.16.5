@@ -291,15 +291,15 @@ public class ModItems {
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Обожжённая руда: результат прогрева чистой руды в кострище
-    public static final RegistryObject<Item> CALCINED_IRON_ORE = ITEMS.register("calcined_iron_ore",
+    public static final RegistryObject<Item> CALCINED_IRON_ORE = ITEMS.register("roasted_iron_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Обожжённая оловянная руда
-    public static final RegistryObject<Item> CALCINED_TIN_ORE = ITEMS.register("calcined_tin_ore",
+    public static final RegistryObject<Item> CALCINED_TIN_ORE = ITEMS.register("roasted_tin_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Обожжённая золотая руда
-    public static final RegistryObject<Item> CALCINED_GOLD_ORE = ITEMS.register("calcined_gold_ore",
+    public static final RegistryObject<Item> CALCINED_GOLD_ORE = ITEMS.register("roasted_gold_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Горячая обожжённая оловянная руда
