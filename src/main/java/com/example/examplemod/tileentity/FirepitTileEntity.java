@@ -286,15 +286,15 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         if (item == ModItems.PURE_IRON_ORE.get()) {
             return rollOreCookingResult(ModItems.CALCINED_IRON_ORE.get(), 0.8D);
         } else if (item == ModItems.IRON_ORE_GRAVEL.get()) {
-            return rollOreCookingResult(ModItems.CALCINED_IRON_ORE.get(), 0.5D);
+            return rollOreCookingResult(ModItems.HOT_IRON_ROASTED_ORE.get(), 0.5D);
         } else if (item == ModItems.CLEANED_GRAVEL_TIN_ORE.get()) {
             return rollOreCookingResult(ModItems.CALCINED_TIN_ORE.get(), 0.8D);
         } else if (item == ModItems.TIN_ORE_GRAVEL.get()) {
-            return rollOreCookingResult(ModItems.CALCINED_TIN_ORE.get(), 0.5D);
+            return rollOreCookingResult(ModItems.HOT_TIN_ROASTED_ORE.get(), 0.5D);
         } else if (item == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()) {
             return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.8D);
         } else if (item == ModItems.GOLD_ORE_GRAVEL.get()) {
-            return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.5D);
+            return rollOreCookingResult(ModItems.HOT_GOLD_ROASTED_ORE.get(), 0.5D);
         } else if (stack.getItem() == ModItems.RAW_CLAY_CUP.get() && stage == 0) {
             return new ItemStack(ModItems.CLAY_CUP.get());
         } else if (stack.getItem() == ModItems.CLAY_CUP.get() && stage == 1) {
