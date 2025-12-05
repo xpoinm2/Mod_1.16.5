@@ -17,7 +17,7 @@ public class HotOreDamageHandler {
         if (player.level.isClientSide) {
             return;
         }
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : player.inventory.items) {
             if (stack.getItem() instanceof HotRoastedOreItem) {
                 player.hurt(DamageSource.ON_FIRE, 8.0F);
                 break;

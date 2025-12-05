@@ -2,7 +2,7 @@ package com.example.examplemod.item;
 
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.item.HotRoastedOreItem;
-import com.example.examplemod.tileentity.CampfireTileEntity;
+import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
@@ -69,51 +69,50 @@ public class BoneTongsItem extends Item {
             notifyBroken(world, player, context.getClickedPos());
             return ActionResultType.FAIL;
         }
-        if (!(world.getBlockEntity(context.getClickedPos()) instanceof CampfireTileEntity)) {
+        if (!(world.getBlockEntity(context.getClickedPos()) instanceof FirepitTileEntity)) {
             return ActionResultType.PASS;
         }
-        CampfireTileEntity campfire = (CampfireTileEntity) world.getBlockEntity(context.getClickedPos());
-        boolean transferred = tryTransferFromCampfire(world, campfire, held, player, context.getHand(), context.getClickedPos());
+        FirepitTileEntity firepit = (FirepitTileEntity) world.getBlockEntity(context.getClickedPos());
+        boolean transferred = tryTransferFromFirepit(world, firepit, held, player, context.getHand(), context.getClickedPos());
         return transferred ? ActionResultType.SUCCESS : ActionResultType.PASS;
     }
 
-    private boolean tryTransferFromCampfire(World world, CampfireTileEntity campfire, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos) {
-        if (campfire == null || world == null) {
+    private boolean tryTransferFromFirepit(World world, FirepitTileEntity firepit, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos) {
+        if (firepit == null || world == null) {
             return false;
         }
         AtomicBoolean inserted = new AtomicBoolean(false);
-        campfire.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(campfireHandler ->
-                tongs.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(targetHandler -> {
-                    outer:
-                    for (int campfireSlot = 0; campfireSlot < campfireHandler.getSlots(); campfireSlot++) {
-                        ItemStack candidate = campfireHandler.getStackInSlot(campfireSlot);
-                        if (candidate.isEmpty() || !(candidate.getItem() instanceof HotRoastedOreItem)) {
-                            continue;
-                        }
-                        for (int targetSlot = 0; targetSlot < targetHandler.getSlots(); targetSlot++) {
-                            if (!targetHandler.getStackInSlot(targetSlot).isEmpty()) {
-                                continue;
-                            }
-                            ItemStack toInsert = ItemHandlerHelper.copyStackWithSize(candidate, 1);
-                            ItemStack remainder = targetHandler.insertItem(targetSlot, toInsert, false);
-                            if (remainder.isEmpty()) {
-                                campfireHandler.extractItem(campfireSlot, 1, false);
-                                inserted.set(true);
-                                break outer;
-                            }
-                        }
+        tongs.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(targetHandler -> {
+            outer:
+            for (int slot = 0; slot < FirepitTileEntity.GRID_SLOT_COUNT; slot++) {
+                ItemStack candidate = firepit.getItem(slot);
+                if (candidate.isEmpty() || !(candidate.getItem() instanceof HotRoastedOreItem)) {
+                    continue;
+                }
+                for (int targetSlot = 0; targetSlot < targetHandler.getSlots(); targetSlot++) {
+                    if (!targetHandler.getStackInSlot(targetSlot).isEmpty()) {
+                        continue;
                     }
-                }));
+                    ItemStack toInsert = ItemHandlerHelper.copyStackWithSize(candidate, 1);
+                    ItemStack remainder = targetHandler.insertItem(targetSlot, toInsert, false);
+                    if (remainder.isEmpty()) {
+                        firepit.removeItem(slot, 1);
+                        inserted.set(true);
+                        break outer;
+                    }
+                }
+            }
+        });
         if (inserted.get()) {
             if (!world.isClientSide) {
                 tongs.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
-                world.playSound(null, pos, SoundEvents.ITEM_ARMOR_EQUIP_IRON, SoundCategory.PLAYERS, 0.8f, 1f);
+                world.playSound(null, pos, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, SoundCategory.PLAYERS, 0.8f, 1f);
                 if (world instanceof ServerWorld) {
                     ((ServerWorld) world).sendParticles(ParticleTypes.LARGE_SMOKE,
                             pos.getX() + 0.5, pos.getY() + 0.85, pos.getZ() + 0.5,
                             4, 0.15, 0.15, 0.15, 0.01);
                 }
-                campfire.setChanged();
+                firepit.setChanged();
                 world.sendBlockUpdated(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
             }
         }

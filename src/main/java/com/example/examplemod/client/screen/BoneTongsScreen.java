@@ -20,8 +20,8 @@ public class BoneTongsScreen extends ContainerScreen<BoneTongsContainer> {
 
     @Override
     protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderSystem.color4f(1F, 1F, 1F, 1F);
+        this.minecraft.getTextureManager().bind(TEXTURE);
         blit(matrixStack, leftPos, topPos, 0, 0, imageWidth, imageHeight);
     }
 
