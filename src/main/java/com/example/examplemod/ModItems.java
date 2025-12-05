@@ -29,6 +29,7 @@ import com.example.examplemod.item.BranchItem;
 import com.example.examplemod.item.ClayCupItem;
 import com.example.examplemod.item.ClayPotBlockItem;
 import com.example.examplemod.item.ClayShardsBlockItem;
+import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
 
 
@@ -236,6 +237,11 @@ public class ModItems {
     public static final RegistryObject<Item> BONE_HAMMER = ITEMS.register("bone_hammer",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)
                     .durability(ItemTier.STONE.getUses())));
+
+    public static final RegistryObject<Item> BONE_TONGS = ITEMS.register("bone_tongs",
+            () -> new BoneTongsItem(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .stacksTo(1)));
 
     // Костяной блок как предмет
     public static final RegistryObject<Item> BONE_BLOCK = ITEMS.register("bone_block",

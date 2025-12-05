@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
+import com.example.examplemod.client.screen.BoneTongsScreen;
 import com.example.examplemod.client.screen.FirepitScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
@@ -23,6 +24,7 @@ import com.example.examplemod.server.CraftingBlocker;
 import com.example.examplemod.server.HewnStoneSpawnHandler;
 import com.example.examplemod.server.FlaxDryingHandler;
 import com.example.examplemod.server.FirepitStructureHandler;
+import com.example.examplemod.server.HotOreDamageHandler;
 import com.example.examplemod.server.RedMushroomHandler;
 
 import net.minecraft.client.world.DimensionRenderInfo;
@@ -88,6 +90,7 @@ public class ExampleMod {
         MinecraftForge.EVENT_BUS.register(FlaxDryingHandler.class);
         MinecraftForge.EVENT_BUS.register(CraftingBlocker.class);
         MinecraftForge.EVENT_BUS.register(FirepitStructureHandler.class);
+        MinecraftForge.EVENT_BUS.register(HotOreDamageHandler.class);
 
 
         MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);
@@ -103,6 +106,7 @@ public class ExampleMod {
         LOGGER.info("ExampleMod client setup");
         MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS.get(), BoneTongsScreen::new);
         registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                 new HeavenDimensionRenderInfo());
         RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
