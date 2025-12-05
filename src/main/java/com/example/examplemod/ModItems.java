@@ -302,6 +302,18 @@ public class ModItems {
     public static final RegistryObject<Item> CALCINED_GOLD_ORE = ITEMS.register("calcined_gold_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Горячая обожжённая оловянная руда
+    public static final RegistryObject<Item> HOT_TIN_ROASTED_ORE = ITEMS.register("hot_tin_roasted_ore",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Горячая обожжённая золотая руда
+    public static final RegistryObject<Item> HOT_GOLD_ROASTED_ORE = ITEMS.register("hot_gold_roasted_ore",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Горячая обожжённая железная руда
+    public static final RegistryObject<Item> HOT_IRON_ROASTED_ORE = ITEMS.register("hot_iron_roasted_ore",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Кусочек пирита
     public static final RegistryObject<Item> PYRITE_PIECE = ITEMS.register("pyrite_piece",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
