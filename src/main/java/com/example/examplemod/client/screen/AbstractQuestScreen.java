@@ -118,17 +118,17 @@ public abstract class AbstractQuestScreen extends Screen {
 
         drawTitle(ms, panelX + panelWidth / 2, panelY + TITLE_OFFSET_Y);
 
-        drawSectionLabel(ms, "Описание", descriptionArea.getX(), descriptionArea.getY() - 18);
+        drawSectionLabel(ms, "Инструкция", descriptionArea.getX(), descriptionArea.getY() - 18);
         descriptionArea.render(ms, mouseX, mouseY, partialTicks,
-                (area, matrix, x, y, innerWidth, mX, mY, pt) -> renderDescription(area, matrix, x, y, innerWidth, mX, mY, pt));
+                (area, matrix, x, y, innerWidth, mX, mY, pt) -> renderInstructions(area, matrix, x, y, innerWidth, mX, mY, pt));
 
         drawSectionLabel(ms, "Цель", goalsArea.getX(), goalsArea.getY() - 18);
         goalsArea.render(ms, mouseX, mouseY, partialTicks,
                 (area, matrix, x, y, innerWidth, mX, mY, pt) -> renderGoals(area, matrix, x, y, innerWidth, mX, mY, pt));
 
-        drawSectionLabel(ms, "Инструкция", instructionsArea.getX(), instructionsArea.getY() - 18);
+        drawSectionLabel(ms, "Описание", instructionsArea.getX(), instructionsArea.getY() - 18);
         instructionsArea.render(ms, mouseX, mouseY, partialTicks,
-                (area, matrix, x, y, innerWidth, mX, mY, pt) -> renderInstructions(area, matrix, x, y, innerWidth, mX, mY, pt));
+                (area, matrix, x, y, innerWidth, mX, mY, pt) -> renderDescription(area, matrix, x, y, innerWidth, mX, mY, pt));
 
         updateConfirmButtonState();
 
