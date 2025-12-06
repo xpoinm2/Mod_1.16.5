@@ -42,8 +42,7 @@ public class CleanedGravelTinOreQuestScreen extends AbstractQuestScreen {
                                      int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth, "Разбивайте молотом неочищенные блоки гравийной руды, чтобы получить пачки с грязным оловянным гравием.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth, "Держите грязный гравий в руке и нажимайте ПКМ на воду — поток смывает примеси и превращает каждый блок в очищённый.", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "Из гравийной фракции можно скрафтить несколько вариаций: три грязных блока → один `tin_ore_gravel`, несколько очищённых → запасной компонент для плавки.", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "Храните результат рядом с плавильней и подавайте по мере надобности, чтобы не терять стабильность добычи.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Альтернативный рецепт: три гравийных блока → один `tin_ore_gravel`, очищённые дают больше металла на выходе.", 0xFFFFFF00);
         return y;
     }
 

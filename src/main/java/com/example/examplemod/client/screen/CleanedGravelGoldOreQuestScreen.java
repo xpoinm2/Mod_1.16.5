@@ -40,10 +40,9 @@ public class CleanedGravelGoldOreQuestScreen extends AbstractQuestScreen {
     @Override
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        y = drawParagraph(ms, x, y, innerWidth, "Молотом разбивайте несортированные блоки золотой гравийной руды — с каждого падает пачка грязного гравия.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Молотом разбивайте неочищенные блоки золотой гравийной руды — с каждого падает пачка грязного гравия.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth, "Держите грязную гравийную руду в руке и нажмите ПКМ на поверхность воды, чтобы смыть примеси и получить очищённые блоки.", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "Вариации крафта: три грязных блока дают `gold_ore_gravel`, очищённые идут на стабильную плавку или фильтры, можно хранить для будущих порций.", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "Все очищённые блоки удобно держать рядом с печью, чтобы быстро разогреть и выплавить цельное золото.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Альтернативный рецепт: три гравийных блока дают `gold_ore_gravel`, очищённые дают больше металла на выходе", 0xFFFFFF00);
         return y;
     }
 
