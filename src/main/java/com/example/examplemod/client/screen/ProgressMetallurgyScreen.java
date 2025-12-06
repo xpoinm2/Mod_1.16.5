@@ -216,7 +216,7 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нужно для открытия: ")
                                 .append(new StringTextComponent("Очищённая гравийная золотая руда")
-                                        .withStyle(TextFormatting.GOLD)))));
+                                        .withStyle(TextFormatting.GOLD))));
         registerNode(this.calcinedGoldButton, baseX, baseY);
 
         this.calcinedTinButton = new ItemIconButton(baseX + spacingX, baseY,
@@ -227,7 +227,7 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нужно для открытия: ")
                                 .append(new StringTextComponent("Очищённая гравийная оловянная руда")
-                                        .withStyle(TextFormatting.GOLD)))));
+                                        .withStyle(TextFormatting.GOLD))));
         registerNode(this.calcinedTinButton, baseX + spacingX, baseY);
     }
 
