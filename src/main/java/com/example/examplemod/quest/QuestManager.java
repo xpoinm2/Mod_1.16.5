@@ -24,6 +24,8 @@ public class QuestManager {
     private static boolean roughKnivesCompleted = false;
     private static boolean scrapedLeatherCompleted = false;
     private static boolean calcinedIronOreCompleted = false;
+    private static boolean calcinedGoldOreCompleted = false;
+    private static boolean calcinedTinOreCompleted = false;
     private static boolean clayPotCompleted = false;
     private static boolean clayCupCompleted = false;
     private static boolean unrefinedTinOreCompleted = false;
@@ -217,6 +219,22 @@ public class QuestManager {
         calcinedIronOreCompleted = value;
     }
 
+    public static boolean isCalcinedGoldOreCompleted() {
+        return calcinedGoldOreCompleted;
+    }
+
+    public static void setCalcinedGoldOreCompleted(boolean value) {
+        calcinedGoldOreCompleted = value;
+    }
+
+    public static boolean isCalcinedTinOreCompleted() {
+        return calcinedTinOreCompleted;
+    }
+
+    public static void setCalcinedTinOreCompleted(boolean value) {
+        calcinedTinOreCompleted = value;
+    }
+
     public static boolean isClayPotCompleted() {
         return clayPotCompleted;
     }
@@ -317,6 +335,8 @@ public class QuestManager {
         roughKnivesCompleted = false;
         scrapedLeatherCompleted = false;
         calcinedIronOreCompleted = false;
+        calcinedGoldOreCompleted = false;
+        calcinedTinOreCompleted = false;
         clayPotCompleted = false;
         clayCupCompleted = false;
         unrefinedTinOreCompleted = false;

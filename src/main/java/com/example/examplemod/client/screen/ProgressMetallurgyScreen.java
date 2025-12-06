@@ -37,6 +37,8 @@ public class ProgressMetallurgyScreen extends Screen {
     private ItemIconButton pyriteButton;
     private ItemIconButton pyriteFlintButton;
     private ItemIconButton calcinedIronOreButton;
+    private ItemIconButton calcinedGoldButton;
+    private ItemIconButton calcinedTinButton;
 
 
     private int offsetX;
@@ -90,9 +92,10 @@ public class ProgressMetallurgyScreen extends Screen {
         nodes.clear();
         connections.clear();
 
-        // Only show quests if coming from Ancient World era, not Ancient Metallurgy era
         if (parent instanceof ProgressEraScreen) {
             initQuests();
+        } else if (parent instanceof AncientMetallurgyEraScreen) {
+            initAncientMetallurgyQuests();
         }
 
         updateNodePositions();
@@ -200,6 +203,34 @@ public class ProgressMetallurgyScreen extends Screen {
         addConnection(firepitNode, calcinedNode, this::getCalcinedIronOreState);
     }
 
+    private void initAncientMetallurgyQuests() {
+        int baseX = 100;
+        int baseY = 90;
+        int spacingX = 110;
+
+        this.calcinedGoldButton = new ItemIconButton(baseX, baseY,
+                new ItemStack(ModItems.CALCINED_GOLD_ORE.get()),
+                b -> this.minecraft.setScreen(new CalcinedGoldOreQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Обожжённая золотая руда")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Очищённая гравийная золотая руда")
+                                        .withStyle(TextFormatting.GOLD)))));
+        registerNode(this.calcinedGoldButton, baseX, baseY);
+
+        this.calcinedTinButton = new ItemIconButton(baseX + spacingX, baseY,
+                new ItemStack(ModItems.CALCINED_TIN_ORE.get()),
+                b -> this.minecraft.setScreen(new CalcinedTinOreQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Обожжённая оловянная руда")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Очищённая гравийная оловянная руда")
+                                        .withStyle(TextFormatting.GOLD)))));
+        registerNode(this.calcinedTinButton, baseX + spacingX, baseY);
+    }
+
     @Override
     public boolean isPauseScreen() {
         return true;
@@ -223,6 +254,13 @@ public class ProgressMetallurgyScreen extends Screen {
             this.pyriteButton.setBorderColor(colorForState(getPyriteState()));
             this.pyriteFlintButton.setBorderColor(colorForState(getPyriteFlintState()));
             this.calcinedIronOreButton.setBorderColor(colorForState(getCalcinedIronOreState()));
+        } else if (parent instanceof AncientMetallurgyEraScreen) {
+            if (this.calcinedGoldButton != null) {
+                this.calcinedGoldButton.setBorderColor(colorForState(getCalcinedGoldState()));
+            }
+            if (this.calcinedTinButton != null) {
+                this.calcinedTinButton.setBorderColor(colorForState(getCalcinedTinState()));
+            }
         }
 
         // Clip content within panel bounds
@@ -286,6 +324,20 @@ public class ProgressMetallurgyScreen extends Screen {
             return QuestState.LOCKED;
         }
         return QuestManager.isCalcinedIronOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getCalcinedGoldState() {
+        if (!QuestManager.isCleanedGravelGoldOreCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isCalcinedGoldOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getCalcinedTinState() {
+        if (!QuestManager.isCleanedGravelTinOreCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isCalcinedTinOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
     @Override
