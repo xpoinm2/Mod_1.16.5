@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B B",
+    " F ",
+    "B B"
+  ],
+  "key": {
+    "B": { "item": "examplemod:big_bone" },
+    "F": { "item": "examplemod:flax_fibers" }
+  },
+  "result": { "item": "examplemod:bone_tongs" }
+}
