@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
@@ -24,6 +25,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
@@ -34,11 +36,17 @@ public class BoneTongsItem extends Item {
     private static final String TAG_MODE = "BoneTongsMode";
 
     public enum Mode {
-        PICK,
-        PLACE;
+        PICK_INPUT,      // Взять (вход)
+        PICK_OUTPUT,     // Взять (выход)
+        PICK_FUEL,       // Взять (топливо)
+        PLACE_INPUT,     // Положить (вход)
+        PLACE_OUTPUT,    // Положить (выход)
+        PLACE_FUEL;      // Положить (топливо)
 
         public Mode next() {
-            return this == PICK ? PLACE : PICK;
+            Mode[] modes = values();
+            int nextIndex = (ordinal() + 1) % modes.length;
+            return modes[nextIndex];
         }
     }
 
@@ -48,9 +56,13 @@ public class BoneTongsItem extends Item {
 
     public static Mode getMode(ItemStack stack) {
         CompoundNBT tag = stack.getTag();
-        if (tag == null) return Mode.PICK;
+        if (tag == null) return Mode.PICK_INPUT;
         int value = tag.getInt(TAG_MODE);
-        return value == Mode.PLACE.ordinal() ? Mode.PLACE : Mode.PICK;
+        Mode[] modes = Mode.values();
+        if (value >= 0 && value < modes.length) {
+            return modes[value];
+        }
+        return Mode.PICK_INPUT;
     }
 
     public static Mode toggleMode(ItemStack stack) {
@@ -94,12 +106,147 @@ public class BoneTongsItem extends Item {
             notifyBroken(world, player, context.getClickedPos());
             return ActionResultType.FAIL;
         }
-        if (!(world.getBlockEntity(context.getClickedPos()) instanceof FirepitTileEntity)) {
+
+        BlockEntity blockEntity = world.getBlockEntity(context.getClickedPos());
+        if (blockEntity == null) {
             return ActionResultType.PASS;
         }
-        FirepitTileEntity firepit = (FirepitTileEntity) world.getBlockEntity(context.getClickedPos());
-        boolean transferred = tryTransferFromFirepit(world, firepit, held, player, context.getHand(), context.getClickedPos());
+
+        Mode mode = getMode(held);
+        boolean transferred = false;
+
+        if (blockEntity instanceof FirepitTileEntity) {
+            FirepitTileEntity firepit = (FirepitTileEntity) blockEntity;
+            transferred = tryTransferWithFirepit(world, firepit, held, player, context.getHand(), context.getClickedPos(), mode);
+        } else if (blockEntity instanceof AbstractFurnaceTileEntity) {
+            AbstractFurnaceTileEntity furnace = (AbstractFurnaceTileEntity) blockEntity;
+            transferred = tryTransferWithFurnace(world, furnace, held, player, context.getHand(), context.getClickedPos(), mode);
+        }
+
+        if (transferred) {
+            held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(context.getHand()));
+            world.sendBlockUpdated(context.getClickedPos(), world.getBlockState(context.getClickedPos()),
+                                   world.getBlockState(context.getClickedPos()), 3);
+        }
+
         return transferred ? ActionResultType.SUCCESS : ActionResultType.PASS;
+    }
+
+    private boolean tryTransferWithFirepit(World world, FirepitTileEntity firepit, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos, Mode mode) {
+        return tongs.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(tongsHandler -> {
+            switch (mode) {
+                case PICK_INPUT:
+                    return tryPickFromFirepitSlots(firepit, tongsHandler, 0, FirepitTileEntity.GRID_SLOT_COUNT);
+                case PICK_OUTPUT:
+                    // Кострище не имеет выходных слотов в том же смысле, что печь
+                    return false;
+                case PICK_FUEL:
+                    return tryPickFromFirepitSlots(firepit, tongsHandler, FirepitTileEntity.FUEL_SLOT, 1);
+                case PLACE_INPUT:
+                    return tryPlaceToFirepitSlots(firepit, tongsHandler, 0, FirepitTileEntity.GRID_SLOT_COUNT);
+                case PLACE_OUTPUT:
+                    // Кострище не имеет выходных слотов
+                    return false;
+                case PLACE_FUEL:
+                    return tryPlaceToFirepitSlots(firepit, tongsHandler, FirepitTileEntity.FUEL_SLOT, 1);
+                default:
+                    return false;
+            }
+        }).orElse(false);
+    }
+
+    private boolean tryTransferWithFurnace(World world, AbstractFurnaceTileEntity furnace, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos, Mode mode) {
+        return tongs.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(tongsHandler -> {
+            switch (mode) {
+                case PICK_INPUT:
+                    return tryPickFromFurnaceSlot(furnace, tongsHandler, 0);
+                case PICK_OUTPUT:
+                    return tryPickFromFurnaceSlot(furnace, tongsHandler, 2);
+                case PICK_FUEL:
+                    return tryPickFromFurnaceSlot(furnace, tongsHandler, 1);
+                case PLACE_INPUT:
+                    return tryPlaceToFurnaceSlot(furnace, tongsHandler, 0);
+                case PLACE_OUTPUT:
+                    return tryPlaceToFurnaceSlot(furnace, tongsHandler, 2);
+                case PLACE_FUEL:
+                    return tryPlaceToFurnaceSlot(furnace, tongsHandler, 1);
+                default:
+                    return false;
+            }
+        }).orElse(false);
+    }
+
+    private boolean tryPickFromFirepitSlots(FirepitTileEntity firepit, IItemHandler tongsHandler, int startSlot, int count) {
+        for (int i = 0; i < count; i++) {
+            int slot = startSlot + i;
+            ItemStack stack = firepit.getItem(slot);
+            if (!stack.isEmpty()) {
+                // Ищем свободный слот в щипцах
+                for (int tongsSlot = 0; tongsSlot < tongsHandler.getSlots(); tongsSlot++) {
+                    if (tongsHandler.getStackInSlot(tongsSlot).isEmpty()) {
+                        ItemStack extracted = firepit.removeItem(slot, stack.getCount());
+                        if (!extracted.isEmpty()) {
+                            tongsHandler.insertItem(tongsSlot, extracted, false);
+                            firepit.setChanged();
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean tryPlaceToFirepitSlots(FirepitTileEntity firepit, IItemHandler tongsHandler, int startSlot, int count) {
+        for (int tongsSlot = 0; tongsSlot < tongsHandler.getSlots(); tongsSlot++) {
+            ItemStack tongsStack = tongsHandler.getStackInSlot(tongsSlot);
+            if (!tongsStack.isEmpty()) {
+                for (int i = 0; i < count; i++) {
+                    int slot = startSlot + i;
+                    if (firepit.getItem(slot).isEmpty()) {
+                        ItemStack extracted = tongsHandler.extractItem(tongsSlot, tongsStack.getCount(), false);
+                        if (!extracted.isEmpty()) {
+                            firepit.setItem(slot, extracted);
+                            firepit.setChanged();
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean tryPickFromFurnaceSlot(AbstractFurnaceTileEntity furnace, IItemHandler tongsHandler, int furnaceSlot) {
+        ItemStack stack = furnace.getItem(furnaceSlot);
+        if (!stack.isEmpty()) {
+            for (int tongsSlot = 0; tongsSlot < tongsHandler.getSlots(); tongsSlot++) {
+                if (tongsHandler.getStackInSlot(tongsSlot).isEmpty()) {
+                    ItemStack extracted = furnace.removeItem(furnaceSlot, stack.getCount());
+                    if (!extracted.isEmpty()) {
+                        tongsHandler.insertItem(tongsSlot, extracted, false);
+                        furnace.setChanged();
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean tryPlaceToFurnaceSlot(AbstractFurnaceTileEntity furnace, IItemHandler tongsHandler, int furnaceSlot) {
+        for (int tongsSlot = 0; tongsSlot < tongsHandler.getSlots(); tongsSlot++) {
+            ItemStack tongsStack = tongsHandler.getStackInSlot(tongsSlot);
+            if (!tongsStack.isEmpty() && furnace.getItem(furnaceSlot).isEmpty()) {
+                ItemStack extracted = tongsHandler.extractItem(tongsSlot, tongsStack.getCount(), false);
+                if (!extracted.isEmpty()) {
+                    furnace.setItem(furnaceSlot, extracted);
+                    furnace.setChanged();
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean tryTransferFromFirepit(World world, FirepitTileEntity firepit, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos) {

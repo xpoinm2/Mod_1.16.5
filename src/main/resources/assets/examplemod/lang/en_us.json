@@ -112,5 +112,11 @@
   "key.examplemod.activity": "Activity",
   "key.examplemod.progress": "Technology Progress",
   "key.examplemod.mode_switch": "Mode Switch",
-  "key.categories.examplemod": "ExampleMod"
+  "key.categories.examplemod": "ExampleMod",
+  "overlay.examplemod.tongs_mode.pick_input": "Take (Input)",
+  "overlay.examplemod.tongs_mode.pick_output": "Take (Output)",
+  "overlay.examplemod.tongs_mode.pick_fuel": "Take (Fuel)",
+  "overlay.examplemod.tongs_mode.place_input": "Place (Input)",
+  "overlay.examplemod.tongs_mode.place_output": "Place (Output)",
+  "overlay.examplemod.tongs_mode.place_fuel": "Place (Fuel)"
 }
