@@ -95,7 +95,6 @@
   "block.examplemod.firepit_block": "Кострище",
   "item.examplemod.firepit_block": "Кострище",
   "container.examplemod.bone_tongs": "Костяные щипцы",
-  "key.examplemod.progress": "Технологический прогресс",
   "block.examplemod.raw_clay_pot": "Сырой глиняный горшок",
   "item.examplemod.raw_clay_pot": "Сырой глиняный горшок",
   "item.examplemod.raw_clay_cup": "Сырая глиняная чашка",
@@ -108,5 +107,10 @@
   "tooltip.examplemod.clay_cup.water": "Вода: %s / %s",
   "tooltip.examplemod.clay_pot.capacity": "Ёмкость: %s",
   "tooltip.examplemod.fluid.liters": "%s л",
-  "tooltip.examplemod.fluid.milliliters": "%s мл"
+  "tooltip.examplemod.fluid.milliliters": "%s мл",
+  "key.examplemod.main_page": "Интерфейс игрока",
+  "key.examplemod.activity": "Активность",
+  "key.examplemod.progress": "Технологический прогресс",
+  "key.examplemod.mode_switch": "Переключение режима",
+  "key.categories.examplemod": "ExampleMod"
 }

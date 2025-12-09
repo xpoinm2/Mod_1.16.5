@@ -18,7 +18,7 @@ public class MainPageKeyHandler {
     public static final KeyBinding MAIN_PAGE_KEY = new KeyBinding(
             "key.examplemod.main_page",
             GLFW.GLFW_KEY_X,
-            "key.categories.gameplay"
+            ExampleMod.KEY_CATEGORY
     );
 
     @SubscribeEvent

@@ -95,7 +95,6 @@
   "block.examplemod.firepit_block": "Firepit",
   "item.examplemod.firepit_block": "Firepit",
   "container.examplemod.bone_tongs": "Bone Tongs",
-  "key.examplemod.progress": "Technology Progress",
   "block.examplemod.raw_clay_pot": "Raw Clay Pot",
   "item.examplemod.raw_clay_pot": "Raw Clay Pot",
   "item.examplemod.raw_clay_cup": "Raw Clay Cup",
@@ -108,5 +107,10 @@
   "tooltip.examplemod.clay_cup.water": "Water: %s / %s",
   "tooltip.examplemod.clay_pot.capacity": "Capacity: %s",
   "tooltip.examplemod.fluid.liters": "%s L",
-  "tooltip.examplemod.fluid.milliliters": "%s mL"
+  "tooltip.examplemod.fluid.milliliters": "%s mL",
+  "key.examplemod.main_page": "Player Interface",
+  "key.examplemod.activity": "Activity",
+  "key.examplemod.progress": "Technology Progress",
+  "key.examplemod.mode_switch": "Mode Switch",
+  "key.categories.examplemod": "ExampleMod"
 }

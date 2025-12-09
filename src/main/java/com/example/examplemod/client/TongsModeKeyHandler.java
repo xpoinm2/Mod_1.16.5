@@ -1,9 +1,12 @@
 package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.client.screen.ActivityScreen;
+import com.example.examplemod.item.BoneTongsItem;
+import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.network.ToggleTongsModePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,25 +16,33 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.lwjgl.glfw.GLFW;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ActivityKeyHandler {
-    public static final KeyBinding ACTIVITY_KEY = new KeyBinding(
-            "key.examplemod.activity",
-            GLFW.GLFW_KEY_Z,
+public class TongsModeKeyHandler {
+    public static final KeyBinding TONGS_MODE_KEY = new KeyBinding(
+            "key.examplemod.mode_switch",
+            GLFW.GLFW_KEY_V,
             ExampleMod.KEY_CATEGORY
     );
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        ClientRegistry.registerKeyBinding(ACTIVITY_KEY);
+        ClientRegistry.registerKeyBinding(TONGS_MODE_KEY);
     }
 }
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
-class ActivityKeyPressHandler {
+class TongsModeKeyPressHandler {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
-        if (ActivityKeyHandler.ACTIVITY_KEY.consumeClick()) {
-            Minecraft.getInstance().setScreen(new ActivityScreen());
+        if (!TongsModeKeyHandler.TONGS_MODE_KEY.consumeClick()) {
+            return;
         }
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+
+        ItemStack held = mc.player.getMainHandItem();
+        if (!(held.getItem() instanceof BoneTongsItem)) return;
+
+        ModNetworkHandler.CHANNEL.sendToServer(new ToggleTongsModePacket());
     }
 }

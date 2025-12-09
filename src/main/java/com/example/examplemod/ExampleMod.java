@@ -54,6 +54,7 @@ import java.util.Map;
 @Mod(ExampleMod.MODID)
 public class ExampleMod {
     public static final String MODID = "examplemod";
+    public static final String KEY_CATEGORY = "key.categories.examplemod";
     private static final Logger LOGGER = LogManager.getLogger();
 
     public ExampleMod() {

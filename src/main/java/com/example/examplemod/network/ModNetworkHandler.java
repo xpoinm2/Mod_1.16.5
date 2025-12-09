@@ -13,6 +13,7 @@ import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
 import com.example.examplemod.network.SyncVirusPacket;
 import com.example.examplemod.network.SyncPoisonPacket;
+import com.example.examplemod.network.ToggleTongsModePacket;
 
 /**
  * Централизованная регистрация наших сетевых пакетов.
@@ -98,6 +99,13 @@ public class ModNetworkHandler {
                 OpenCraftingPacket::encode,
                 OpenCraftingPacket::decode,
                 OpenCraftingPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                ToggleTongsModePacket.class,
+                ToggleTongsModePacket::encode,
+                ToggleTongsModePacket::decode,
+                ToggleTongsModePacket::handle
         );
     }
 }

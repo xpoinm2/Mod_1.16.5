@@ -17,7 +17,7 @@ public class ProgressKeyHandler {
     public static final KeyBinding PROGRESS_KEY = new KeyBinding(
             "key.examplemod.progress",
             GLFW.GLFW_KEY_C,
-            "key.categories.gameplay"
+            ExampleMod.KEY_CATEGORY
     );
 
     @SubscribeEvent

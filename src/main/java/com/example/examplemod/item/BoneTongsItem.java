@@ -31,8 +31,33 @@ import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BoneTongsItem extends Item {
+    private static final String TAG_MODE = "BoneTongsMode";
+
+    public enum Mode {
+        PICK,
+        PLACE;
+
+        public Mode next() {
+            return this == PICK ? PLACE : PICK;
+        }
+    }
+
     public BoneTongsItem(Properties properties) {
         super(properties.durability(20));
+    }
+
+    public static Mode getMode(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        if (tag == null) return Mode.PICK;
+        int value = tag.getInt(TAG_MODE);
+        return value == Mode.PLACE.ordinal() ? Mode.PLACE : Mode.PICK;
+    }
+
+    public static Mode toggleMode(ItemStack stack) {
+        Mode next = getMode(stack).next();
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putInt(TAG_MODE, next.ordinal());
+        return next;
     }
 
     @Nullable
