@@ -1,31 +1,39 @@
 package com.example.examplemod.item;
 
+import com.example.examplemod.ModFluids;
+import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import com.example.examplemod.util.FluidTextUtil;
+import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.network.SyncStatsPacket;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -34,6 +42,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStackSimple;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,64 +70,77 @@ public class ClayCupItem extends Item {
 
         FluidStack contained = handler.getFluidInTank(0);
         int currentAmount = contained.getAmount();
-        boolean needsFill = contained.isEmpty() || currentAmount < CAPACITY;
+        boolean needsFill = currentAmount < CAPACITY;
         RayTraceContext.FluidMode fluidMode = needsFill ? RayTraceContext.FluidMode.SOURCE_ONLY : RayTraceContext.FluidMode.NONE;
         BlockRayTraceResult rayTraceResult = Item.getPlayerPOVHitResult(world, player, fluidMode);
         if (rayTraceResult.getType() == RayTraceResult.Type.MISS) {
+            if (currentAmount > 0) {
+                player.startUsingItem(hand);
+                return ActionResult.sidedSuccess(stack, world.isClientSide());
+            }
             return ActionResult.pass(stack);
         }
 
         if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK) {
+            if (currentAmount > 0) {
+                player.startUsingItem(hand);
+                return ActionResult.sidedSuccess(stack, world.isClientSide());
+            }
             return ActionResult.pass(stack);
         }
 
         BlockPos hitPos = rayTraceResult.getBlockPos();
         Direction direction = rayTraceResult.getDirection();
         if (!world.mayInteract(player, hitPos)) {
-            return ActionResult.pass(stack);
-        }
-
-        if (needsFill) {
-            FluidState fluidState = world.getFluidState(hitPos);
-            if (fluidState.is(FluidTags.WATER) && fluidState.isSource()) {
-                FluidStack waterStack = new FluidStack(Fluids.WATER, CAPACITY);
-                int canFill = handler.fill(waterStack, IFluidHandler.FluidAction.SIMULATE);
-                if (canFill <= 0) {
-                    return ActionResult.pass(stack);
-                }
-                if (!world.isClientSide) {
-                    handler.fill(new FluidStack(Fluids.WATER, canFill), IFluidHandler.FluidAction.EXECUTE);
-                    world.setBlock(hitPos, Blocks.AIR.defaultBlockState(), 11);
-                }
-                world.playSound(player, hitPos, SoundEvents.BUCKET_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                player.awardStat(Stats.ITEM_USED.get(this));
+            if (currentAmount > 0) {
+                player.startUsingItem(hand);
                 return ActionResult.sidedSuccess(stack, world.isClientSide());
             }
             return ActionResult.pass(stack);
         }
 
-        if (currentAmount <= 0) {
+        if (needsFill) {
+            FluidState fluidState = world.getFluidState(hitPos);
+            Fluid fluid = fluidState.getType();
+            boolean isWater = fluid.isSame(Fluids.WATER);
+            boolean isDirty = fluid.isSame(ModFluids.DIRTY_WATER.get());
+            if ((isWater || isDirty) && fluidState.isSource()) {
+                FluidStack fillStack = new FluidStack(fluid, CAPACITY);
+                int canFill = handler.fill(fillStack, IFluidHandler.FluidAction.SIMULATE);
+                if (canFill > 0) {
+                    if (!world.isClientSide) {
+                        handler.fill(new FluidStack(fluid, canFill), IFluidHandler.FluidAction.EXECUTE);
+                        world.setBlock(hitPos, Blocks.AIR.defaultBlockState(), 11);
+                    }
+                    world.playSound(player, hitPos, SoundEvents.BUCKET_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    player.awardStat(Stats.ITEM_USED.get(this));
+                    return ActionResult.sidedSuccess(stack, world.isClientSide());
+                }
+            }
             return ActionResult.pass(stack);
         }
 
         TileEntity tile = world.getBlockEntity(hitPos);
-        if (tile instanceof ClayPotTileEntity) {
+        if (tile instanceof ClayPotTileEntity && currentAmount > 0) {
             ClayPotTileEntity pot = (ClayPotTileEntity) tile;
             LazyOptional<IFluidHandler> potCap = pot.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, direction);
-            if (potCap.isPresent()) {
+            if (potCap.isPresent() && !world.isClientSide) {
                 IFluidHandler potHandler = potCap.orElse(null);
                 FluidStack transferable = new FluidStack(contained, Math.min(currentAmount, CAPACITY));
                 int accepted = potHandler.fill(transferable, IFluidHandler.FluidAction.SIMULATE);
                 if (accepted > 0) {
-                    if (!world.isClientSide) {
-                        potHandler.fill(new FluidStack(transferable, accepted), IFluidHandler.FluidAction.EXECUTE);
-                        handler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
-                        world.playSound(null, hitPos, SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
-                        player.awardStat(Stats.ITEM_USED.get(this));
-                    }
+                    potHandler.fill(new FluidStack(transferable, accepted), IFluidHandler.FluidAction.EXECUTE);
+                    handler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
+                    world.playSound(null, hitPos, SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
+                    player.awardStat(Stats.ITEM_USED.get(this));
                     return ActionResult.sidedSuccess(stack, world.isClientSide());
                 }
             }
+        }
+
+        if (currentAmount > 0) {
+            player.startUsingItem(hand);
+            return ActionResult.sidedSuccess(stack, world.isClientSide());
         }
 
         return ActionResult.pass(stack);
@@ -147,7 +169,7 @@ public class ClayCupItem extends Item {
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            return stack.getFluid().isSame(Fluids.WATER);
+            return stack.getFluid().isSame(Fluids.WATER) || stack.getFluid().isSame(ModFluids.DIRTY_WATER.get());
         }
 
         @Nonnull
@@ -156,7 +178,62 @@ public class ClayCupItem extends Item {
             if (CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY == null) {
                 return LazyOptional.empty();
             }
-            return super.getCapability(capability, facing);
+        return super.getCapability(capability, facing);
         }
+    }
+
+    @Override
+    public UseAction getUseAnimation(ItemStack stack) {
+        return UseAction.DRINK;
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack) {
+        return 32;
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, World world, LivingEntity livingEntity) {
+        if (!(livingEntity instanceof PlayerEntity)) {
+            return stack;
+        }
+        PlayerEntity player = (PlayerEntity) livingEntity;
+        if (world.isClientSide()) {
+            return stack;
+        }
+        stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).ifPresent(handler -> {
+            FluidStack drained = handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE);
+            if (drained.isEmpty() || !(player instanceof ServerPlayerEntity)) {
+                return;
+            }
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+            applyDrinkEffects(serverPlayer, drained);
+            player.awardStat(Stats.ITEM_USED.get(this));
+            world.playSound(null, player.blockPosition(), SoundEvents.GENERIC_DRINK, SoundCategory.PLAYERS, 1.0F, 1.0F);
+        });
+        return stack;
+    }
+
+    private void applyDrinkEffects(ServerPlayerEntity player, FluidStack fluid) {
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+            int thirst = stats.getThirst();
+            int disease = stats.getDisease();
+            Fluid drinkFluid = fluid.getFluid();
+            if (drinkFluid.isSame(Fluids.WATER)) {
+                thirst = Math.max(0, thirst - 20);
+            } else if (drinkFluid.isSame(ModFluids.DIRTY_WATER.get())) {
+                thirst = Math.max(0, thirst - 15);
+                disease = Math.min(100, disease + 5);
+                player.addEffect(new EffectInstance(Effects.CONFUSION, 100, 0));
+            } else {
+                return;
+            }
+            stats.setThirst(thirst);
+            stats.setDisease(disease);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(thirst, stats.getFatigue())
+            );
+        });
     }
 }

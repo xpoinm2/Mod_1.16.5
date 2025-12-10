@@ -16,18 +16,4 @@ public class DirtyWaterBlock extends FlowingFluidBlock {
         super(() -> (ForgeFlowingFluid) ModFluids.DIRTY_WATER.get(),
                 net.minecraft.block.AbstractBlock.Properties.copy(net.minecraft.block.Blocks.WATER));
     }
-
-    @Override
-    public void entityInside(BlockState state, World world, BlockPos pos, Entity entity) {
-        super.entityInside(state, world, pos, entity);
-
-        if (entity instanceof LivingEntity && !world.isClientSide) {
-            LivingEntity livingEntity = (LivingEntity) entity;
-
-            // Apply nausea effect occasionally when in dirty water
-            if (world.random.nextFloat() < 0.01F) { // 1% chance per tick
-                livingEntity.addEffect(new EffectInstance(Effects.CONFUSION, 200, 0)); // Nausea for 10 seconds
-            }
-        }
-    }
 }
