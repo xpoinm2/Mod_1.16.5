@@ -119,6 +119,5 @@
   "overlay.examplemod.tongs_mode.place_input": "Положить (вход)",
   "overlay.examplemod.tongs_mode.place_output": "Положить (выход)",
   "overlay.examplemod.tongs_mode.place_fuel": "Положить (топливо)",
-  "fluid.examplemod.dirty_water": "Грязная вода",
-  "item.examplemod.dirty_water_bucket": "Ведро с грязной водой"
+  "fluid.examplemod.dirty_water": "Грязная вода"
 }

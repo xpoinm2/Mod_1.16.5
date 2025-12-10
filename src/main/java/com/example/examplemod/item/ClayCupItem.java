@@ -104,15 +104,21 @@ public class ClayCupItem extends Item {
 
         if (needsFill) {
             FluidState fluidState = world.getFluidState(hitPos);
-            Fluid fluid = fluidState.getType();
-            boolean isWater = fluid.isSame(Fluids.WATER);
-            boolean isDirty = fluid.isSame(ModFluids.DIRTY_WATER.get());
-            if ((isWater || isDirty) && fluidState.isSource()) {
-                FluidStack fillStack = new FluidStack(fluid, CAPACITY);
+            Fluid sourceFluid = null;
+            if (fluidState.isSource()) {
+                Fluid fluid = fluidState.getType();
+                if (fluid.isSame(Fluids.WATER)) {
+                    sourceFluid = Fluids.WATER;
+                } else if (fluid.isSame(ModFluids.DIRTY_WATER.get()) || fluid.isSame(ModFluids.DIRTY_WATER_FLOWING.get())) {
+                    sourceFluid = ModFluids.DIRTY_WATER.get();
+                }
+            }
+            if (sourceFluid != null) {
+                FluidStack fillStack = new FluidStack(sourceFluid, CAPACITY);
                 int canFill = handler.fill(fillStack, IFluidHandler.FluidAction.SIMULATE);
                 if (canFill > 0) {
                     if (!world.isClientSide) {
-                        handler.fill(new FluidStack(fluid, canFill), IFluidHandler.FluidAction.EXECUTE);
+                        handler.fill(new FluidStack(sourceFluid, canFill), IFluidHandler.FluidAction.EXECUTE);
                         world.setBlock(hitPos, Blocks.AIR.defaultBlockState(), 11);
                     }
                     world.playSound(player, hitPos, SoundEvents.BUCKET_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
@@ -176,7 +182,9 @@ public class ClayCupItem extends Item {
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            return stack.getFluid().isSame(Fluids.WATER) || stack.getFluid().isSame(ModFluids.DIRTY_WATER.get());
+            return stack.getFluid().isSame(Fluids.WATER)
+                    || stack.getFluid().isSame(ModFluids.DIRTY_WATER.get())
+                    || stack.getFluid().isSame(ModFluids.DIRTY_WATER_FLOWING.get());
         }
 
         @Nonnull

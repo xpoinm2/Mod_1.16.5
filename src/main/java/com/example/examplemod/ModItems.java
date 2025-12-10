@@ -31,7 +31,6 @@ import com.example.examplemod.item.ClayPotBlockItem;
 import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
-import com.example.examplemod.item.DirtyWaterBucketItem;
 
 
 public class ModItems {
@@ -151,6 +150,7 @@ public class ModItems {
     // Глиняная чашка: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_CUP = ITEMS.register("clay_cup",
             () -> new ClayCupItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
 
     // Сырой глиняный горшок: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_POT = ITEMS.register("raw_clay_pot",
@@ -428,7 +428,8 @@ public class ModItems {
 
     // Ведро с грязной водой
     public static final RegistryObject<Item> DIRTY_WATER_BUCKET = ITEMS.register("dirty_water_bucket",
-            DirtyWaterBucketItem::new);
+            () -> new net.minecraft.item.BucketItem(() -> ModFluids.DIRTY_WATER.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB).stacksTo(1)));
 
 
     public static void register(IEventBus bus) {
