@@ -6,7 +6,7 @@ import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.RegistryObject;
 
 public class ModFluids {
     public static final DeferredRegister<net.minecraft.fluid.Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, ExampleMod.MODID);

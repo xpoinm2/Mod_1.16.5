@@ -55,11 +55,6 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
     }
 
     @Override
-    protected int getLevelDecreasePerBlock(IWorldReader world) {
-        return 1;
-    }
-
-    @Override
     public int getTickDelay(IWorldReader world) {
         return 5;
     }
@@ -76,7 +71,7 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
                         new ResourceLocation("minecraft", "block/water_flow"))
                         .translationKey("fluid.examplemod.dirty_water")
                         .color(0xFF8B8B8B)) // Gray color
-                .block(() -> ModBlocks.DIRTY_WATER_BLOCK.get())
+                .block(() -> (ForgeFlowingFluid.FlowingFluidBlock) ModBlocks.DIRTY_WATER_BLOCK.get())
                 .bucket(() -> ModItems.DIRTY_WATER_BUCKET.get());
     }
 
