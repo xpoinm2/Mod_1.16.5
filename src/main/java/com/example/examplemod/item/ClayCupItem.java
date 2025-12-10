@@ -1,5 +1,6 @@
 package com.example.examplemod.item;
 
+import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
@@ -7,6 +8,7 @@ import com.example.examplemod.util.FluidTextUtil;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -139,6 +141,10 @@ public class ClayCupItem extends Item {
             }
         }
 
+        if (!needsFill && currentAmount > 0 && tryPourFluid(world, player, handler, rayTraceResult)) {
+            return ActionResult.sidedSuccess(stack, world.isClientSide());
+        }
+
         if (currentAmount > 0) {
             player.startUsingItem(hand);
             return ActionResult.sidedSuccess(stack, world.isClientSide());
@@ -213,6 +219,41 @@ public class ClayCupItem extends Item {
             world.playSound(null, player.blockPosition(), SoundEvents.GENERIC_DRINK, SoundCategory.PLAYERS, 1.0F, 1.0F);
         });
         return stack;
+    }
+
+    private boolean tryPourFluid(World world, PlayerEntity player, IFluidHandler handler, BlockRayTraceResult traceResult) {
+        FluidStack fluidStack = handler.getFluidInTank(0);
+        if (fluidStack.isEmpty()) {
+            return false;
+        }
+        BlockState pourState = getBlockStateForFluid(fluidStack.getFluid());
+        if (pourState == null) {
+            return false;
+        }
+        BlockPos placePos = traceResult.getBlockPos().relative(traceResult.getDirection());
+        BlockState targetState = world.getBlockState(placePos);
+        if (!targetState.isAir() && !targetState.getMaterial().isReplaceable()) {
+            return false;
+        }
+        if (!world.isClientSide) {
+            int amount = Math.min(fluidStack.getAmount(), CAPACITY);
+            handler.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+            world.setBlock(placePos, pourState, 11);
+            world.playSound(null, placePos, SoundEvents.BUCKET_EMPTY, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            player.awardStat(Stats.ITEM_USED.get(this));
+        }
+        return true;
+    }
+
+    @Nullable
+    private BlockState getBlockStateForFluid(Fluid fluid) {
+        if (fluid.isSame(ModFluids.DIRTY_WATER.get())) {
+            return ModBlocks.DIRTY_WATER_BLOCK.get().defaultBlockState();
+        }
+        if (fluid.isSame(Fluids.WATER)) {
+            return Blocks.WATER.defaultBlockState();
+        }
+        return null;
     }
 
     private void applyDrinkEffects(ServerPlayerEntity player, FluidStack fluid) {
