@@ -169,8 +169,18 @@ public class ClayCupItem extends Item {
             } else {
                 ITextComponent currentAmount = FluidTextUtil.formatAmount(fluidStack.getAmount());
                 ITextComponent capacity = FluidTextUtil.formatAmount(CAPACITY);
-                tooltip.add(new TranslationTextComponent("tooltip.examplemod.clay_cup.water", currentAmount, capacity)
-                        .withStyle(TextFormatting.BLUE));
+                Fluid fluid = fluidStack.getFluid();
+                if (fluid.isSame(ModFluids.DIRTY_WATER.get())
+                        || fluid.isSame(ModFluids.DIRTY_WATER_FLOWING.get())) {
+                    tooltip.add(new TranslationTextComponent("tooltip.examplemod.clay_cup.dirty_water", currentAmount, capacity)
+                            .withStyle(TextFormatting.GOLD));
+                } else if (fluid.isSame(Fluids.WATER)) {
+                    tooltip.add(new TranslationTextComponent("tooltip.examplemod.clay_cup.water", currentAmount, capacity)
+                            .withStyle(TextFormatting.BLUE));
+                } else {
+                    tooltip.add(new TranslationTextComponent("tooltip.examplemod.clay_cup.unknown", currentAmount, capacity)
+                            .withStyle(TextFormatting.GRAY));
+                }
             }
         });
     }

@@ -105,6 +105,8 @@
   "item.examplemod.clay_cup": "Глиняная чашка",
   "tooltip.examplemod.clay_cup.empty": "Пусто",
   "tooltip.examplemod.clay_cup.water": "Вода: %s / %s",
+  "tooltip.examplemod.clay_cup.dirty_water": "Грязная вода: %s / %s",
+  "tooltip.examplemod.clay_cup.unknown": "Жидкость: %s / %s",
   "tooltip.examplemod.clay_pot.capacity": "Ёмкость: %s",
   "tooltip.examplemod.clay_pot.empty": "Пусто",
   "tooltip.examplemod.clay_pot.water": "Жидкость: %s / %s",

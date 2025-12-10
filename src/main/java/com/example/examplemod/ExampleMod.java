@@ -135,13 +135,17 @@ public class ExampleMod {
                             if (fluidStack.isEmpty()) {
                                 return 0.0F;
                             }
+
                             Fluid fluid = fluidStack.getFluid();
-                            if (fluid.isSame(ModFluids.DIRTY_WATER.get()) || fluid.isSame(ModFluids.DIRTY_WATER_FLOWING.get())) {
+                            if (fluid.isSame(ModFluids.DIRTY_WATER.get())
+                                    || fluid.isSame(ModFluids.DIRTY_WATER_FLOWING.get())) {
                                 return 2.0F;
                             }
+
                             if (fluid.isSame(Fluids.WATER)) {
                                 return 1.0F;
                             }
+                            
                             return 0.0F;
                         })
                         .orElse(0.0F)));

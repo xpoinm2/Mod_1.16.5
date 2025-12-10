@@ -105,6 +105,8 @@
   "item.examplemod.clay_cup": "Clay Cup",
   "tooltip.examplemod.clay_cup.empty": "Empty",
   "tooltip.examplemod.clay_cup.water": "Water: %s / %s",
+  "tooltip.examplemod.clay_cup.dirty_water": "Dirty Water: %s / %s",
+  "tooltip.examplemod.clay_cup.unknown": "Fluid: %s / %s",
   "tooltip.examplemod.clay_pot.capacity": "Capacity: %s",
   "tooltip.examplemod.clay_pot.empty": "Empty",
   "tooltip.examplemod.clay_pot.water": "Fluid: %s / %s",
