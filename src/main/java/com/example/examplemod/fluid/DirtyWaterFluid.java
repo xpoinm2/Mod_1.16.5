@@ -25,7 +25,11 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
                     new ResourceLocation("minecraft", "block/water_still"),
                     new ResourceLocation("minecraft", "block/water_flow"))
                     .translationKey("fluid.examplemod.dirty_water")
-                    .color(0xFF8B8B8B))
+                    .color(0xFF8B8B8B)
+                    .temperature(300)
+                    .viscosity(1000)
+                    .density(1000)
+                    .luminosity(0))
             .block(() -> (FlowingFluidBlock) ModBlocks.DIRTY_WATER_BLOCK.get());
 
     public DirtyWaterFluid() {
@@ -45,7 +49,7 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
 
     @Override
     protected boolean canConvertToSource() {
-        return false;
+        return true;
     }
 
     @Override
