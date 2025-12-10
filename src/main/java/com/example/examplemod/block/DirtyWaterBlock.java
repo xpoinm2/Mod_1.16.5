@@ -21,17 +21,16 @@ public class DirtyWaterBlock extends FlowingFluidBlock {
     public void animateTick(BlockState state, World world, BlockPos pos, Random random) {
         super.animateTick(state, world, pos, random);
 
-        if (random.nextFloat() < 0.6F) {
-            for (int i = 0; i < 4; i++) {
-                double offsetX = random.nextDouble();
-                double offsetY = random.nextDouble() * 0.6D;
-                double offsetZ = random.nextDouble();
-                world.addParticle(ParticleTypes.SQUID_INK,
-                        pos.getX() + offsetX,
-                        pos.getY() + offsetY,
-                        pos.getZ() + offsetZ,
-                        0, 0.02, 0);
-            }
+        if (random.nextFloat() < 0.3F) {
+            double offsetX = random.nextDouble();
+            double offsetY = random.nextDouble() * 0.3D + 0.2D;
+            double offsetZ = random.nextDouble();
+            // very small black dots drifting up slowly
+            world.addParticle(ParticleTypes.SQUID_INK,
+                    pos.getX() + offsetX,
+                    pos.getY() + offsetY,
+                    pos.getZ() + offsetZ,
+                    0, 0.01, 0);
         }
     }
 }
