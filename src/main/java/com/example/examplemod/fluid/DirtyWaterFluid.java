@@ -23,15 +23,6 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
         super(properties);
     }
 
-    @Override
-    public Fluid getFlowing() {
-        return ModFluids.DIRTY_WATER_FLOWING.get();
-    }
-
-    @Override
-    public Fluid getSource() {
-        return ModFluids.DIRTY_WATER.get();
-    }
 
     @Override
     public Item getBucket() {
@@ -64,20 +55,16 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
         return 100.0F;
     }
 
-    public static Properties createProperties() {
-        return new Properties(() -> ModFluids.DIRTY_WATER, () -> ModFluids.DIRTY_WATER_FLOWING,
-                FluidAttributes.builder(
-                        new ResourceLocation("minecraft", "block/water_still"),
-                        new ResourceLocation("minecraft", "block/water_flow"))
-                        .translationKey("fluid.examplemod.dirty_water")
-                        .color(0xFF8B8B8B)) // Gray color
-                .block(() -> (ForgeFlowingFluid.FlowingFluidBlock) ModBlocks.DIRTY_WATER_BLOCK.get())
-                .bucket(() -> ModItems.DIRTY_WATER_BUCKET.get());
-    }
-
     public static class Source extends DirtyWaterFluid {
         public Source() {
-            super(createProperties());
+            super(new Properties(null, null,
+                    FluidAttributes.builder(
+                            new ResourceLocation("minecraft", "block/water_still"),
+                            new ResourceLocation("minecraft", "block/water_flow"))
+                            .translationKey("fluid.examplemod.dirty_water")
+                            .color(0xFF8B8B8B)) // Gray color
+                    .block(() -> (net.minecraftforge.fluids.ForgeFlowingFluid.FlowingFluidBlock) ModBlocks.DIRTY_WATER_BLOCK.get())
+                    .bucket(() -> ModItems.DIRTY_WATER_BUCKET.get()));
         }
 
         @Override
@@ -93,7 +80,14 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
 
     public static class Flowing extends DirtyWaterFluid {
         public Flowing() {
-            super(createProperties());
+            super(new Properties(null, null,
+                    FluidAttributes.builder(
+                            new ResourceLocation("minecraft", "block/water_still"),
+                            new ResourceLocation("minecraft", "block/water_flow"))
+                            .translationKey("fluid.examplemod.dirty_water")
+                            .color(0xFF8B8B8B)) // Gray color
+                    .block(() -> (net.minecraftforge.fluids.ForgeFlowingFluid.FlowingFluidBlock) ModBlocks.DIRTY_WATER_BLOCK.get())
+                    .bucket(() -> ModItems.DIRTY_WATER_BUCKET.get()));
         }
 
         @Override
