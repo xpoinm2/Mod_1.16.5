@@ -4,7 +4,7 @@ import com.example.examplemod.ModFluids;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.particles.DustParticleData;
+import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
@@ -12,7 +12,7 @@ import net.minecraftforge.fluids.ForgeFlowingFluid;
 import java.util.Random;
 
 public class DirtyWaterBlock extends FlowingFluidBlock {
-    private static final DustParticleData BLACK_DOT = new DustParticleData(0.0F, 0.0F, 0.0F, 0.05F);
+    private static final RedstoneParticleData BLACK_DOT = new RedstoneParticleData(0.0F, 0.0F, 0.0F, 0.05F);
 
     public DirtyWaterBlock() {
         super(() -> (ForgeFlowingFluid) ModFluids.DIRTY_WATER.get(),
