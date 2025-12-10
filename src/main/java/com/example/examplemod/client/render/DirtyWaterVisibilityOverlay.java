@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -38,10 +38,10 @@ public final class DirtyWaterVisibilityOverlay {
             return;
         }
 
-        Vec3 eyePosition = minecraft.player.getEyePosition(1.0F);
+        Vector3d eyePosition = minecraft.player.getEyePosition(1.0F);
         BlockPos eyeBlockPos = new BlockPos(eyePosition);
         FluidState fluidState = minecraft.level.getFluidState(eyeBlockPos);
-        if (!fluidState.getFluid().isSame(ModFluids.DIRTY_WATER.get())) {
+        if (!fluidState.getType().isSame(ModFluids.DIRTY_WATER.get())) {
             return;
         }
 
