@@ -107,7 +107,7 @@ public class BoneTongsItem extends Item {
             return ActionResultType.FAIL;
         }
 
-        BlockEntity blockEntity = world.getBlockEntity(context.getClickedPos());
+        net.minecraft.tileentity.TileEntity blockEntity = world.getBlockEntity(context.getClickedPos());
         if (blockEntity == null) {
             return ActionResultType.PASS;
         }

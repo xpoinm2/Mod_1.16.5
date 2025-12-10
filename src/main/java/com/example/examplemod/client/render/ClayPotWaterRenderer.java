@@ -1,6 +1,7 @@
 package com.example.examplemod.client.render;
 
 import com.example.examplemod.tileentity.ClayPotTileEntity;
+import com.example.examplemod.ModFluids;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -28,13 +30,22 @@ public class ClayPotWaterRenderer extends TileEntityRenderer<ClayPotTileEntity> 
         matrix.pushPose();
         matrix.translate(0.5D, 0, 0.5D);
         float fill = MathHelper.clamp(fluidAmount / (float) ClayPotTileEntity.CAPACITY, 0.0F, 1.0F);
-        renderInnerWater(matrix, buffer, light, overlay, fill);
+        boolean isDirtyWater = tile.getTank().getFluid().getFluid().isSame(ModFluids.DIRTY_WATER.get());
+        renderInnerWater(matrix, buffer, light, overlay, fill, isDirtyWater);
         matrix.popPose();
     }
-    private void renderInnerWater(MatrixStack matrix, IRenderTypeBuffer buffer, int light, int overlay, float fill) {
+    private void renderInnerWater(MatrixStack matrix, IRenderTypeBuffer buffer, int light, int overlay, float fill, boolean isDirtyWater) {
         IVertexBuilder builder = buffer.getBuffer(RenderType.translucent());
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(new ResourceLocation("textures/atlas/blocks.png")).apply(WATER_STILL);
-        int color = 0x3F76E4;
+
+        // Determine fluid type and color
+        int color;
+        if (isDirtyWater) {
+            color = 0x8B8B8B; // Gray color for dirty water
+        } else {
+            color = 0x3F76E4; // Blue color for regular water
+        }
+
         float r = ((color >> 16) & 0xFF) / 255.0F;
         float g = ((color >> 8) & 0xFF) / 255.0F;
         float b = (color & 0xFF) / 255.0F;

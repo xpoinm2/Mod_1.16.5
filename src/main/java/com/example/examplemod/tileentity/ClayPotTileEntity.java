@@ -1,6 +1,7 @@
 package com.example.examplemod.tileentity;
 
 import com.example.examplemod.ModTileEntities;
+import com.example.examplemod.ModFluids;
 import com.example.examplemod.block.ClayPotBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluids;
@@ -42,7 +43,7 @@ public class ClayPotTileEntity extends TileEntity {
 
         @Override
         public boolean isFluidValid(FluidStack stack) {
-            return stack.getFluid().isSame(Fluids.WATER);
+            return stack.getFluid().isSame(Fluids.WATER) || stack.getFluid().isSame(ModFluids.DIRTY_WATER.get());
         }
     };
 

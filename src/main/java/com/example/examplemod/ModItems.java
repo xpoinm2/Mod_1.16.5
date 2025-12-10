@@ -31,6 +31,7 @@ import com.example.examplemod.item.ClayPotBlockItem;
 import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
+import com.example.examplemod.item.DirtyWaterBucketItem;
 
 
 public class ModItems {
@@ -424,6 +425,10 @@ public class ModItems {
     public static final RegistryObject<Item> FIREPIT_BLOCK = ITEMS.register("firepit_block",
             () -> new BlockItem(ModBlocks.FIREPIT_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Ведро с грязной водой
+    public static final RegistryObject<Item> DIRTY_WATER_BUCKET = ITEMS.register("dirty_water_bucket",
+            DirtyWaterBucketItem::new);
 
 
     public static void register(IEventBus bus) {

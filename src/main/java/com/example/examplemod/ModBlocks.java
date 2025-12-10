@@ -7,6 +7,7 @@ import com.example.examplemod.block.ParadiseDoorBlock;
 import com.example.examplemod.block.ClayPotBlock;
 import com.example.examplemod.block.ClayShardsBlock;
 import com.example.examplemod.block.RawClayPotBlock;
+import com.example.examplemod.block.DirtyWaterBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
@@ -167,6 +168,10 @@ public class ModBlocks {
                     .strength(-1.0F, 3600000.0F)
                     .noDrops()
                     .lightLevel(state -> 12)));
+
+    // Блок грязной воды
+    public static final RegistryObject<Block> DIRTY_WATER_BLOCK = BLOCKS.register("dirty_water",
+            DirtyWaterBlock::new);
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
