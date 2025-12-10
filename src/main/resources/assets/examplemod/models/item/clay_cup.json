@@ -6,7 +6,13 @@
   "overrides": [
     {
       "predicate": {
-        "examplemod:filled": 1
+        "examplemod:fluid_state": 2
+      },
+      "model": "examplemod:item/clay_cup_dirty"
+    },
+    {
+      "predicate": {
+        "examplemod:fluid_state": 1
       },
       "model": "examplemod:item/clay_cup_filled"
     }

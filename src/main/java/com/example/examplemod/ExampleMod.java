@@ -31,11 +31,15 @@ import com.example.examplemod.server.RedMushroomHandler;
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -124,9 +128,22 @@ public class ExampleMod {
         RenderTypeLookup.setRenderLayer(ModBlocks.RAW_CLAY_POT.get(), RenderType.cutout());
 
         event.enqueueWork(() -> ItemModelsProperties.register(ModItems.CLAY_CUP.get(),
-                new ResourceLocation(ExampleMod.MODID, "filled"),
+                new ResourceLocation(ExampleMod.MODID, "fluid_state"),
                 (stack, world, entity) -> stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
-                        .map(handler -> handler.getFluidInTank(0).getAmount() > 0 ? 1.0F : 0.0F)
+                        .map(handler -> {
+                            FluidStack fluidStack = handler.getFluidInTank(0);
+                            if (fluidStack.isEmpty()) {
+                                return 0.0F;
+                            }
+                            Fluid fluid = fluidStack.getFluid();
+                            if (fluid.isSame(ModFluids.DIRTY_WATER.get())) {
+                                return 2.0F;
+                            }
+                            if (fluid.isSame(Fluids.WATER)) {
+                                return 1.0F;
+                            }
+                            return 0.0F;
+                        })
                         .orElse(0.0F)));
     }
 
