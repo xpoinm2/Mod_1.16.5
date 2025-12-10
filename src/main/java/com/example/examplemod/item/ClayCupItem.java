@@ -175,7 +175,7 @@ public class ClayCupItem extends Item {
         });
     }
 
-    private static class ClayCupFluidHandler extends FluidHandlerItemStackSimple {
+    protected static class ClayCupFluidHandler extends FluidHandlerItemStackSimple {
         private ClayCupFluidHandler(ItemStack container) {
             super(container, CAPACITY);
         }

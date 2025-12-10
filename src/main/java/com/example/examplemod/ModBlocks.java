@@ -173,6 +173,7 @@ public class ModBlocks {
     public static final RegistryObject<Block> DIRTY_WATER_BLOCK = BLOCKS.register("dirty_water",
             DirtyWaterBlock::new);
 
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }

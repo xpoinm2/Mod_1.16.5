@@ -26,8 +26,7 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
                     new ResourceLocation("minecraft", "block/water_flow"))
                     .translationKey("fluid.examplemod.dirty_water")
                     .color(0xFF8B8B8B))
-            .block(() -> (FlowingFluidBlock) ModBlocks.DIRTY_WATER_BLOCK.get())
-            .bucket(() -> ModItems.DIRTY_WATER_BUCKET.get());
+            .block(() -> (FlowingFluidBlock) ModBlocks.DIRTY_WATER_BLOCK.get());
 
     public DirtyWaterFluid() {
         super(PROPERTIES);
@@ -43,10 +42,6 @@ public abstract class DirtyWaterFluid extends ForgeFlowingFluid {
         return ModFluids.DIRTY_WATER.get();
     }
 
-    @Override
-    public Item getBucket() {
-        return ModItems.DIRTY_WATER_BUCKET.get();
-    }
 
     @Override
     protected boolean canConvertToSource() {

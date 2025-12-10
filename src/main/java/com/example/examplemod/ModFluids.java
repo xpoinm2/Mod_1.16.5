@@ -17,6 +17,7 @@ public class ModFluids {
     public static final RegistryObject<net.minecraft.fluid.Fluid> DIRTY_WATER_FLOWING = FLUIDS.register("dirty_water_flowing",
             DirtyWaterFluid.Flowing::new);
 
+
     public static void register(IEventBus bus) {
         FLUIDS.register(bus);
     }

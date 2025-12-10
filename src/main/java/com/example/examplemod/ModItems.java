@@ -152,6 +152,7 @@ public class ModItems {
             () -> new ClayCupItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
 
+
     // Сырой глиняный горшок: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_POT = ITEMS.register("raw_clay_pot",
             () -> new BlockItem(ModBlocks.RAW_CLAY_POT.get(),
@@ -426,10 +427,7 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.FIREPIT_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Ведро с грязной водой
-    public static final RegistryObject<Item> DIRTY_WATER_BUCKET = ITEMS.register("dirty_water_bucket",
-            () -> new net.minecraft.item.BucketItem(() -> ModFluids.DIRTY_WATER.get(),
-                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB).stacksTo(1)));
+
 
 
     public static void register(IEventBus bus) {
