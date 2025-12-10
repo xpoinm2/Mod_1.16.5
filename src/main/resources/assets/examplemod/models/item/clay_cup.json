@@ -6,15 +6,15 @@
   "overrides": [
     {
       "predicate": {
-        "examplemod:fluid_state": 2
-      },
-      "model": "examplemod:item/clay_cup_dirty"
-    },
-    {
-      "predicate": {
         "examplemod:fluid_state": 1
       },
       "model": "examplemod:item/clay_cup_filled"
+    },
+    {
+      "predicate": {
+        "examplemod:fluid_state": 2
+      },
+      "model": "examplemod:item/clay_cup_dirty"
     }
   ]
 }
