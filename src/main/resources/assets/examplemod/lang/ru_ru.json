@@ -106,6 +106,8 @@
   "tooltip.examplemod.clay_cup.empty": "Пусто",
   "tooltip.examplemod.clay_cup.water": "Вода: %s / %s",
   "tooltip.examplemod.clay_pot.capacity": "Ёмкость: %s",
+  "tooltip.examplemod.clay_pot.empty": "Пусто",
+  "tooltip.examplemod.clay_pot.water": "Жидкость: %s / %s",
   "tooltip.examplemod.fluid.liters": "%s л",
   "tooltip.examplemod.fluid.milliliters": "%s мл",
   "key.examplemod.main_page": "Интерфейс игрока",

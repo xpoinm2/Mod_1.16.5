@@ -106,6 +106,8 @@
   "tooltip.examplemod.clay_cup.empty": "Empty",
   "tooltip.examplemod.clay_cup.water": "Water: %s / %s",
   "tooltip.examplemod.clay_pot.capacity": "Capacity: %s",
+  "tooltip.examplemod.clay_pot.empty": "Empty",
+  "tooltip.examplemod.clay_pot.water": "Fluid: %s / %s",
   "tooltip.examplemod.fluid.liters": "%s L",
   "tooltip.examplemod.fluid.milliliters": "%s mL",
   "key.examplemod.main_page": "Player Interface",

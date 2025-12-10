@@ -1,8 +1,8 @@
 {
   "parent": "block/water",
   "textures": {
-    "particle": "minecraft:block/water_still",
-    "water_still": "minecraft:block/water_still",
-    "water_flow": "minecraft:block/water_flow"
+    "particle": "examplemod:block/dirty_water_still",
+    "water_still": "examplemod:block/dirty_water_still",
+    "water_flow": "examplemod:block/dirty_water_flow"
   }
 }

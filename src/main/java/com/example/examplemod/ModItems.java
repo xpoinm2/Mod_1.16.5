@@ -168,6 +168,11 @@ public class ModItems {
             () -> new ClayShardsBlockItem(ModBlocks.CLAY_SHARDS.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Блок грязной воды
+    public static final RegistryObject<Item> DIRTY_WATER_BLOCK_ITEM = ITEMS.register("dirty_water",
+            () -> new BlockItem(ModBlocks.DIRTY_WATER_BLOCK.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Деревянный гребень: получается из ветки и отесанного камня
     public static final RegistryObject<Item> WOODEN_COMB = ITEMS.register("wooden_comb",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
