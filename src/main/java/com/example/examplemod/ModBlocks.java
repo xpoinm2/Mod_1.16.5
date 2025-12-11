@@ -540,7 +540,7 @@ public class ModBlocks {
                 return state.getValue(X) == 1 && state.getValue(Z) == 1;
             }
 
-            private static BlockPos getMasterPos(BlockPos pos, BlockState state) {
+            public static BlockPos getMasterPos(BlockPos pos, BlockState state) {
                 int xOffset = state.getValue(X);
                 int zOffset = state.getValue(Z);
                 BlockPos start = pos.offset(-xOffset, 0, -zOffset);

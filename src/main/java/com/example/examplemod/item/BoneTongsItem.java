@@ -1,5 +1,6 @@
 package com.example.examplemod.item;
 
+import com.example.examplemod.ModBlocks;
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.tileentity.FirepitTileEntity;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ActionResult;
@@ -107,7 +109,14 @@ public class BoneTongsItem extends Item {
             return ActionResultType.FAIL;
         }
 
-        net.minecraft.tileentity.TileEntity blockEntity = world.getBlockEntity(context.getClickedPos());
+        BlockPos clickedPos = context.getClickedPos();
+        BlockState clickedState = world.getBlockState(clickedPos);
+        BlockPos firepitPos = clickedPos;
+        net.minecraft.tileentity.TileEntity blockEntity = world.getBlockEntity(clickedPos);
+        if (blockEntity == null && clickedState.getBlock() instanceof ModBlocks.FirepitBlock) {
+            firepitPos = ModBlocks.FirepitBlock.getMasterPos(clickedPos, clickedState);
+            blockEntity = world.getBlockEntity(firepitPos);
+        }
         if (blockEntity == null) {
             return ActionResultType.PASS;
         }
@@ -117,7 +126,7 @@ public class BoneTongsItem extends Item {
 
         if (blockEntity instanceof FirepitTileEntity) {
             FirepitTileEntity firepit = (FirepitTileEntity) blockEntity;
-            transferred = tryTransferWithFirepit(world, firepit, held, player, context.getHand(), context.getClickedPos(), mode);
+            transferred = tryTransferWithFirepit(world, firepit, held, player, context.getHand(), firepitPos, mode);
         } else if (blockEntity instanceof AbstractFurnaceTileEntity) {
             AbstractFurnaceTileEntity furnace = (AbstractFurnaceTileEntity) blockEntity;
             transferred = tryTransferWithFurnace(world, furnace, held, player, context.getHand(), context.getClickedPos(), mode);
@@ -125,8 +134,8 @@ public class BoneTongsItem extends Item {
 
         if (transferred) {
             held.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(context.getHand()));
-            world.sendBlockUpdated(context.getClickedPos(), world.getBlockState(context.getClickedPos()),
-                                   world.getBlockState(context.getClickedPos()), 3);
+            world.sendBlockUpdated(firepitPos, world.getBlockState(firepitPos),
+                                   world.getBlockState(firepitPos), 3);
         }
 
         return transferred ? ActionResultType.SUCCESS : ActionResultType.PASS;
