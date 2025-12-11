@@ -4,6 +4,7 @@ import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.block.ClayPotBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -21,6 +22,9 @@ import javax.annotation.Nullable;
 
 public class ClayPotTileEntity extends TileEntity {
     public static final int CAPACITY = 8000;
+    private static final int WASHES_BEFORE_DIRTY = 12;
+    private int oreWashCount = 0;
+    private Fluid lastKnownFluid = Fluids.EMPTY;
 
        // Добавлено: getter для TESR (строки 45-48)
                public int getWaterLevel() {
@@ -31,6 +35,7 @@ public class ClayPotTileEntity extends TileEntity {
         @Override
         protected void onContentsChanged() {
             super.onContentsChanged();
+            ClayPotTileEntity.this.handleTankContentsChanged();
             ClayPotTileEntity.this.setChanged();
             if (level != null && !level.isClientSide) {
                 BlockState previous = getBlockState();
@@ -78,16 +83,46 @@ public class ClayPotTileEntity extends TileEntity {
         }
     }
 
+    private void handleTankContentsChanged() {
+        Fluid current = tank.getFluid().getFluid();
+        if (!current.isSame(lastKnownFluid)) {
+            lastKnownFluid = current;
+            oreWashCount = 0;
+        }
+    }
+
+    public boolean canWashOre() {
+        FluidStack fluid = tank.getFluid();
+        return fluid.getAmount() >= CAPACITY && fluid.getFluid().isSame(Fluids.WATER);
+    }
+
+    public void recordOreWash() {
+        if (!canWashOre()) {
+            return;
+        }
+        oreWashCount++;
+        if (oreWashCount >= WASHES_BEFORE_DIRTY) {
+            int amount = tank.getFluidAmount();
+            if (amount > 0) {
+                tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), amount));
+            }
+            oreWashCount = 0;
+        }
+    }
+
     @Override
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
         tank.readFromNBT(nbt.getCompound("Tank"));
+        oreWashCount = nbt.getInt("WashCount");
+        lastKnownFluid = tank.getFluid().getFluid();
     }
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         super.save(nbt);
         nbt.put("Tank", tank.writeToNBT(new CompoundNBT()));
+        nbt.putInt("WashCount", oreWashCount);
         return nbt;
     }
 

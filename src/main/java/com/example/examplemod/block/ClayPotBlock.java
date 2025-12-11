@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -76,6 +77,24 @@ public class ClayPotBlock extends Block {
         ItemStack heldStack = player.getItemInHand(hand);
 
         if (!heldStack.isEmpty()) {
+            TileEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof ClayPotTileEntity) {
+                ClayPotTileEntity pot = (ClayPotTileEntity) tile;
+                Item resultItem = getCleanOreResult(heldStack.getItem());
+                if (resultItem != null && pot.canWashOre()) {
+                    if (!world.isClientSide) {
+                        if (!player.abilities.instabuild) {
+                            heldStack.shrink(1);
+                        }
+                        ItemStack cleanedStack = new ItemStack(resultItem);
+                        if (!player.addItem(cleanedStack)) {
+                            player.drop(cleanedStack, false);
+                        }
+                        pot.recordOreWash();
+                    }
+                    return ActionResultType.sidedSuccess(world.isClientSide);
+                }
+            }
             return ActionResultType.PASS;
         }
 
@@ -129,5 +148,15 @@ public class ClayPotBlock extends Block {
         if (!world.isClientSide) {
             world.setBlock(pos, ModBlocks.CLAY_SHARDS.get().defaultBlockState(), 3);
         }
+    }
+
+    private static Item getCleanOreResult(Item dirtyOre) {
+        if (dirtyOre == ModItems.DIRTY_GRAVEL_TIN_ORE.get()) {
+            return ModItems.CLEANED_GRAVEL_TIN_ORE.get();
+        }
+        if (dirtyOre == ModItems.DIRTY_GRAVEL_GOLD_ORE.get()) {
+            return ModItems.CLEANED_GRAVEL_GOLD_ORE.get();
+        }
+        return null;
     }
 }
