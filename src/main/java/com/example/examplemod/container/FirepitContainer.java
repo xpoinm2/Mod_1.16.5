@@ -2,6 +2,8 @@ package com.example.examplemod.container;
 
 import com.example.examplemod.ModContainers;
 import com.example.examplemod.ModItems;
+import com.example.examplemod.item.BoneTongsItem;
+import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -14,11 +16,20 @@ import net.minecraft.util.IIntArray;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class FirepitContainer extends Container {
     private final IInventory firepitInv;
     private final FirepitTileEntity tileEntity;
     private final IIntArray dataAccess;
+    private final IItemHandler tongsHandler;
+    private final int tongsSlotStart;
+    private final int tongsSlotEnd;
+
+    public static final int TONGS_SLOT_X = 8;
+    public static final int TONGS_SLOT_Y = 20;
 
     public FirepitContainer(int id, PlayerInventory playerInv, PacketBuffer buffer) {
         this(id, playerInv, getTileEntity(playerInv, buffer));
@@ -29,6 +40,9 @@ public class FirepitContainer extends Container {
         this.tileEntity = tileEntity;
         this.firepitInv = tileEntity;
         this.dataAccess = tileEntity.getDataAccess();
+        this.tongsHandler = findTongsHandler(playerInv.player);
+        this.tongsSlotStart = 13;
+        this.tongsSlotEnd = this.tongsSlotStart + (tongsHandler != null ? tongsHandler.getSlots() : 0);
         // FirepitTileEntity exposes 13 inventory slots (12 inputs + 1 fuel).
         // The previous double check (for 14 and then 13 slots) caused the
         // container construction to throw, preventing the GUI from opening.
@@ -64,6 +78,12 @@ public class FirepitContainer extends Container {
                 return AbstractFurnaceTileEntity.isFuel(stack);
             }
         });
+
+        if (tongsHandler != null) {
+            for (int slot = 0; slot < tongsHandler.getSlots(); slot++) {
+                this.addSlot(new SlotItemHandler(tongsHandler, slot, TONGS_SLOT_X, TONGS_SLOT_Y + slot * 18));
+            }
+        }
 
         // Player inventory (3×9)
         for (int row = 0; row < 3; ++row) {
@@ -132,24 +152,33 @@ public class FirepitContainer extends Container {
             ItemStack stack = slot.getItem();
             result = stack.copy();
 
-            int containerSlots = 13;
-            int playerInvStart = containerSlots;
+            int firepitSlots = 13;
+            int playerInvStart = tongsSlotEnd;
             int playerInvEnd = playerInvStart + 27;
             int hotbarStart = playerInvEnd;
             int hotbarEnd = hotbarStart + 9;
 
-            if (index < containerSlots) {
-                if (!this.moveItemStackTo(stack, containerSlots, this.slots.size(), true)) {
+            if (index < firepitSlots) {
+                if (!tryMoveToTongs(stack)) {
+                    if (!this.moveItemStackTo(stack, playerInvStart, this.slots.size(), true)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+            } else if (index >= firepitSlots && index < tongsSlotEnd) {
+                if (!this.moveItemStackTo(stack, 0, firepitSlots, false)
+                        && !this.moveItemStackTo(stack, playerInvStart, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else if (tileEntity != null && tileEntity.isSmeltable(stack)) {
-                if (!this.moveItemStackTo(stack, 0, 12, false)) {
+                if (!this.moveItemStackTo(stack, 0, 12, false) && !tryMoveToTongs(stack)) {
                     return ItemStack.EMPTY;
                 }
             } else if (AbstractFurnaceTileEntity.isFuel(stack)) {
                 if (!this.moveItemStackTo(stack, 12, 13, false)) {
                     return ItemStack.EMPTY;
                 }
+            } else if (tryMoveToTongs(stack)) {
+                // Successfully moved to tongs.
             } else if (index >= playerInvStart && index < playerInvEnd) {
                 if (!this.moveItemStackTo(stack, hotbarStart, hotbarEnd, false)) {
                     return ItemStack.EMPTY;
@@ -158,7 +187,7 @@ public class FirepitContainer extends Container {
                 if (!this.moveItemStackTo(stack, playerInvStart, playerInvEnd, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(stack, containerSlots, this.slots.size(), false)) {
+            } else if (!this.moveItemStackTo(stack, playerInvStart, this.slots.size(), false)) {
                 return ItemStack.EMPTY;
             }
 
@@ -176,5 +205,32 @@ public class FirepitContainer extends Container {
         }
 
         return result;
+    }
+    
+    private boolean tryMoveToTongs(ItemStack stack) {
+        if (tongsHandler == null || !(stack.getItem() instanceof HotRoastedOreItem)) {
+            return false;
+        }
+        return this.moveItemStackTo(stack, tongsSlotStart, tongsSlotEnd, false);
+    }
+
+    public boolean hasTongsSlots() {
+        return tongsHandler != null;
+    }
+
+    private static IItemHandler findTongsHandler(PlayerEntity player) {
+        ItemStack mainHand = player.getMainHandItem();
+        if (mainHand.getItem() instanceof BoneTongsItem) {
+            return mainHand.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+                    .orElse(null);
+        }
+
+        ItemStack offHand = player.getOffhandItem();
+        if (offHand.getItem() instanceof BoneTongsItem) {
+            return offHand.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+                    .orElse(null);
+        }
+
+        return null;
     }
 }

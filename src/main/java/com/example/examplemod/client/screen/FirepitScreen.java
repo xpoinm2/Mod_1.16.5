@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Locale;
 
@@ -55,6 +56,16 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         this.minecraft.getTextureManager().bind(TEXTURE);
         blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
+        if (this.menu.hasTongsSlots()) {
+            int slotAreaLeft = this.leftPos + FirepitContainer.TONGS_SLOT_X - 2;
+            int slotAreaTop = this.topPos + FirepitContainer.TONGS_SLOT_Y - 2;
+            int slotAreaRight = slotAreaLeft + 22;
+            int slotAreaBottom = slotAreaTop + 2 * 18 + 2;
+            // Simple frame to highlight the attached tongs inventory.
+            fill(matrixStack, slotAreaLeft, slotAreaTop, slotAreaRight, slotAreaBottom, 0x88303030);
+            fill(matrixStack, slotAreaLeft + 1, slotAreaTop + 1, slotAreaRight - 1, slotAreaBottom - 1, 0xAA4A4A4A);
+        }
+
         int barWidth = 6;
         int barTop = this.topPos + 8;
         int inventoryTop = this.topPos + this.inventoryLabelY + 10;
@@ -94,5 +105,13 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         this.font.draw(matrixStack, this.title, this.titleLabelX, this.titleLabelY, 0xFF0000);
         // Draw the player inventory label in red
         this.font.draw(matrixStack, this.inventory.getDisplayName(), this.inventoryLabelX, this.inventoryLabelY, 0xFF0000);
+        
+        if (this.menu.hasTongsSlots()) {
+            ITextComponent tongsLabel = new TranslationTextComponent("container.examplemod.bone_tongs");
+            this.font.draw(matrixStack, tongsLabel,
+                    FirepitContainer.TONGS_SLOT_X + 2,
+                    FirepitContainer.TONGS_SLOT_Y - 10,
+                    0xFF7A7A7A);
+        }
     }
 }
