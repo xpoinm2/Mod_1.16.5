@@ -12,7 +12,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class FirepitRenderer extends TileEntityRenderer<FirepitTileEntity> {
-    private static final int SMOKE_THRESHOLD = 60; // Heat level at which smoke starts appearing
+    private static final int SMOKE_THRESHOLD = FirepitTileEntity.MIN_HEAT_FOR_SMELTING;
+    // Keep smoke synced with the GUI heat bar threshold.
     private static final float SMOKE_HEIGHT = 1.2f; // Height above the block to render smoke
 
     public FirepitRenderer(TileEntityRendererDispatcher rendererDispatcher) {
