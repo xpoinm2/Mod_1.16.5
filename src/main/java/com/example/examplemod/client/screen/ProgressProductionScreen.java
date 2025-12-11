@@ -43,6 +43,7 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton scrapedLeatherButton;
     private ItemIconButton clayPotButton;
     private ItemIconButton clayCupButton;
+    private ItemIconButton boneTongsButton;
 
 
     private int offsetX;
@@ -99,6 +100,8 @@ public class ProgressProductionScreen extends Screen {
         // Only show quests if coming from Ancient World era, not Ancient Metallurgy era
         if (parent instanceof ProgressEraScreen) {
             initQuests();
+        } else if (parent instanceof AncientMetallurgyEraScreen) {
+            initMetallurgyQuests();
         }
 
         updateNodePositions();
@@ -264,6 +267,21 @@ public class ProgressProductionScreen extends Screen {
         addConnection(clayPotNode, clayCupNode, this::getClayCupState);
     }
 
+    private void initMetallurgyQuests() {
+        int baseX = 140;
+        int baseY = 130;
+        this.boneTongsButton = new ItemIconButton(baseX, baseY,
+                new ItemStack(ModItems.BONE_TONGS.get()),
+                b -> this.minecraft.setScreen(new BoneTongsQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Костяные щипцы")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Пройти древний мир")
+                                        .withStyle(TextFormatting.GOLD))));
+        registerNode(this.boneTongsButton, baseX, baseY);
+    }
+
     @Override
     public boolean isPauseScreen() {
         return true;
@@ -278,20 +296,23 @@ public class ProgressProductionScreen extends Screen {
 
             updateNodePositions();
 
-            // Only render quests if coming from Ancient World era
-            if (parent instanceof ProgressEraScreen) {
-                this.planksButton.setBorderColor(colorForState(getPlanksState()));
-                this.slabsButton.setBorderColor(colorForState(getSlabsState()));
-                this.cobbleSlabButton.setBorderColor(colorForState(getCobbleSlabState()));
-                this.stoneToolsButton.setBorderColor(colorForState(getStoneToolsState()));
-                this.boneToolsButton.setBorderColor(colorForState(getBoneToolsState()));
-                this.combButton.setBorderColor(colorForState(getCombState()));
-                this.startHammersButton.setBorderColor(colorForState(getStartHammersState()));
-                this.roughKnivesButton.setBorderColor(colorForState(getRoughKnivesState()));
-                this.scrapedLeatherButton.setBorderColor(colorForState(getScrapedLeatherState()));
-                this.clayPotButton.setBorderColor(colorForState(getClayPotState()));
-                this.clayCupButton.setBorderColor(colorForState(getClayCupState()));
+        if (parent instanceof ProgressEraScreen) {
+            this.planksButton.setBorderColor(colorForState(getPlanksState()));
+            this.slabsButton.setBorderColor(colorForState(getSlabsState()));
+            this.cobbleSlabButton.setBorderColor(colorForState(getCobbleSlabState()));
+            this.stoneToolsButton.setBorderColor(colorForState(getStoneToolsState()));
+            this.boneToolsButton.setBorderColor(colorForState(getBoneToolsState()));
+            this.combButton.setBorderColor(colorForState(getCombState()));
+            this.startHammersButton.setBorderColor(colorForState(getStartHammersState()));
+            this.roughKnivesButton.setBorderColor(colorForState(getRoughKnivesState()));
+            this.scrapedLeatherButton.setBorderColor(colorForState(getScrapedLeatherState()));
+            this.clayPotButton.setBorderColor(colorForState(getClayPotState()));
+            this.clayCupButton.setBorderColor(colorForState(getClayCupState()));
+        } else if (parent instanceof AncientMetallurgyEraScreen) {
+            if (this.boneTongsButton != null) {
+                this.boneTongsButton.setBorderColor(colorForState(getBoneTongsState()));
             }
+        }
 
             // Clip content within panel bounds
             enableScissor(PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
@@ -425,6 +446,13 @@ private QuestState getBoneToolsState() {
     }
     return QuestManager.isBoneToolsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
 }
+
+    private QuestState getBoneTongsState() {
+        if (!QuestManager.isAncientWorldCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isBoneTongsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
 
 private QuestState getCombState() {
     boolean unlocked = QuestManager.isBigBonesCompleted()

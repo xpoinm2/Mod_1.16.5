@@ -9,6 +9,7 @@ public class QuestManager {
     private static boolean sharpenedBoneCompleted = false;
     private static boolean stoneToolsCompleted = false;
     private static boolean boneToolsCompleted = false;
+    private static boolean boneTongsCompleted = false;
     private static boolean combsCompleted = false;
     private static boolean flaxFibersCompleted = false;
     private static boolean branchCompleted = false;
@@ -97,6 +98,14 @@ public class QuestManager {
 
     public static void setBoneToolsCompleted(boolean value) {
         boneToolsCompleted = value;
+    }
+
+    public static boolean isBoneTongsCompleted() {
+        return boneTongsCompleted;
+    }
+
+    public static void setBoneTongsCompleted(boolean value) {
+        boneTongsCompleted = value;
     }
 
     public static boolean isCombsCompleted() {
@@ -343,5 +352,6 @@ public class QuestManager {
         unrefinedGoldOreCompleted = false;
         cleanedGravelTinOreCompleted = false;
         cleanedGravelGoldOreCompleted = false;
+        boneTongsCompleted = false;
     }
 }
