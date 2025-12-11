@@ -28,6 +28,7 @@ import com.example.examplemod.item.HeavenTicketItem;
 import com.example.examplemod.item.BranchItem;
 import com.example.examplemod.item.ClayCupItem;
 import com.example.examplemod.item.ClayPotBlockItem;
+import com.example.examplemod.item.ClayPotWashableBlockItem;
 import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
@@ -339,7 +340,7 @@ public class ModItems {
 
     // Грязная гравийная оловянная руда
     public static final RegistryObject<Item> DIRTY_GRAVEL_TIN_ORE = ITEMS.register("dirty_gravel_tin_ore",
-            () -> new BlockItem(ModBlocks.TIN_GRAVEL_ORE.get(),
+            () -> new ClayPotWashableBlockItem(ModBlocks.TIN_GRAVEL_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Неочищенная оловянная руда
@@ -349,7 +350,7 @@ public class ModItems {
 
     // Грязная гравийная золотая руда
     public static final RegistryObject<Item> DIRTY_GRAVEL_GOLD_ORE = ITEMS.register("dirty_gravel_gold_ore",
-            () -> new BlockItem(ModBlocks.GOLD_GRAVEL_ORE.get(),
+            () -> new ClayPotWashableBlockItem(ModBlocks.GOLD_GRAVEL_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Неочищенная золотая руда

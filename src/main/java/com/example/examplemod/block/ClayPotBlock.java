@@ -77,23 +77,8 @@ public class ClayPotBlock extends Block {
         ItemStack heldStack = player.getItemInHand(hand);
 
         if (!heldStack.isEmpty()) {
-            TileEntity tile = world.getBlockEntity(pos);
-            if (tile instanceof ClayPotTileEntity) {
-                ClayPotTileEntity pot = (ClayPotTileEntity) tile;
-                Item resultItem = getCleanOreResult(heldStack.getItem());
-                if (resultItem != null && pot.canWashOre()) {
-                    if (!world.isClientSide) {
-                        if (!player.abilities.instabuild) {
-                            heldStack.shrink(1);
-                        }
-                        ItemStack cleanedStack = new ItemStack(resultItem);
-                        if (!player.addItem(cleanedStack)) {
-                            player.drop(cleanedStack, false);
-                        }
-                        pot.recordOreWash();
-                    }
-                    return ActionResultType.sidedSuccess(world.isClientSide);
-                }
+            if (tryWashOre(world, pos, player, heldStack)) {
+                return ActionResultType.sidedSuccess(world.isClientSide);
             }
             return ActionResultType.PASS;
         }
@@ -111,6 +96,29 @@ public class ClayPotBlock extends Block {
         }
 
         return ActionResultType.sidedSuccess(world.isClientSide);
+    }
+
+    public static boolean tryWashOre(World world, BlockPos pos, PlayerEntity player, ItemStack heldStack) {
+        TileEntity tile = world.getBlockEntity(pos);
+        if (!(tile instanceof ClayPotTileEntity)) {
+            return false;
+        }
+        ClayPotTileEntity pot = (ClayPotTileEntity) tile;
+        Item resultItem = getCleanOreResult(heldStack.getItem());
+        if (resultItem == null || !pot.canWashOre()) {
+            return false;
+        }
+        if (!world.isClientSide()) {
+            if (!player.abilities.instabuild) {
+                heldStack.shrink(1);
+            }
+            ItemStack cleanedStack = new ItemStack(resultItem);
+            if (!player.addItem(cleanedStack)) {
+                player.drop(cleanedStack, false);
+            }
+            pot.recordOreWash();
+        }
+        return true;
     }
 
     @Override
