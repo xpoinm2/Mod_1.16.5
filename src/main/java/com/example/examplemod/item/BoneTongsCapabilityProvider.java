@@ -1,6 +1,5 @@
 package com.example.examplemod.item;
 
-import com.example.examplemod.item.HotRoastedOreItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -65,16 +64,6 @@ public class BoneTongsCapabilityProvider implements ICapabilitySerializable<Comp
             super.onContentsChanged(slot);
             CompoundNBT tag = parentStack.getOrCreateTag();
             tag.put(INVENTORY_TAG, serializeNBT());
-        }
-
-        @Override
-        public int getSlotLimit(int slot) {
-            return 1;
-        }
-
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof HotRoastedOreItem;
         }
 
         @Override
