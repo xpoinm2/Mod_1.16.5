@@ -8,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -45,14 +45,16 @@ class ExtraInventoryKeyPressHandler {
             return;
         }
 
-        HitResult hit = mc.hitResult;
-        if (!(hit instanceof EntityHitResult entityHit)) {
+        RayTraceResult hit = mc.hitResult;
+        if (!(hit instanceof EntityRayTraceResult)) {
             return;
         }
+        EntityRayTraceResult entityHit = (EntityRayTraceResult) hit;
 
-        if (!(entityHit.getEntity() instanceof ItemEntity itemEntity)) {
+        if (!(entityHit.getEntity() instanceof ItemEntity)) {
             return;
         }
+        ItemEntity itemEntity = (ItemEntity) entityHit.getEntity();
 
         ItemStack stack = itemEntity.getItem();
         if (stack.isEmpty() || !itemEntity.isAlive()) {

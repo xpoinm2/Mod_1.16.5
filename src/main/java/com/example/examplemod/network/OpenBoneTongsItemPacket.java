@@ -40,7 +40,11 @@ public class OpenBoneTongsItemPacket {
 
             World world = player.level;
             Entity entity = world.getEntity(message.entityId);
-            if (!(entity instanceof ItemEntity itemEntity) || !itemEntity.isAlive()) {
+            if (!(entity instanceof ItemEntity)) {
+                return;
+            }
+            ItemEntity itemEntity = (ItemEntity) entity;
+            if (!itemEntity.isAlive()) {
                 return;
             }
 
