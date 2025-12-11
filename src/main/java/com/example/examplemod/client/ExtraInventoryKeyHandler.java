@@ -6,11 +6,10 @@ import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,14 +45,13 @@ class ExtraInventoryKeyPressHandler {
             return;
         }
 
-        RayTraceResult hit = mc.objectMouseOver;
-        if (hit instanceof EntityRayTraceResult entityHit) {
-            if (entityHit.getEntity() instanceof ItemEntity itemEntity) {
-                ItemStack stack = itemEntity.getItem();
-                if (!stack.isEmpty() && itemEntity.isAlive() && stack.getItem() == ModItems.BONE_TONGS.get()) {
-                    ModNetworkHandler.CHANNEL.sendToServer(new OpenBoneTongsItemPacket(itemEntity.getId()));
-                    return;
-                }
+        Entity target = mc.crosshairPickEntity;
+        if (target instanceof ItemEntity) {
+            ItemEntity itemEntity = (ItemEntity) target;
+            ItemStack stack = itemEntity.getItem();
+            if (!stack.isEmpty() && itemEntity.isAlive() && stack.getItem() == ModItems.BONE_TONGS.get()) {
+                ModNetworkHandler.CHANNEL.sendToServer(new OpenBoneTongsItemPacket(itemEntity.getId()));
+                return;
             }
         }
 
