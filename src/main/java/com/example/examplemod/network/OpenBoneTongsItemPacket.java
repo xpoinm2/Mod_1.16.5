@@ -39,16 +39,22 @@ public class OpenBoneTongsItemPacket {
             }
 
             World world = player.level;
-            Entity entity = world.getEntity(message.entityId);
-            if (!(entity instanceof ItemEntity)) {
-                return;
-            }
-            ItemEntity itemEntity = (ItemEntity) entity;
-            if (!itemEntity.isAlive()) {
-                return;
+            ItemStack stack;
+            if (message.entityId >= 0) {
+                Entity entity = world.getEntity(message.entityId);
+                if (!(entity instanceof ItemEntity)) {
+                    return;
+                }
+                ItemEntity itemEntity = (ItemEntity) entity;
+                if (!itemEntity.isAlive()) {
+                    return;
+                }
+
+                stack = itemEntity.getItem();
+            } else {
+                stack = getBoneTongsFromHands(player);
             }
 
-            ItemStack stack = itemEntity.getItem();
             if (stack.isEmpty() || stack.getItem() != ModItems.BONE_TONGS.get()) {
                 return;
             }
@@ -61,6 +67,20 @@ public class OpenBoneTongsItemPacket {
                     buffer -> buffer.writeItem(stack));
         });
         context.setPacketHandled(true);
+    }
+
+    private static ItemStack getBoneTongsFromHands(ServerPlayerEntity player) {
+        ItemStack mainHand = player.getMainHandItem();
+        if (!mainHand.isEmpty() && mainHand.getItem() == ModItems.BONE_TONGS.get()) {
+            return mainHand;
+        }
+
+        ItemStack offHand = player.getOffhandItem();
+        if (!offHand.isEmpty() && offHand.getItem() == ModItems.BONE_TONGS.get()) {
+            return offHand;
+        }
+
+        return ItemStack.EMPTY;
     }
 }
 

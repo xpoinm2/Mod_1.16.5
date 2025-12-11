@@ -7,6 +7,7 @@ import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -45,27 +46,36 @@ class ExtraInventoryKeyPressHandler {
             return;
         }
 
-        RayTraceResult hit = mc.hitResult;
-        if (!(hit instanceof EntityRayTraceResult)) {
-            return;
-        }
-        EntityRayTraceResult entityHit = (EntityRayTraceResult) hit;
-
-        if (!(entityHit.getEntity() instanceof ItemEntity)) {
-            return;
-        }
-        ItemEntity itemEntity = (ItemEntity) entityHit.getEntity();
-
-        ItemStack stack = itemEntity.getItem();
-        if (stack.isEmpty() || !itemEntity.isAlive()) {
-            return;
+        RayTraceResult hit = mc.objectMouseOver;
+        if (hit instanceof EntityRayTraceResult entityHit) {
+            if (entityHit.getEntity() instanceof ItemEntity itemEntity) {
+                ItemStack stack = itemEntity.getItem();
+                if (!stack.isEmpty() && itemEntity.isAlive() && stack.getItem() == ModItems.BONE_TONGS.get()) {
+                    ModNetworkHandler.CHANNEL.sendToServer(new OpenBoneTongsItemPacket(itemEntity.getId()));
+                    return;
+                }
+            }
         }
 
-        if (stack.getItem() != ModItems.BONE_TONGS.get()) {
+        if (tryOpenHeldBoneTongs(mc.player)) {
             return;
         }
+    }
 
-        ModNetworkHandler.CHANNEL.sendToServer(new OpenBoneTongsItemPacket(itemEntity.getId()));
+    private static boolean tryOpenHeldBoneTongs(PlayerEntity player) {
+        ItemStack mainHand = player.getMainHandItem();
+        if (!mainHand.isEmpty() && mainHand.getItem() == ModItems.BONE_TONGS.get()) {
+            ModNetworkHandler.CHANNEL.sendToServer(new OpenBoneTongsItemPacket(-1));
+            return true;
+        }
+
+        ItemStack offHand = player.getOffhandItem();
+        if (!offHand.isEmpty() && offHand.getItem() == ModItems.BONE_TONGS.get()) {
+            ModNetworkHandler.CHANNEL.sendToServer(new OpenBoneTongsItemPacket(-1));
+            return true;
+        }
+
+        return false;
     }
 }
 
