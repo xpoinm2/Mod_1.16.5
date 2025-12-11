@@ -52,7 +52,7 @@ public class CalcinedTinOreQuestScreen extends AbstractQuestScreen {
         y = drawParagraph(ms, x, y, innerWidth,
                 "Размещайте очищённую гравийную оловянную руду на кострище, она сначала превратится в горячую обожжённую руду.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "Горячая руда сильно обжигает, не держите её в руках и убирайте в кожаные мешки.", 0xFFFFFF00);
+                "Горячая руда сильно обжигает, поэтому перекладывайте её щипцами, чтобы не получить ожог.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
                 "После остывания куски превращаются в обожжённую оловянную руду, готовую к переплавке.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,

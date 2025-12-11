@@ -30,11 +30,17 @@ public class CalcinedIronOreQuestScreen extends AbstractQuestScreen {
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth,
-                "Получить 16 обожжённой железной руды", 0xFFFFFF00);
+                "Получить 16 горячей обожжённой железной руды и 16 обожжённой железной руды", 0xFFFFFF00);
         y += 6;
-        ItemStack stack = new ItemStack(ModItems.CALCINED_IRON_ORE.get(), 16);
-        if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
-            hoveredStack = stack;
+        int iconX = x;
+        ItemStack hotStack = new ItemStack(ModItems.HOT_IRON_ROASTED_ORE.get());
+        if (GuiUtil.renderItemWithTooltip(this, ms, hotStack, iconX, y, mouseX, mouseY)) {
+            hoveredStack = hotStack;
+        }
+        iconX += 22;
+        ItemStack calcinedStack = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+        if (GuiUtil.renderItemWithTooltip(this, ms, calcinedStack, iconX, y, mouseX, mouseY)) {
+            hoveredStack = calcinedStack;
         }
         y += 22;
         return y;
@@ -47,12 +53,15 @@ public class CalcinedIronOreQuestScreen extends AbstractQuestScreen {
                 "Разложите чистую железную руду на кострище.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
                 "Обожгите её до состояния обожжённой железной руды.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth,
+                "Горячую руду перекладывайте щипцами, чтобы не получить ожог.", 0xFFFFFF00);
         return y;
     }
 
     @Override
     protected boolean hasRequiredItems() {
         return this.minecraft.player != null
+                && this.minecraft.player.inventory.countItem(ModItems.HOT_IRON_ROASTED_ORE.get()) >= 16
                 && this.minecraft.player.inventory.countItem(ModItems.CALCINED_IRON_ORE.get()) >= 16;
     }
 

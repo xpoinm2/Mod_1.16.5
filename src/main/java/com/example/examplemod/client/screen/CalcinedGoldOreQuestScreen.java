@@ -52,7 +52,7 @@ public class CalcinedGoldOreQuestScreen extends AbstractQuestScreen {
         y = drawParagraph(ms, x, y, innerWidth,
                 "Кладите очищённую гравийную золотую руду на кострище, чтобы сначала получить горячую обожжённую руду.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "Горячая руда наносит урон при контакте, поэтому не держите её голыми руками и не носите рядом с кожей.", 0xFFFFFF00);
+                "Горячая руда наносит урон при контакте, поэтому перекладывайте её щипцами и держите подальше от кожи.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
                 "Когда горячая руда остынет, она превратится в обожжённую золотую руду, которую можно плавить дальше.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
