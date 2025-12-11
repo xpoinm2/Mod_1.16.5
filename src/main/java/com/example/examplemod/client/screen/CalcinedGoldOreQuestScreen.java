@@ -32,13 +32,14 @@ public class CalcinedGoldOreQuestScreen extends AbstractQuestScreen {
         y = drawParagraph(ms, x, y, innerWidth,
                 "Получить 16 горячей обожжённой золотой руды и 16 обожжённой золотой руды.", 0xFFFFFF00);
         y += 6;
+        int iconX = x;
         ItemStack hotStack = new ItemStack(ModItems.HOT_GOLD_ROASTED_ORE.get());
-        if (GuiUtil.renderItemWithTooltip(this, ms, hotStack, x, y, mouseX, mouseY)) {
+        if (GuiUtil.renderItemWithTooltip(this, ms, hotStack, iconX, y, mouseX, mouseY)) {
             hoveredStack = hotStack;
         }
-        y += 22;
+        iconX += 22;
         ItemStack calcinedStack = new ItemStack(ModItems.CALCINED_GOLD_ORE.get());
-        if (GuiUtil.renderItemWithTooltip(this, ms, calcinedStack, x, y, mouseX, mouseY)) {
+        if (GuiUtil.renderItemWithTooltip(this, ms, calcinedStack, iconX, y, mouseX, mouseY)) {
             hoveredStack = calcinedStack;
         }
         y += 22;
