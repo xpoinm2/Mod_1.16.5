@@ -115,5 +115,6 @@
   "key.examplemod.main_page": "Player Interface",
   "key.examplemod.activity": "Activity",
   "key.examplemod.progress": "Technology Progress",
+  "key.examplemod.extra_inventory": "Extra Inventory",
   "key.categories.examplemod": "ExampleMod"
 }

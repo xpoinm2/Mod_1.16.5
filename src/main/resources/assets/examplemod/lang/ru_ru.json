@@ -115,6 +115,7 @@
   "key.examplemod.main_page": "Интерфейс игрока",
   "key.examplemod.activity": "Активность",
   "key.examplemod.progress": "Технологический прогресс",
+  "key.examplemod.extra_inventory": "Доп. инвентарь",
   "key.categories.examplemod": "ExampleMod",
   "fluid.examplemod.dirty_water": "Грязная вода"
 }

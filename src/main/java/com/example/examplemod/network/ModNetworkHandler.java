@@ -8,6 +8,7 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import com.example.examplemod.network.ActivityPacket;
+import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
 import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
@@ -98,6 +99,13 @@ public class ModNetworkHandler {
                 OpenCraftingPacket::encode,
                 OpenCraftingPacket::decode,
                 OpenCraftingPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                OpenBoneTongsItemPacket.class,
+                OpenBoneTongsItemPacket::encode,
+                OpenBoneTongsItemPacket::decode,
+                OpenBoneTongsItemPacket::handle
         );
     }
 }
