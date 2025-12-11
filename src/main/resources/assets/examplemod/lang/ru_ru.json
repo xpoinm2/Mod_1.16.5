@@ -115,13 +115,6 @@
   "key.examplemod.main_page": "Интерфейс игрока",
   "key.examplemod.activity": "Активность",
   "key.examplemod.progress": "Технологический прогресс",
-  "key.examplemod.mode_switch": "Переключение режима",
   "key.categories.examplemod": "ExampleMod",
-  "overlay.examplemod.tongs_mode.pick_input": "Взять (вход)",
-  "overlay.examplemod.tongs_mode.pick_output": "Взять (выход)",
-  "overlay.examplemod.tongs_mode.pick_fuel": "Взять (топливо)",
-  "overlay.examplemod.tongs_mode.place_input": "Положить (вход)",
-  "overlay.examplemod.tongs_mode.place_output": "Положить (выход)",
-  "overlay.examplemod.tongs_mode.place_fuel": "Положить (топливо)",
   "fluid.examplemod.dirty_water": "Грязная вода"
 }

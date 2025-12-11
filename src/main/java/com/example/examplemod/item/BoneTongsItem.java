@@ -4,6 +4,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.tileentity.FirepitTileEntity;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
@@ -12,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ActionResult;
@@ -35,43 +35,8 @@ import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BoneTongsItem extends Item {
-    private static final String TAG_MODE = "BoneTongsMode";
-
-    public enum Mode {
-        PICK_INPUT,      // Взять (вход)
-        PICK_OUTPUT,     // Взять (выход)
-        PICK_FUEL,       // Взять (топливо)
-        PLACE_INPUT,     // Положить (вход)
-        PLACE_OUTPUT,    // Положить (выход)
-        PLACE_FUEL;      // Положить (топливо)
-
-        public Mode next() {
-            Mode[] modes = values();
-            int nextIndex = (ordinal() + 1) % modes.length;
-            return modes[nextIndex];
-        }
-    }
-
     public BoneTongsItem(Properties properties) {
         super(properties.durability(20));
-    }
-
-    public static Mode getMode(ItemStack stack) {
-        CompoundNBT tag = stack.getTag();
-        if (tag == null) return Mode.PICK_INPUT;
-        int value = tag.getInt(TAG_MODE);
-        Mode[] modes = Mode.values();
-        if (value >= 0 && value < modes.length) {
-            return modes[value];
-        }
-        return Mode.PICK_INPUT;
-    }
-
-    public static Mode toggleMode(ItemStack stack) {
-        Mode next = getMode(stack).next();
-        CompoundNBT tag = stack.getOrCreateTag();
-        tag.putInt(TAG_MODE, next.ordinal());
-        return next;
     }
 
     @Nullable
@@ -121,15 +86,14 @@ public class BoneTongsItem extends Item {
             return ActionResultType.PASS;
         }
 
-        Mode mode = getMode(held);
         boolean transferred = false;
 
         if (blockEntity instanceof FirepitTileEntity) {
             FirepitTileEntity firepit = (FirepitTileEntity) blockEntity;
-            transferred = tryTransferWithFirepit(world, firepit, held, player, context.getHand(), firepitPos, mode);
+            transferred = tryTransferWithFirepit(world, firepit, held, player, context.getHand(), firepitPos);
         } else if (blockEntity instanceof AbstractFurnaceTileEntity) {
             AbstractFurnaceTileEntity furnace = (AbstractFurnaceTileEntity) blockEntity;
-            transferred = tryTransferWithFurnace(world, furnace, held, player, context.getHand(), context.getClickedPos(), mode);
+            transferred = tryTransferWithFurnace(world, furnace, held, player, context.getHand(), context.getClickedPos());
         }
 
         if (transferred) {
@@ -141,48 +105,35 @@ public class BoneTongsItem extends Item {
         return transferred ? ActionResultType.SUCCESS : ActionResultType.PASS;
     }
 
-    private boolean tryTransferWithFirepit(World world, FirepitTileEntity firepit, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos, Mode mode) {
+    private boolean tryTransferWithFirepit(World world, FirepitTileEntity firepit, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos) {
         return tongs.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(tongsHandler -> {
-            switch (mode) {
-                case PICK_INPUT:
-                    return tryPickFromFirepitSlots(firepit, tongsHandler, 0, FirepitTileEntity.GRID_SLOT_COUNT);
-                case PICK_OUTPUT:
-                    // Кострище не имеет выходных слотов в том же смысле, что печь
-                    return false;
-                case PICK_FUEL:
-                    return tryPickFromFirepitSlots(firepit, tongsHandler, FirepitTileEntity.FUEL_SLOT, 1);
-                case PLACE_INPUT:
-                    return tryPlaceToFirepitSlots(firepit, tongsHandler, 0, FirepitTileEntity.GRID_SLOT_COUNT);
-                case PLACE_OUTPUT:
-                    // Кострище не имеет выходных слотов
-                    return false;
-                case PLACE_FUEL:
-                    return tryPlaceToFirepitSlots(firepit, tongsHandler, FirepitTileEntity.FUEL_SLOT, 1);
-                default:
-                    return false;
+            if (hasStoredItems(tongsHandler)) {
+                if (tryPlaceToFirepitSlots(firepit, tongsHandler, 0, FirepitTileEntity.GRID_SLOT_COUNT)) {
+                    return true;
+                }
             }
+            return tryPickFromFirepitSlots(firepit, tongsHandler, 0, FirepitTileEntity.GRID_SLOT_COUNT);
         }).orElse(false);
     }
 
-    private boolean tryTransferWithFurnace(World world, AbstractFurnaceTileEntity furnace, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos, Mode mode) {
+    private boolean tryTransferWithFurnace(World world, AbstractFurnaceTileEntity furnace, ItemStack tongs, PlayerEntity player, Hand hand, BlockPos pos) {
         return tongs.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(tongsHandler -> {
-            switch (mode) {
-                case PICK_INPUT:
-                    return tryPickFromFurnaceSlot(furnace, tongsHandler, 0);
-                case PICK_OUTPUT:
-                    return tryPickFromFurnaceSlot(furnace, tongsHandler, 2);
-                case PICK_FUEL:
-                    return tryPickFromFurnaceSlot(furnace, tongsHandler, 1);
-                case PLACE_INPUT:
-                    return tryPlaceToFurnaceSlot(furnace, tongsHandler, 0);
-                case PLACE_OUTPUT:
-                    return tryPlaceToFurnaceSlot(furnace, tongsHandler, 2);
-                case PLACE_FUEL:
-                    return tryPlaceToFurnaceSlot(furnace, tongsHandler, 1);
-                default:
-                    return false;
+            if (hasStoredItems(tongsHandler)) {
+                if (tryPlaceToFurnaceSlot(furnace, tongsHandler, 0)) {
+                    return true;
+                }
             }
+            return tryPickFromFurnaceSlot(furnace, tongsHandler, 2);
         }).orElse(false);
+    }
+
+    private boolean hasStoredItems(IItemHandler handler) {
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (!handler.getStackInSlot(slot).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean tryPickFromFirepitSlots(FirepitTileEntity firepit, IItemHandler tongsHandler, int startSlot, int count) {
