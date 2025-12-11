@@ -105,9 +105,21 @@ public class ClayPotTileEntity extends TileEntity {
             int amount = tank.getFluidAmount();
             if (amount > 0) {
                 tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), amount));
+                notifyFluidTypeChanged();
             }
             oreWashCount = 0;
         }
+    }
+
+    private void notifyFluidTypeChanged() {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        setChanged();
+        BlockState previous = getBlockState();
+        updateFillLevel();
+        level.sendBlockUpdated(worldPosition, previous, getBlockState(), 3);
+        level.blockUpdated(worldPosition, getBlockState().getBlock());
     }
 
     @Override
