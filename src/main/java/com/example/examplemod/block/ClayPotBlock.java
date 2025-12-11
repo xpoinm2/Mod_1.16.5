@@ -159,10 +159,10 @@ public class ClayPotBlock extends Block {
     }
 
     private static Item getCleanOreResult(Item dirtyOre) {
-        if (dirtyOre == ModItems.DIRTY_GRAVEL_TIN_ORE.get()) {
+        if (dirtyOre == ModItems.TIN_ORE_GRAVEL.get() || dirtyOre == ModItems.DIRTY_GRAVEL_TIN_ORE.get()) {
             return ModItems.CLEANED_GRAVEL_TIN_ORE.get();
         }
-        if (dirtyOre == ModItems.DIRTY_GRAVEL_GOLD_ORE.get()) {
+        if (dirtyOre == ModItems.GOLD_ORE_GRAVEL.get() || dirtyOre == ModItems.DIRTY_GRAVEL_GOLD_ORE.get()) {
             return ModItems.CLEANED_GRAVEL_GOLD_ORE.get();
         }
         return null;
