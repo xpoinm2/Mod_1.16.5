@@ -55,6 +55,8 @@ public class CalcinedIronOreQuestScreen extends AbstractQuestScreen {
                 "Обожгите её до состояния обожжённой железной руды.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
                 "Горячую руду перекладывайте щипцами, чтобы не получить ожог.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth,
+                "Грязную железную гравийную руду тоже можно жарить на кострище, но металл выходит тоньше.", 0xFFFFFF00);
         return y;
     }
 
