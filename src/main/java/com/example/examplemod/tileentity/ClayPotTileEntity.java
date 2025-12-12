@@ -173,6 +173,19 @@ public class ClayPotTileEntity extends TileEntity {
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
         load(getBlockState(), pkt.getTag());
+        if (level != null && level.isClientSide) {
+            updateFillLevel();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Override
+    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
+        super.handleUpdateTag(state, tag);
+        load(state, tag);
+        if (level != null) {
+            updateFillLevel();
+        }
     }
 
     @Override
