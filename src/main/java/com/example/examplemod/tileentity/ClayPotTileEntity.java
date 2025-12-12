@@ -9,6 +9,8 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.server.level.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.LazyOptional;
@@ -120,6 +122,25 @@ public class ClayPotTileEntity extends TileEntity {
         updateFillLevel();
         level.sendBlockUpdated(worldPosition, previous, getBlockState(), 3);
         level.blockUpdated(worldPosition, getBlockState().getBlock());
+        broadcastFluidUpdate();
+    }
+
+    private void broadcastFluidUpdate() {
+        if (!(level instanceof ServerWorld)) {
+            return;
+        }
+        ServerWorld serverWorld = (ServerWorld) level;
+        SUpdateTileEntityPacket packet = getUpdatePacket();
+        if (packet == null) {
+            return;
+        }
+        for (ServerPlayerEntity player : serverWorld.getPlayers()) {
+            if (player.distanceToSqr(worldPosition.getX() + 0.5D,
+                    worldPosition.getY() + 0.5D,
+                    worldPosition.getZ() + 0.5D) <= 4096D) {
+                player.connection.send(packet);
+            }
+        }
     }
 
     @Override
