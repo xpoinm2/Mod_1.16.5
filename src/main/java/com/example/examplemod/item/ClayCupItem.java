@@ -165,7 +165,7 @@ public class ClayCupItem extends Item {
                         handler.fill(new FluidStack(sourceFluid, canFill), IFluidHandler.FluidAction.EXECUTE);
                         world.setBlock(hitPos, Blocks.AIR.defaultBlockState(), 11);
                     }
-                    giveFilledCupToPlayer(world, player, hand, stack, cupForFluidOps, usingSeparateCup);
+                    giveOperatedCupToPlayer(world, player, hand, stack, cupForFluidOps, usingSeparateCup);
                     if (!world.isClientSide) {
                         world.playSound(player, hitPos, SoundEvents.BUCKET_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
                         player.awardStat(Stats.ITEM_USED.get(this));
