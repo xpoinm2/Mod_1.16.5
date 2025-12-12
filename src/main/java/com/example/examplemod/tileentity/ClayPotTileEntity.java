@@ -134,7 +134,7 @@ public class ClayPotTileEntity extends TileEntity {
         if (packet == null) {
             return;
         }
-        for (ServerPlayerEntity player : serverWorld.getPlayers()) {
+        for (ServerPlayerEntity player : serverWorld.getPlayers(pred -> true)) {
             if (player.distanceToSqr(worldPosition.getX() + 0.5D,
                     worldPosition.getY() + 0.5D,
                     worldPosition.getZ() + 0.5D) <= 4096D) {
