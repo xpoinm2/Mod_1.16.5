@@ -79,6 +79,19 @@ public class ClayCupItem extends Item {
         boolean stackIsEmpty = contained.isEmpty();
         boolean bucketEligible = needsFill && stackIsEmpty && stack.getCount() == stack.getMaxStackSize();
 
+        ItemStack drainCupForPot = stack;
+        IFluidHandler drainHandler = handler;
+        boolean usingSeparateCupForDrain = false;
+        if (!needsFill && stack.getCount() > 1 && currentAmount > 0) {
+            drainCupForPot = stack.copy();
+            drainCupForPot.setCount(1);
+            drainHandler = drainCupForPot.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).orElse(null);
+            if (drainHandler == null) {
+                return ActionResult.pass(stack);
+            }
+            usingSeparateCupForDrain = true;
+        }
+
         RayTraceContext.FluidMode fluidMode = needsFill ? RayTraceContext.FluidMode.SOURCE_ONLY : RayTraceContext.FluidMode.NONE;
         BlockRayTraceResult rayTraceResult = Item.getPlayerPOVHitResult(world, player, fluidMode);
         if (rayTraceResult.getType() == RayTraceResult.Type.MISS) {
@@ -181,21 +194,22 @@ public class ClayCupItem extends Item {
                                     world.playSound(null, hitPos, SoundEvents.BOTTLE_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
                                     player.awardStat(Stats.ITEM_USED.get(this));
                                 }
-                                giveFilledCupToPlayer(world, player, hand, stack, cupForFluidOps, usingSeparateCup);
+                                giveOperatedCupToPlayer(world, player, hand, stack, cupForFluidOps, usingSeparateCup);
                                 return ActionResult.sidedSuccess(stack, world.isClientSide());
                             }
                         }
                     }
                     if (!needsFill && currentAmount > 0) {
-                        FluidStack transferable = new FluidStack(contained, Math.min(currentAmount, CAPACITY));
-                        int accepted = potHandler.fill(transferable, IFluidHandler.FluidAction.SIMULATE);
+                        FluidStack available = drainHandler.drain(CAPACITY, IFluidHandler.FluidAction.SIMULATE);
+                        int accepted = potHandler.fill(available, IFluidHandler.FluidAction.SIMULATE);
                         if (accepted > 0) {
                             if (!world.isClientSide) {
-                                potHandler.fill(new FluidStack(transferable, accepted), IFluidHandler.FluidAction.EXECUTE);
-                                handler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
+                                FluidStack drained = drainHandler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
+                                potHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
                                 world.playSound(null, hitPos, SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
                                 player.awardStat(Stats.ITEM_USED.get(this));
                             }
+                            giveOperatedCupToPlayer(world, player, hand, stack, drainCupForPot, usingSeparateCupForDrain);
                             return ActionResult.sidedSuccess(stack, world.isClientSide());
                         }
                     }
@@ -203,7 +217,8 @@ public class ClayCupItem extends Item {
             }
         }
 
-        if (!needsFill && currentAmount > 0 && tryPourFluid(world, player, handler, rayTraceResult)) {
+        if (!needsFill && currentAmount > 0 && tryPourFluid(world, player, drainHandler, rayTraceResult)) {
+            giveOperatedCupToPlayer(world, player, hand, stack, drainCupForPot, usingSeparateCupForDrain);
             return ActionResult.sidedSuccess(stack, world.isClientSide());
         }
 
@@ -319,7 +334,7 @@ public class ClayCupItem extends Item {
         return true;
     }
 
-    private void giveFilledCupToPlayer(World world, PlayerEntity player, Hand hand, ItemStack handStack, ItemStack filledCup, boolean usedCopy) {
+    private void giveOperatedCupToPlayer(World world, PlayerEntity player, Hand hand, ItemStack handStack, ItemStack filledCup, boolean usedCopy) {
         if (!usedCopy) {
             return;
         }
