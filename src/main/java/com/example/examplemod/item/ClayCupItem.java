@@ -18,6 +18,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.UseAction;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.stats.Stats;
@@ -66,6 +67,7 @@ public class ClayCupItem extends Item {
     @Override
     public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        ItemStack cupForFluidOps = stack;
         IFluidHandlerItem handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).orElse(null);
         if (handler == null) {
             return ActionResult.pass(stack);
@@ -74,6 +76,9 @@ public class ClayCupItem extends Item {
         FluidStack contained = handler.getFluidInTank(0);
         int currentAmount = contained.getAmount();
         boolean needsFill = currentAmount < CAPACITY;
+        boolean stackIsEmpty = contained.isEmpty();
+        boolean bucketEligible = needsFill && stackIsEmpty && stack.getCount() == stack.getMaxStackSize();
+
         RayTraceContext.FluidMode fluidMode = needsFill ? RayTraceContext.FluidMode.SOURCE_ONLY : RayTraceContext.FluidMode.NONE;
         BlockRayTraceResult rayTraceResult = Item.getPlayerPOVHitResult(world, player, fluidMode);
         if (rayTraceResult.getType() == RayTraceResult.Type.MISS) {
@@ -102,6 +107,17 @@ public class ClayCupItem extends Item {
             return ActionResult.pass(stack);
         }
 
+        boolean usingSeparateCup = false;
+        if (needsFill && stack.getCount() > 1 && stackIsEmpty && !bucketEligible) {
+            cupForFluidOps = stack.copy();
+            cupForFluidOps.setCount(1);
+            handler = cupForFluidOps.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).orElse(null);
+            if (handler == null) {
+                return ActionResult.pass(stack);
+            }
+            usingSeparateCup = true;
+        }
+
         if (needsFill) {
             FluidState fluidState = world.getFluidState(hitPos);
             Fluid sourceFluid = null;
@@ -114,6 +130,21 @@ public class ClayCupItem extends Item {
                 }
             }
             if (sourceFluid != null) {
+                if (bucketEligible && sourceFluid.isSame(Fluids.WATER)) {
+                    if (!world.isClientSide) {
+                        stack.shrink(1);
+                        ItemStack waterBucket = new ItemStack(Items.WATER_BUCKET);
+                        if (!player.addItem(waterBucket)) {
+                            player.drop(waterBucket, false);
+                        }
+                        world.playSound(player, hitPos, SoundEvents.BUCKET_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        player.awardStat(Stats.ITEM_USED.get(this));
+                    } else {
+                        stack.shrink(1);
+                    }
+                    return ActionResult.sidedSuccess(stack, world.isClientSide());
+                }
+
                 FluidStack fillStack = new FluidStack(sourceFluid, CAPACITY);
                 int canFill = handler.fill(fillStack, IFluidHandler.FluidAction.SIMULATE);
                 if (canFill > 0) {
@@ -121,8 +152,11 @@ public class ClayCupItem extends Item {
                         handler.fill(new FluidStack(sourceFluid, canFill), IFluidHandler.FluidAction.EXECUTE);
                         world.setBlock(hitPos, Blocks.AIR.defaultBlockState(), 11);
                     }
-                    world.playSound(player, hitPos, SoundEvents.BUCKET_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                    player.awardStat(Stats.ITEM_USED.get(this));
+                    giveFilledCupToPlayer(world, player, hand, stack, cupForFluidOps, usingSeparateCup);
+                    if (!world.isClientSide) {
+                        world.playSound(player, hitPos, SoundEvents.BUCKET_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        player.awardStat(Stats.ITEM_USED.get(this));
+                    }
                     return ActionResult.sidedSuccess(stack, world.isClientSide());
                 }
             }
@@ -147,6 +181,7 @@ public class ClayCupItem extends Item {
                                     world.playSound(null, hitPos, SoundEvents.BOTTLE_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
                                     player.awardStat(Stats.ITEM_USED.get(this));
                                 }
+                                giveFilledCupToPlayer(world, player, hand, stack, cupForFluidOps, usingSeparateCup);
                                 return ActionResult.sidedSuccess(stack, world.isClientSide());
                             }
                         }
@@ -282,6 +317,22 @@ public class ClayCupItem extends Item {
             player.awardStat(Stats.ITEM_USED.get(this));
         }
         return true;
+    }
+
+    private void giveFilledCupToPlayer(World world, PlayerEntity player, Hand hand, ItemStack handStack, ItemStack filledCup, boolean usedCopy) {
+        if (!usedCopy) {
+            return;
+        }
+        handStack.shrink(1);
+        if (world.isClientSide) {
+            return;
+        }
+        if (handStack.isEmpty()) {
+            player.setItemInHand(hand, ItemStack.EMPTY);
+        }
+        if (!player.addItem(filledCup)) {
+            player.drop(filledCup, false);
+        }
     }
 
     @Nullable

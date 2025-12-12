@@ -149,7 +149,9 @@ public class ModItems {
 
     // Глиняная чашка: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_CUP = ITEMS.register("clay_cup",
-            () -> new ClayCupItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new ClayCupItem(new Item.Properties()
+                    .tab(ModCreativeTabs.EXAMPLE_TAB)
+                    .stacksTo(16)));
 
 
 
