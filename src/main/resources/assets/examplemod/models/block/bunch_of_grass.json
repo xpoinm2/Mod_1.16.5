@@ -1,0 +1,7 @@
+{
+  "parent": "examplemod:block/cross_lowered",
+  "textures": {
+    "cross": "examplemod:block/bunch_of_grass"
+  }
+}
+

@@ -29,6 +29,7 @@ public class WorldGenRegistry {
     public static ConfiguredFeature<?, ?> HORSERADISH_PATCH;
     public static ConfiguredFeature<?, ?> GINGER_PATCH;
     public static ConfiguredFeature<?, ?> FLAX_PATCH;
+    public static ConfiguredFeature<?, ?> BUNCH_OF_GRASS_PATCH;
     public static ConfiguredFeature<?, ?> PYRITE_ORE;
     public static ConfiguredFeature<?, ?> TIN_GRAVEL_ORE;
     public static ConfiguredFeature<?, ?> TIN_ORE;
@@ -44,6 +45,7 @@ public class WorldGenRegistry {
         HORSERADISH_PATCH = register("horseradish_patch", 1, ModBlocks.HORSERADISH_PLANT.get().defaultBlockState());
         GINGER_PATCH = register("ginger_patch", 1, ModBlocks.GINGER_PLANT.get().defaultBlockState());
         FLAX_PATCH = register("flax_patch", 1, ModBlocks.FLAX_PLANT.get().defaultBlockState());
+        BUNCH_OF_GRASS_PATCH = register("bunch_of_grass_patch", 2, ModBlocks.BUNCH_OF_GRASS.get().defaultBlockState());
         PYRITE_ORE = registerPyriteOre();
         TIN_GRAVEL_ORE = registerTinGravelOre();
         TIN_ORE = registerTinOre();

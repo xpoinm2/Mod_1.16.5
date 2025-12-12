@@ -106,7 +106,7 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
     @Override
     protected void renderAdditional(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
         super.renderAdditional(ms, mouseX, mouseY, partialTicks);
-        if (hoveredLayoutName != null && instructionsArea.isPointInsideViewport(mouseX, mouseY)) {
+        if (hoveredLayoutName != null && descriptionArea.isPointInsideViewport(mouseX, mouseY)) {
             this.renderTooltip(ms, new StringTextComponent(hoveredLayoutName), mouseX, mouseY);
         }
     }
@@ -115,7 +115,7 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && layoutButtonRect != null
                 && layoutButtonRect.contains(mouseX, mouseY)
-                && instructionsArea.isVisible(layoutButtonRect.x, layoutButtonRect.y,
+                && descriptionArea.isVisible(layoutButtonRect.x, layoutButtonRect.y,
                 layoutButtonRect.width, layoutButtonRect.height)) {
             showLayout = !showLayout;
             return true;
@@ -157,14 +157,14 @@ public class FirepitQuestScreen extends AbstractQuestScreen {
                 int textX = cellX0 + (cellX1 - cellX0) / 2;
                 int textY = cellY0 + ((cellY1 - cellY0) - this.font.lineHeight) / 2;
                 drawCenteredString(ms, this.font, label, textX, textY, 0xFF000000);
-                if (instructionsArea.isPointInsideViewport(mouseX, mouseY)
+                if (descriptionArea.isPointInsideViewport(mouseX, mouseY)
                         && mouseX >= cellX0 && mouseX <= cellX1 && mouseY >= cellY0 && mouseY <= cellY1) {
                     hoveredLayoutName = getCellName(col, row);
                 }
             }
         }
         int legendY = y + layoutHeight + 6;
-        int legendWidth = instructionsArea != null ? instructionsArea.getViewportWidth() : 0;
+        int legendWidth = descriptionArea != null ? descriptionArea.getViewportWidth() : 0;
         legendY = drawParagraph(ms, x, legendY, legendWidth, "Х - хворост (углы)", 0xFFFFFF00);
         legendY = drawParagraph(ms, x, legendY, legendWidth, "Д - деревянные плиты", 0xFFFFFF00);
         legendY = drawParagraph(ms, x, legendY, legendWidth, "К - каменные плиты", 0xFFFFFF00);

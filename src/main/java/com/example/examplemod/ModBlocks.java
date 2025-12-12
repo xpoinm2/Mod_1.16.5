@@ -93,6 +93,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> FLAX_PLANT = BLOCKS.register("flax_plant",
             FlaxPlantBlock::new);
 
+    // Пучок трав
+    public static final RegistryObject<Block> BUNCH_OF_GRASS = BLOCKS.register("bunch_of_grass",
+            BunchOfGrassBlock::new);
+
     // Сушащийся лён (вешается под листвой)
     public static final RegistryObject<Block> HANGING_FLAX = BLOCKS.register("hanging_flax",
             HangingFlaxBlock::new);
@@ -375,6 +379,18 @@ public class ModBlocks {
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
             return new ItemStack(ModItems.FLAX.get());
+        }
+    }
+
+    // === Класс пучка трав ===
+    public static class BunchOfGrassBlock extends net.minecraft.block.BushBlock {
+        public BunchOfGrassBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.FERN));
+        }
+
+        @Override
+        public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
+            return new ItemStack(ModItems.BUNCH_OF_GRASS.get());
         }
     }
     // === Блок сушащегося льна ===
