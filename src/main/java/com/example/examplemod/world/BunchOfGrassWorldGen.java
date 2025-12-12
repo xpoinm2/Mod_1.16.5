@@ -16,8 +16,7 @@ public class BunchOfGrassWorldGen {
         Biome.Category category = event.getCategory();
         if (category == Biome.Category.PLAINS
                 || category == Biome.Category.FOREST
-                || category == Biome.Category.EXTREME_HILLS
-                || category == Biome.Category.HILLS) {
+                || category == Biome.Category.EXTREME_HILLS) {
             ConfiguredFeature<?, ?> feature = WorldGenRegistry.BUNCH_OF_GRASS_PATCH;
             event.getGeneration().addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, feature);
         }
