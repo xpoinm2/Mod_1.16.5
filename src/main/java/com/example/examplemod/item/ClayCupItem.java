@@ -130,19 +130,40 @@ public class ClayCupItem extends Item {
         }
 
         TileEntity tile = world.getBlockEntity(hitPos);
-        if (tile instanceof ClayPotTileEntity && currentAmount > 0) {
+        if (tile instanceof ClayPotTileEntity) {
             ClayPotTileEntity pot = (ClayPotTileEntity) tile;
             LazyOptional<IFluidHandler> potCap = pot.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, direction);
-            if (potCap.isPresent() && !world.isClientSide) {
+            if (potCap.isPresent()) {
                 IFluidHandler potHandler = potCap.orElse(null);
-                FluidStack transferable = new FluidStack(contained, Math.min(currentAmount, CAPACITY));
-                int accepted = potHandler.fill(transferable, IFluidHandler.FluidAction.SIMULATE);
-                if (accepted > 0) {
-                    potHandler.fill(new FluidStack(transferable, accepted), IFluidHandler.FluidAction.EXECUTE);
-                    handler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
-                    world.playSound(null, hitPos, SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
-                    player.awardStat(Stats.ITEM_USED.get(this));
-                    return ActionResult.sidedSuccess(stack, world.isClientSide());
+                if (potHandler != null) {
+                    if (needsFill) {
+                        FluidStack available = potHandler.drain(CAPACITY, IFluidHandler.FluidAction.SIMULATE);
+                        if (!available.isEmpty()) {
+                            int canFill = handler.fill(available, IFluidHandler.FluidAction.SIMULATE);
+                            if (canFill > 0) {
+                                if (!world.isClientSide) {
+                                    FluidStack drained = potHandler.drain(canFill, IFluidHandler.FluidAction.EXECUTE);
+                                    handler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+                                    world.playSound(null, hitPos, SoundEvents.BOTTLE_FILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                                    player.awardStat(Stats.ITEM_USED.get(this));
+                                }
+                                return ActionResult.sidedSuccess(stack, world.isClientSide());
+                            }
+                        }
+                    }
+                    if (!needsFill && currentAmount > 0) {
+                        FluidStack transferable = new FluidStack(contained, Math.min(currentAmount, CAPACITY));
+                        int accepted = potHandler.fill(transferable, IFluidHandler.FluidAction.SIMULATE);
+                        if (accepted > 0) {
+                            if (!world.isClientSide) {
+                                potHandler.fill(new FluidStack(transferable, accepted), IFluidHandler.FluidAction.EXECUTE);
+                                handler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
+                                world.playSound(null, hitPos, SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
+                                player.awardStat(Stats.ITEM_USED.get(this));
+                            }
+                            return ActionResult.sidedSuccess(stack, world.isClientSide());
+                        }
+                    }
                 }
             }
         }
