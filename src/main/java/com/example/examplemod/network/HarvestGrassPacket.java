@@ -1,6 +1,8 @@
 package com.example.examplemod.network;
 
 import com.example.examplemod.ModBlocks;
+import com.example.examplemod.item.GrassBundleItem;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Hand;
@@ -56,9 +58,24 @@ public class HarvestGrassPacket {
                 return;
             }
 
-            world.destroyBlock(pkt.target, true);
+            GrassBundleItem.GrassState state = getRandomGrassState(world.getRandom());
+
+            world.destroyBlock(pkt.target, false);
+            Block.popResource(world, pkt.target, GrassBundleItem.createWithState(state));
             player.swing(Hand.MAIN_HAND);
         });
         ctx.get().setPacketHandled(true);
+    }
+    
+    private static GrassBundleItem.GrassState getRandomGrassState(java.util.Random random) {
+        int roll = random.nextInt(100);
+        if (roll < 30) {
+            return GrassBundleItem.GrassState.HEALING;
+        } else if (roll < 60) {
+            return GrassBundleItem.GrassState.DYE;
+        } else if (roll < 90) {
+            return GrassBundleItem.GrassState.FERTILIZER;
+        }
+        return GrassBundleItem.GrassState.POISON;
     }
 }

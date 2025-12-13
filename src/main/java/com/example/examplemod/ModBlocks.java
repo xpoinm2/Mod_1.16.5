@@ -390,7 +390,7 @@ public class ModBlocks {
 
         @Override
         public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, net.minecraft.block.BlockState state) {
-            return new ItemStack(ModItems.BUNCH_OF_GRASS.get());
+            return com.example.examplemod.item.GrassBundleItem.createWithState(com.example.examplemod.item.GrassBundleItem.GrassState.HEALING);
         }
     }
     // === Блок сушащегося льна ===

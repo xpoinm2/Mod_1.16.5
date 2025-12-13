@@ -31,6 +31,7 @@ import com.example.examplemod.item.ClayPotBlockItem;
 import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
+import com.example.examplemod.item.GrassBundleItem;
 
 
 public class ModItems {
@@ -421,7 +422,7 @@ public class ModItems {
 
     // Предмет для пучка трав
     public static final RegistryObject<Item> BUNCH_OF_GRASS = ITEMS.register("bunch_of_grass",
-            () -> new BlockItem(ModBlocks.BUNCH_OF_GRASS.get(),
+    () -> new GrassBundleItem(ModBlocks.BUNCH_OF_GRASS.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Полублок хвороста как предмет

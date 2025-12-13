@@ -35,12 +35,17 @@ public final class GrassHarvestingHandler extends AbstractGui {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.screen != null || mc.level == null || event.player != mc.player) {
+        if (mc.player == null || mc.screen != null || mc.level == null) {
             resetProgress();
             return;
         }
 
-        if (!mc.options.keyUse.isDown()) {
+        if (event.player != mc.player) {
+            return;
+        }
+
+        boolean useHeld = mc.options.keyUse.isDown() || mc.mouseHandler.isRightPressed();
+        if (!useHeld) {
             idleTicks++;
             if (idleTicks >= 5) {
                 resetProgress();
