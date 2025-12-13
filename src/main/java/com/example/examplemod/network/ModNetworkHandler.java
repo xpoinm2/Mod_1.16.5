@@ -8,6 +8,7 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import com.example.examplemod.network.ActivityPacket;
+import com.example.examplemod.network.HarvestGrassPacket;
 import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
 import com.example.examplemod.network.SyncColdPacket;
@@ -85,6 +86,13 @@ public class ModNetworkHandler {
                 SyncPoisonPacket::encode,
                 SyncPoisonPacket::decode,
                 SyncPoisonPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                HarvestGrassPacket.class,
+                HarvestGrassPacket::encode,
+                HarvestGrassPacket::decode,
+                HarvestGrassPacket::handle
         );
         CHANNEL.registerMessage(
                 nextId(),
