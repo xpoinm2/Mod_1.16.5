@@ -2,6 +2,7 @@ package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModBlocks;
+import com.example.examplemod.ModItems;
 import com.example.examplemod.network.HarvestGrassPacket;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -18,7 +19,8 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class GrassHarvestingHandler extends AbstractGui {
-    private static final int HARVEST_TICKS_REQUIRED = 20 * 10; // 10 seconds
+    private static final int BASE_HARVEST_TICKS_REQUIRED = 20 * 10; // 10 seconds
+    private static final int KNIFE_HARVEST_TICKS_REQUIRED = 20 * 3; // 3 seconds
 
     private static BlockPos trackedPos;
     private static int progressTicks;
@@ -80,11 +82,13 @@ public final class GrassHarvestingHandler extends AbstractGui {
             packetSent = false;
         }
 
-        if (progressTicks < HARVEST_TICKS_REQUIRED) {
+        int harvestTicksRequired = getHarvestTicksRequired(mc);
+
+        if (progressTicks < harvestTicksRequired) {
             progressTicks++;
         }
 
-        if (progressTicks >= HARVEST_TICKS_REQUIRED && !packetSent) {
+        if (progressTicks >= harvestTicksRequired && !packetSent) {
             ModNetworkHandler.CHANNEL.sendToServer(new HarvestGrassPacket(trackedPos));
             packetSent = true;
         }
@@ -116,7 +120,7 @@ public final class GrassHarvestingHandler extends AbstractGui {
         fill(matrixStack, x - 2, y - 2, x + barWidth + 2, y + barHeight + 2, 0x88000000);
         fill(matrixStack, x, y, x + barWidth, y + barHeight, 0x66000000);
 
-        int progressWidth = Math.round(barWidth * (progressTicks / (float) HARVEST_TICKS_REQUIRED));
+        int progressWidth = Math.round(barWidth * (progressTicks / (float) getHarvestTicksRequired(mc)));
         if (progressWidth > 0) {
             fill(matrixStack, x, y, x + progressWidth, y + barHeight, 0xFF6EE4FF);
         }
@@ -131,5 +135,18 @@ public final class GrassHarvestingHandler extends AbstractGui {
         progressTicks = 0;
         packetSent = false;
         idleTicks = 0;
+    }
+    
+    private static int getHarvestTicksRequired(Minecraft mc) {
+        if (mc.player == null) {
+            return BASE_HARVEST_TICKS_REQUIRED;
+        }
+
+        boolean hasKnife = mc.player.getMainHandItem().getItem() == ModItems.ROUGH_STONE_KNIFE.get()
+                || mc.player.getOffhandItem().getItem() == ModItems.ROUGH_STONE_KNIFE.get()
+                || mc.player.getMainHandItem().getItem() == ModItems.ROUGH_BONE_KNIFE.get()
+                || mc.player.getOffhandItem().getItem() == ModItems.ROUGH_BONE_KNIFE.get();
+
+        return hasKnife ? KNIFE_HARVEST_TICKS_REQUIRED : BASE_HARVEST_TICKS_REQUIRED;
     }
 }

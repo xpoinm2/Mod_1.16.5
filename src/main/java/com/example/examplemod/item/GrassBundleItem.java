@@ -2,8 +2,10 @@ package com.example.examplemod.item;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -32,6 +34,11 @@ public class GrassBundleItem extends BlockItem {
     public static GrassState getState(ItemStack stack) {
         String id = stack.getOrCreateTag().getString(STATE_TAG);
         return GrassState.byName(id);
+    }
+
+    @Override
+    public ActionResultType useOn(ItemUseContext context) {
+        return ActionResultType.FAIL;
     }
 
     @Override

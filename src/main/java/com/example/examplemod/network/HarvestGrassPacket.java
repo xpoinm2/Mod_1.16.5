@@ -69,13 +69,13 @@ public class HarvestGrassPacket {
     
     private static GrassBundleItem.GrassState getRandomGrassState(java.util.Random random) {
         int roll = random.nextInt(100);
-        if (roll < 30) {
+        if (roll < 10) {
+            return GrassBundleItem.GrassState.POISON;
+        } else if (roll < 40) {
             return GrassBundleItem.GrassState.HEALING;
-        } else if (roll < 60) {
+        } else if (roll < 70) {
             return GrassBundleItem.GrassState.DYE;
-        } else if (roll < 90) {
-            return GrassBundleItem.GrassState.FERTILIZER;
         }
-        return GrassBundleItem.GrassState.POISON;
+        return GrassBundleItem.GrassState.FERTILIZER;
     }
 }
