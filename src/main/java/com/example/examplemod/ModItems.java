@@ -368,6 +368,18 @@ public class ModItems {
     public static final RegistryObject<Item> CLEANED_GRAVEL_GOLD_ORE = ITEMS.register("cleaned_gravel_gold_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Губчатое железо: результат восстановления железной руды
+    public static final RegistryObject<Item> SPONGE_IRON = ITEMS.register("sponge_iron",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Губчатое олово: результат восстановления оловянной руды
+    public static final RegistryObject<Item> SPONGE_TIN = ITEMS.register("sponge_tin",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Губчатое золото: результат восстановления золотой руды
+    public static final RegistryObject<Item> SPONGE_GOLD = ITEMS.register("sponge_gold",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Оловянная руда как предмет
     public static final RegistryObject<Item> TIN_ORE = ITEMS.register("tin_ore",
             () -> new BlockItem(ModBlocks.TIN_ORE.get(),
