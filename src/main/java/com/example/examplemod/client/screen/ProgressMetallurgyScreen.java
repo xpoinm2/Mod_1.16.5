@@ -135,7 +135,7 @@ public class ProgressMetallurgyScreen extends Screen {
                 new ItemStack(ModItems.PURE_IRON_ORE.get()),
                 b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.PureIronOreQuestScreen(this)),
                 () -> Arrays.asList(
-                        new StringTextComponent("Чистая железная руда")
+                        new StringTextComponent("Очищенная гравийная железная руда")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
                                 .append(new StringTextComponent("Железный рудный гравий")
@@ -171,7 +171,7 @@ public class ProgressMetallurgyScreen extends Screen {
                         new StringTextComponent("Кострище")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Чистая железная руда")
+                                .append(new StringTextComponent("Очищенная гравийная железная руда")
                                         .withStyle(TextFormatting.BLUE)),
                         new StringTextComponent("Также нужно: ")
                                 .append(new StringTextComponent("Булыжная плита")

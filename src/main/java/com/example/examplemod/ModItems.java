@@ -303,7 +303,7 @@ public class ModItems {
     public static final RegistryObject<Item> SLAG = ITEMS.register("slag",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Чистая железная руда: результат промывки кластера
+    // Очищенная гравийная железная руда: результат промывки кластера
     public static final RegistryObject<Item> PURE_IRON_ORE = ITEMS.register("pure_iron_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 

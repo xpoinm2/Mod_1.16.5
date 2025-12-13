@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class PureIronOreQuestScreen extends AbstractQuestScreen {
 
     public PureIronOreQuestScreen(Screen parent) {
-        super(parent, "Чистая железная руда");
+        super(parent, "Очищенная гравийная железная руда");
     }
 
     @Override

@@ -118,7 +118,9 @@ public class ClayPotBlock extends Block {
             if (!player.addItem(cleanedStack)) {
                 player.drop(cleanedStack, false);
             }
-            if (dirtyOre == ModItems.IRON_ORE_GRAVEL.get()) {
+            if (dirtyOre == ModItems.IRON_ORE_GRAVEL.get() ||
+                dirtyOre == ModItems.TIN_ORE_GRAVEL.get() ||
+                dirtyOre == ModItems.GOLD_ORE_GRAVEL.get()) {
                 rewardIronClay(player);
             }
             pot.recordOreWash();
