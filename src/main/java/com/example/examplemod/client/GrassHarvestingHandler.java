@@ -22,6 +22,7 @@ public final class GrassHarvestingHandler extends AbstractGui {
 
     private static BlockPos trackedPos;
     private static int progressTicks;
+    private static int idleTicks;
     private static boolean packetSent;
 
     private GrassHarvestingHandler() {
@@ -40,12 +41,18 @@ public final class GrassHarvestingHandler extends AbstractGui {
         }
 
         if (!mc.options.keyUse.isDown()) {
-            resetProgress();
+            idleTicks++;
+            if (idleTicks >= 5) {
+                resetProgress();
+            }
             return;
         }
 
         if (!(mc.hitResult instanceof BlockRayTraceResult)) {
-            resetProgress();
+            idleTicks++;
+            if (idleTicks >= 5) {
+                resetProgress();
+            }
             return;
         }
 
@@ -53,9 +60,14 @@ public final class GrassHarvestingHandler extends AbstractGui {
         BlockPos lookedPos = blockHit.getBlockPos();
         BlockState state = mc.level.getBlockState(lookedPos);
         if (!state.is(ModBlocks.BUNCH_OF_GRASS.get())) {
-            resetProgress();
+            idleTicks++;
+            if (idleTicks >= 5) {
+                resetProgress();
+            }
             return;
         }
+
+        idleTicks = 0;
 
         if (trackedPos == null || !trackedPos.equals(lookedPos)) {
             trackedPos = lookedPos;
@@ -113,5 +125,6 @@ public final class GrassHarvestingHandler extends AbstractGui {
         trackedPos = null;
         progressTicks = 0;
         packetSent = false;
+        idleTicks = 0;
     }
 }
