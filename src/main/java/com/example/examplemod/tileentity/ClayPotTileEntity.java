@@ -6,18 +6,23 @@ import com.example.examplemod.block.ClayPotBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.inventory.container.Containers;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,6 +37,10 @@ public class ClayPotTileEntity extends TileEntity {
                public int getWaterLevel() {
                return MathHelper.clamp((tank.getFluidAmount() * 8) / CAPACITY, 0, 8);
            }
+
+    public static final int INV_SLOTS = 9;
+    public static final int FLUID_SLOT = 9;
+    public static final int TOTAL_SLOTS = 10;
 
     private final FluidTank tank = new FluidTank(CAPACITY) {
         @Override
@@ -55,6 +64,16 @@ public class ClayPotTileEntity extends TileEntity {
     };
 
     private final LazyOptional<IFluidHandler> fluidCapability = LazyOptional.of(() -> tank);
+
+    private final ItemStackHandler inventory = new ItemStackHandler(TOTAL_SLOTS) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            ClayPotTileEntity.this.setChanged();
+        }
+    };
+
+    private final LazyOptional<IItemHandler> inventoryCapability = LazyOptional.of(() -> inventory);
 
     public ClayPotTileEntity() {
         super(ModTileEntities.CLAY_POT.get());
@@ -146,6 +165,7 @@ public class ClayPotTileEntity extends TileEntity {
     @Override
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
+        inventory.deserializeNBT(nbt.getCompound("Inventory"));
         tank.readFromNBT(nbt.getCompound("Tank"));
         oreWashCount = nbt.getInt("WashCount");
         lastKnownFluid = tank.getFluid().getFluid();
@@ -154,6 +174,7 @@ public class ClayPotTileEntity extends TileEntity {
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         super.save(nbt);
+        nbt.put("Inventory", inventory.serializeNBT());
         nbt.put("Tank", tank.writeToNBT(new CompoundNBT()));
         nbt.putInt("WashCount", oreWashCount);
         return nbt;
@@ -196,11 +217,18 @@ public class ClayPotTileEntity extends TileEntity {
         }
     }
 
+    public ItemStackHandler getInventory() {
+        return inventory;
+    }
+
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull net.minecraftforge.common.capabilities.Capability<T> cap, @Nullable net.minecraft.util.Direction side) {
         if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return fluidCapability.cast();
+        }
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return inventoryCapability.cast();
         }
         return super.getCapability(cap, side);
     }
@@ -209,5 +237,19 @@ public class ClayPotTileEntity extends TileEntity {
     public void setRemoved() {
         super.setRemoved();
         fluidCapability.invalidate();
+        inventoryCapability.invalidate();
+    }
+
+    public void dropInventoryContents() {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            ItemStack stack = inventory.getStackInSlot(slot);
+            if (!stack.isEmpty()) {
+                Containers.dropItemStack(level, worldPosition, stack);
+                inventory.setStackInSlot(slot, ItemStack.EMPTY);
+            }
+        }
     }
 }

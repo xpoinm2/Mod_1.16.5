@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
 import com.example.examplemod.container.BoneTongsContainer;
+import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.container.FirepitContainer;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
@@ -14,6 +15,9 @@ public class ModContainers {
 
     public static final RegistryObject<ContainerType<FirepitContainer>> FIREPIT = CONTAINERS.register("firepit",
             () -> IForgeContainerType.create((windowId, playerInventory, data) -> new FirepitContainer(windowId, playerInventory, data)));
+
+    public static final RegistryObject<ContainerType<ClayPotContainer>> CLAY_POT = CONTAINERS.register("clay_pot",
+            () -> IForgeContainerType.create((windowId, playerInventory, data) -> new ClayPotContainer(windowId, playerInventory, data)));
 
     public static final RegistryObject<ContainerType<BoneTongsContainer>> BONE_TONGS = CONTAINERS.register("bone_tongs",
             () -> IForgeContainerType.create((windowId, playerInventory, data) -> new BoneTongsContainer(windowId, playerInventory, data)));

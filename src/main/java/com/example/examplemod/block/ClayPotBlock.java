@@ -3,12 +3,14 @@ package com.example.examplemod.block;
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModTileEntities;
+import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -26,6 +28,11 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
@@ -76,24 +83,41 @@ public class ClayPotBlock extends Block {
         }
 
         ItemStack heldStack = player.getItemInHand(hand);
+        if (heldStack.isEmpty() && player.isCrouching()) {
+            if (!world.isClientSide) {
+                TileEntity tile = world.getBlockEntity(pos);
+                if (tile instanceof ClayPotTileEntity) {
+                    ((ClayPotTileEntity) tile).clear();
+                }
+                ItemStack stack = new ItemStack(ModItems.CLAY_POT.get());
+                if (!player.addItem(stack)) {
+                    player.drop(stack, false);
+                }
+                world.removeBlock(pos, false);
+            }
+            return ActionResultType.sidedSuccess(world.isClientSide);
+        }
 
         if (!heldStack.isEmpty()) {
             if (tryWashOre(world, pos, player, heldStack)) {
                 return ActionResultType.sidedSuccess(world.isClientSide);
             }
-            return ActionResultType.PASS;
+            if (heldStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent()) {
+                return ActionResultType.PASS;
+            }
         }
 
         if (!world.isClientSide) {
             TileEntity tile = world.getBlockEntity(pos);
             if (tile instanceof ClayPotTileEntity) {
-                ((ClayPotTileEntity) tile).clear();
+                INamedContainerProvider provider = new SimpleNamedContainerProvider(
+                        (windowId, playerInventory, playerEntity) -> new ClayPotContainer(windowId, playerInventory, (ClayPotTileEntity) tile),
+                        new TranslationTextComponent("container.examplemod.clay_pot")
+                );
+                if (player instanceof ServerPlayerEntity) {
+                    NetworkHooks.openGui((ServerPlayerEntity) player, provider, pos);
+                }
             }
-            ItemStack stack = new ItemStack(ModItems.CLAY_POT.get());
-            if (!player.addItem(stack)) {
-                player.drop(stack, false);
-            }
-            world.removeBlock(pos, false);
         }
 
         return ActionResultType.sidedSuccess(world.isClientSide);
@@ -149,6 +173,10 @@ public class ClayPotBlock extends Block {
     @Override
     public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean moving) {
         if (!state.is(newState.getBlock())) {
+            TileEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof ClayPotTileEntity) {
+                ((ClayPotTileEntity) tile).dropInventoryContents();
+            }
             super.onRemove(state, world, pos, newState, moving);
             world.removeBlockEntity(pos);
         }
