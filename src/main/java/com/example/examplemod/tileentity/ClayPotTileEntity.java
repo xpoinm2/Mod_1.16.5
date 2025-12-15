@@ -190,13 +190,22 @@ public class ClayPotTileEntity extends TileEntity {
     @Override
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
-        inventory.deserializeNBT(nbt.getCompound("Inventory"));
+        inventory.deserializeNBT(getInventoryTagWithMinimumSize(nbt.getCompound("Inventory")));
         tank.readFromNBT(nbt.getCompound("Tank"));
         oreWashCount = nbt.getInt("WashCount");
         lastKnownFluid = tank.getFluid().getFluid();
         if (nbt.contains(NBT_DRAIN_MODE)) {
             drainMode = nbt.getBoolean(NBT_DRAIN_MODE);
         }
+    }
+
+    private CompoundNBT getInventoryTagWithMinimumSize(CompoundNBT tag) {
+        CompoundNBT copy = tag.copy();
+        int savedSize = copy.getInt("Size");
+        if (savedSize < TOTAL_SLOTS) {
+            copy.putInt("Size", TOTAL_SLOTS);
+        }
+        return copy;
     }
 
     @Override
