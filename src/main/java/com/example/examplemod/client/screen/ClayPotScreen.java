@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -17,6 +18,7 @@ import net.minecraftforge.fluids.FluidStack;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation("minecraft", "textures/gui/container/crafting_table.png");
@@ -39,6 +41,7 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
+        renderFluidTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override
@@ -46,25 +49,27 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         super.renderLabels(matrixStack, mouseX, mouseY);
     }
 
-    @Override
-    protected void renderHoveredTooltip(MatrixStack matrixStack, int mouseX, int mouseY) {
-        super.renderHoveredTooltip(matrixStack, mouseX, mouseY);
-        if (isHoveringFluidBar(mouseX, mouseY)) {
-            List<ITextComponent> tooltip = new ArrayList<>();
-            Fluid fluid = menu.getFluidType();
-            int amount = menu.getFluidAmount();
-            if (fluid == null || amount <= 0) {
-                tooltip.add(new TranslationTextComponent("tooltip.examplemod.clay_pot.empty"));
-            } else {
-                FluidStack stack = new FluidStack(fluid, amount);
-                tooltip.add(new TranslationTextComponent(
-                        "tooltip.examplemod.clay_pot.fluid",
-                        stack.getDisplayName(),
-                        FluidTextUtil.formatAmount(amount),
-                        FluidTextUtil.formatAmount(menu.getFluidCapacity())));
-            }
-            this.renderTooltip(matrixStack, tooltip, mouseX, mouseY);
+    private void renderFluidTooltip(MatrixStack matrixStack, int mouseX, int mouseY) {
+        if (!isHoveringFluidBar(mouseX, mouseY)) {
+            return;
         }
+        List<ITextComponent> tooltip = new ArrayList<>();
+        Fluid fluid = menu.getFluidType();
+        int amount = menu.getFluidAmount();
+        if (fluid == null || amount <= 0) {
+            tooltip.add(new TranslationTextComponent("tooltip.examplemod.clay_pot.empty"));
+        } else {
+            FluidStack stack = new FluidStack(fluid, amount);
+            tooltip.add(new TranslationTextComponent(
+                    "tooltip.examplemod.clay_pot.fluid",
+                    stack.getDisplayName(),
+                    FluidTextUtil.formatAmount(amount),
+                    FluidTextUtil.formatAmount(menu.getFluidCapacity())));
+        }
+        List<IReorderingProcessor> processors = tooltip.stream()
+                .map(ITextComponent::getVisualOrderText)
+                .collect(Collectors.toList());
+        this.renderTooltip(matrixStack, processors, mouseX, mouseY);
     }
 
     private void renderFluidBar(MatrixStack matrixStack) {
@@ -106,3 +111,4 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         return 0xFF3F76E4;
     }
 
+}

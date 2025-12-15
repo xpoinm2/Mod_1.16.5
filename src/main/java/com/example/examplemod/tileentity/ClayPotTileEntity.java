@@ -6,7 +6,6 @@ import com.example.examplemod.block.ClayPotBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.inventory.container.Containers;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -15,6 +14,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -247,7 +247,11 @@ public class ClayPotTileEntity extends TileEntity {
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
             ItemStack stack = inventory.getStackInSlot(slot);
             if (!stack.isEmpty()) {
-                Containers.dropItemStack(level, worldPosition, stack);
+                InventoryHelper.dropItemStack(level,
+                        worldPosition.getX() + 0.5D,
+                        worldPosition.getY() + 0.5D,
+                        worldPosition.getZ() + 0.5D,
+                        stack);
                 inventory.setStackInSlot(slot, ItemStack.EMPTY);
             }
         }
