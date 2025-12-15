@@ -22,10 +22,10 @@ import javax.annotation.Nullable;
 public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final ResourceLocation BACKGROUND =
             new ResourceLocation("examplemod", "textures/gui/clay_pot.png");
-    private static final int FLUID_GAUGE_X = 154;
-    private static final int FLUID_GAUGE_Y = 32;
     private static final int FLUID_GAUGE_WIDTH = 5;
     private static final int FLUID_GAUGE_HEIGHT = 63;
+    private static final int FLUID_GAUGE_X = 176 - 4 - FLUID_GAUGE_WIDTH;
+    private static final int FLUID_GAUGE_Y = 4;
 
     private ModeToggleButton modeButton;
 
@@ -33,8 +33,8 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         super(screenContainer, inv, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
-        this.titleLabelX = 12;
-        this.titleLabelY = 8;
+        this.titleLabelX = 4;
+        this.titleLabelY = 4;
         this.inventoryLabelX = 8;
         this.inventoryLabelY = 72;
     }
