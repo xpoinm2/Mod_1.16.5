@@ -42,7 +42,7 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     @Override
     protected void init() {
         super.init();
-        this.modeButton = this.addButton(new ModeToggleButton(
+        this.modeButton = this.addButton(new ModeToggleButton(this,
                 this.leftPos + ClayPotContainer.MODE_BUTTON_X,
                 this.topPos + ClayPotContainer.MODE_BUTTON_Y
         ));
@@ -140,33 +140,36 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
                 : "button.examplemod.clay_pot.mode.fill");
     }
 
-    private final class ModeToggleButton extends Button {
-        private ModeToggleButton(int x, int y) {
+    private static final class ModeToggleButton extends Button {
+        private final ClayPotScreen screen;
+
+        private ModeToggleButton(ClayPotScreen screen, int x, int y) {
             super(x, y, ClayPotContainer.MODE_BUTTON_SIZE, ClayPotContainer.MODE_BUTTON_SIZE,
                     StringTextComponent.EMPTY,
                     button -> ModNetworkHandler.CHANNEL.sendToServer(
-                            new ClayPotModePacket(menu.getBlockPos()))
+                            new ClayPotModePacket(screen.menu.getBlockPos()))
             );
+            this.screen = screen;
         }
 
         @Override
         public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float partialTicks) {
             int background = this.isHovered() ? 0xFF3F2410 : 0xFF2B190E;
             int border = this.isHovered() ? 0xFF7B4F29 : 0xFF5A3520;
-            ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
-            ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
-            ClayPotScreen.this.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
-            ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
-            ClayPotScreen.this.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
+            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
+            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
+            screen.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
+            screen.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
+            screen.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
 
             int arrowColor = this.isHovered() ? 0xFFF7E3C5 : 0xFFD7C2A0;
             int centerX = this.x + this.width / 2;
             int centerY = this.y + this.height / 2;
-            ClayPotScreen.this.fill(matrices, centerX - 2, centerY - 1, centerX + 2, centerY + 1, arrowColor);
-            if (menu.isDrainMode()) {
-                ClayPotScreen.this.fill(matrices, centerX - 5, centerY - 2, centerX - 1, centerY + 2, arrowColor);
+            screen.fill(matrices, centerX - 2, centerY - 1, centerX + 2, centerY + 1, arrowColor);
+            if (screen.menu.isDrainMode()) {
+                screen.fill(matrices, centerX - 5, centerY - 2, centerX - 1, centerY + 2, arrowColor);
             } else {
-                ClayPotScreen.this.fill(matrices, centerX + 1, centerY - 2, centerX + 5, centerY + 2, arrowColor);
+                screen.fill(matrices, centerX + 1, centerY - 2, centerX + 5, centerY + 2, arrowColor);
             }
         }
     }
