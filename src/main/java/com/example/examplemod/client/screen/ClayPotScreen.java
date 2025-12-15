@@ -23,11 +23,11 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final ResourceLocation BACKGROUND =
             new ResourceLocation("examplemod", "textures/gui/clay_pot.png");
     private static final int FLUID_GAUGE_X = 154;
-    private static final int FLUID_GAUGE_Y = 26;
-    private static final int FLUID_GAUGE_WIDTH = 8;
-    private static final int FLUID_GAUGE_HEIGHT = 82;
+    private static final int FLUID_GAUGE_Y = 32;
+    private static final int FLUID_GAUGE_WIDTH = 5;
+    private static final int FLUID_GAUGE_HEIGHT = 63;
 
-    private Button modeButton;
+    private ModeToggleButton modeButton;
 
     public ClayPotScreen(ClayPotContainer screenContainer, PlayerInventory inv, ITextComponent title) {
         super(screenContainer, inv, title);
@@ -42,14 +42,9 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     @Override
     protected void init() {
         super.init();
-        this.modeButton = this.addButton(new Button(
+        this.modeButton = this.addButton(new ModeToggleButton(
                 this.leftPos + ClayPotContainer.MODE_BUTTON_X,
-                this.topPos + ClayPotContainer.MODE_BUTTON_Y,
-                60,
-                20,
-                getModeButtonText(),
-                button -> ModNetworkHandler.CHANNEL.sendToServer(
-                        new ClayPotModePacket(menu.getBlockPos()))
+                this.topPos + ClayPotContainer.MODE_BUTTON_Y
         ));
         updateModeButtonText();
     }
@@ -68,13 +63,18 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         updateModeButtonText();
+        if (modeButton != null && modeButton.isHovered()) {
+            renderTooltip(matrixStack, getModeButtonTooltip(), mouseX, mouseY);
+        }
+        if (isMouseOverGauge(mouseX, mouseY)) {
+            renderTooltip(matrixStack, getFluidTooltip(), mouseX, mouseY);
+        }
     }
 
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
         this.font.draw(matrixStack, this.title, this.titleLabelX, this.titleLabelY, 0xFFD9AC71);
         this.font.draw(matrixStack, this.inventory.getDisplayName(), this.inventoryLabelX, this.inventoryLabelY, 0xFFD9AC71);
-        renderFluidLabel(matrixStack);
     }
 
     private void renderFluidGauge(MatrixStack matrixStack) {
@@ -95,15 +95,19 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         fill(matrixStack, left, top, right, bottom, getFluidColor(menu.getFluidType()));
     }
 
-    private void renderFluidLabel(MatrixStack matrixStack) {
+    private boolean isMouseOverGauge(double mouseX, double mouseY) {
+        int left = this.leftPos + FLUID_GAUGE_X;
+        int right = left + FLUID_GAUGE_WIDTH;
+        int top = this.topPos + FLUID_GAUGE_Y;
+        int bottom = top + FLUID_GAUGE_HEIGHT;
+        return mouseX >= left && mouseX < right && mouseY >= top && mouseY < bottom;
+    }
+
+    private ITextComponent getFluidTooltip() {
         String amount = menu.getFluidAmount() + " / " + menu.getFluidCapacity();
-        ITextComponent fluidName = getFluidName();
-        ITextComponent label = new TranslationTextComponent("tooltip.examplemod.clay_pot.water",
-                fluidName,
+        return new TranslationTextComponent("tooltip.examplemod.clay_pot.fluid",
+                getFluidName(),
                 new StringTextComponent(amount));
-        int textX = FLUID_GAUGE_X - 18;
-        int textY = FLUID_GAUGE_Y - 12;
-        this.font.draw(matrixStack, label, textX, textY, 0xFFBFBFBF);
     }
 
     private ITextComponent getFluidName() {
@@ -126,13 +130,44 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
 
     private void updateModeButtonText() {
         if (modeButton != null) {
-            modeButton.setMessage(getModeButtonText());
+            modeButton.setMessage(StringTextComponent.EMPTY);
         }
     }
 
-    private TranslationTextComponent getModeButtonText() {
+    private TranslationTextComponent getModeButtonTooltip() {
         return new TranslationTextComponent(menu.isDrainMode()
                 ? "button.examplemod.clay_pot.mode.drain"
                 : "button.examplemod.clay_pot.mode.fill");
+    }
+
+    private final class ModeToggleButton extends Button {
+        private ModeToggleButton(int x, int y) {
+            super(x, y, ClayPotContainer.MODE_BUTTON_SIZE, ClayPotContainer.MODE_BUTTON_SIZE,
+                    StringTextComponent.EMPTY,
+                    button -> ModNetworkHandler.CHANNEL.sendToServer(
+                            new ClayPotModePacket(menu.getBlockPos()))
+            );
+        }
+
+        @Override
+        public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float partialTicks) {
+            int background = this.isHoveredOrFocused() ? 0xFF3F2410 : 0xFF2B190E;
+            int border = this.isHoveredOrFocused() ? 0xFF7B4F29 : 0xFF5A3520;
+            ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
+            ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
+            ClayPotScreen.this.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
+            ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
+            ClayPotScreen.this.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
+
+            int arrowColor = this.isHoveredOrFocused() ? 0xFFF7E3C5 : 0xFFD7C2A0;
+            int centerX = this.x + this.width / 2;
+            int centerY = this.y + this.height / 2;
+            ClayPotScreen.this.fill(matrices, centerX - 2, centerY - 1, centerX + 2, centerY + 1, arrowColor);
+            if (menu.isDrainMode()) {
+                ClayPotScreen.this.fill(matrices, centerX - 5, centerY - 2, centerX - 1, centerY + 2, arrowColor);
+            } else {
+                ClayPotScreen.this.fill(matrices, centerX + 1, centerY - 2, centerX + 5, centerY + 2, arrowColor);
+            }
+        }
     }
 }
