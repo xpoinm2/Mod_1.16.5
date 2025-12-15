@@ -8,6 +8,7 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import com.example.examplemod.network.ActivityPacket;
+import com.example.examplemod.network.ClayPotModePacket;
 import com.example.examplemod.network.HarvestGrassPacket;
 import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
@@ -114,6 +115,13 @@ public class ModNetworkHandler {
                 OpenBoneTongsItemPacket::encode,
                 OpenBoneTongsItemPacket::decode,
                 OpenBoneTongsItemPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                ClayPotModePacket.class,
+                ClayPotModePacket::encode,
+                ClayPotModePacket::decode,
+                ClayPotModePacket::handle
         );
     }
 }

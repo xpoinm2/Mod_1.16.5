@@ -22,15 +22,14 @@ import javax.annotation.Nullable;
 
 public class ClayPotContainer extends Container {
     public static final int GRID_SIZE = 3;
-    public static final int GRID_START_X = 30;
+    public static final int GRID_START_X = 8;
     public static final int GRID_START_Y = 17;
-    public static final int FLUID_SLOT_INDEX = 9;
-    public static final int FLUID_SLOT_X = 150;
-    public static final int FLUID_SLOT_Y = 34;
-    public static final int FLUID_BAR_X = 124;
-    public static final int FLUID_BAR_Y = 16;
-    public static final int FLUID_BAR_WIDTH = 10;
-    public static final int FLUID_BAR_HEIGHT = 60;
+    public static final int FLUID_INPUT_X = 140;
+    public static final int FLUID_INPUT_Y = 17;
+    public static final int FLUID_OUTPUT_X = FLUID_INPUT_X;
+    public static final int FLUID_OUTPUT_Y = FLUID_INPUT_Y + 24;
+    public static final int MODE_BUTTON_X = 120;
+    public static final int MODE_BUTTON_Y = 80;
 
     private final ClayPotTileEntity tileEntity;
     private final IWorldPosCallable canInteract;
@@ -58,7 +57,10 @@ public class ClayPotContainer extends Container {
             }
         }
 
-        this.addSlot(new FluidSlot(inventory, FLUID_SLOT_INDEX, FLUID_SLOT_X, FLUID_SLOT_Y));
+        this.addSlot(new FluidInputSlot(inventory, ClayPotTileEntity.FLUID_INPUT_SLOT,
+                FLUID_INPUT_X, FLUID_INPUT_Y));
+        this.addSlot(new FluidOutputSlot(inventory, ClayPotTileEntity.FLUID_OUTPUT_SLOT,
+                FLUID_OUTPUT_X, FLUID_OUTPUT_Y));
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -92,34 +94,32 @@ public class ClayPotContainer extends Container {
             ItemStack stack = slot.getItem();
             result = stack.copy();
 
-            int playerInvStart = FLUID_SLOT_INDEX + 1;
+            int playerInvStart = ClayPotTileEntity.TOTAL_SLOTS;
             int playerInvEnd = playerInvStart + 27;
             int hotbarStart = playerInvEnd;
             int hotbarEnd = hotbarStart + 9;
 
-            if (index < FLUID_SLOT_INDEX + 1) {
+            if (index < playerInvStart) {
                 if (!this.moveItemStackTo(stack, playerInvStart, hotbarEnd, true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
                 if (stackHasFluidCapability(stack)) {
-                    if (!this.moveItemStackTo(stack, FLUID_SLOT_INDEX, FLUID_SLOT_INDEX + 1, false)) {
-                        if (!this.moveItemStackTo(stack, 0, FLUID_SLOT_INDEX, false)) {
+                    if (!this.moveItemStackTo(stack, ClayPotTileEntity.FLUID_INPUT_SLOT, ClayPotTileEntity.FLUID_INPUT_SLOT + 1, false)) {
+                        if (!this.moveItemStackTo(stack, 0, ClayPotTileEntity.INV_SLOTS, false)) {
                             return ItemStack.EMPTY;
                         }
                     }
-                } else if (!this.moveItemStackTo(stack, 0, FLUID_SLOT_INDEX, false)) {
-                    if (index >= playerInvStart && index < playerInvEnd) {
-                        if (!this.moveItemStackTo(stack, hotbarStart, hotbarEnd, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else if (index >= hotbarStart && index < hotbarEnd) {
-                        if (!this.moveItemStackTo(stack, playerInvStart, playerInvEnd, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else {
+                } else if (index >= playerInvStart && index < playerInvEnd) {
+                    if (!this.moveItemStackTo(stack, hotbarStart, hotbarEnd, false)) {
                         return ItemStack.EMPTY;
                     }
+                } else if (index >= hotbarStart && index < hotbarEnd) {
+                    if (!this.moveItemStackTo(stack, playerInvStart, playerInvEnd, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (!this.moveItemStackTo(stack, 0, ClayPotTileEntity.INV_SLOTS, false)) {
+                    return ItemStack.EMPTY;
                 }
             }
 
@@ -158,22 +158,53 @@ public class ClayPotContainer extends Container {
         return null;
     }
 
+    public boolean isDrainMode() {
+        return tileEntity.isDrainMode();
+    }
+
+    public BlockPos getBlockPos() {
+        return tileEntity.getBlockPos();
+    }
+
+    public void toggleMode() {
+        tileEntity.toggleDrainMode();
+        this.broadcastChanges();
+    }
+
     private boolean stackHasFluidCapability(ItemStack stack) {
         return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
     }
 
-    private static final class FluidSlot extends SlotItemHandler {
-        private FluidSlot(IItemHandler handler, int index, int xPosition, int yPosition) {
+    private final class FluidInputSlot extends SlotItemHandler {
+        private FluidInputSlot(IItemHandler handler, int index, int xPosition, int yPosition) {
             super(handler, index, xPosition, yPosition);
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
+            return stackHasFluidCapability(stack);
+        }
+
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            tileEntity.tryProcessFluidSlots();
+        }
+    }
+
+    private static final class FluidOutputSlot extends SlotItemHandler {
+        private FluidOutputSlot(IItemHandler handler, int index, int xPosition, int yPosition) {
+            super(handler, index, xPosition, yPosition);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return false;
         }
     }
 
     private static final class ClayPotData implements IIntArray {
+        private static final int MODE_INDEX = 2;
         private final ClayPotTileEntity tileEntity;
 
         private ClayPotData(ClayPotTileEntity tileEntity) {
@@ -194,6 +225,8 @@ public class ClayPotContainer extends Container {
                         return 1;
                     }
                     return 0;
+                case MODE_INDEX:
+                    return tileEntity.isDrainMode() ? 1 : 0;
                 default:
                     return 0;
             }
@@ -201,12 +234,14 @@ public class ClayPotContainer extends Container {
 
         @Override
         public void set(int index, int value) {
-            // data only synced from the server intentionally
+            if (index == MODE_INDEX) {
+                tileEntity.setDrainMode(value == 1);
+            }
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return MODE_INDEX + 1;
         }
     }
 }

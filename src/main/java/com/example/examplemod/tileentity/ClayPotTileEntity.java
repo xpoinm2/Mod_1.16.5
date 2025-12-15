@@ -19,6 +19,8 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -39,8 +41,12 @@ public class ClayPotTileEntity extends TileEntity {
            }
 
     public static final int INV_SLOTS = 9;
-    public static final int FLUID_SLOT = 9;
-    public static final int TOTAL_SLOTS = 10;
+    public static final int FLUID_INPUT_SLOT = INV_SLOTS;
+    public static final int FLUID_OUTPUT_SLOT = INV_SLOTS + 1;
+    public static final int TOTAL_SLOTS = FLUID_OUTPUT_SLOT + 1;
+    private static final String NBT_DRAIN_MODE = "DrainMode";
+
+    private boolean drainMode = false;
 
     private final FluidTank tank = new FluidTank(CAPACITY) {
         @Override
@@ -86,6 +92,25 @@ public class ClayPotTileEntity extends TileEntity {
     public void clear() {
         tank.setFluid(FluidStack.EMPTY);
         setChanged();
+    }
+
+    public boolean isDrainMode() {
+        return drainMode;
+    }
+
+    public void setDrainMode(boolean drain) {
+        if (drainMode == drain) {
+            return;
+        }
+        drainMode = drain;
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    public void toggleDrainMode() {
+        setDrainMode(!drainMode);
     }
 
     private void updateFillLevel() {
@@ -169,6 +194,9 @@ public class ClayPotTileEntity extends TileEntity {
         tank.readFromNBT(nbt.getCompound("Tank"));
         oreWashCount = nbt.getInt("WashCount");
         lastKnownFluid = tank.getFluid().getFluid();
+        if (nbt.contains(NBT_DRAIN_MODE)) {
+            drainMode = nbt.getBoolean(NBT_DRAIN_MODE);
+        }
     }
 
     @Override
@@ -177,6 +205,7 @@ public class ClayPotTileEntity extends TileEntity {
         nbt.put("Inventory", inventory.serializeNBT());
         nbt.put("Tank", tank.writeToNBT(new CompoundNBT()));
         nbt.putInt("WashCount", oreWashCount);
+        nbt.putBoolean(NBT_DRAIN_MODE, drainMode);
         return nbt;
     }
 
@@ -255,5 +284,57 @@ public class ClayPotTileEntity extends TileEntity {
                 inventory.setStackInSlot(slot, ItemStack.EMPTY);
             }
         }
+    }
+
+    public boolean tryProcessFluidSlots() {
+        if (level == null || level.isClientSide) {
+            return false;
+        }
+        ItemStack input = inventory.getStackInSlot(FLUID_INPUT_SLOT);
+        ItemStack output = inventory.getStackInSlot(FLUID_OUTPUT_SLOT);
+        if (input.isEmpty() || !output.isEmpty()) {
+            return false;
+        }
+        LazyOptional<IFluidHandlerItem> containerCap = input.getCapability(
+                CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
+        IFluidHandlerItem containerHandler = containerCap.orElse(null);
+        if (containerHandler == null) {
+            return false;
+        }
+
+        boolean processed = false;
+        if (drainMode) {
+            FluidStack simulated = containerHandler.drain(CAPACITY, FluidAction.SIMULATE);
+            if (!simulated.isEmpty()) {
+                int accepted = tank.fill(simulated, FluidAction.SIMULATE);
+                if (accepted > 0) {
+                    FluidStack drained = containerHandler.drain(accepted, FluidAction.EXECUTE);
+                    tank.fill(drained, FluidAction.EXECUTE);
+                    processed = drained.getAmount() > 0;
+                }
+            }
+        } else {
+            FluidStack available = tank.getFluid();
+            if (!available.isEmpty()) {
+                FluidStack toFill = available.copy();
+                int filled = containerHandler.fill(toFill, FluidAction.SIMULATE);
+                if (filled > 0) {
+                    toFill.setAmount(filled);
+                    containerHandler.fill(toFill, FluidAction.EXECUTE);
+                    tank.drain(filled, FluidAction.EXECUTE);
+                    processed = true;
+                }
+            }
+        }
+
+        if (!processed) {
+            return false;
+        }
+
+        ItemStack moved = inventory.extractItem(FLUID_INPUT_SLOT, 1, false);
+        if (!moved.isEmpty()) {
+            inventory.setStackInSlot(FLUID_OUTPUT_SLOT, moved);
+        }
+        return true;
     }
 }
