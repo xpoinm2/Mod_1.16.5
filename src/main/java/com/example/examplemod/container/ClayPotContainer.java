@@ -23,13 +23,13 @@ import javax.annotation.Nullable;
 public class ClayPotContainer extends Container {
     public static final int GRID_SIZE = 3;
     public static final int GRID_START_X = 60;
-    public static final int GRID_START_Y = 29;
+    public static final int GRID_START_Y = 36;
     public static final int FLUID_INPUT_X = 140;
     public static final int FLUID_INPUT_Y = 17;
     public static final int FLUID_OUTPUT_X = FLUID_INPUT_X;
     public static final int FLUID_OUTPUT_Y = FLUID_INPUT_Y + 24;
-    public static final int MODE_BUTTON_X = 120;
-    public static final int MODE_BUTTON_Y = 80;
+    public static final int MODE_BUTTON_X = 8;
+    public static final int MODE_BUTTON_Y = 12;
 
     private final ClayPotTileEntity tileEntity;
     private final IWorldPosCallable canInteract;

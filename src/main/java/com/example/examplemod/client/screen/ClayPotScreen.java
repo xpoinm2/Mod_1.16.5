@@ -22,9 +22,9 @@ import javax.annotation.Nullable;
 public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final ResourceLocation BACKGROUND =
             new ResourceLocation("examplemod", "textures/gui/clay_pot.png");
-    private static final int FLUID_GAUGE_X = 144;
+    private static final int FLUID_GAUGE_X = 154;
     private static final int FLUID_GAUGE_Y = 26;
-    private static final int FLUID_GAUGE_WIDTH = 18;
+    private static final int FLUID_GAUGE_WIDTH = 8;
     private static final int FLUID_GAUGE_HEIGHT = 82;
 
     private Button modeButton;
@@ -101,7 +101,7 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         ITextComponent label = new TranslationTextComponent("tooltip.examplemod.clay_pot.water",
                 fluidName,
                 new StringTextComponent(amount));
-        int textX = FLUID_GAUGE_X - 12;
+        int textX = FLUID_GAUGE_X - 18;
         int textY = FLUID_GAUGE_Y - 12;
         this.font.draw(matrixStack, label, textX, textY, 0xFFBFBFBF);
     }
