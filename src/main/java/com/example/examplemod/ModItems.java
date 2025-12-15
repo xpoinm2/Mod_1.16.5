@@ -148,6 +148,10 @@ public class ModItems {
     public static final RegistryObject<Item> RAW_CLAY_CUP = ITEMS.register("raw_clay_cup",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Сырой глиняный кирпич: новый строительный материал
+    public static final RegistryObject<Item> RAW_CLAY_BRICK = ITEMS.register("raw_clay_brick",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Глиняная чашка: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_CUP = ITEMS.register("clay_cup",
             () -> new ClayCupItem(new Item.Properties()
