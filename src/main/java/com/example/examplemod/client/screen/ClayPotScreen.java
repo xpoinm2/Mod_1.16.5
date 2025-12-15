@@ -151,15 +151,15 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
 
         @Override
         public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float partialTicks) {
-            int background = this.isHoveredOrFocused() ? 0xFF3F2410 : 0xFF2B190E;
-            int border = this.isHoveredOrFocused() ? 0xFF7B4F29 : 0xFF5A3520;
+            int background = this.isHovered() ? 0xFF3F2410 : 0xFF2B190E;
+            int border = this.isHovered() ? 0xFF7B4F29 : 0xFF5A3520;
             ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
             ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
             ClayPotScreen.this.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
             ClayPotScreen.this.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
             ClayPotScreen.this.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
 
-            int arrowColor = this.isHoveredOrFocused() ? 0xFFF7E3C5 : 0xFFD7C2A0;
+            int arrowColor = this.isHovered() ? 0xFFF7E3C5 : 0xFFD7C2A0;
             int centerX = this.x + this.width / 2;
             int centerY = this.y + this.height / 2;
             ClayPotScreen.this.fill(matrices, centerX - 2, centerY - 1, centerX + 2, centerY + 1, arrowColor);
