@@ -31,7 +31,7 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final int FLUID_GAUGE_X = 176 - 4 - FLUID_GAUGE_WIDTH;
     private static final int FLUID_GAUGE_Y = 4;
     private static final int WASH_BUTTON_X = 90;
-    private static final int WASH_BUTTON_Y = 35;
+    private static final int WASH_BUTTON_Y = 45;
     private static final int WASH_BUTTON_WIDTH = 40;
     private static final int WASH_BUTTON_HEIGHT = 14;
     private static final int WASH_PROGRESS_FRAME_COUNT = 8;
@@ -163,9 +163,9 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
             return;
         }
 
-        // Позиция для отображения анимации (рядом с кнопкой помыть)
-        int progressX = this.leftPos + WASH_BUTTON_X + WASH_BUTTON_WIDTH + 10;
-        int progressY = this.topPos + WASH_BUTTON_Y - 2;
+        // Позиция для отображения анимации (по центру сверху кнопки)
+        int progressX = this.leftPos + WASH_BUTTON_X + WASH_BUTTON_WIDTH / 2 - 8; // Центр кнопки минус половина ширины анимации
+        int progressY = this.topPos + WASH_BUTTON_Y - 2 - 16; // Над кнопкой на 2 пикселя выше её верхнего края
 
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(WASH_PROGRESS_FRAMES[progress - 1]);
