@@ -220,18 +220,38 @@ public class ClayPotTileEntity extends TileEntity {
         return fluid.getAmount() >= CAPACITY && fluid.getFluid().isSame(Fluids.WATER);
     }
 
+    public boolean canWashOreUI() {
+        FluidStack fluid = tank.getFluid();
+        boolean hasEnoughWater = fluid.getAmount() >= 250;
+        boolean isWater = fluid.getFluid().isSame(Fluids.WATER);
+        System.out.println("canWashOreUI: amount=" + fluid.getAmount() + ", isWater=" + isWater + ", hasEnough=" + hasEnoughWater);
+        return hasEnoughWater && isWater;
+    }
+
     public boolean hasWashableItems() {
         for (int slot = 0; slot < INV_SLOTS; slot++) {
             ItemStack stack = inventory.getStackInSlot(slot);
-            if (!stack.isEmpty() && !getWashingResult(stack).isEmpty()) {
-                return true;
+            if (!stack.isEmpty()) {
+                ItemStack result = getWashingResult(stack);
+                System.out.println("Slot " + slot + ": " + stack.getItem().getRegistryName() + " -> " + (result.isEmpty() ? "no result" : result.getItem().getRegistryName()));
+                if (!result.isEmpty()) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public boolean canWashNow() {
-        return canWashOre() && hasWashableItems();
+        return canWashOreUI() && hasWashableItems();
+    }
+
+    // Временная отладочная версия
+    public boolean canWashNowDebug() {
+        boolean hasWater = canWashOreUI();
+        boolean hasItems = hasWashableItems();
+        System.out.println("canWashNow: hasWater=" + hasWater + ", hasItems=" + hasItems);
+        return hasWater && hasItems;
     }
 
     public void recordOreWash() {

@@ -172,7 +172,7 @@ public class ClayPotContainer extends Container {
     }
 
     public boolean canWashNow() {
-        return tileEntity.canWashNow();
+        return tileEntity.canWashNowDebug();
     }
 
     public void toggleMode() {
