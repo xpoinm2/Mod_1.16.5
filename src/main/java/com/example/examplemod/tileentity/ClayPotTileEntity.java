@@ -167,6 +167,8 @@ public class ClayPotTileEntity extends TileEntity {
             return new ItemStack(ModItems.CLEANED_GRAVEL_TIN_ORE.get(), input.getCount());
         } else if (input.getItem() == ModItems.GOLD_ORE_GRAVEL.get()) {
             return new ItemStack(ModItems.CLEANED_GRAVEL_GOLD_ORE.get(), input.getCount());
+        } else if (input.getItem() == ModItems.IRON_ORE_GRAVEL.get()) {
+            return new ItemStack(ModItems.PURE_IRON_ORE.get(), input.getCount());
         }
         return ItemStack.EMPTY;
     }
@@ -203,7 +205,7 @@ public class ClayPotTileEntity extends TileEntity {
 
     public boolean canWashOre() {
         FluidStack fluid = tank.getFluid();
-        return fluid.getAmount() >= CAPACITY && fluid.getFluid().isSame(Fluids.WATER);
+        return fluid.getAmount() >= 250 && fluid.getFluid().isSame(Fluids.WATER);
     }
 
     public boolean hasWashableItems() {
