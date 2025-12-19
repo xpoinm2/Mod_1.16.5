@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 
 public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final ResourceLocation BACKGROUND =
-            new ResourceLocation("examplemod", "textures/gui/clay_pot.png");
+            new ResourceLocation(ExampleMod.MODID, "textures/gui/clay_pot.png");
     private static final int FLUID_GAUGE_WIDTH = 5;
     private static final int FLUID_GAUGE_HEIGHT = 63;
     private static final int FLUID_GAUGE_X = 176 - 4 - FLUID_GAUGE_WIDTH;
