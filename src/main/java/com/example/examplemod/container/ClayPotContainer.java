@@ -171,6 +171,10 @@ public class ClayPotContainer extends Container {
         return data.get(3);
     }
 
+    public boolean canWashNow() {
+        return tileEntity.canWashNow();
+    }
+
     public void toggleMode() {
         tileEntity.toggleDrainMode();
         this.broadcastChanges();

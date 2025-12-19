@@ -235,17 +235,32 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         private WashButton(ClayPotScreen screen, int x, int y) {
             super(x, y, WASH_BUTTON_WIDTH, WASH_BUTTON_HEIGHT,
                     new StringTextComponent("Помыть"),
-                    button -> ModNetworkHandler.CHANNEL.sendToServer(
-                            new WashProgressPacket(screen.menu.getBlockPos()))
+                    button -> {
+                        if (screen.menu.canWashNow()) {
+                            ModNetworkHandler.CHANNEL.sendToServer(
+                                    new WashProgressPacket(screen.menu.getBlockPos()));
+                        }
+                    }
             );
             this.screen = screen;
         }
 
         @Override
         public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float partialTicks) {
-            int background = this.isHovered() ? 0xFF4A90E2 : 0xFF2E7BC8;
-            int border = this.isHovered() ? 0xFF7BB3E8 : 0xFF1E5A9C;
-            int textColor = this.isHovered() ? 0xFFFFFF : 0xE0E0E0;
+            boolean isActive = screen.menu.canWashNow();
+
+            int background, border, textColor;
+            if (isActive) {
+                // Коричневые цвета для активной кнопки
+                background = this.isHovered() ? 0xFF8B4513 : 0xFF654321;
+                border = this.isHovered() ? 0xFFB8651A : 0xFF8B4513;
+                textColor = this.isHovered() ? 0xFFFFFF : 0xFFF5F5DC;
+            } else {
+                // Серые цвета для неактивной кнопки
+                background = 0xFF666666;
+                border = 0xFF999999;
+                textColor = 0xFFCCCCCC;
+            }
 
             // Фон кнопки
             screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);

@@ -206,6 +206,20 @@ public class ClayPotTileEntity extends TileEntity {
         return fluid.getAmount() >= CAPACITY && fluid.getFluid().isSame(Fluids.WATER);
     }
 
+    public boolean hasWashableItems() {
+        for (int slot = 0; slot < INV_SLOTS; slot++) {
+            ItemStack stack = inventory.getStackInSlot(slot);
+            if (!stack.isEmpty() && !getWashingResult(stack).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canWashNow() {
+        return canWashOre() && hasWashableItems();
+    }
+
     public void recordOreWash() {
         if (!canWashOre()) {
             return;
