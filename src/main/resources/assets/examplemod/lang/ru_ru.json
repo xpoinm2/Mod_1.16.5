@@ -124,6 +124,7 @@
   "tooltip.examplemod.clay_pot.fluid": "%s: %s / %s",
   "button.examplemod.clay_pot.mode.fill": "Из горшка",
   "button.examplemod.clay_pot.mode.drain": "В горшок",
+  "button.examplemod.clay_pot.wash": "Помыть",
   "tooltip.examplemod.fluid.liters": "%s л",
   "tooltip.examplemod.fluid.milliliters": "%s мл",
   "key.examplemod.main_page": "Интерфейс игрока",
