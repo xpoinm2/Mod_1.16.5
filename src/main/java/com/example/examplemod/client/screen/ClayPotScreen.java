@@ -5,6 +5,7 @@ import com.example.examplemod.ModFluids;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.network.ClayPotModePacket;
 import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.util.FluidTextUtil;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -105,10 +106,12 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     }
 
     private ITextComponent getFluidTooltip() {
-        String amount = menu.getFluidAmount() + " / " + menu.getFluidCapacity();
+        ITextComponent currentAmount = FluidTextUtil.formatAmount(menu.getFluidAmount());
+        ITextComponent capacity = FluidTextUtil.formatAmount(menu.getFluidCapacity());
         return new TranslationTextComponent("tooltip.examplemod.clay_pot.fluid",
                 getFluidName(),
-                new StringTextComponent(amount));
+                currentAmount,
+                capacity);
     }
 
     private ITextComponent getFluidName() {
