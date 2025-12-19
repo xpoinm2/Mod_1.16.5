@@ -3,6 +3,7 @@ package com.example.examplemod.container;
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModContainers;
 import com.example.examplemod.ModFluids;
+import com.example.examplemod.ModItems;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -10,11 +11,12 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -52,7 +54,7 @@ public class ClayPotContainer extends Container {
         for (int row = 0; row < GRID_SIZE; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
                 int index = col + row * GRID_SIZE;
-                this.addSlot(new SlotItemHandler(inventory, index,
+                this.addSlot(new InventorySlot(inventory, index,
                         GRID_START_X + col * 18,
                         GRID_START_Y + row * 18));
             }
@@ -210,6 +212,52 @@ public class ClayPotContainer extends Container {
         public boolean mayPlace(ItemStack stack) {
             return false;
         }
+    }
+
+    private final class InventorySlot extends SlotItemHandler {
+        public InventorySlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+            super(itemHandler, index, xPosition, yPosition);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return canPlaceItemOfType(stack);
+        }
+    }
+
+    private boolean canPlaceItemOfType(ItemStack stack) {
+        // Получаем тип предмета
+        Item itemType = getWashableItemType(stack.getItem());
+        if (itemType == null) {
+            return true; // Не промывочный предмет, разрешаем
+        }
+
+        // Проверяем, есть ли уже предметы другого типа
+        Item existingType = null;
+        for (int slot = 0; slot < ClayPotTileEntity.INV_SLOTS; slot++) {
+            ItemStack existing = inventory.getStackInSlot(slot);
+            if (!existing.isEmpty()) {
+                Item existingItemType = getWashableItemType(existing.getItem());
+                if (existingItemType != null) {
+                    if (existingType == null) {
+                        existingType = existingItemType;
+                    } else if (!existingType.equals(existingItemType)) {
+                        // Уже есть разные типы, запрещаем
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Если есть существующий тип, проверяем совпадение
+        return existingType == null || existingType.equals(itemType);
+    }
+
+    private Item getWashableItemType(Item item) {
+        if (item == ModItems.TIN_ORE_GRAVEL.get()) return ModItems.TIN_ORE_GRAVEL.get();
+        if (item == ModItems.GOLD_ORE_GRAVEL.get()) return ModItems.GOLD_ORE_GRAVEL.get();
+        if (item == ModItems.IRON_ORE_GRAVEL.get()) return ModItems.IRON_ORE_GRAVEL.get();
+        return null;
     }
 
     private static final class ClayPotData implements IIntArray {

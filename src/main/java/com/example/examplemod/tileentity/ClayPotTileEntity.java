@@ -131,11 +131,9 @@ public class ClayPotTileEntity extends TileEntity {
 
         lastWashTime = currentTime;
         washProgress++;
-        System.out.println("Wash progress: " + washProgress);
 
         if (washProgress >= 8) {
             washProgress = 0;
-            System.out.println("Completing washing...");
             // Здесь можно добавить логику завершения помывки и крафта
             tryCompleteWashing();
         }
@@ -148,26 +146,101 @@ public class ClayPotTileEntity extends TileEntity {
     }
 
     private void tryCompleteWashing() {
-        System.out.println("Trying to complete washing...");
-        // Проверяем все слоты инвентаря на предметы для промывки
+        // Рассчитываем максимальное количество предметов для промывки
+        int maxItemsToWash = tank.getFluidAmount() / CONTAMINATION_PER_ITEM;
+        if (maxItemsToWash <= 0) {
+            return;
+        }
+
+        // Промываем предметы по слотам
+        int itemsWashed = 0;
         for (int slot = 0; slot < INV_SLOTS; slot++) {
+            if (itemsWashed >= maxItemsToWash) break;
+
             ItemStack stack = inventory.getStackInSlot(slot);
             if (stack.isEmpty()) continue;
 
             ItemStack result = getWashingResult(stack);
-            System.out.println("Slot " + slot + ": " + stack.getItem().getRegistryName() + " -> " + (result.isEmpty() ? "no result" : result.getItem().getRegistryName()));
             if (!result.isEmpty()) {
-                // Заменяем предмет на результат промывки
-                inventory.setStackInSlot(slot, result);
-                System.out.println("Converted item, recording ore wash...");
-                // Сбрасываем прогресс после успешной промывки
-                resetWashProgress();
-                // Записываем загрязнение воды
-                recordOreWash();
-                return; // Обрабатываем только один предмет за раз
+                // Определяем сколько предметов можем помыть из этого слота
+                int canWashFromSlot = Math.min(stack.getCount(), maxItemsToWash - itemsWashed);
+
+                if (canWashFromSlot > 0) {
+                    // Создаем результат для промытых предметов
+                    ItemStack cleanResult = result.copy();
+                    cleanResult.setCount(canWashFromSlot);
+
+                    // Пытаемся вставить чистые предметы в свободные слоты
+                    int inserted = insertStackIntoFreeSlots(cleanResult);
+
+                    if (inserted > 0) {
+                        // Уменьшаем количество грязных предметов
+                        stack.shrink(inserted);
+
+                        // Добавляем глину за каждый промытый предмет
+                        ItemStack clay = new ItemStack(net.minecraft.item.Items.CLAY_BALL, inserted);
+                        insertStackIntoFreeSlots(clay);
+
+                        // Записываем загрязнение воды
+                        for (int i = 0; i < inserted; i++) {
+                            recordOreWashForItem();
+                        }
+
+                        itemsWashed += inserted;
+                    }
+                }
             }
         }
-        System.out.println("No washable items found");
+
+        // Сбрасываем прогресс после успешной промывки
+        resetWashProgress();
+    }
+
+    private int insertStackIntoFreeSlots(ItemStack stack) {
+        int remaining = stack.getCount();
+        int originalCount = remaining;
+
+        // Сначала пытаемся добавить к существующим стакам того же типа
+        for (int slot = 0; slot < INV_SLOTS && remaining > 0; slot++) {
+            ItemStack existing = inventory.getStackInSlot(slot);
+            if (!existing.isEmpty() && existing.getItem() == stack.getItem() &&
+                existing.getCount() < existing.getMaxStackSize()) {
+                int canAdd = Math.min(remaining, existing.getMaxStackSize() - existing.getCount());
+                existing.grow(canAdd);
+                remaining -= canAdd;
+            }
+        }
+
+        // Затем кладем в пустые слоты
+        for (int slot = 0; slot < INV_SLOTS && remaining > 0; slot++) {
+            ItemStack existing = inventory.getStackInSlot(slot);
+            if (existing.isEmpty()) {
+                int canAdd = Math.min(remaining, stack.getMaxStackSize());
+                ItemStack toInsert = stack.copy();
+                toInsert.setCount(canAdd);
+                inventory.setStackInSlot(slot, toInsert);
+                remaining -= canAdd;
+            }
+        }
+
+        return originalCount - remaining;
+    }
+
+
+    private void recordOreWashForItem() {
+        FluidStack fluid = tank.getFluid();
+        if (fluid.isEmpty() || !fluid.getFluid().isSame(Fluids.WATER)) {
+            return;
+        }
+        contaminatedAmount += CONTAMINATION_PER_ITEM;
+        if (contaminatedAmount >= tank.getFluidAmount()) {
+            int amount = tank.getFluidAmount();
+            if (amount > 0) {
+                tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), amount));
+                notifyFluidTypeChanged();
+            }
+            contaminatedAmount = 0;
+        }
     }
 
     private ItemStack getWashingResult(ItemStack input) {
