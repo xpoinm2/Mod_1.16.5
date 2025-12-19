@@ -167,14 +167,6 @@ public class ClayPotContainer extends Container {
         return tileEntity.getBlockPos();
     }
 
-    public int getWashProgress() {
-        return data.get(3);
-    }
-
-    public boolean canWashNow() {
-        return tileEntity.canWashNow();
-    }
-
     public void toggleMode() {
         tileEntity.toggleDrainMode();
         this.broadcastChanges();
@@ -214,7 +206,6 @@ public class ClayPotContainer extends Container {
 
     private static final class ClayPotData implements IIntArray {
         private static final int MODE_INDEX = 2;
-        private static final int WASH_PROGRESS_INDEX = 3;
         private final ClayPotTileEntity tileEntity;
 
         private ClayPotData(ClayPotTileEntity tileEntity) {
@@ -237,8 +228,6 @@ public class ClayPotContainer extends Container {
                     return 0;
                 case MODE_INDEX:
                     return tileEntity.isDrainMode() ? 1 : 0;
-                case WASH_PROGRESS_INDEX:
-                    return tileEntity.getWashProgress();
                 default:
                     return 0;
             }
@@ -253,7 +242,7 @@ public class ClayPotContainer extends Container {
 
         @Override
         public int getCount() {
-            return WASH_PROGRESS_INDEX + 1;
+            return MODE_INDEX + 1;
         }
     }
 }

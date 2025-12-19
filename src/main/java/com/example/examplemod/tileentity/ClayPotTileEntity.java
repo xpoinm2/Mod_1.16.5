@@ -2,7 +2,6 @@ package com.example.examplemod.tileentity;
 
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.ModFluids;
-import com.example.examplemod.ModItems;
 import com.example.examplemod.block.ClayPotBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
@@ -32,8 +31,8 @@ import javax.annotation.Nullable;
 
 public class ClayPotTileEntity extends TileEntity {
     public static final int CAPACITY = 8000;
-    private static final int WASHES_BEFORE_DIRTY = 12;
-    private int oreWashCount = 0;
+    private static final int CONTAMINATION_PER_ITEM = 250;
+    private int contaminatedAmount = 0;
     private Fluid lastKnownFluid = Fluids.EMPTY;
 
        // Добавлено: getter для TESR (строки 45-48)
@@ -46,12 +45,8 @@ public class ClayPotTileEntity extends TileEntity {
     public static final int FLUID_OUTPUT_SLOT = INV_SLOTS + 1;
     public static final int TOTAL_SLOTS = FLUID_OUTPUT_SLOT + 1;
     private static final String NBT_DRAIN_MODE = "DrainMode";
-    private static final String NBT_WASH_PROGRESS = "WashProgress";
-    private static final String NBT_LAST_WASH_TIME = "LastWashTime";
 
     private boolean drainMode = false;
-    private int washProgress = 0; // 0-8, где 8 = полный прогресс
-    private long lastWashTime = 0; // timestamp последнего клика
 
     private final FluidTank tank = new FluidTank(CAPACITY) {
         @Override
@@ -118,67 +113,6 @@ public class ClayPotTileEntity extends TileEntity {
         setDrainMode(!drainMode);
     }
 
-    public int getWashProgress() {
-        return washProgress;
-    }
-
-    public void incrementWashProgress() {
-        long currentTime = System.currentTimeMillis();
-        // Проверка задержки в 0.2 секунды (200 мс)
-        if (currentTime - lastWashTime < 200) {
-            return; // Слишком рано для следующего клика
-        }
-
-        lastWashTime = currentTime;
-        washProgress++;
-
-        if (washProgress >= 8) {
-            washProgress = 0;
-            // Здесь можно добавить логику завершения помывки и крафта
-            tryCompleteWashing();
-        }
-
-        setChanged();
-        if (level != null && !level.isClientSide) {
-            BlockState previous = getBlockState();
-            level.sendBlockUpdated(worldPosition, previous, getBlockState(), 3);
-        }
-    }
-
-    private void tryCompleteWashing() {
-        // Проверяем все слоты инвентаря на предметы для промывки
-        for (int slot = 0; slot < INV_SLOTS; slot++) {
-            ItemStack stack = inventory.getStackInSlot(slot);
-            if (stack.isEmpty()) continue;
-
-            ItemStack result = getWashingResult(stack);
-            if (!result.isEmpty()) {
-                // Заменяем предмет на результат промывки
-                inventory.setStackInSlot(slot, result);
-                // Сбрасываем прогресс после успешной промывки
-                resetWashProgress();
-                return; // Обрабатываем только один предмет за раз
-            }
-        }
-    }
-
-    private ItemStack getWashingResult(ItemStack input) {
-        if (input.getItem() == ModItems.TIN_ORE_GRAVEL.get()) {
-            return new ItemStack(ModItems.CLEANED_GRAVEL_TIN_ORE.get(), input.getCount());
-        } else if (input.getItem() == ModItems.GOLD_ORE_GRAVEL.get()) {
-            return new ItemStack(ModItems.CLEANED_GRAVEL_GOLD_ORE.get(), input.getCount());
-        } else if (input.getItem() == ModItems.IRON_ORE_GRAVEL.get()) {
-            return new ItemStack(ModItems.PURE_IRON_ORE.get(), input.getCount());
-        }
-        return ItemStack.EMPTY;
-    }
-
-    public void resetWashProgress() {
-        washProgress = 0;
-        lastWashTime = 0;
-        setChanged();
-    }
-
     private void updateFillLevel() {
         if (level == null) {
             return;
@@ -199,41 +133,37 @@ public class ClayPotTileEntity extends TileEntity {
         Fluid current = tank.getFluid().getFluid();
         if (!current.isSame(lastKnownFluid)) {
             lastKnownFluid = current;
-            oreWashCount = 0;
+            // Сбрасываем загрязнение только когда переходим от грязной воды к чистой
+            if (current.isSame(Fluids.WATER) && lastKnownFluid.isSame(ModFluids.DIRTY_WATER.get())) {
+                contaminatedAmount = 0;
+            }
+        }
+
+        // Если объем воды уменьшился и загрязнение превышает текущий объем, превращаем воду в грязную
+        if (current.isSame(Fluids.WATER) && contaminatedAmount >= tank.getFluidAmount() && tank.getFluidAmount() > 0) {
+            tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), tank.getFluidAmount()));
+            notifyFluidTypeChanged();
+            contaminatedAmount = 0;
         }
     }
 
     public boolean canWashOre() {
         FluidStack fluid = tank.getFluid();
-        return fluid.getAmount() >= 250 && fluid.getFluid().isSame(Fluids.WATER);
-    }
-
-    public boolean hasWashableItems() {
-        for (int slot = 0; slot < INV_SLOTS; slot++) {
-            ItemStack stack = inventory.getStackInSlot(slot);
-            if (!stack.isEmpty() && !getWashingResult(stack).isEmpty()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean canWashNow() {
-        return canWashOre() && hasWashableItems();
+        return fluid.getAmount() >= CAPACITY && fluid.getFluid().isSame(Fluids.WATER);
     }
 
     public void recordOreWash() {
         if (!canWashOre()) {
             return;
         }
-        oreWashCount++;
-        if (oreWashCount >= WASHES_BEFORE_DIRTY) {
+        contaminatedAmount += CONTAMINATION_PER_ITEM;
+        if (contaminatedAmount >= tank.getFluidAmount()) {
             int amount = tank.getFluidAmount();
             if (amount > 0) {
                 tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), amount));
                 notifyFluidTypeChanged();
             }
-            oreWashCount = 0;
+            contaminatedAmount = 0; // Сбрасываем после превращения в грязную воду
         }
     }
 
@@ -272,13 +202,11 @@ public class ClayPotTileEntity extends TileEntity {
         super.load(state, nbt);
         inventory.deserializeNBT(getInventoryTagWithMinimumSize(nbt.getCompound("Inventory")));
         tank.readFromNBT(nbt.getCompound("Tank"));
-        oreWashCount = nbt.getInt("WashCount");
+        contaminatedAmount = nbt.getInt("ContaminatedAmount");
         lastKnownFluid = tank.getFluid().getFluid();
         if (nbt.contains(NBT_DRAIN_MODE)) {
             drainMode = nbt.getBoolean(NBT_DRAIN_MODE);
         }
-        washProgress = nbt.getInt(NBT_WASH_PROGRESS);
-        lastWashTime = nbt.getLong(NBT_LAST_WASH_TIME);
     }
 
     private CompoundNBT getInventoryTagWithMinimumSize(CompoundNBT tag) {
@@ -295,10 +223,8 @@ public class ClayPotTileEntity extends TileEntity {
         super.save(nbt);
         nbt.put("Inventory", inventory.serializeNBT());
         nbt.put("Tank", tank.writeToNBT(new CompoundNBT()));
-        nbt.putInt("WashCount", oreWashCount);
+        nbt.putInt("ContaminatedAmount", contaminatedAmount);
         nbt.putBoolean(NBT_DRAIN_MODE, drainMode);
-        nbt.putInt(NBT_WASH_PROGRESS, washProgress);
-        nbt.putLong(NBT_LAST_WASH_TIME, lastWashTime);
         return nbt;
     }
 

@@ -16,7 +16,6 @@ import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
 import com.example.examplemod.network.SyncVirusPacket;
 import com.example.examplemod.network.SyncPoisonPacket;
-import com.example.examplemod.network.WashProgressPacket;
 
 /**
  * Централизованная регистрация наших сетевых пакетов.
@@ -123,13 +122,6 @@ public class ModNetworkHandler {
                 ClayPotModePacket::encode,
                 ClayPotModePacket::decode,
                 ClayPotModePacket::handle
-        );
-        CHANNEL.registerMessage(
-                nextId(),
-                WashProgressPacket.class,
-                WashProgressPacket::encode,
-                WashProgressPacket::decode,
-                WashProgressPacket::handle
         );
     }
 }
