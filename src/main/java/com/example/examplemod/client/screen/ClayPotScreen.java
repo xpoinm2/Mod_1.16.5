@@ -166,25 +166,21 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
             int centerX = this.x + this.width / 2;
             int centerY = this.y + this.height / 2;
             if (screen.menu.isDrainMode()) {
-                // Стрелка влево <- (drain mode)
-                // Горизонтальная линия
-                screen.fill(matrices, centerX - 3, centerY - 1, centerX + 1, centerY + 1, arrowColor);
-                // Верхняя диагональ наконечника (имитация \)
-                screen.fill(matrices, centerX - 3, centerY - 2, centerX - 2, centerY - 1, arrowColor);
-                screen.fill(matrices, centerX - 2, centerY - 1, centerX - 1, centerY, arrowColor);
-                // Нижняя диагональ наконечника (имитация /)
-                screen.fill(matrices, centerX - 3, centerY + 1, centerX - 2, centerY + 2, arrowColor);
-                screen.fill(matrices, centerX - 2, centerY, centerX - 1, centerY + 1, arrowColor);
+                // Стрелка влево <- (drain mode) - широкая с треугольным наконечником
+                // Основание стрелки
+                screen.fill(matrices, centerX - 4, centerY - 1, centerX + 2, centerY + 1, arrowColor);
+                // Треугольный наконечник слева (3 уровня)
+                screen.fill(matrices, centerX - 4, centerY - 3, centerX - 3, centerY + 3, arrowColor);
+                screen.fill(matrices, centerX - 5, centerY - 2, centerX - 4, centerY + 2, arrowColor);
+                screen.fill(matrices, centerX - 6, centerY - 1, centerX - 5, centerY + 1, arrowColor);
             } else {
-                // Стрелка вправо -> (fill mode)
-                // Горизонтальная линия
-                screen.fill(matrices, centerX - 1, centerY - 1, centerX + 3, centerY + 1, arrowColor);
-                // Верхняя диагональ наконечника (имитация /)
-                screen.fill(matrices, centerX + 1, centerY - 2, centerX + 2, centerY - 1, arrowColor);
-                screen.fill(matrices, centerX + 2, centerY - 1, centerX + 3, centerY, arrowColor);
-                // Нижняя диагональ наконечника (имитация \)
-                screen.fill(matrices, centerX + 1, centerY, centerX + 2, centerY + 1, arrowColor);
-                screen.fill(matrices, centerX + 2, centerY + 1, centerX + 3, centerY + 2, arrowColor);
+                // Стрелка вправо -> (fill mode) - широкая с треугольным наконечником
+                // Основание стрелки
+                screen.fill(matrices, centerX - 2, centerY - 1, centerX + 4, centerY + 1, arrowColor);
+                // Треугольный наконечник справа (3 уровня)
+                screen.fill(matrices, centerX + 3, centerY - 3, centerX + 4, centerY + 3, arrowColor);
+                screen.fill(matrices, centerX + 4, centerY - 2, centerX + 5, centerY + 2, arrowColor);
+                screen.fill(matrices, centerX + 5, centerY - 1, centerX + 6, centerY + 1, arrowColor);
             }
         }
     }
