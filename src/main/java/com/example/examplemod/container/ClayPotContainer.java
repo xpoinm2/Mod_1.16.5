@@ -24,7 +24,7 @@ public class ClayPotContainer extends Container {
     public static final int GRID_SIZE = 3;
     public static final int GRID_START_X = 30;
     public static final int GRID_START_Y = 17;
-    public static final int MODE_BUTTON_X = 144;
+    public static final int MODE_BUTTON_X = 142;
     public static final int MODE_BUTTON_Y = 51;
     public static final int MODE_BUTTON_SIZE = 18;
     public static final int FLUID_INPUT_X = 142;
