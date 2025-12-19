@@ -5,6 +5,7 @@ import com.example.examplemod.ModFluids;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.network.ClayPotModePacket;
 import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.network.WashProgressPacket;
 import com.example.examplemod.util.FluidTextUtil;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -28,8 +29,17 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final int FLUID_GAUGE_HEIGHT = 63;
     private static final int FLUID_GAUGE_X = 176 - 4 - FLUID_GAUGE_WIDTH;
     private static final int FLUID_GAUGE_Y = 4;
+    private static final int WASH_BUTTON_X = 75;
+    private static final int WASH_BUTTON_Y = 75;
+    private static final int WASH_BUTTON_WIDTH = 32;
+    private static final int WASH_BUTTON_HEIGHT = 16;
+    private static final int WASH_PROGRESS_X = 8;
+    private static final int WASH_PROGRESS_Y = 75;
+    private static final int WASH_PROGRESS_WIDTH = 60;
+    private static final int WASH_PROGRESS_HEIGHT = 16;
 
     private ModeToggleButton modeButton;
+    private WashButton washButton;
 
     public ClayPotScreen(ClayPotContainer screenContainer, PlayerInventory inv, ITextComponent title) {
         super(screenContainer, inv, title);
@@ -48,6 +58,10 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
                 this.leftPos + ClayPotContainer.MODE_BUTTON_X,
                 this.topPos + ClayPotContainer.MODE_BUTTON_Y
         ));
+        this.washButton = this.addButton(new WashButton(this,
+                this.leftPos + WASH_BUTTON_X,
+                this.topPos + WASH_BUTTON_Y
+        ));
         updateModeButtonText();
     }
 
@@ -58,6 +72,7 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight,
                 this.imageWidth, this.imageHeight);
         renderFluidGauge(matrixStack);
+        renderWashProgress(matrixStack);
     }
 
     @Override
@@ -132,6 +147,38 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         return 0xFF6CC8F4;
     }
 
+    private void renderWashProgress(MatrixStack matrixStack) {
+        int progress = menu.getWashProgress();
+        if (progress <= 0) {
+            return;
+        }
+
+        int left = this.leftPos + WASH_PROGRESS_X;
+        int top = this.topPos + WASH_PROGRESS_Y;
+        int right = left + WASH_PROGRESS_WIDTH;
+        int bottom = top + WASH_PROGRESS_HEIGHT;
+
+        // Фон прогресса
+        fill(matrixStack, left, top, right, bottom, 0xFF333333);
+
+        // Заполнение прогресса
+        int fillWidth = (int) ((double) progress / 8.0 * WASH_PROGRESS_WIDTH);
+        int fillRight = left + fillWidth;
+        fill(matrixStack, left, top, fillRight, bottom, 0xFF4CAF50);
+
+        // Граница
+        fill(matrixStack, left, top, right, top + 1, 0xFF666666);
+        fill(matrixStack, left, bottom - 1, right, bottom, 0xFF666666);
+        fill(matrixStack, left, top, left + 1, bottom, 0xFF666666);
+        fill(matrixStack, right - 1, top, right, bottom, 0xFF666666);
+
+        // Текст прогресса
+        String progressText = progress + "/8";
+        int textX = left + WASH_PROGRESS_WIDTH / 2 - font.width(progressText) / 2;
+        int textY = top + (WASH_PROGRESS_HEIGHT - 8) / 2;
+        font.draw(matrixStack, progressText, textX, textY, 0xFFE0E0E0);
+    }
+
     private void updateModeButtonText() {
         if (modeButton != null) {
             modeButton.setMessage(StringTextComponent.EMPTY);
@@ -186,6 +233,39 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
                 screen.fill(matrices, centerX + 4, centerY - 2, centerX + 5, centerY + 2, arrowColor);
                 screen.fill(matrices, centerX + 5, centerY - 1, centerX + 6, centerY + 1, arrowColor);
             }
+        }
+    }
+
+    private static final class WashButton extends Button {
+        private final ClayPotScreen screen;
+
+        private WashButton(ClayPotScreen screen, int x, int y) {
+            super(x, y, WASH_BUTTON_WIDTH, WASH_BUTTON_HEIGHT,
+                    new StringTextComponent("Помыть"),
+                    button -> ModNetworkHandler.CHANNEL.sendToServer(
+                            new WashProgressPacket(screen.menu.getBlockPos()))
+            );
+            this.screen = screen;
+        }
+
+        @Override
+        public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float partialTicks) {
+            int background = this.isHovered() ? 0xFF4A90E2 : 0xFF2E7BC8;
+            int border = this.isHovered() ? 0xFF7BB3E8 : 0xFF1E5A9C;
+            int textColor = this.isHovered() ? 0xFFFFFF : 0xE0E0E0;
+
+            // Фон кнопки
+            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
+            // Граница
+            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
+            screen.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
+            screen.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
+            screen.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
+
+            // Текст
+            screen.font.draw(matrices, this.getMessage().getString(),
+                    this.x + this.width / 2 - screen.font.width(this.getMessage().getString()) / 2,
+                    this.y + (this.height - 8) / 2, textColor);
         }
     }
 }

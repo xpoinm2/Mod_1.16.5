@@ -2,6 +2,7 @@ package com.example.examplemod.tileentity;
 
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.ModFluids;
+import com.example.examplemod.ModItems;
 import com.example.examplemod.block.ClayPotBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
@@ -45,8 +46,12 @@ public class ClayPotTileEntity extends TileEntity {
     public static final int FLUID_OUTPUT_SLOT = INV_SLOTS + 1;
     public static final int TOTAL_SLOTS = FLUID_OUTPUT_SLOT + 1;
     private static final String NBT_DRAIN_MODE = "DrainMode";
+    private static final String NBT_WASH_PROGRESS = "WashProgress";
+    private static final String NBT_LAST_WASH_TIME = "LastWashTime";
 
     private boolean drainMode = false;
+    private int washProgress = 0; // 0-8, где 8 = полный прогресс
+    private long lastWashTime = 0; // timestamp последнего клика
 
     private final FluidTank tank = new FluidTank(CAPACITY) {
         @Override
@@ -111,6 +116,65 @@ public class ClayPotTileEntity extends TileEntity {
 
     public void toggleDrainMode() {
         setDrainMode(!drainMode);
+    }
+
+    public int getWashProgress() {
+        return washProgress;
+    }
+
+    public void incrementWashProgress() {
+        long currentTime = System.currentTimeMillis();
+        // Проверка задержки в 0.2 секунды (200 мс)
+        if (currentTime - lastWashTime < 200) {
+            return; // Слишком рано для следующего клика
+        }
+
+        lastWashTime = currentTime;
+        washProgress++;
+
+        if (washProgress >= 8) {
+            washProgress = 0;
+            // Здесь можно добавить логику завершения помывки и крафта
+            tryCompleteWashing();
+        }
+
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            BlockState previous = getBlockState();
+            level.sendBlockUpdated(worldPosition, previous, getBlockState(), 3);
+        }
+    }
+
+    private void tryCompleteWashing() {
+        // Проверяем все слоты инвентаря на предметы для промывки
+        for (int slot = 0; slot < INV_SLOTS; slot++) {
+            ItemStack stack = inventory.getStackInSlot(slot);
+            if (stack.isEmpty()) continue;
+
+            ItemStack result = getWashingResult(stack);
+            if (!result.isEmpty()) {
+                // Заменяем предмет на результат промывки
+                inventory.setStackInSlot(slot, result);
+                // Сбрасываем прогресс после успешной промывки
+                resetWashProgress();
+                return; // Обрабатываем только один предмет за раз
+            }
+        }
+    }
+
+    private ItemStack getWashingResult(ItemStack input) {
+        if (input.getItem() == ModItems.TIN_ORE_GRAVEL.get()) {
+            return new ItemStack(ModItems.CLEANED_GRAVEL_TIN_ORE.get(), input.getCount());
+        } else if (input.getItem() == ModItems.GOLD_ORE_GRAVEL.get()) {
+            return new ItemStack(ModItems.CLEANED_GRAVEL_GOLD_ORE.get(), input.getCount());
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public void resetWashProgress() {
+        washProgress = 0;
+        lastWashTime = 0;
+        setChanged();
     }
 
     private void updateFillLevel() {
@@ -197,6 +261,8 @@ public class ClayPotTileEntity extends TileEntity {
         if (nbt.contains(NBT_DRAIN_MODE)) {
             drainMode = nbt.getBoolean(NBT_DRAIN_MODE);
         }
+        washProgress = nbt.getInt(NBT_WASH_PROGRESS);
+        lastWashTime = nbt.getLong(NBT_LAST_WASH_TIME);
     }
 
     private CompoundNBT getInventoryTagWithMinimumSize(CompoundNBT tag) {
@@ -215,6 +281,8 @@ public class ClayPotTileEntity extends TileEntity {
         nbt.put("Tank", tank.writeToNBT(new CompoundNBT()));
         nbt.putInt("WashCount", oreWashCount);
         nbt.putBoolean(NBT_DRAIN_MODE, drainMode);
+        nbt.putInt(NBT_WASH_PROGRESS, washProgress);
+        nbt.putLong(NBT_LAST_WASH_TIME, lastWashTime);
         return nbt;
     }
 
