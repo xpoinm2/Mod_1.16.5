@@ -165,11 +165,26 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
             int arrowColor = this.isHovered() ? 0xFFF7E3C5 : 0xFFD7C2A0;
             int centerX = this.x + this.width / 2;
             int centerY = this.y + this.height / 2;
-            screen.fill(matrices, centerX - 3, centerY - 1, centerX + 3, centerY + 1, arrowColor);
             if (screen.menu.isDrainMode()) {
-                screen.fill(matrices, centerX - 5, centerY - 3, centerX - 3, centerY + 3, arrowColor);
+                // Стрелка влево <- (drain mode)
+                // Горизонтальная линия
+                screen.fill(matrices, centerX - 3, centerY - 1, centerX + 1, centerY + 1, arrowColor);
+                // Верхняя диагональ наконечника (имитация \)
+                screen.fill(matrices, centerX - 3, centerY - 2, centerX - 2, centerY - 1, arrowColor);
+                screen.fill(matrices, centerX - 2, centerY - 1, centerX - 1, centerY, arrowColor);
+                // Нижняя диагональ наконечника (имитация /)
+                screen.fill(matrices, centerX - 3, centerY + 1, centerX - 2, centerY + 2, arrowColor);
+                screen.fill(matrices, centerX - 2, centerY, centerX - 1, centerY + 1, arrowColor);
             } else {
-                screen.fill(matrices, centerX + 3, centerY - 3, centerX + 5, centerY + 3, arrowColor);
+                // Стрелка вправо -> (fill mode)
+                // Горизонтальная линия
+                screen.fill(matrices, centerX - 1, centerY - 1, centerX + 3, centerY + 1, arrowColor);
+                // Верхняя диагональ наконечника (имитация /)
+                screen.fill(matrices, centerX + 1, centerY - 2, centerX + 2, centerY - 1, arrowColor);
+                screen.fill(matrices, centerX + 2, centerY - 1, centerX + 3, centerY, arrowColor);
+                // Нижняя диагональ наконечника (имитация \)
+                screen.fill(matrices, centerX + 1, centerY, centerX + 2, centerY + 1, arrowColor);
+                screen.fill(matrices, centerX + 2, centerY + 1, centerX + 3, centerY + 2, arrowColor);
             }
         }
     }
