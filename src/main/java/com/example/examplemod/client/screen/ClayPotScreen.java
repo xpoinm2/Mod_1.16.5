@@ -1,5 +1,6 @@
 package com.example.examplemod.client.screen;
 
+import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.network.ClayPotModePacket;
