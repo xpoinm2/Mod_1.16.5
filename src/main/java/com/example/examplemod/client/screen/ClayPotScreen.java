@@ -6,6 +6,7 @@ import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.network.ClayPotModePacket;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.WashProgressPacket;
+import java.util.Locale;
 import com.example.examplemod.util.FluidTextUtil;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -29,14 +30,23 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
     private static final int FLUID_GAUGE_HEIGHT = 63;
     private static final int FLUID_GAUGE_X = 176 - 4 - FLUID_GAUGE_WIDTH;
     private static final int FLUID_GAUGE_Y = 4;
-    private static final int WASH_BUTTON_X = 75;
-    private static final int WASH_BUTTON_Y = 75;
-    private static final int WASH_BUTTON_WIDTH = 32;
-    private static final int WASH_BUTTON_HEIGHT = 16;
-    private static final int WASH_PROGRESS_X = 8;
-    private static final int WASH_PROGRESS_Y = 75;
-    private static final int WASH_PROGRESS_WIDTH = 60;
-    private static final int WASH_PROGRESS_HEIGHT = 16;
+    private static final int WASH_BUTTON_X = 90;
+    private static final int WASH_BUTTON_Y = 35;
+    private static final int WASH_BUTTON_WIDTH = 40;
+    private static final int WASH_BUTTON_HEIGHT = 14;
+    private static final int WASH_PROGRESS_FRAME_COUNT = 8;
+    /**
+     * Individual frame textures stored at
+     * assets/examplemod/textures/gui/clay_pot_wash_progress/frame_XX.png.
+     */
+    private static final ResourceLocation[] WASH_PROGRESS_FRAMES = new ResourceLocation[WASH_PROGRESS_FRAME_COUNT];
+
+    static {
+        for (int i = 0; i < WASH_PROGRESS_FRAME_COUNT; i++) {
+            WASH_PROGRESS_FRAMES[i] = new ResourceLocation("examplemod",
+                    String.format(Locale.ROOT, "textures/gui/clay_pot_wash_progress/frame_%02d.png", i + 1));
+        }
+    }
 
     private ModeToggleButton modeButton;
     private WashButton washButton;
@@ -149,34 +159,17 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
 
     private void renderWashProgress(MatrixStack matrixStack) {
         int progress = menu.getWashProgress();
-        if (progress <= 0) {
+        if (progress <= 0 || progress > WASH_PROGRESS_FRAME_COUNT) {
             return;
         }
 
-        int left = this.leftPos + WASH_PROGRESS_X;
-        int top = this.topPos + WASH_PROGRESS_Y;
-        int right = left + WASH_PROGRESS_WIDTH;
-        int bottom = top + WASH_PROGRESS_HEIGHT;
+        // Позиция для отображения анимации (рядом с кнопкой помыть)
+        int progressX = this.leftPos + WASH_BUTTON_X + WASH_BUTTON_WIDTH + 10;
+        int progressY = this.topPos + WASH_BUTTON_Y - 2;
 
-        // Фон прогресса
-        fill(matrixStack, left, top, right, bottom, 0xFF333333);
-
-        // Заполнение прогресса
-        int fillWidth = (int) ((double) progress / 8.0 * WASH_PROGRESS_WIDTH);
-        int fillRight = left + fillWidth;
-        fill(matrixStack, left, top, fillRight, bottom, 0xFF4CAF50);
-
-        // Граница
-        fill(matrixStack, left, top, right, top + 1, 0xFF666666);
-        fill(matrixStack, left, bottom - 1, right, bottom, 0xFF666666);
-        fill(matrixStack, left, top, left + 1, bottom, 0xFF666666);
-        fill(matrixStack, right - 1, top, right, bottom, 0xFF666666);
-
-        // Текст прогресса
-        String progressText = progress + "/8";
-        int textX = left + WASH_PROGRESS_WIDTH / 2 - font.width(progressText) / 2;
-        int textY = top + (WASH_PROGRESS_HEIGHT - 8) / 2;
-        font.draw(matrixStack, progressText, textX, textY, 0xFFE0E0E0);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        this.minecraft.getTextureManager().bind(WASH_PROGRESS_FRAMES[progress - 1]);
+        blit(matrixStack, progressX, progressY, 0, 0, 16, 16, 16, 16);
     }
 
     private void updateModeButtonText() {
