@@ -131,9 +131,11 @@ public class ClayPotTileEntity extends TileEntity {
 
         lastWashTime = currentTime;
         washProgress++;
+        System.out.println("Wash progress: " + washProgress);
 
         if (washProgress >= 8) {
             washProgress = 0;
+            System.out.println("Completing washing...");
             // Здесь можно добавить логику завершения помывки и крафта
             tryCompleteWashing();
         }
@@ -146,15 +148,18 @@ public class ClayPotTileEntity extends TileEntity {
     }
 
     private void tryCompleteWashing() {
+        System.out.println("Trying to complete washing...");
         // Проверяем все слоты инвентаря на предметы для промывки
         for (int slot = 0; slot < INV_SLOTS; slot++) {
             ItemStack stack = inventory.getStackInSlot(slot);
             if (stack.isEmpty()) continue;
 
             ItemStack result = getWashingResult(stack);
+            System.out.println("Slot " + slot + ": " + stack.getItem().getRegistryName() + " -> " + (result.isEmpty() ? "no result" : result.getItem().getRegistryName()));
             if (!result.isEmpty()) {
                 // Заменяем предмет на результат промывки
                 inventory.setStackInSlot(slot, result);
+                System.out.println("Converted item, recording ore wash...");
                 // Сбрасываем прогресс после успешной промывки
                 resetWashProgress();
                 // Записываем загрязнение воды
@@ -162,6 +167,7 @@ public class ClayPotTileEntity extends TileEntity {
                 return; // Обрабатываем только один предмет за раз
             }
         }
+        System.out.println("No washable items found");
     }
 
     private ItemStack getWashingResult(ItemStack input) {
@@ -222,21 +228,14 @@ public class ClayPotTileEntity extends TileEntity {
 
     public boolean canWashOreUI() {
         FluidStack fluid = tank.getFluid();
-        boolean hasEnoughWater = fluid.getAmount() >= 250;
-        boolean isWater = fluid.getFluid().isSame(Fluids.WATER);
-        System.out.println("canWashOreUI: amount=" + fluid.getAmount() + ", isWater=" + isWater + ", hasEnough=" + hasEnoughWater);
-        return hasEnoughWater && isWater;
+        return fluid.getAmount() >= 250 && fluid.getFluid().isSame(Fluids.WATER);
     }
 
     public boolean hasWashableItems() {
         for (int slot = 0; slot < INV_SLOTS; slot++) {
             ItemStack stack = inventory.getStackInSlot(slot);
-            if (!stack.isEmpty()) {
-                ItemStack result = getWashingResult(stack);
-                System.out.println("Slot " + slot + ": " + stack.getItem().getRegistryName() + " -> " + (result.isEmpty() ? "no result" : result.getItem().getRegistryName()));
-                if (!result.isEmpty()) {
-                    return true;
-                }
+            if (!stack.isEmpty() && !getWashingResult(stack).isEmpty()) {
+                return true;
             }
         }
         return false;
@@ -246,22 +245,18 @@ public class ClayPotTileEntity extends TileEntity {
         return canWashOreUI() && hasWashableItems();
     }
 
-    // Временная отладочная версия
-    public boolean canWashNowDebug() {
-        boolean hasWater = canWashOreUI();
-        boolean hasItems = hasWashableItems();
-        System.out.println("canWashNow: hasWater=" + hasWater + ", hasItems=" + hasItems);
-        return hasWater && hasItems;
-    }
-
     public void recordOreWash() {
-        if (!canWashOre()) {
+        FluidStack fluid = tank.getFluid();
+        if (fluid.isEmpty() || !fluid.getFluid().isSame(Fluids.WATER)) {
+            System.out.println("Cannot wash ore - no water or not water");
             return;
         }
         contaminatedAmount += CONTAMINATION_PER_ITEM;
+        System.out.println("Contaminated amount: " + contaminatedAmount + "/" + tank.getFluidAmount());
         if (contaminatedAmount >= tank.getFluidAmount()) {
             int amount = tank.getFluidAmount();
             if (amount > 0) {
+                System.out.println("Converting water to dirty water");
                 tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), amount));
                 notifyFluidTypeChanged();
             }
