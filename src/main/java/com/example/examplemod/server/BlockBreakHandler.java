@@ -113,6 +113,14 @@ public class BlockBreakHandler {
             return;
         }
 
+        // Replace sand block drop with 4 handfuls of sand
+        if (state.getBlock() == Blocks.SAND) {
+            event.setCanceled(true);
+            world.destroyBlock(event.getPos(), false);
+            Block.popResource(world, event.getPos(), new ItemStack(ModItems.HANDFUL_OF_SAND.get(), 4));
+            return;
+        }
+
         if (state.getBlock() == ModBlocks.IMPURE_IRON_ORE.get()) {
             if (tryCrushOreWithHammer(world, event, player, ModItems.IRON_ORE_GRAVEL.get())) {
                 return;
