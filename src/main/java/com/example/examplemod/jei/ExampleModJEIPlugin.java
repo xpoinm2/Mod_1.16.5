@@ -1,0 +1,134 @@
+package com.example.examplemod.jei;
+
+import com.example.examplemod.ExampleMod;
+import com.example.examplemod.ModBlocks;
+import com.example.examplemod.ModItems;
+import com.example.examplemod.container.ClayPotContainer;
+import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.jei.category.ClayPotRecipeCategory;
+import com.example.examplemod.jei.category.FirepitRecipeCategory;
+import com.example.examplemod.jei.recipe.ClayPotRecipe;
+import com.example.examplemod.jei.recipe.FirepitRecipe;
+import com.example.examplemod.tileentity.ClayPotTileEntity;
+import com.example.examplemod.tileentity.FirepitTileEntity;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.registration.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@JeiPlugin
+public class ExampleModJEIPlugin implements IModPlugin {
+    public static final ResourceLocation PLUGIN_UID = new ResourceLocation(ExampleMod.MODID, "jei_plugin");
+
+    public static final ResourceLocation CLAY_POT_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "clay_pot_washing");
+    public static final ResourceLocation FIREPIT_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "firepit_cooking");
+
+    @Override
+    public ResourceLocation getPluginUid() {
+        return PLUGIN_UID;
+    }
+
+    @Override
+    public void registerCategories(IRecipeCategoryRegistration registration) {
+        registration.addRecipeCategories(
+                new ClayPotRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
+                new FirepitRecipeCategory(registration.getJeiHelpers().getGuiHelper())
+        );
+    }
+
+    @Override
+    public void registerRecipes(IRecipeRegistration registration) {
+        // Рецепты для глиняного горшка (промывка руды)
+        List<ClayPotRecipe> clayPotRecipes = new ArrayList<>();
+        clayPotRecipes.add(new ClayPotRecipe(
+                new ItemStack(ModItems.TIN_ORE_GRAVEL.get()),
+                new ItemStack(ModItems.CLEANED_GRAVEL_TIN_ORE.get())
+        ));
+        clayPotRecipes.add(new ClayPotRecipe(
+                new ItemStack(ModItems.GOLD_ORE_GRAVEL.get()),
+                new ItemStack(ModItems.CLEANED_GRAVEL_GOLD_ORE.get())
+        ));
+        clayPotRecipes.add(new ClayPotRecipe(
+                new ItemStack(ModItems.IRON_ORE_GRAVEL.get()),
+                new ItemStack(ModItems.PURE_IRON_ORE.get())
+        ));
+
+        registration.addRecipes(clayPotRecipes, CLAY_POT_CATEGORY_UID);
+
+        // Рецепты для кострища (плавка/приготовление)
+        List<FirepitRecipe> firepitRecipes = new ArrayList<>();
+
+        // Руды
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.PURE_IRON_ORE.get()),
+                new ItemStack(ModItems.CALCINED_IRON_ORE.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.IRON_ORE_GRAVEL.get()),
+                new ItemStack(ModItems.HOT_IRON_ROASTED_ORE.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CLEANED_GRAVEL_TIN_ORE.get()),
+                new ItemStack(ModItems.CALCINED_TIN_ORE.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.TIN_ORE_GRAVEL.get()),
+                new ItemStack(ModItems.HOT_TIN_ROASTED_ORE.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CLEANED_GRAVEL_GOLD_ORE.get()),
+                new ItemStack(ModItems.CALCINED_GOLD_ORE.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.GOLD_ORE_GRAVEL.get()),
+                new ItemStack(ModItems.HOT_GOLD_ROASTED_ORE.get())
+        ));
+
+        // Глина
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.RAW_CLAY_CUP.get()),
+                new ItemStack(ModItems.CLAY_CUP.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CLAY_CUP.get()),
+                new ItemStack(ModItems.CLAY_SHARDS.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.RAW_CLAY_POT.get()),
+                new ItemStack(ModItems.CLAY_POT.get())
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CLAY_POT.get()),
+                new ItemStack(ModItems.CLAY_SHARDS.get())
+        ));
+
+        registration.addRecipes(firepitRecipes, FIREPIT_CATEGORY_UID);
+
+        // Регистрируем информацию о предметах
+        registration.addIngredientInfo(new ItemStack(ModBlocks.CLAY_POT.get()), VanillaTypes.ITEM,
+                "jei.examplemod.clay_pot.description");
+        registration.addIngredientInfo(new ItemStack(ModBlocks.FIREPIT_BLOCK.get()), VanillaTypes.ITEM,
+                "jei.examplemod.firepit.description");
+    }
+
+    @Override
+    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+        registration.addRecipeTransferHandler(ClayPotContainer.class, CLAY_POT_CATEGORY_UID,
+                ClayPotTileEntity.INV_SLOTS, ClayPotTileEntity.INV_SLOTS, ClayPotTileEntity.TOTAL_SLOTS, 36);
+
+        registration.addRecipeTransferHandler(FirepitContainer.class, FIREPIT_CATEGORY_UID,
+                0, FirepitTileEntity.GRID_SLOT_COUNT, FirepitTileEntity.GRID_SLOT_COUNT + 1, 36);
+    }
+
+    @Override
+    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CLAY_POT.get()), CLAY_POT_CATEGORY_UID);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FIREPIT_BLOCK.get()), FIREPIT_CATEGORY_UID);
+    }
+}

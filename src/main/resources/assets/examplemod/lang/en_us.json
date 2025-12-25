@@ -133,5 +133,9 @@
   "key.examplemod.activity": "Activity",
   "key.examplemod.progress": "Technology Progress",
   "key.examplemod.extra_inventory": "Extra Inventory",
-  "key.categories.examplemod": "ExampleMod"
+  "key.categories.examplemod": "ExampleMod",
+  "jei.examplemod.category.clay_pot_washing": "Clay Pot Washing",
+  "jei.examplemod.category.firepit_cooking": "Firepit Cooking",
+  "jei.examplemod.clay_pot.description": "Used to wash ore gravel with water. Click with empty hand to wash ore. Requires water to operate.",
+  "jei.examplemod.firepit.description": "Used to cook and roast various items. Add fuel to the bottom slot and items to cook in the top slots."
 }
