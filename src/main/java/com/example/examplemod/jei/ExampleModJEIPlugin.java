@@ -64,48 +64,58 @@ public class ExampleModJEIPlugin implements IModPlugin {
         // Рецепты для кострища (плавка/приготовление)
         List<FirepitRecipe> firepitRecipes = new ArrayList<>();
 
-        // Руды
+        // Руды (все по 400 тиков = 20 секунд)
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.PURE_IRON_ORE.get()),
-                new ItemStack(ModItems.CALCINED_IRON_ORE.get())
+                new ItemStack(ModItems.CALCINED_IRON_ORE.get()),
+                400
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.IRON_ORE_GRAVEL.get()),
-                new ItemStack(ModItems.HOT_IRON_ROASTED_ORE.get())
+                new ItemStack(ModItems.HOT_IRON_ROASTED_ORE.get()),
+                400
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.CLEANED_GRAVEL_TIN_ORE.get()),
-                new ItemStack(ModItems.CALCINED_TIN_ORE.get())
+                new ItemStack(ModItems.CALCINED_TIN_ORE.get()),
+                400
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.TIN_ORE_GRAVEL.get()),
-                new ItemStack(ModItems.HOT_TIN_ROASTED_ORE.get())
+                new ItemStack(ModItems.HOT_TIN_ROASTED_ORE.get()),
+                400
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.CLEANED_GRAVEL_GOLD_ORE.get()),
-                new ItemStack(ModItems.CALCINED_GOLD_ORE.get())
+                new ItemStack(ModItems.CALCINED_GOLD_ORE.get()),
+                400
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.GOLD_ORE_GRAVEL.get()),
-                new ItemStack(ModItems.HOT_GOLD_ROASTED_ORE.get())
+                new ItemStack(ModItems.HOT_GOLD_ROASTED_ORE.get()),
+                400
         ));
 
-        // Глина
+        // Глина (первый этап - 400 тиков, второй этап пережаривания - 300 тиков)
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.RAW_CLAY_CUP.get()),
-                new ItemStack(ModItems.CLAY_CUP.get())
+                new ItemStack(ModItems.CLAY_CUP.get()),
+                400
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.CLAY_CUP.get()),
-                new ItemStack(ModItems.CLAY_SHARDS.get())
+                new ItemStack(ModItems.CLAY_SHARDS.get()),
+                300
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.RAW_CLAY_POT.get()),
-                new ItemStack(ModItems.CLAY_POT.get())
+                new ItemStack(ModItems.CLAY_POT.get()),
+                400
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.CLAY_POT.get()),
-                new ItemStack(ModItems.CLAY_SHARDS.get())
+                new ItemStack(ModItems.CLAY_SHARDS.get()),
+                300
         ));
 
         registration.addRecipes(firepitRecipes, FIREPIT_CATEGORY_UID);
