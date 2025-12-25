@@ -449,6 +449,30 @@ public class ClayPotTileEntity extends TileEntity {
         return canWashOreUI() && (hasWashableItems() || canCraftClayMass());
     }
 
+    public String getWashButtonTooltip() {
+        FluidStack fluid = tank.getFluid();
+
+        // Проверяем воду
+        if (fluid.isEmpty()) {
+            return "tooltip.examplemod.clay_pot.wash.no_water";
+        }
+
+        if (!fluid.getFluid().isSame(Fluids.WATER)) {
+            return "tooltip.examplemod.clay_pot.wash.dirty_water";
+        }
+
+        if (fluid.getAmount() < 250) {
+            return "tooltip.examplemod.clay_pot.wash.insufficient_water";
+        }
+
+        // Проверяем предметы
+        if (!hasWashableItems() && !canCraftClayMass()) {
+            return "tooltip.examplemod.clay_pot.wash.no_items";
+        }
+
+        return "tooltip.examplemod.clay_pot.wash.ready";
+    }
+
     private boolean canCraftClayMass() {
         // Проверяем, есть ли вода в горшке
         FluidStack fluid = tank.getFluid();
