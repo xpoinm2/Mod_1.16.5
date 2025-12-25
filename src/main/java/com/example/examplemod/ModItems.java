@@ -57,6 +57,10 @@ public class ModItems {
     public static final RegistryObject<Item> LEAF = ITEMS.register("leaf",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Горсть песка: выпадает при разрушении блока песка
+    public static final RegistryObject<Item> HANDFUL_OF_SAND = ITEMS.register("handful_of_sand",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Большая кость: трофей, который можно получить с некоторых животных
     public static final RegistryObject<Item> BIG_BONE = ITEMS.register("big_bone",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
