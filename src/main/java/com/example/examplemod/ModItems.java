@@ -32,6 +32,7 @@ import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.item.GrassBundleItem;
+import com.example.examplemod.item.HandfulOfSandItem;
 
 
 public class ModItems {
@@ -56,6 +57,10 @@ public class ModItems {
     // Листочек: выпадает с листвы
     public static final RegistryObject<Item> LEAF = ITEMS.register("leaf",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Горсть песка: выпадает с блока песка
+    public static final RegistryObject<Item> HANDFUL_OF_SAND = ITEMS.register("handful_of_sand",
+            () -> new HandfulOfSandItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Большая кость: трофей, который можно получить с некоторых животных
     public static final RegistryObject<Item> BIG_BONE = ITEMS.register("big_bone",
