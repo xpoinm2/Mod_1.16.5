@@ -146,12 +146,6 @@ public class ClayPotTileEntity extends TileEntity {
     }
 
     private void tryCompleteWashing() {
-        // Сначала проверяем рецепт глиняной массы
-        if (tryCraftClayMass()) {
-            resetWashProgress();
-            return;
-        }
-
         // Рассчитываем максимальное количество предметов для промывки
         int maxItemsToWash = tank.getFluidAmount() / CONTAMINATION_PER_ITEM;
         if (maxItemsToWash <= 0) {
@@ -202,114 +196,6 @@ public class ClayPotTileEntity extends TileEntity {
         resetWashProgress();
     }
 
-    private boolean tryCraftClayMass() {
-        // Проверяем, есть ли вода в горшке
-        FluidStack fluid = tank.getFluid();
-        if (fluid.isEmpty() || !fluid.getFluid().isSame(Fluids.WATER) || fluid.getAmount() < 500) {
-            return false;
-        }
-
-        // Подсчитываем ингредиенты
-        int clayBallCount = 0;
-        int sandCount = 0;
-        int gravelCount = 0;
-
-        for (int slot = 0; slot < INV_SLOTS; slot++) {
-            ItemStack stack = inventory.getStackInSlot(slot);
-            if (!stack.isEmpty()) {
-                if (stack.getItem() == net.minecraft.item.Items.CLAY_BALL) {
-                    clayBallCount += stack.getCount();
-                } else if (stack.getItem() == ModItems.HANDFUL_OF_SAND.get()) {
-                    sandCount += stack.getCount();
-                } else if (stack.getItem() == net.minecraft.item.Items.GRAVEL) {
-                    gravelCount += stack.getCount();
-                } else if (!getWashingResult(stack).isEmpty()) {
-                    // Это промывочный предмет (рудный гравий), игнорируем для подсчета глиняной массы
-                    continue;
-                } else {
-                    // Есть посторонний предмет, рецепт не подходит
-                    return false;
-                }
-            }
-        }
-
-        // Проверяем, есть ли нужное количество ингредиентов
-        if (clayBallCount >= 4 && sandCount >= 1 && gravelCount >= 1) {
-            // Вычисляем, сколько глиняной массы можем создать
-            int maxClayMass = Math.min(clayBallCount / 4, Math.min(sandCount, gravelCount));
-            int clayMassToCreate = Math.min(maxClayMass, fluid.getAmount() / 500);
-
-            if (clayMassToCreate > 0) {
-                // Создаем глиняную массу
-                if (ModItems.CLAY_MASS.isPresent()) {
-                    ItemStack clayMassResult = new ItemStack(ModItems.CLAY_MASS.get(), clayMassToCreate);
-                    int inserted = insertStackIntoFreeSlots(clayMassResult);
-
-                    if (inserted > 0) {
-                        // Удаляем использованные ингредиенты
-                        int clayToConsume = inserted * 4;
-                        int sandToConsume = inserted;
-                        int gravelToConsume = inserted;
-
-                        // Удаляем глину
-                        int remainingClay = clayToConsume;
-                        for (int slot = 0; slot < INV_SLOTS && remainingClay > 0; slot++) {
-                            ItemStack stack = inventory.getStackInSlot(slot);
-                            if (!stack.isEmpty() && stack.getItem() == net.minecraft.item.Items.CLAY_BALL) {
-                                int toRemove = Math.min(stack.getCount(), remainingClay);
-                                stack.shrink(toRemove);
-                                remainingClay -= toRemove;
-                            }
-                        }
-
-                        // Удаляем песок
-                        int remainingSand = sandToConsume;
-                        for (int slot = 0; slot < INV_SLOTS && remainingSand > 0; slot++) {
-                            ItemStack stack = inventory.getStackInSlot(slot);
-                            if (!stack.isEmpty() && stack.getItem() == ModItems.HANDFUL_OF_SAND.get()) {
-                                int toRemove = Math.min(stack.getCount(), remainingSand);
-                                stack.shrink(toRemove);
-                                remainingSand -= toRemove;
-                            }
-                        }
-
-                        // Удаляем гравий
-                        int remainingGravel = gravelToConsume;
-                        for (int slot = 0; slot < INV_SLOTS && remainingGravel > 0; slot++) {
-                            ItemStack stack = inventory.getStackInSlot(slot);
-                            if (!stack.isEmpty() && stack.getItem() == net.minecraft.item.Items.GRAVEL) {
-                                int toRemove = Math.min(stack.getCount(), remainingGravel);
-                                stack.shrink(toRemove);
-                                remainingGravel -= toRemove;
-                            }
-                        }
-
-                        // Загрязняем воду (500 мл на единицу глиняной массы)
-                        for (int i = 0; i < inserted; i++) {
-                            recordClayMassContamination();
-                        }
-
-                        // Проверяем, что предмет создался в инвентаре
-                        boolean foundClayMass = false;
-                        for (int slot = 0; slot < INV_SLOTS; slot++) {
-                            ItemStack stack = inventory.getStackInSlot(slot);
-                            if (!stack.isEmpty() && stack.getItem() == ModItems.CLAY_MASS.get()) {
-                                foundClayMass = true;
-                                break;
-                            }
-                        }
-
-                        if (foundClayMass) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
     private int insertStackIntoFreeSlots(ItemStack stack) {
         int remaining = stack.getCount();
         int originalCount = remaining;
@@ -347,23 +233,6 @@ public class ClayPotTileEntity extends TileEntity {
             return;
         }
         contaminatedAmount += CONTAMINATION_PER_ITEM;
-        if (contaminatedAmount >= tank.getFluidAmount()) {
-            int amount = tank.getFluidAmount();
-            if (amount > 0) {
-                tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), amount));
-                notifyFluidTypeChanged();
-            }
-            contaminatedAmount = 0;
-        }
-    }
-
-    private void recordClayMassContamination() {
-        FluidStack fluid = tank.getFluid();
-        if (fluid.isEmpty() || !fluid.getFluid().isSame(Fluids.WATER)) {
-            return;
-        }
-        // Глиняная масса загрязняет 500 мл воды вместо 250 мл
-        contaminatedAmount += CONTAMINATION_PER_ITEM * 2;
         if (contaminatedAmount >= tank.getFluidAmount()) {
             int amount = tank.getFluidAmount();
             if (amount > 0) {
@@ -446,66 +315,7 @@ public class ClayPotTileEntity extends TileEntity {
     }
 
     public boolean canWashNow() {
-        return canWashOreUI() && (hasWashableItems() || canCraftClayMass());
-    }
-
-    public String getWashButtonTooltip() {
-        FluidStack fluid = tank.getFluid();
-
-        // Проверяем воду
-        if (fluid.isEmpty()) {
-            return "tooltip.examplemod.clay_pot.wash.no_water";
-        }
-
-        if (!fluid.getFluid().isSame(Fluids.WATER)) {
-            return "tooltip.examplemod.clay_pot.wash.dirty_water";
-        }
-
-        if (fluid.getAmount() < 250) {
-            return "tooltip.examplemod.clay_pot.wash.insufficient_water";
-        }
-
-        // Проверяем предметы
-        if (!hasWashableItems() && !canCraftClayMass()) {
-            return "tooltip.examplemod.clay_pot.wash.no_items";
-        }
-
-        return "tooltip.examplemod.clay_pot.wash.ready";
-    }
-
-    private boolean canCraftClayMass() {
-        // Проверяем, есть ли вода в горшке
-        FluidStack fluid = tank.getFluid();
-        if (fluid.isEmpty() || !fluid.getFluid().isSame(Fluids.WATER) || fluid.getAmount() < 500) {
-            return false;
-        }
-
-        // Подсчитываем ингредиенты
-        int clayBallCount = 0;
-        int sandCount = 0;
-        int gravelCount = 0;
-
-        for (int slot = 0; slot < INV_SLOTS; slot++) {
-            ItemStack stack = inventory.getStackInSlot(slot);
-            if (!stack.isEmpty()) {
-                if (stack.getItem() == net.minecraft.item.Items.CLAY_BALL) {
-                    clayBallCount += stack.getCount();
-                } else if (stack.getItem() == ModItems.HANDFUL_OF_SAND.get()) {
-                    sandCount += stack.getCount();
-                } else if (stack.getItem() == net.minecraft.item.Items.GRAVEL) {
-                    gravelCount += stack.getCount();
-                } else if (!getWashingResult(stack).isEmpty()) {
-                    // Это промывочный предмет (рудный гравий), игнорируем для проверки глиняной массы
-                    continue;
-                } else {
-                    // Есть посторонний предмет, который не подходит ни для промывки, ни для крафта глиняной массы
-                    return false;
-                }
-            }
-        }
-
-        // Проверяем, есть ли нужное количество ингредиентов
-        return clayBallCount >= 4 && sandCount >= 1 && gravelCount >= 1;
+        return canWashOreUI() && hasWashableItems();
     }
 
     public void recordOreWash() {

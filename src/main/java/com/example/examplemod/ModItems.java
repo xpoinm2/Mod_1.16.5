@@ -32,7 +32,6 @@ import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.item.GrassBundleItem;
-import com.example.examplemod.item.HandfulOfSandItem;
 
 
 public class ModItems {
@@ -57,10 +56,6 @@ public class ModItems {
     // Листочек: выпадает с листвы
     public static final RegistryObject<Item> LEAF = ITEMS.register("leaf",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Горсть песка: выпадает с блока песка
-    public static final RegistryObject<Item> HANDFUL_OF_SAND = ITEMS.register("handful_of_sand",
-            () -> new HandfulOfSandItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Большая кость: трофей, который можно получить с некоторых животных
     public static final RegistryObject<Item> BIG_BONE = ITEMS.register("big_bone",
@@ -153,6 +148,9 @@ public class ModItems {
     public static final RegistryObject<Item> RAW_CLAY_CUP = ITEMS.register("raw_clay_cup",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Сырой глиняный кирпич: новый строительный материал
+    public static final RegistryObject<Item> RAW_CLAY_BRICK = ITEMS.register("raw_clay_brick",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Глиняная чашка: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_CUP = ITEMS.register("clay_cup",
@@ -160,9 +158,7 @@ public class ModItems {
                     .tab(ModCreativeTabs.EXAMPLE_TAB)
                     .stacksTo(16)));
 
-    // Глиняная масса: материал для создания различных глиняных изделий
-    public static final RegistryObject<Item> CLAY_MASS = ITEMS.register("clay_mass",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
 
     // Сырой глиняный горшок: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_POT = ITEMS.register("raw_clay_pot",

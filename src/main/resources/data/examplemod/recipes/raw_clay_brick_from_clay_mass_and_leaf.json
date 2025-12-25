@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "examplemod:clay_mass"
+    },
+    {
+      "item": "examplemod:leaf"
+    }
+  ],
+  "result": {
+    "item": "examplemod:raw_clay_brick"
+  }
+}

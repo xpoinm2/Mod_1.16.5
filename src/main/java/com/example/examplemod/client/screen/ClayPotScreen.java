@@ -92,9 +92,6 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         if (modeButton != null && modeButton.isHovered()) {
             renderTooltip(matrixStack, getModeButtonTooltip(), mouseX, mouseY);
         }
-        if (washButton != null && washButton.isHovered() && !menu.canWashNow()) {
-            renderTooltip(matrixStack, new TranslationTextComponent(menu.getWashButtonTooltip()), mouseX, mouseY);
-        }
         if (isMouseOverGauge(mouseX, mouseY)) {
             renderTooltip(matrixStack, getFluidTooltip(), mouseX, mouseY);
         }

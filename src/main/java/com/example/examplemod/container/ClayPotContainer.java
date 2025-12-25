@@ -177,10 +177,6 @@ public class ClayPotContainer extends Container {
         return tileEntity.canWashNow();
     }
 
-    public String getWashButtonTooltip() {
-        return tileEntity.getWashButtonTooltip();
-    }
-
     public void toggleMode() {
         tileEntity.toggleDrainMode();
         this.broadcastChanges();
