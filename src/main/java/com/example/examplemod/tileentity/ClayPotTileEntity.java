@@ -286,7 +286,7 @@ public class ClayPotTileEntity extends TileEntity {
 
                         // Загрязняем воду (500 мл на единицу глиняной массы)
                         for (int i = 0; i < inserted; i++) {
-                            recordOreWashForItem();
+                            recordClayMassContamination();
                         }
 
                         // Проверяем, что предмет создался в инвентаре
@@ -347,6 +347,23 @@ public class ClayPotTileEntity extends TileEntity {
             return;
         }
         contaminatedAmount += CONTAMINATION_PER_ITEM;
+        if (contaminatedAmount >= tank.getFluidAmount()) {
+            int amount = tank.getFluidAmount();
+            if (amount > 0) {
+                tank.setFluid(new FluidStack(ModFluids.DIRTY_WATER.get(), amount));
+                notifyFluidTypeChanged();
+            }
+            contaminatedAmount = 0;
+        }
+    }
+
+    private void recordClayMassContamination() {
+        FluidStack fluid = tank.getFluid();
+        if (fluid.isEmpty() || !fluid.getFluid().isSame(Fluids.WATER)) {
+            return;
+        }
+        // Глиняная масса загрязняет 500 мл воды вместо 250 мл
+        contaminatedAmount += CONTAMINATION_PER_ITEM * 2;
         if (contaminatedAmount >= tank.getFluidAmount()) {
             int amount = tank.getFluidAmount();
             if (amount > 0) {
