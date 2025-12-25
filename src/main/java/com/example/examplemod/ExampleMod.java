@@ -5,6 +5,7 @@ import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.BoneTongsScreen;
 import com.example.examplemod.client.screen.ClayPotScreen;
 import com.example.examplemod.client.screen.FirepitScreen;
+import com.example.examplemod.client.screen.SlabScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
 import com.example.examplemod.world.ModFeatures;
@@ -116,6 +117,7 @@ public class ExampleMod {
         net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.CLAY_POT.get(), ClayPotScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS.get(), BoneTongsScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.SLAB.get(), SlabScreen::new);
         registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                 new HeavenDimensionRenderInfo());
         RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());

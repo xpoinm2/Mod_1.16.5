@@ -31,10 +31,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockRayTraceResult;
 import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.SlabTileEntity;
+import com.example.examplemod.container.SlabContainer;
+import com.example.examplemod.ModTileEntities;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -455,6 +461,39 @@ public class ModBlocks {
 
         public BrushwoodSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.OAK_SLAB));
+        }
+
+        @Override
+        public boolean hasTileEntity(BlockState state) {
+            return true;
+        }
+
+        @Nullable
+        @Override
+        public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+            return ModTileEntities.SLAB.get().create();
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public ActionResultType use(BlockState state, World world, BlockPos pos,
+                                    PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+            if (world.isClientSide) {
+                return ActionResultType.SUCCESS;
+            }
+
+            TileEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof SlabTileEntity) {
+                INamedContainerProvider provider = new SimpleNamedContainerProvider(
+                        (windowId, playerInventory, playerEntity) -> new SlabContainer(windowId, playerInventory, (SlabTileEntity) tile),
+                        new TranslationTextComponent("container.examplemod.slab")
+                );
+                if (player instanceof ServerPlayerEntity) {
+                    NetworkHooks.openGui((ServerPlayerEntity) player, provider, pos);
+                }
+            }
+
+            return ActionResultType.CONSUME;
         }
     }
 

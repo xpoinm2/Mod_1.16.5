@@ -3,6 +3,7 @@ package com.example.examplemod;
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.container.SlabContainer;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -21,6 +22,9 @@ public class ModContainers {
 
     public static final RegistryObject<ContainerType<BoneTongsContainer>> BONE_TONGS = CONTAINERS.register("bone_tongs",
             () -> IForgeContainerType.create((windowId, playerInventory, data) -> new BoneTongsContainer(windowId, playerInventory, data)));
+
+    public static final RegistryObject<ContainerType<SlabContainer>> SLAB = CONTAINERS.register("slab",
+            () -> IForgeContainerType.create((windowId, playerInventory, data) -> new SlabContainer(windowId, playerInventory, data)));
 
     public static void register(IEventBus bus) {
         CONTAINERS.register(bus);

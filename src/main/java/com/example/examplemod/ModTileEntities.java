@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.SlabTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
@@ -19,6 +20,11 @@ public class ModTileEntities {
     public static final RegistryObject<TileEntityType<ClayPotTileEntity>> CLAY_POT = TILE_ENTITIES.register(
             "clay_pot",
             () -> TileEntityType.Builder.of(ClayPotTileEntity::new, ModBlocks.CLAY_POT.get()).build(null));
+
+    public static final RegistryObject<TileEntityType<SlabTileEntity>> SLAB = TILE_ENTITIES.register(
+            "slab",
+            () -> TileEntityType.Builder.of(SlabTileEntity::new,
+                    ModBlocks.BRUSHWOOD_SLAB.get(), ModBlocks.BURNED_BRUSHWOOD_SLAB.get()).build(null));
 
     public static void register(IEventBus bus) {
         TILE_ENTITIES.register(bus);
