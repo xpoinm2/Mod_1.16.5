@@ -148,6 +148,10 @@ public class ModItems {
     public static final RegistryObject<Item> SCRAPED_HIDE = ITEMS.register("scraped_hide",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Глиняная масса: сырьё для создания глиняных изделий
+    public static final RegistryObject<Item> CLAY_MASS = ITEMS.register("clay_mass",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Сырая глиняная чашка: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_CUP = ITEMS.register("raw_clay_cup",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
