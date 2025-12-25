@@ -114,6 +114,7 @@
   "block.examplemod.clay_shards": "Clay Shards",
   "item.examplemod.clay_shards": "Clay Shards",
   "item.examplemod.clay_cup": "Clay Cup",
+  "item.examplemod.clay_mass": "Clay Mass",
   "tooltip.examplemod.clay_cup.empty": "Empty",
   "tooltip.examplemod.clay_cup.water": "Water: %s / %s",
   "tooltip.examplemod.clay_cup.dirty_water": "Dirty Water: %s / %s",

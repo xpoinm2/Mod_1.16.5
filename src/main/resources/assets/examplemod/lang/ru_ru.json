@@ -114,6 +114,7 @@
   "block.examplemod.clay_shards": "Глиняные осколки",
   "item.examplemod.clay_shards": "Глиняные осколки",
   "item.examplemod.clay_cup": "Глиняная чашка",
+  "item.examplemod.clay_mass": "Глиняная масса",
   "tooltip.examplemod.clay_cup.empty": "Пусто",
   "tooltip.examplemod.clay_cup.water": "Вода: %s / %s",
   "tooltip.examplemod.clay_cup.dirty_water": "Грязная вода: %s / %s",

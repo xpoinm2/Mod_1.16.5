@@ -160,7 +160,9 @@ public class ModItems {
                     .tab(ModCreativeTabs.EXAMPLE_TAB)
                     .stacksTo(16)));
 
-
+    // Глиняная масса: материал для создания различных глиняных изделий
+    public static final RegistryObject<Item> CLAY_MASS = ITEMS.register("clay_mass",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Сырой глиняный горшок: заготовка перед обжигом
     public static final RegistryObject<Item> RAW_CLAY_POT = ITEMS.register("raw_clay_pot",
