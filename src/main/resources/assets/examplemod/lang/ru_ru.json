@@ -139,6 +139,8 @@
   "jei.examplemod.category.firepit_cooking": "Приготовление на кострище",
   "jei.examplemod.clay_pot.description": "Используется для промывки рудного гравия водой. Кликайте пустой рукой для промывки руды. Требует воду для работы.",
   "jei.examplemod.firepit.description": "Используется для приготовления и обжарки различных предметов. Добавьте топливо в нижний слот и предметы для приготовления в верхние слоты.",
+  "jei.examplemod.category.clay_mass_crafting": "Создание глиняной массы",
   "jei.examplemod.clicks": "кликов",
-  "jei.examplemod.seconds": "секунд"
+  "jei.examplemod.seconds": "секунд",
+  "jei.examplemod.water_required": "мл воды"
 }

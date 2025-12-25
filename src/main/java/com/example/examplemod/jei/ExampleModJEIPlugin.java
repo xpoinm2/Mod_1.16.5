@@ -5,8 +5,10 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.jei.category.ClayMassRecipeCategory;
 import com.example.examplemod.jei.category.ClayPotRecipeCategory;
 import com.example.examplemod.jei.category.FirepitRecipeCategory;
+import com.example.examplemod.jei.recipe.ClayMassRecipe;
 import com.example.examplemod.jei.recipe.ClayPotRecipe;
 import com.example.examplemod.jei.recipe.FirepitRecipe;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
@@ -28,6 +30,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
 
     public static final ResourceLocation CLAY_POT_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "clay_pot_washing");
     public static final ResourceLocation FIREPIT_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "firepit_cooking");
+    public static final ResourceLocation CLAY_MASS_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "clay_mass_crafting");
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -38,7 +41,8 @@ public class ExampleModJEIPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(
                 new ClayPotRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
-                new FirepitRecipeCategory(registration.getJeiHelpers().getGuiHelper())
+                new FirepitRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
+                new ClayMassRecipeCategory(registration.getJeiHelpers().getGuiHelper())
         );
     }
 
@@ -120,6 +124,9 @@ public class ExampleModJEIPlugin implements IModPlugin {
 
         registration.addRecipes(firepitRecipes, FIREPIT_CATEGORY_UID);
 
+        // Рецепт глиняной массы
+        registration.addRecipes(java.util.Arrays.asList(ClayMassRecipe.create()), CLAY_MASS_CATEGORY_UID);
+
         // Регистрируем информацию о предметах
         registration.addIngredientInfo(new ItemStack(ModBlocks.CLAY_POT.get()), VanillaTypes.ITEM,
                 "jei.examplemod.clay_pot.description");
@@ -139,6 +146,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CLAY_POT.get()), CLAY_POT_CATEGORY_UID);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CLAY_POT.get()), CLAY_MASS_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FIREPIT_BLOCK.get()), FIREPIT_CATEGORY_UID);
     }
 }
