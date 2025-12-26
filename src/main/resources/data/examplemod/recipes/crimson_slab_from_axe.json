@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:crimson_planks" },
+    { "tag": "forge:tools/axes" }
+  ],
+  "result": {
+    "item": "examplemod:crimson_slab",
+    "count": 2
+  }
+}
+
