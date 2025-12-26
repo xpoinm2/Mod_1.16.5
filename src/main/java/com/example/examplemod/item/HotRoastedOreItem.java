@@ -1,9 +1,15 @@
 // === FILE src/main/java/com/example/examplemod/item/HotRoastedOreItem.java
 package com.example.examplemod.item;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 public class HotRoastedOreItem extends Item {
     private static final String TIMER_TAG = "HotTimer";
     private static final int MAX_TIMER = 180; // 180 секунд = 3 минуты
@@ -119,5 +125,42 @@ public class HotRoastedOreItem extends Item {
     @Override
     public int getItemStackLimit(ItemStack stack) {
         return 1;
+    }
+
+    /**
+     * Обновление таймера в инвентаре без глобальных TickEvent-сканирований.
+     * Если таймер истёк — заменяем предмет на "обычную" обожжённую руду.
+     */
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, world, entity, slot, selected);
+        if (world.isClientSide) return;
+        if (!(entity instanceof PlayerEntity)) return;
+
+        // Инициализируем таймер, если он ещё не установлен
+        int remaining = getRemainingTime(stack);
+        if (remaining > 0) return;
+
+        PlayerEntity player = (PlayerEntity) entity;
+        // Заменяем стек в конкретном слоте (предмет не стакается, так что count=1)
+        player.inventory.setItem(slot, getResultItemStack(stack));
+    }
+
+    /**
+     * Обновление таймера у ItemEntity прямо "на предмете", без перебора всех сущностей мира.
+     */
+    @Override
+    public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
+        if (entity.level.isClientSide) return false;
+
+        BlockPos pos = entity.blockPosition();
+        boolean inWater = entity.level.getFluidState(pos).is(FluidTags.WATER);
+        float speedMultiplier = inWater ? 10.0f : 1.0f;
+
+        if (isTimerExpired(stack, speedMultiplier, inWater)) {
+            entity.setItem(getResultItemStack(stack));
+        }
+
+        return false;
     }
 }

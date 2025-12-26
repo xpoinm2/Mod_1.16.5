@@ -92,20 +92,8 @@ public class ExampleMod {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("ExampleMod common setup");
-        MinecraftForge.EVENT_BUS.register(ThirstHandler.class);
-        MinecraftForge.EVENT_BUS.register(RestHandler.class);
-        MinecraftForge.EVENT_BUS.register(BlockBreakHandler.class);
-        MinecraftForge.EVENT_BUS.register(ColdHandler.class);
-        MinecraftForge.EVENT_BUS.register(HypothermiaHandler.class);
-        MinecraftForge.EVENT_BUS.register(VirusHandler.class);
-        MinecraftForge.EVENT_BUS.register(RedMushroomHandler.class);
-        MinecraftForge.EVENT_BUS.register(FlaxDryingHandler.class);
-        MinecraftForge.EVENT_BUS.register(CraftingBlocker.class);
-        MinecraftForge.EVENT_BUS.register(FirepitStructureHandler.class);
-        MinecraftForge.EVENT_BUS.register(HotOreDamageHandler.class);
-
-
-        MinecraftForge.EVENT_BUS.register(HewnStoneSpawnHandler.class);
+        // ВАЖНО: обработчики Forge-событий уже регистрируются через @Mod.EventBusSubscriber(bus = FORGE),
+        // поэтому их НЕ нужно дополнительно регистрировать в MinecraftForge.EVENT_BUS (иначе будут двойные вызовы).
 
         event.enqueueWork(() -> {
             WorldGenRegistry.register();
@@ -116,7 +104,6 @@ public class ExampleMod {
 
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("ExampleMod client setup");
-        MinecraftForge.EVENT_BUS.register(ClientInteractionHandler.class);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.CLAY_POT.get(), ClayPotScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS.get(), BoneTongsScreen::new);

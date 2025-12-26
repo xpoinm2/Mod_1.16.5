@@ -1,7 +1,6 @@
 package com.example.examplemod.server;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.server.HotOreTimerHandler;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,9 +12,11 @@ public class DayNightCycleHandler {
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.world instanceof ServerWorld)) return;
-        if (!HotOreTimerHandler.hasPlayersOnline()) return; // Останавливаемся если нет игроков в мире
 
         ServerWorld world = (ServerWorld) event.world;
+        // Не тратим тики на ускорение/замедление времени, если в мире нет игроков
+        if (world.getServer() == null || world.getServer().getPlayerList().getPlayers().isEmpty()) return;
+
         long time = world.getDayTime();
         long dayTime = time % 24000L;
 
