@@ -155,6 +155,15 @@ public class ModItemModelProvider extends ItemModelProvider {
         // Полублоки
         blockItem(ModItems.BRUSHWOOD_SLAB, "brushwood_slab");
         blockItem(ModItems.BURNED_BRUSHWOOD_SLAB, "brushwood_slab_burnt");
+        blockItem(ModItems.OAK_SLAB, "oak_slab");
+        blockItem(ModItems.BIRCH_SLAB, "birch_slab");
+        blockItem(ModItems.SPRUCE_SLAB, "spruce_slab");
+        blockItem(ModItems.JUNGLE_SLAB, "jungle_slab");
+        blockItem(ModItems.ACACIA_SLAB, "acacia_slab");
+        blockItem(ModItems.DARK_OAK_SLAB, "dark_oak_slab");
+        blockItem(ModItems.CRIMSON_SLAB, "crimson_slab");
+        blockItem(ModItems.WARPED_SLAB, "warped_slab");
+        blockItem(ModItems.STONE_SLAB, "stone_slab");
     }
 
     /**

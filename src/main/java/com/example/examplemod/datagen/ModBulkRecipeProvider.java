@@ -48,6 +48,9 @@ public class ModBulkRecipeProvider extends RecipeProvider {
         
         // Реверсивные рецепты (блок → 9 слитков)
         generateReverseStorageRecipes(consumer);
+        
+        // Полублоки из досок с топором
+        generateSlabRecipes(consumer);
     }
 
     /**
@@ -197,6 +200,54 @@ public class ModBulkRecipeProvider extends RecipeProvider {
             //     .requires(modItem(item + "_block"))
             //     .unlockedBy("has_" + item + "_block", has(modItem(item + "_block")))
             //     .save(consumer, modLoc(item + "_ingot_from_block"));
+        }
+    }
+    
+    /**
+     * Генерация рецептов полублоков: топор + доски = 2 полублока.
+     * 
+     * МАСШТАБИРУЕМОСТЬ: При добавлении нового типа дерева просто добавь его в массив.
+     */
+    private void generateSlabRecipes(Consumer<IFinishedRecipe> consumer) {
+        // Массив: [тип_дерева, ванильный_предмет_досок]
+        SlabRecipe[] woodTypes = {
+            new SlabRecipe("oak", Items.OAK_PLANKS),
+            new SlabRecipe("birch", Items.BIRCH_PLANKS),
+            new SlabRecipe("spruce", Items.SPRUCE_PLANKS),
+            new SlabRecipe("jungle", Items.JUNGLE_PLANKS),
+            new SlabRecipe("acacia", Items.ACACIA_PLANKS),
+            new SlabRecipe("dark_oak", Items.DARK_OAK_PLANKS),
+            new SlabRecipe("crimson", Items.CRIMSON_PLANKS),
+            new SlabRecipe("warped", Items.WARPED_PLANKS),
+        };
+        
+        for (SlabRecipe recipe : woodTypes) {
+            // Топор + доски = 2 полублока
+            ShapelessRecipeBuilder.shapeless(modItem(recipe.woodType + "_slab"), 2)
+                .requires(recipe.planksItem)
+                .requires(Ingredient.of(ItemTags.bind("forge:tools/axes")))
+                .unlockedBy("has_" + recipe.woodType + "_planks", has(recipe.planksItem))
+                .save(consumer, modLoc(recipe.woodType + "_slab_from_axe"));
+        }
+        
+        // Специальный рецепт для хвороста (использует bunch_of_grass вместо досок)
+        // ShapelessRecipeBuilder.shapeless(modItem("brushwood_slab"), 2)
+        //     .requires(modItem("bunch_of_grass"))
+        //     .requires(Ingredient.of(ItemTags.bind("forge:tools/axes")))
+        //     .unlockedBy("has_bunch_of_grass", has(modItem("bunch_of_grass")))
+        //     .save(consumer, modLoc("brushwood_slab_from_axe"));
+    }
+    
+    /**
+     * Класс для описания рецепта полублока.
+     */
+    private static class SlabRecipe {
+        final String woodType;
+        final Item planksItem;
+        
+        SlabRecipe(String woodType, Item planksItem) {
+            this.woodType = woodType;
+            this.planksItem = planksItem;
         }
     }
 
