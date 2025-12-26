@@ -12,13 +12,9 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class RedMushroomHandler {
-    @SubscribeEvent
     public static void onMushroomUse(PlayerInteractEvent.RightClickItem event) {
         ItemStack stack = event.getItemStack();
         if (stack.getItem() != Items.RED_MUSHROOM) return;

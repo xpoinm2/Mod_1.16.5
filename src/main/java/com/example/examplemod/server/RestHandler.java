@@ -11,15 +11,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import java.lang.reflect.Method;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class RestHandler {
     private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
 
@@ -85,11 +82,16 @@ public class RestHandler {
 
     }
 
-    @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.player instanceof ServerPlayerEntity)) return;
-        ServerPlayerEntity player = (ServerPlayerEntity) event.player;
+        tick((ServerPlayerEntity) event.player);
+    }
+
+    /**
+     * Вынесено для менеджера механик: можно вызывать напрямую без создания TickEvent.
+     */
+    public static void tick(ServerPlayerEntity player) {
         UUID id = player.getUUID();
 
         if (player.isSleeping()) {

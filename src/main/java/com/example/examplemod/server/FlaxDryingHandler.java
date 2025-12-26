@@ -9,12 +9,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FlaxDryingHandler {
-    @SubscribeEvent
     public static void onUse(PlayerInteractEvent.RightClickBlock event) {
         ItemStack stack = event.getItemStack();
         if (stack.getItem() != ModItems.SOAKED_FLAX.get()) return;

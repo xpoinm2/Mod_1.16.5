@@ -25,11 +25,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BlockBreakHandler {
     private static final Set<Block> VANILLA_ORES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             Blocks.COAL_ORE,
@@ -45,7 +42,6 @@ public class BlockBreakHandler {
     )));
 
 
-    @SubscribeEvent
     public static void onBlockBreak(BreakEvent event) {
         // 1) Получаем мир и проверяем — это сервер?
         World world = (World) event.getWorld();

@@ -11,15 +11,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HypothermiaHandler {
     private static final int TICKS_PER_HOUR = 20 * 60;
 
@@ -76,11 +73,16 @@ public class HypothermiaHandler {
         }
     }
 
-    @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.player instanceof ServerPlayerEntity)) return;
-        ServerPlayerEntity player = (ServerPlayerEntity) event.player;
+        tick((ServerPlayerEntity) event.player);
+    }
+
+    /**
+     * Вынесено для менеджера механик: можно вызывать напрямую без создания TickEvent.
+     */
+    public static void tick(ServerPlayerEntity player) {
         UUID id = player.getUUID();
 
         // Оптимизация: биом/температуру считаем раз в секунду.

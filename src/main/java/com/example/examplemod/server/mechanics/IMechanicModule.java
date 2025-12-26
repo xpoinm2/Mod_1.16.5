@@ -2,6 +2,18 @@ package com.example.examplemod.server.mechanics;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 /**
  * Базовый интерфейс "механики" для большого мода.
@@ -55,6 +67,47 @@ public interface IMechanicModule {
 
     default void onPlayerLogout(ServerPlayerEntity player) {
     }
+
+    // ---- Optional Forge events (enable flags keep dispatch cheap for 100+ modules) ----
+
+    default boolean enableWorldTick() { return false; }
+    default void onWorldTick(TickEvent.WorldTickEvent event) { }
+
+    default boolean enableBlockBreak() { return false; }
+    default void onBlockBreak(BlockEvent.BreakEvent event) { }
+
+    default boolean enablePlayerInteract() { return false; }
+    default void onPlayerInteract(PlayerInteractEvent event) { }
+
+    default boolean enableAttackEntity() { return false; }
+    default void onAttackEntity(AttackEntityEvent event) { }
+
+    default boolean enableLivingJump() { return false; }
+    default void onLivingJump(LivingEvent.LivingJumpEvent event) { }
+
+    default boolean enableUseItemFinish() { return false; }
+    default void onUseItemFinish(LivingEntityUseItemEvent.Finish event) { }
+
+    default boolean enableLivingDrops() { return false; }
+    default void onLivingDrops(LivingDropsEvent event) { }
+
+    default boolean enableChunkEvent() { return false; }
+    default void onChunkEvent(ChunkEvent event) { }
+
+    default boolean enablePlayerClone() { return false; }
+    default void onPlayerClone(PlayerEvent.Clone event) { }
+
+    default boolean enableRegisterCommands() { return false; }
+    default void onRegisterCommands(RegisterCommandsEvent event) { }
+
+    default boolean enableServerStopping() { return false; }
+    default void onServerStopping(FMLServerStoppingEvent event) { }
+
+    default boolean enableServerStarting() { return false; }
+    default void onServerStarting(FMLServerStartingEvent event) { }
+
+    default boolean enableItemCrafted() { return false; }
+    default void onItemCrafted(PlayerEvent.ItemCraftedEvent event) { }
 }
 
 

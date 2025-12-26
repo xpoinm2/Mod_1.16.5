@@ -11,18 +11,14 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 /**
  Spawns hewn stone items in river biomes when chunks load.
  */
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HewnStoneSpawnHandler {
 
     private static final int CHANCE = 1;
 
-    @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         if (!(event.getWorld() instanceof ServerWorld)) return;
         ServerWorld world = (ServerWorld) event.getWorld();

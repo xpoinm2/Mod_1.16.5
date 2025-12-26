@@ -17,19 +17,15 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Command to teleport the player to the nearest instance of a given block.
  */
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BlockTeleportCommand {
 
     private static final int SEARCH_RADIUS = 128;
 
-    @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 Commands.literal("tpblock")

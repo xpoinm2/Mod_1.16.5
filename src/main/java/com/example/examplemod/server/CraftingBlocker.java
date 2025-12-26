@@ -12,16 +12,12 @@ import net.minecraft.item.ShovelItem;
 import net.minecraft.item.SwordItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 /**
  * Отменяет все vanilla-рецепты инструментов (namespace == "minecraft") в момент крафта.
  */
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CraftingBlocker {
-    @SubscribeEvent
     public static void onItemCrafted(ItemCraftedEvent ev) {
         // результат, который игрок только что скрафтил
         ItemStack result = ev.getCrafting();

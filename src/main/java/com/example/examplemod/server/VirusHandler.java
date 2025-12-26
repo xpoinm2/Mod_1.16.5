@@ -10,12 +10,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraft.world.World;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class VirusHandler {
     private static final String KEY_VIRUS = "virus";
 
@@ -49,7 +46,6 @@ public class VirusHandler {
         );
     }
 
-    @SubscribeEvent
     public static void onFoodEaten(LivingEntityUseItemEvent.Finish event) {
         if (!(event.getEntityLiving() instanceof ServerPlayerEntity)) return;
         ItemStack stack = event.getItem();
@@ -61,7 +57,6 @@ public class VirusHandler {
         }
     }
 
-    @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         World world = (World) event.getWorld();
         if (world.isClientSide()) return;

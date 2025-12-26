@@ -12,12 +12,8 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class GravelOreWashHandler {
-    @SubscribeEvent
     public static void onUse(PlayerInteractEvent.RightClickItem event) {
         ItemStack stack = event.getItemStack();
         Item resultItem = null;

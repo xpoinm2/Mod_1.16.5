@@ -16,8 +16,6 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +23,6 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ThirstHandler {
     private static final Logger LOGGER     = LogManager.getLogger();
 
@@ -48,11 +45,17 @@ public class ThirstHandler {
                 stack.getItem() == Items.COOKED_SALMON;
     }
 
-    @SubscribeEvent
     public static void onLogout(PlayerLoggedOutEvent event) {
         // На логине/клоне синхронизацией занимается CapabilityHandler.
         LOGGER.debug("onLogout: игрок {} вышел", event.getPlayer().getName().getString());
-        UUID id = event.getPlayer().getUUID();
+        logout((ServerPlayerEntity) event.getPlayer());
+    }
+
+    /**
+     * Вынесено для менеджера механик: очистка пер-игрок state.
+     */
+    public static void logout(ServerPlayerEntity player) {
+        UUID id = player.getUUID();
         LAST_POS.remove(id);
         RUN_DIST.remove(id);
         JUMP_COUNT.remove(id);
@@ -61,11 +64,16 @@ public class ThirstHandler {
         SWIM_TICKS.remove(id);
     }
 
-    @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.player instanceof ServerPlayerEntity)) return;
-        ServerPlayerEntity player = (ServerPlayerEntity) event.player;
+        tick((ServerPlayerEntity) event.player);
+    }
+
+    /**
+     * Вынесено для менеджера механик: можно вызывать напрямую без создания TickEvent.
+     */
+    public static void tick(ServerPlayerEntity player) {
         UUID id = player.getUUID();
 
         // Оптимизация: основная логика жажды/усталости не требует обработки каждый тик.
@@ -147,7 +155,6 @@ public class ThirstHandler {
         });
     }
 
-    @SubscribeEvent
     public static void onPlayerJump(LivingJumpEvent event) {
         if (!(event.getEntityLiving() instanceof ServerPlayerEntity)) return;
         ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
@@ -168,7 +175,6 @@ public class ThirstHandler {
         JUMP_COUNT.put(id, count);
     }
 
-    @SubscribeEvent
     public static void onAttackEntity(AttackEntityEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayerEntity)) return;
         ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
@@ -184,7 +190,6 @@ public class ThirstHandler {
     }
 
 
-    @SubscribeEvent
     public static void onDrinkFinish(LivingEntityUseItemEvent.Finish event) {
         LOGGER.debug("onDrinkFinish: {} использует {}",
                 event.getEntity().getName().getString(),

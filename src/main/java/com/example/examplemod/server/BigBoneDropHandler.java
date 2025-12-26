@@ -10,12 +10,8 @@ import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BigBoneDropHandler {
-    @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntityLiving();
         if (entity instanceof CowEntity || entity instanceof SheepEntity ||

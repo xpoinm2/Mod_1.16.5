@@ -4,10 +4,20 @@ import com.example.examplemod.Config;
 import com.example.examplemod.ExampleMod;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -65,7 +75,8 @@ public final class MechanicScheduler {
         if (ModMechanics.modules().isEmpty()) return;
 
         serverTickCounter++;
-        MinecraftServer server = event.getServer();
+        MinecraftServer server = net.minecraftforge.fml.server.ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return;
 
         final boolean profile = Config.MECHANICS_PROFILING.get();
         final int logEvery = Math.max(20, Config.MECHANICS_PROFILE_LOG_EVERY_TICKS.get());
@@ -171,6 +182,198 @@ public final class MechanicScheduler {
                 module.onPlayerLogout(player);
             } catch (RuntimeException e) {
                 LOGGER.error("Mechanic '{}' crashed in onPlayerLogout()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onWorldTick(TickEvent.WorldTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (event.world.isClientSide()) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableWorldTick()) continue;
+            try {
+                module.onWorldTick(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onWorldTick()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enablePlayerClone()) continue;
+            try {
+                module.onPlayerClone(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onPlayerClone()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRegisterCommands(RegisterCommandsEvent event) {
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableRegisterCommands()) continue;
+            try {
+                module.onRegisterCommands(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onRegisterCommands()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+        if (event.getWorld().isClientSide()) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableBlockBreak()) continue;
+            try {
+                module.onBlockBreak(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onBlockBreak()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getWorld().isClientSide()) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enablePlayerInteract()) continue;
+            try {
+                module.onPlayerInteract(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onPlayerInteract()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onAttackEntity(AttackEntityEvent event) {
+        if (event.getPlayer() == null || event.getPlayer().level.isClientSide) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableAttackEntity()) continue;
+            try {
+                module.onAttackEntity(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onAttackEntity()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
+        if (event.getEntityLiving() == null || event.getEntityLiving().level.isClientSide) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableLivingJump()) continue;
+            try {
+                module.onLivingJump(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onLivingJump()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onUseItemFinish(LivingEntityUseItemEvent.Finish event) {
+        if (event.getEntity() == null || event.getEntity().level.isClientSide) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableUseItemFinish()) continue;
+            try {
+                module.onUseItemFinish(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onUseItemFinish()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDrops(LivingDropsEvent event) {
+        if (event.getEntity() == null || event.getEntity().level.isClientSide) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableLivingDrops()) continue;
+            try {
+                module.onLivingDrops(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onLivingDrops()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onChunkEvent(ChunkEvent event) {
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableChunkEvent()) continue;
+            try {
+                module.onChunkEvent(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onChunkEvent()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerStopping(FMLServerStoppingEvent event) {
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableServerStopping()) continue;
+            try {
+                module.onServerStopping(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onServerStopping()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerStarting(FMLServerStartingEvent event) {
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableServerStarting()) continue;
+            try {
+                module.onServerStarting(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onServerStarting()", module.id(), e);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+        if (event.getPlayer() == null || event.getPlayer().level.isClientSide) return;
+        ensureInit();
+        if (ModMechanics.modules().isEmpty()) return;
+        for (IMechanicModule module : ModMechanics.modules()) {
+            if (!module.enableItemCrafted()) continue;
+            try {
+                module.onItemCrafted(event);
+            } catch (RuntimeException e) {
+                LOGGER.error("Mechanic '{}' crashed in onItemCrafted()", module.id(), e);
             }
         }
     }

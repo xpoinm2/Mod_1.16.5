@@ -6,15 +6,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HotOreDamageHandler {
-    @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        PlayerEntity player = event.player;
+        tick(event.player);
+    }
+
+    /**
+     * Вынесено для менеджера механик: можно вызывать напрямую без создания TickEvent.
+     */
+    public static void tick(PlayerEntity player) {
         if (player.level.isClientSide) return;
 
         // Наносим урон не каждый тик, а раз в секунду (иначе это слишком жёстко и дорого по CPU при множестве механик)
