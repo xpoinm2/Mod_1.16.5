@@ -130,6 +130,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropsSelf(ModBlocks.HORSERADISH_PLANT);
             dropsSelf(ModBlocks.GINGER_PLANT);
             dropsSelf(ModBlocks.FLAX_PLANT);
+            dropsSelf(ModBlocks.DRIED_FLAX);
             
             // Bunch of Grass
             dropsSelf(ModBlocks.BUNCH_OF_GRASS);

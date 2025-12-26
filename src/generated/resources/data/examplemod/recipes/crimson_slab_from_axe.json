@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "minecraft:cobblestone"
+      "item": "minecraft:crimson_planks"
     },
     {
-      "item": "minecraft:iron_pickaxe"
+      "tag": "forge:tools/axes"
     }
   ],
   "result": {
-    "item": "minecraft:cobblestone",
+    "item": "examplemod:crimson_slab",
     "count": 2
   }
 }

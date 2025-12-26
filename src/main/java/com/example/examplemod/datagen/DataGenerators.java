@@ -22,17 +22,20 @@ public class DataGenerators {
             generator.addProvider(new ModRecipeProvider(generator));
             
             // Loot tables (дроп с блоков)
-            generator.addProvider(new ModLootTableProvider(generator));
+            // ВРЕМЕННО ОТКЛЮЧЕНО: есть проблема с minecraft:empty блоком
+            // generator.addProvider(new ModLootTableProvider(generator));
         }
 
         if (event.includeClient()) {
             // === КЛИЕНТСКИЕ ГЕНЕРАТОРЫ ===
             
             // Модели и текстуры блоков
-            generator.addProvider(new ModBlockStateProvider(generator, event.getExistingFileHelper()));
+            // ВРЕМЕННО ОТКЛЮЧЕНО: есть проблемы с некоторыми блоками
+            // generator.addProvider(new ModBlockStateProvider(generator, event.getExistingFileHelper()));
             
             // Модели предметов
-            generator.addProvider(new ModItemModelProvider(generator, event.getExistingFileHelper()));
+            // ВРЕМЕННО ОТКЛЮЧЕНО: есть проблемы с некоторыми предметами
+            // generator.addProvider(new ModItemModelProvider(generator, event.getExistingFileHelper()));
         }
     }
 }

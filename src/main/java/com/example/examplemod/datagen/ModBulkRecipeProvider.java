@@ -1,6 +1,8 @@
 package com.example.examplemod.datagen;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.ModRegistries;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.data.RecipeProvider;
@@ -204,9 +206,11 @@ public class ModBulkRecipeProvider extends RecipeProvider {
     }
     
     /**
-     * Генерация рецептов полублоков: топор + доски = 2 полублока.
+     * Генерация рецептов полублоков: топор + доски = 2 плитняка.
      * 
      * МАСШТАБИРУЕМОСТЬ: При добавлении нового типа дерева просто добавь его в массив.
+     * 
+     * ИСПРАВЛЕНО: Использует прямое создание JSON для правильной работы во время DataGen.
      */
     private void generateSlabRecipes(Consumer<IFinishedRecipe> consumer) {
         // Массив: [тип_дерева, ванильный_предмет_досок]
@@ -222,20 +226,111 @@ public class ModBulkRecipeProvider extends RecipeProvider {
         };
         
         for (SlabRecipe recipe : woodTypes) {
-            // Топор + доски = 2 полублока
-            ShapelessRecipeBuilder.shapeless(modItem(recipe.woodType + "_slab"), 2)
-                .requires(recipe.planksItem)
-                .requires(Ingredient.of(ItemTags.bind("forge:tools/axes")))
-                .unlockedBy("has_" + recipe.woodType + "_planks", has(recipe.planksItem))
-                .save(consumer, modLoc(recipe.woodType + "_slab_from_axe"));
+            // Топор + доски = 2 плитняка
+            shapelessRecipeWithModResult(
+                consumer,
+                recipe.woodType + "_slab",  // результат
+                2,  // количество
+                new Ingredient[]{
+                    Ingredient.of(recipe.planksItem),
+                    Ingredient.of(ItemTags.bind("forge:tools/axes"))
+                },
+                "has_" + recipe.woodType + "_planks",
+                recipe.planksItem,
+                recipe.woodType + "_slab_from_axe"  // ID рецепта
+            );
         }
         
-        // Специальный рецепт для хвороста (использует bunch_of_grass вместо досок)
-        // ShapelessRecipeBuilder.shapeless(modItem("brushwood_slab"), 2)
-        //     .requires(modItem("bunch_of_grass"))
-        //     .requires(Ingredient.of(ItemTags.bind("forge:tools/axes")))
-        //     .unlockedBy("has_bunch_of_grass", has(modItem("bunch_of_grass")))
-        //     .save(consumer, modLoc("brushwood_slab_from_axe"));
+        // Специальный рецепт для хвороста
+        shapelessRecipeWithModResult(
+            consumer,
+            "brushwood_slab",  // результат
+            2,  // количество
+            new Ingredient[]{
+                Ingredient.fromJson(createItemJson("examplemod:bunch_of_grass")),
+                Ingredient.of(ItemTags.bind("forge:tools/axes"))
+            },
+            "has_bunch_of_grass",
+            Items.DIRT,  // Placeholder для критерия
+            "brushwood_slab_from_axe"  // ID рецепта
+        );
+    }
+    
+    /**
+     * Создаёт shapeless рецепт с результатом из мода (через ResourceLocation).
+     * Решает проблему DataGen когда предметы ещё не зарегистрированы.
+     */
+    private void shapelessRecipeWithModResult(
+        Consumer<IFinishedRecipe> consumer,
+        String resultItemName,
+        int count,
+        Ingredient[] ingredients,
+        String criterionName,
+        Item criterionItem,
+        String recipeId
+    ) {
+        consumer.accept(new IFinishedRecipe() {
+            @Override
+            public void serializeRecipeData(com.google.gson.JsonObject json) {
+                json.addProperty("type", "minecraft:crafting_shapeless");
+                
+                // Ingredients
+                com.google.gson.JsonArray ingredientsArray = new com.google.gson.JsonArray();
+                for (Ingredient ingredient : ingredients) {
+                    ingredientsArray.add(ingredient.toJson());
+                }
+                json.add("ingredients", ingredientsArray);
+                
+                // Result
+                com.google.gson.JsonObject resultJson = new com.google.gson.JsonObject();
+                resultJson.addProperty("item", ExampleMod.MODID + ":" + resultItemName);
+                resultJson.addProperty("count", count);
+                json.add("result", resultJson);
+            }
+            
+            @Override
+            public ResourceLocation getId() {
+                return modLoc(recipeId);
+            }
+            
+            @Override
+            public net.minecraft.item.crafting.IRecipeSerializer<?> getType() {
+                return net.minecraft.item.crafting.IRecipeSerializer.SHAPELESS_RECIPE;
+            }
+            
+            @Override
+            public com.google.gson.JsonObject serializeAdvancement() {
+                com.google.gson.JsonObject advancement = new com.google.gson.JsonObject();
+                com.google.gson.JsonObject criteriaObj = new com.google.gson.JsonObject();
+                
+                // Создаём критерий вручную
+                com.google.gson.JsonObject criterion = new com.google.gson.JsonObject();
+                criterion.addProperty("trigger", "minecraft:inventory_changed");
+                com.google.gson.JsonObject conditions = new com.google.gson.JsonObject();
+                com.google.gson.JsonArray items = new com.google.gson.JsonArray();
+                com.google.gson.JsonObject itemObj = new com.google.gson.JsonObject();
+                itemObj.addProperty("item", criterionItem.getRegistryName().toString());
+                items.add(itemObj);
+                conditions.add("items", items);
+                criterion.add("conditions", conditions);
+                
+                criteriaObj.add(criterionName, criterion);
+                advancement.add("criteria", criteriaObj);
+                
+                com.google.gson.JsonArray reqArray = new com.google.gson.JsonArray();
+                com.google.gson.JsonArray innerArray = new com.google.gson.JsonArray();
+                innerArray.add(criterionName);
+                reqArray.add(innerArray);
+                advancement.add("requirements", reqArray);
+                
+                return advancement;
+            }
+            
+            @Override
+            public ResourceLocation getAdvancementId() {
+                return new ResourceLocation(getId().getNamespace(), "recipes/" + getId().getPath());
+            }
+        });
     }
     
     /**
@@ -269,11 +364,18 @@ public class ModBulkRecipeProvider extends RecipeProvider {
     /**
      * Получить Item из ModItems по имени.
      * Предполагается что предмет существует.
+     * 
+     * ВНИМАНИЕ: Этот метод не работает во время DataGen!
+     * Используй CustomResult.builder() для рецептов с модовыми предметами.
      */
+    @Deprecated
     private Item modItem(String name) {
-        // Временная заглушка - возвращаем воздух если предмет не найден
-        // В реальном коде используй ModItems.ITEMS.getEntries() для поиска
-        return Items.AIR;
+        // Этот метод не работает во время DataGen, так как предметы ещё не зарегистрированы
+        return ModRegistries.ITEMS.getEntries().stream()
+            .filter(entry -> entry.getId().getPath().equals(name))
+            .findFirst()
+            .map(entry -> entry.get())
+            .orElse(Items.AIR);
     }
     
     /**
@@ -281,6 +383,100 @@ public class ModBulkRecipeProvider extends RecipeProvider {
      */
     private ResourceLocation modLoc(String name) {
         return new ResourceLocation(ExampleMod.MODID, name);
+    }
+    
+    /**
+     * Создать JsonObject для предмета по ResourceLocation.
+     * Используется для создания Ingredient через JSON.
+     */
+    private static com.google.gson.JsonObject createItemJson(String itemId) {
+        com.google.gson.JsonObject json = new com.google.gson.JsonObject();
+        json.addProperty("item", itemId);
+        return json;
+    }
+    
+    // === ВСПОМОГАТЕЛЬНЫЙ КЛАСС ДЛЯ DATAGEN ===
+    
+    /**
+     * Вспомогательный класс для создания shapeless рецептов с результатом через ResourceLocation.
+     * Решает проблему, когда предметы ещё не зарегистрированы во время DataGen.
+     */
+    private static class CustomResult {
+        private final ResourceLocation result;
+        private final int count;
+        private final java.util.List<Ingredient> ingredients = new java.util.ArrayList<>();
+        private final java.util.Map<String, net.minecraft.advancements.criterion.InventoryChangeTrigger.Instance> criteria = new java.util.HashMap<>();
+        
+        private CustomResult(ResourceLocation result, int count) {
+            this.result = result;
+            this.count = count;
+        }
+        
+        public static CustomResult builder(ResourceLocation result, int count) {
+            return new CustomResult(result, count);
+        }
+        
+        public CustomResult addIngredient(Ingredient ingredient) {
+            this.ingredients.add(ingredient);
+            return this;
+        }
+        
+        public CustomResult addCriterion(String name, net.minecraft.advancements.criterion.InventoryChangeTrigger.Instance criterion) {
+            this.criteria.put(name, criterion);
+            return this;
+        }
+        
+        public void build(Consumer<IFinishedRecipe> consumer, ResourceLocation id) {
+            // Создаем ShapelessRecipeBuilder с временным предметом (Items.BARRIER)
+            // а затем переопределяем результат через JSON
+            ShapelessRecipeBuilder builder = ShapelessRecipeBuilder.shapeless(Items.BARRIER, count);
+            
+            for (Ingredient ingredient : ingredients) {
+                builder.requires(ingredient);
+            }
+            
+            for (java.util.Map.Entry<String, net.minecraft.advancements.criterion.InventoryChangeTrigger.Instance> entry : criteria.entrySet()) {
+                builder.unlockedBy(entry.getKey(), entry.getValue());
+            }
+            
+            // Сохраняем рецепт с кастомным результатом
+            builder.save(new Consumer<IFinishedRecipe>() {
+                @Override
+                public void accept(IFinishedRecipe finishedRecipe) {
+                    consumer.accept(new IFinishedRecipe() {
+                        @Override
+                        public void serializeRecipeData(com.google.gson.JsonObject json) {
+                            finishedRecipe.serializeRecipeData(json);
+                            // Переопределяем результат
+                            com.google.gson.JsonObject resultJson = new com.google.gson.JsonObject();
+                            resultJson.addProperty("item", result.toString());
+                            resultJson.addProperty("count", count);
+                            json.add("result", resultJson);
+                        }
+                        
+                        @Override
+                        public ResourceLocation getId() {
+                            return id;
+                        }
+                        
+                        @Override
+                        public net.minecraft.item.crafting.IRecipeSerializer<?> getType() {
+                            return finishedRecipe.getType();
+                        }
+                        
+                        @Override
+                        public com.google.gson.JsonObject serializeAdvancement() {
+                            return finishedRecipe.serializeAdvancement();
+                        }
+                        
+                        @Override
+                        public ResourceLocation getAdvancementId() {
+                            return finishedRecipe.getAdvancementId();
+                        }
+                    });
+                }
+            }, id);
+        }
     }
     
     // === ИНСТРУКЦИИ ПО ИСПОЛЬЗОВАНИЮ ===

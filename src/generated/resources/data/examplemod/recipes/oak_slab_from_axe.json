@@ -5,11 +5,11 @@
       "item": "minecraft:oak_planks"
     },
     {
-      "item": "minecraft:iron_axe"
+      "tag": "forge:tools/axes"
     }
   ],
   "result": {
-    "item": "minecraft:oak_planks",
+    "item": "examplemod:oak_slab",
     "count": 2
   }
 }
