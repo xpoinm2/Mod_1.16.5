@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:birch_log"
+    },
+    {
+      "tag": "minecraft:axes"
+    }
+  ],
+  "result": {
+    "item": "minecraft:birch_planks",
+    "count": 4
+  }
+}
+
