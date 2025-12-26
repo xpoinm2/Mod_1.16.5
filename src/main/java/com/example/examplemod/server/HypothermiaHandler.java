@@ -7,7 +7,6 @@ import com.example.examplemod.network.SyncHypothermiaPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -22,31 +21,10 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HypothermiaHandler {
-    private static final String KEY_HYPOTHERMIA = "hypothermia";
     private static final int TICKS_PER_HOUR = 20 * 60;
 
     private static final Map<UUID, Integer> ANY_TICKS = new HashMap<>();
     private static final Map<UUID, Integer> BARE_TICKS = new HashMap<>();
-
-    private static CompoundNBT getStatsTag(PlayerEntity player) {
-        CompoundNBT root = player.getPersistentData();
-        if (!root.contains(PlayerEntity.PERSISTED_NBT_TAG)) {
-            root.put(PlayerEntity.PERSISTED_NBT_TAG, new CompoundNBT());
-        }
-        return root.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
-    }
-
-    private static int getStat(PlayerEntity player, String key, int def) {
-        CompoundNBT stats = getStatsTag(player);
-        if (!stats.contains(key)) {
-            stats.putInt(key, def);
-        }
-        return stats.getInt(key);
-    }
-
-    private static void setStat(PlayerEntity player, String key, int value) {
-        getStatsTag(player).putInt(key, value);
-    }
 
     private static boolean noArmor(PlayerEntity player) {
         for (EquipmentSlotType slot : new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET}) {
@@ -105,9 +83,12 @@ public class HypothermiaHandler {
         ServerPlayerEntity player = (ServerPlayerEntity) event.player;
         UUID id = player.getUUID();
 
+        // Оптимизация: биом/температуру считаем раз в секунду.
+        if ((player.tickCount % 20) != 0) return;
+
         int temp = getAmbientTemperature(player);
         if (temp < -24) {
-            int t = ANY_TICKS.getOrDefault(id, 0) + 1;
+            int t = ANY_TICKS.getOrDefault(id, 0) + 20;
             if (t >= TICKS_PER_HOUR * 5) {
                 t -= TICKS_PER_HOUR * 5;
                 increase(player);
@@ -115,7 +96,7 @@ public class HypothermiaHandler {
             ANY_TICKS.put(id, t);
 
             if (noArmor(player)) {
-                int b = BARE_TICKS.getOrDefault(id, 0) + 1;
+                int b = BARE_TICKS.getOrDefault(id, 0) + 20;
                 if (b >= TICKS_PER_HOUR * 2) {
                     b -= TICKS_PER_HOUR * 2;
                     increase(player);
@@ -131,12 +112,16 @@ public class HypothermiaHandler {
     }
 
     private static void increase(ServerPlayerEntity player) {
-        int value = Math.min(100, getStat(player, KEY_HYPOTHERMIA, 0) + 5);
-        setStat(player, KEY_HYPOTHERMIA, value);
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setHypothermia(value));
-        ModNetworkHandler.CHANNEL.send(
-                PacketDistributor.PLAYER.with(() -> player),
-                new SyncHypothermiaPacket(value)
-        );
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+            int current = stats.getHypothermia();
+            int value = Math.min(100, current + 5);
+            if (value != current) {
+                stats.setHypothermia(value);
+                ModNetworkHandler.CHANNEL.send(
+                        PacketDistributor.PLAYER.with(() -> player),
+                        new SyncHypothermiaPacket(value)
+                );
+            }
+        });
     }
 }

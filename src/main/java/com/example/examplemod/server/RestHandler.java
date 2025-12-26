@@ -1,6 +1,7 @@
 package com.example.examplemod.server;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,7 +10,6 @@ import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import java.lang.reflect.Method;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -21,9 +21,6 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class RestHandler {
-    private static final String KEY_FATIGUE = "fatigue";
-    private static final String KEY_THIRST = "thirst";
-
     private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
 
     private enum Type { SIT }
@@ -38,34 +35,16 @@ public class RestHandler {
     private static final Map<UUID, Info> REST = new HashMap<>();
     private static final Map<UUID, Integer> BED_TICKS = new HashMap<>();
 
-    // Helpers to store stats similar to ThirstHandler
-    private static CompoundNBT getStatsTag(PlayerEntity player) {
-        CompoundNBT root = player.getPersistentData();
-        if (!root.contains(PlayerEntity.PERSISTED_NBT_TAG)) {
-            root.put(PlayerEntity.PERSISTED_NBT_TAG, new CompoundNBT());
-        }
-        return root.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
-    }
-
-    private static int getStat(PlayerEntity player, String key, int def) {
-        CompoundNBT stats = getStatsTag(player);
-        if (!stats.contains(key)) {
-            stats.putInt(key, def);
-        }
-        return stats.getInt(key);
-    }
-
-    private static void setStat(PlayerEntity player, String key, int value) {
-        getStatsTag(player).putInt(key, value);
-    }
-
     private static void reduceFatigue(ServerPlayerEntity player, int amount) {
-        int fatigue = Math.max(0, getStat(player, KEY_FATIGUE, 0) - amount);
-        setStat(player, KEY_FATIGUE, fatigue);
-        ModNetworkHandler.CHANNEL.send(
-                PacketDistributor.PLAYER.with(() -> player),
-                new SyncStatsPacket(getStat(player, KEY_THIRST, 40), fatigue)
-        );
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+            int thirst = stats.getThirst();
+            int fatigue = Math.max(0, stats.getFatigue() - amount);
+            stats.setFatigue(fatigue);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(thirst, fatigue)
+            );
+        });
     }
 
     private static void setMarker(ArmorStandEntity stand, boolean value) {
@@ -120,11 +99,13 @@ public class RestHandler {
             return;
         } else if (BED_TICKS.containsKey(id)) {
             BED_TICKS.remove(id);
-            setStat(player, KEY_FATIGUE, 0);
-            ModNetworkHandler.CHANNEL.send(
-                    PacketDistributor.PLAYER.with(() -> player),
-                    new SyncStatsPacket(getStat(player, KEY_THIRST, 40), 0)
-            );
+            player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+                stats.setFatigue(0);
+                ModNetworkHandler.CHANNEL.send(
+                        PacketDistributor.PLAYER.with(() -> player),
+                        new SyncStatsPacket(stats.getThirst(), 0)
+                );
+            });
         }
 
         Info info = REST.get(id);

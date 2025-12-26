@@ -10,9 +10,7 @@ import com.example.examplemod.network.SyncVirusPacket;
 import com.example.examplemod.network.SyncPoisonPacket;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,14 +22,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class StatsCommands {
-    private static final String KEY_THIRST = "thirst";
-    private static final String KEY_FATIGUE = "fatigue";
-    private static final String KEY_DISEASE = "disease";
-    private static final String KEY_POISON = "poison";
-    private static final String KEY_VIRUS = "virus";
-    private static final String KEY_COLD = "cold";
-    private static final String KEY_HYPOTHERMIA = "hypothermia";
-
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
@@ -67,55 +57,34 @@ public class StatsCommands {
         );
     }
 
-    private static CompoundNBT getStatsTag(PlayerEntity player) {
-        CompoundNBT root = player.getPersistentData();
-        if (!root.contains(PlayerEntity.PERSISTED_NBT_TAG)) {
-            root.put(PlayerEntity.PERSISTED_NBT_TAG, new CompoundNBT());
-        }
-        return root.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
-    }
-
-    private static void setStat(PlayerEntity player, String key, int value) {
-        getStatsTag(player).putInt(key, value);
-    }
-
-    private static int getStat(PlayerEntity player, String key, int def) {
-        CompoundNBT stats = getStatsTag(player);
-        if (!stats.contains(key)) {
-            stats.putInt(key, def);
-        }
-        return stats.getInt(key);
-    }
-
     private static int setThirst(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        setStat(player, KEY_THIRST, value);
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setThirst(value));
-        int fatigue = getStat(player, KEY_FATIGUE, 0);
-        ModNetworkHandler.CHANNEL.send(
-                PacketDistributor.PLAYER.with(() -> player),
-                new SyncStatsPacket(value, fatigue)
-        );
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+            stats.setThirst(value);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(value, stats.getFatigue())
+            );
+        });
         ctx.getSource().sendSuccess(new StringTextComponent("Thirst set to " + value), true);
         return 1;
     }
 
     private static int setFatigue(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        setStat(player, KEY_FATIGUE, value);
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setFatigue(value));
-        int thirst = getStat(player, KEY_THIRST, 40);
-        ModNetworkHandler.CHANNEL.send(
-                PacketDistributor.PLAYER.with(() -> player),
-                new SyncStatsPacket(thirst, value)
-        );
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+            stats.setFatigue(value);
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncStatsPacket(stats.getThirst(), value)
+            );
+        });
         ctx.getSource().sendSuccess(new StringTextComponent("Fatigue set to " + value), true);
         return 1;
     }
 
     private static int setDisease(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        setStat(player, KEY_DISEASE, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setDisease(value));
         ctx.getSource().sendSuccess(new StringTextComponent("Disease set to " + value), true);
         return 1;
@@ -123,7 +92,6 @@ public class StatsCommands {
 
     private static int setPoison(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        setStat(player, KEY_POISON, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setPoison(value));
         ModNetworkHandler.CHANNEL.send(
                 PacketDistributor.PLAYER.with(() -> player),
@@ -135,7 +103,6 @@ public class StatsCommands {
 
     private static int setVirus(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        setStat(player, KEY_VIRUS, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setVirus(value));
         ModNetworkHandler.CHANNEL.send(
                 PacketDistributor.PLAYER.with(() -> player),
@@ -147,7 +114,6 @@ public class StatsCommands {
 
     private static int setCold(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        setStat(player, KEY_COLD, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setCold(value));
         ModNetworkHandler.CHANNEL.send(
                 PacketDistributor.PLAYER.with(() -> player),
@@ -159,7 +125,6 @@ public class StatsCommands {
 
     private static int setHypothermia(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        setStat(player, KEY_HYPOTHERMIA, value);
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setHypothermia(value));
         ModNetworkHandler.CHANNEL.send(
                 PacketDistributor.PLAYER.with(() -> player),

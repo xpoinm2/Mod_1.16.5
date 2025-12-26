@@ -7,7 +7,6 @@ import com.example.examplemod.network.SyncColdPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -22,30 +21,9 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ColdHandler {
-    private static final String KEY_COLD = "cold";
     private static final int TICKS_PER_HOUR = 20 * 60;
 
     private static final Map<UUID, Integer> HOUR_TICKS = new HashMap<>();
-
-    private static CompoundNBT getStatsTag(PlayerEntity player) {
-        CompoundNBT root = player.getPersistentData();
-        if (!root.contains(PlayerEntity.PERSISTED_NBT_TAG)) {
-            root.put(PlayerEntity.PERSISTED_NBT_TAG, new CompoundNBT());
-        }
-        return root.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
-    }
-
-    private static int getStat(PlayerEntity player, String key, int def) {
-        CompoundNBT stats = getStatsTag(player);
-        if (!stats.contains(key)) {
-            stats.putInt(key, def);
-        }
-        return stats.getInt(key);
-    }
-
-    private static void setStat(PlayerEntity player, String key, int value) {
-        getStatsTag(player).putInt(key, value);
-    }
 
     private static boolean noArmor(PlayerEntity player) {
         for (EquipmentSlotType slot : new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET}) {
@@ -104,6 +82,9 @@ public class ColdHandler {
         ServerPlayerEntity player = (ServerPlayerEntity) event.player;
         UUID id = player.getUUID();
 
+        // Оптимизация: пересчитываем температуру/биом не каждый тик, а раз в секунду.
+        if ((player.tickCount % 20) != 0) return;
+
         int temp = getAmbientTemperature(player);
         boolean increase = false;
         if (temp == -40 || temp == -25) {
@@ -113,16 +94,20 @@ public class ColdHandler {
         }
 
         if (increase) {
-            int t = HOUR_TICKS.getOrDefault(id, 0) + 1;
+            int t = HOUR_TICKS.getOrDefault(id, 0) + 20;
             if (t >= TICKS_PER_HOUR) {
                 t -= TICKS_PER_HOUR;
-                int cold = Math.min(100, getStat(player, KEY_COLD, 0) + 4);
-                setStat(player, KEY_COLD, cold);
-                player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setCold(cold));
-                ModNetworkHandler.CHANNEL.send(
-                        PacketDistributor.PLAYER.with(() -> player),
-                        new SyncColdPacket(cold)
-                );
+                player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+                    int current = stats.getCold();
+                    int cold = Math.min(100, current + 4);
+                    if (cold != current) {
+                        stats.setCold(cold);
+                        ModNetworkHandler.CHANNEL.send(
+                                PacketDistributor.PLAYER.with(() -> player),
+                                new SyncColdPacket(cold)
+                        );
+                    }
+                });
             }
             HOUR_TICKS.put(id, t);
         } else {

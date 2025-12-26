@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
 import com.example.examplemod.ModItems;
@@ -20,7 +21,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TieredItem;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -31,9 +31,6 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BlockBreakHandler {
-
-    private static final String KEY_FATIGUE = "fatigue";
-    private static final String KEY_THIRST = "thirst";
     private static final Set<Block> VANILLA_ORES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             Blocks.COAL_ORE,
             Blocks.IRON_ORE,
@@ -46,26 +43,6 @@ public class BlockBreakHandler {
             Blocks.NETHER_GOLD_ORE,
             Blocks.ANCIENT_DEBRIS
     )));
-
-    private static CompoundNBT getStatsTag(PlayerEntity player) {
-        CompoundNBT root = player.getPersistentData();
-        if (!root.contains(PlayerEntity.PERSISTED_NBT_TAG)) {
-            root.put(PlayerEntity.PERSISTED_NBT_TAG, new CompoundNBT());
-        }
-        return root.getCompound(PlayerEntity.PERSISTED_NBT_TAG);
-    }
-
-    private static int getStat(PlayerEntity player, String key, int def) {
-        CompoundNBT stats = getStatsTag(player);
-        if (!stats.contains(key)) {
-            stats.putInt(key, def);
-        }
-        return stats.getInt(key);
-    }
-
-    private static void setStat(PlayerEntity player, String key, int value) {
-        getStatsTag(player).putInt(key, value);
-    }
 
 
     @SubscribeEvent
@@ -154,14 +131,17 @@ public class BlockBreakHandler {
 
         // Fatigue when digging with bare hands
         if (player.getMainHandItem().isEmpty()) {
-            int fatigue = Math.min(100, getStat(player, KEY_FATIGUE, 0) + 4);
-            setStat(player, KEY_FATIGUE, fatigue);
             if (player instanceof ServerPlayerEntity) {
                 ServerPlayerEntity sp = (ServerPlayerEntity) player;
-                ModNetworkHandler.CHANNEL.send(
-                        PacketDistributor.PLAYER.with(() -> sp),
-                        new SyncStatsPacket(getStat(sp, KEY_THIRST, 40), fatigue)
-                );
+                sp.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+                    int thirst = stats.getThirst();
+                    int fatigue = Math.min(100, stats.getFatigue() + 4);
+                    stats.setFatigue(fatigue);
+                    ModNetworkHandler.CHANNEL.send(
+                            PacketDistributor.PLAYER.with(() -> sp),
+                            new SyncStatsPacket(thirst, fatigue)
+                    );
+                });
             }
         }
     }
