@@ -97,6 +97,10 @@ public class ExampleMod {
         event.enqueueWork(() -> {
             WorldGenRegistry.register();
             ModBiomes.setupBiomes();
+            
+            // ОПЦИОНАЛЬНО: Анализ текстур (раскомментируй когда будет 200+ текстур)
+            // TextureOrganizer.analyzeTextures();
+            // Проверь логи для рекомендаций по оптимизации
         });
     }
 

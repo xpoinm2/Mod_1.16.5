@@ -16,13 +16,23 @@ public class DataGenerators {
         DataGenerator generator = event.getGenerator();
 
         if (event.includeServer()) {
-            // Генераторы для серверной части
+            // === СЕРВЕРНЫЕ ГЕНЕРАТОРЫ ===
+            
+            // Рецепты крафта
             generator.addProvider(new ModRecipeProvider(generator));
+            
+            // Loot tables (дроп с блоков)
+            generator.addProvider(new ModLootTableProvider(generator));
         }
 
         if (event.includeClient()) {
-            // Генераторы для клиентской части
+            // === КЛИЕНТСКИЕ ГЕНЕРАТОРЫ ===
+            
+            // Модели и текстуры блоков
             generator.addProvider(new ModBlockStateProvider(generator, event.getExistingFileHelper()));
+            
+            // Модели предметов
+            generator.addProvider(new ModItemModelProvider(generator, event.getExistingFileHelper()));
         }
     }
 }
