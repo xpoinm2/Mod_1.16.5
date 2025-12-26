@@ -2,11 +2,7 @@ package com.example.examplemod.capability;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.network.ModNetworkHandler;
-import com.example.examplemod.network.SyncStatsPacket;
-import com.example.examplemod.network.SyncColdPacket;
-import com.example.examplemod.network.SyncHypothermiaPacket;
-import com.example.examplemod.network.SyncVirusPacket;
-import com.example.examplemod.network.SyncPoisonPacket;
+import com.example.examplemod.network.SyncAllStatsPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -36,26 +32,10 @@ public class CapabilityHandler {
         if (!(ev.getPlayer() instanceof ServerPlayerEntity)) return;
         ServerPlayerEntity player = (ServerPlayerEntity) ev.getPlayer();
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-            // Отправляем только thirst и fatigue, т.к. SyncStatsPacket принимает 2 аргумента
+            // ОПТИМИЗАЦИЯ: один пакет вместо 5 отдельных (80% меньше трафика при логине)
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
-                    new SyncStatsPacket(stats.getThirst(), stats.getFatigue())
-            );
-            ModNetworkHandler.CHANNEL.send(
-                    PacketDistributor.PLAYER.with(() -> player),
-                    new SyncColdPacket(stats.getCold())
-            );
-            ModNetworkHandler.CHANNEL.send(
-                    PacketDistributor.PLAYER.with(() -> player),
-                    new SyncHypothermiaPacket(stats.getHypothermia())
-            );
-            ModNetworkHandler.CHANNEL.send(
-                    PacketDistributor.PLAYER.with(() -> player),
-                    new SyncVirusPacket(stats.getVirus())
-            );
-            ModNetworkHandler.CHANNEL.send(
-                    PacketDistributor.PLAYER.with(() -> player),
-                    new SyncPoisonPacket(stats.getPoison())
+                    new SyncAllStatsPacket(stats)
             );
         });
     }

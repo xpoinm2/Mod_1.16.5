@@ -54,6 +54,16 @@ public class ModNetworkHandler {
                 DrinkWaterPacket::decode,
                 DrinkWaterPacket::handle
         );
+        // НОВЫЙ: универсальный пакет для всех статов (заменяет 5 отдельных пакетов)
+        CHANNEL.registerMessage(
+                nextId(),
+                SyncAllStatsPacket.class,
+                SyncAllStatsPacket::encode,
+                SyncAllStatsPacket::decode,
+                SyncAllStatsPacket::handle
+        );
+        
+        // УСТАРЕВШИЕ: оставлены для обратной совместимости, но рекомендуется использовать SyncAllStatsPacket
         CHANNEL.registerMessage(
                 nextId(),
                 SyncStatsPacket.class,
