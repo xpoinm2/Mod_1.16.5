@@ -41,6 +41,7 @@ public class ModRecipeProvider extends RecipeProvider {
      */
     private void generateSlabRecipes(Consumer<IFinishedRecipe> consumer) {
         // Деревянные плитняки (доски + топор = 2 плитняка)
+        // Используем теги minecraft:axes (не forge:tools/axes) для Forge 1.16.5
         createSlabRecipe(consumer, "oak", Items.OAK_PLANKS, "minecraft:oak_planks");
         createSlabRecipe(consumer, "spruce", Items.SPRUCE_PLANKS, "minecraft:spruce_planks");
         createSlabRecipe(consumer, "birch", Items.BIRCH_PLANKS, "minecraft:birch_planks");
@@ -58,6 +59,7 @@ public class ModRecipeProvider extends RecipeProvider {
         createSlabRecipeFromModItem(consumer, "brushwood_slab_burnt", "examplemod:brushwood_burnt", Items.COAL);
         
         // Каменный плитняк (булыжник + кирка = 2 каменных плитняка)
+        // Используем тег minecraft:pickaxes (не forge:tools/pickaxes) для Forge 1.16.5
         createStoneSlabRecipe(consumer, "stone", Items.COBBLESTONE, "minecraft:cobblestone");
     }
 
@@ -75,7 +77,7 @@ public class ModRecipeProvider extends RecipeProvider {
             new ResourceLocation(ExampleMod.MODID, woodType + "_slab_from_axe"),
             new ResourceLocation(ExampleMod.MODID, woodType + "_slab"),
             plankItem,
-            "forge:tools/axes",
+            "minecraft:axes",  // Исправлено: используем minecraft:axes вместо forge:tools/axes
             criterionItem
         ));
     }
@@ -94,7 +96,7 @@ public class ModRecipeProvider extends RecipeProvider {
             new ResourceLocation(ExampleMod.MODID, slabName + "_from_axe"),
             new ResourceLocation(ExampleMod.MODID, slabName),
             sourceItem,
-            "forge:tools/axes",
+            "minecraft:axes",  // Исправлено: используем minecraft:axes вместо forge:tools/axes
             criterionItem
         ));
     }
@@ -113,7 +115,7 @@ public class ModRecipeProvider extends RecipeProvider {
             new ResourceLocation(ExampleMod.MODID, slabName + "_slab_from_pickaxe"),
             new ResourceLocation(ExampleMod.MODID, slabName + "_slab"),
             sourceItem,
-            "forge:tools/pickaxes",
+            "minecraft:pickaxes",  // Исправлено: используем minecraft:pickaxes вместо forge:tools/pickaxes
             criterionItem
         ));
     }
@@ -152,6 +154,7 @@ public class ModRecipeProvider extends RecipeProvider {
             ingredients.add(source);
             
             // Инструмент (топор, кирка и т.д.)
+            // В Forge 1.16.5 используются теги minecraft:axes и minecraft:pickaxes
             JsonObject tool = new JsonObject();
             tool.addProperty("tag", toolTag);
             ingredients.add(tool);
