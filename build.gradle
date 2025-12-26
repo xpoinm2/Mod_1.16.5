@@ -3,7 +3,7 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.blamejared.com' }    // для CraftTweaker
+        // maven { url = 'https://maven.blamejared.com' }    // для CraftTweaker - удален
         mavenCentral()
     }
     dependencies {
@@ -88,13 +88,11 @@ repositories {
 dependencies {
     // Forge для Minecraft 1.16.5
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
-    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.16.5:3.0.106")
+    // GeckoLib удален - не используется в проекте
     compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.1.152:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.1.152")
 
-    // CraftTweaker: сlasspath-only в деве и runtime в run/mods/
-    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.2.527")
-    runtimeOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.2.527")
+    // CraftTweaker удален - вызывает конфликты в dev среде
 }
 
 jar {

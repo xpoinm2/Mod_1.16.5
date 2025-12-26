@@ -54,7 +54,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-import software.bernie.geckolib3.GeckoLib;
+// GeckoLib удален - не используется в проекте
 
 import java.util.Map;
 
@@ -67,7 +67,7 @@ public class ExampleMod {
 
     public ExampleMod() {
 
-        GeckoLib.initialize();
+        // GeckoLib.initialize(); // GeckoLib удален
 
         ModNetworkHandler.register();
 
