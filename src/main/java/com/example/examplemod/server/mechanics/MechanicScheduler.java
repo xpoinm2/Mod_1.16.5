@@ -2,6 +2,7 @@ package com.example.examplemod.server.mechanics;
 
 import com.example.examplemod.Config;
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.util.ModMetrics;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -35,6 +36,8 @@ public final class MechanicScheduler {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private static int serverTickCounter = 0;
+    private static int metricsLogCounter = 0;
+    private static final int METRICS_LOG_INTERVAL = 20 * 60 * 5; // Каждые 5 минут
 
     private static final class Perf {
         long totalNanos;
@@ -87,6 +90,9 @@ public final class MechanicScheduler {
         MinecraftServer server = net.minecraftforge.fml.server.ServerLifecycleHooks.getCurrentServer();
         if (server == null) return;
 
+        // Обновляем метрики TPS
+        ModMetrics.updateTPSMetrics();
+
         final boolean profile = Config.MECHANICS_PROFILING.get();
         final int logEvery = Math.max(20, Config.MECHANICS_PROFILE_LOG_EVERY_TICKS.get());
 
@@ -116,6 +122,16 @@ public final class MechanicScheduler {
             if (perfLogCounter >= logEvery) {
                 perfLogCounter = 0;
                 flushPerfReport();
+            }
+        }
+
+        // Логируем метрики каждые 5 минут (если профилирование включено)
+        if (profile) {
+            metricsLogCounter++;
+            if (metricsLogCounter >= METRICS_LOG_INTERVAL) {
+                metricsLogCounter = 0;
+                ModMetrics.logFullReport();
+                ModMetrics.suggestGCIfNeeded(); // Предложить GC если память заканчивается
             }
         }
     }

@@ -3,6 +3,7 @@ package com.example.examplemod.server.mechanics.modules;
 import com.example.examplemod.server.mechanics.IMechanicModule;
 import com.example.examplemod.server.mechanics.MechanicScheduler;
 import com.example.examplemod.server.mechanics.ModMechanics;
+import com.example.examplemod.util.ModMetrics;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
@@ -100,6 +101,52 @@ public class MechanicsDebugCommand implements IMechanicModule {
                             return snapshot.size();
                         })
                 )
+                .then(Commands.literal("metrics")
+                        .executes(ctx -> {
+                            ctx.getSource().sendSuccess(
+                                    new StringTextComponent("=== Mod Metrics ===")
+                                            .withStyle(TextFormatting.GOLD, TextFormatting.BOLD), 
+                                    false
+                            );
+                            
+                            String summary = ModMetrics.getQuickSummary();
+                            ctx.getSource().sendSuccess(
+                                    new StringTextComponent(summary)
+                                            .withStyle(TextFormatting.YELLOW), 
+                                    false
+                            );
+                            
+                            // Предупреждение если TPS низкий
+                            double tps = ModMetrics.getAverageTPS();
+                            if (tps < 18.0) {
+                                ctx.getSource().sendSuccess(
+                                        new StringTextComponent("⚠ WARNING: TPS is LOW (" + String.format("%.2f", tps) + ")")
+                                                .withStyle(TextFormatting.RED, TextFormatting.BOLD), 
+                                        false
+                                );
+                            }
+                            
+                            // Предупреждение если память заканчивается
+                            if (ModMetrics.shouldRunGC()) {
+                                ctx.getSource().sendSuccess(
+                                        new StringTextComponent("⚠ WARNING: Memory usage is critical (>85%)")
+                                                .withStyle(TextFormatting.RED, TextFormatting.BOLD), 
+                                        false
+                                );
+                            }
+                            
+                            ctx.getSource().sendSuccess(
+                                    new StringTextComponent("See server logs for detailed metrics report")
+                                            .withStyle(TextFormatting.GRAY, TextFormatting.ITALIC), 
+                                    false
+                            );
+                            
+                            // Логируем полный отчёт в консоль
+                            ModMetrics.logFullReport();
+                            
+                            return 1;
+                        })
+                )
                 .then(Commands.literal("help")
                         .executes(ctx -> {
                             ctx.getSource().sendSuccess(
@@ -113,6 +160,10 @@ public class MechanicsDebugCommand implements IMechanicModule {
                             );
                             ctx.getSource().sendSuccess(
                                     new StringTextComponent("/mechanics perf - Show performance snapshot"), 
+                                    false
+                            );
+                            ctx.getSource().sendSuccess(
+                                    new StringTextComponent("/mechanics metrics - Show system metrics"), 
                                     false
                             );
                             ctx.getSource().sendSuccess(
