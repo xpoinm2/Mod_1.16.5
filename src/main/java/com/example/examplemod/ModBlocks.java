@@ -119,6 +119,42 @@ public class ModBlocks {
     public static final RegistryObject<Block> BURNED_BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab_burnt",
             BurnedBrushwoodSlabBlock::new);
 
+    // Полублок дуба
+    public static final RegistryObject<Block> OAK_SLAB = BLOCKS.register("oak_slab",
+            OakSlabBlock::new);
+
+    // Полублок березы
+    public static final RegistryObject<Block> BIRCH_SLAB = BLOCKS.register("birch_slab",
+            BirchSlabBlock::new);
+
+    // Полублок ели
+    public static final RegistryObject<Block> SPRUCE_SLAB = BLOCKS.register("spruce_slab",
+            SpruceSlabBlock::new);
+
+    // Полублок тропического дерева
+    public static final RegistryObject<Block> JUNGLE_SLAB = BLOCKS.register("jungle_slab",
+            JungleSlabBlock::new);
+
+    // Полублок акации
+    public static final RegistryObject<Block> ACACIA_SLAB = BLOCKS.register("acacia_slab",
+            AcaciaSlabBlock::new);
+
+    // Полублок темного дуба
+    public static final RegistryObject<Block> DARK_OAK_SLAB = BLOCKS.register("dark_oak_slab",
+            DarkOakSlabBlock::new);
+
+    // Полублок багрового дерева
+    public static final RegistryObject<Block> CRIMSON_SLAB = BLOCKS.register("crimson_slab",
+            CrimsonSlabBlock::new);
+
+    // Полублок искаженного дерева
+    public static final RegistryObject<Block> WARPED_SLAB = BLOCKS.register("warped_slab",
+            WarpedSlabBlock::new);
+
+    // Полублок камня
+    public static final RegistryObject<Block> STONE_SLAB = BLOCKS.register("stone_slab",
+            StoneSlabBlock::new);
+
     // Блок кострища (часть мультиструктуры 4x4)
     public static final RegistryObject<Block> FIREPIT_BLOCK = BLOCKS.register("firepit_block",
             FirepitBlock::new);
@@ -503,6 +539,110 @@ public class ModBlocks {
             super();
         }
     }
+
+    // === Базовый класс полублока с GUI ===
+    public static abstract class ModSlabBlock extends SlabBlock {
+        public ModSlabBlock(AbstractBlock.Properties properties) {
+            super(properties);
+        }
+
+        @Override
+        public boolean hasTileEntity(BlockState state) {
+            return true;
+        }
+
+        @Nullable
+        @Override
+        public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+            return ModTileEntities.SLAB.get().create();
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public ActionResultType use(BlockState state, World world, BlockPos pos,
+                                    PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+            if (world.isClientSide) {
+                return ActionResultType.SUCCESS;
+            }
+
+            TileEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof SlabTileEntity) {
+                INamedContainerProvider provider = new SimpleNamedContainerProvider(
+                        (windowId, playerInventory, playerEntity) -> new SlabContainer(windowId, playerInventory, (SlabTileEntity) tile),
+                        new TranslationTextComponent("container.examplemod.slab")
+                );
+                if (player instanceof ServerPlayerEntity) {
+                    NetworkHooks.openGui((ServerPlayerEntity) player, provider, pos);
+                }
+            }
+
+            return ActionResultType.CONSUME;
+        }
+    }
+
+    // === Класс полублока дуба ===
+    public static class OakSlabBlock extends ModSlabBlock {
+        public OakSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.OAK_SLAB));
+        }
+    }
+
+    // === Класс полублока березы ===
+    public static class BirchSlabBlock extends ModSlabBlock {
+        public BirchSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.BIRCH_SLAB));
+        }
+    }
+
+    // === Класс полублока ели ===
+    public static class SpruceSlabBlock extends ModSlabBlock {
+        public SpruceSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.SPRUCE_SLAB));
+        }
+    }
+
+    // === Класс полублока тропического дерева ===
+    public static class JungleSlabBlock extends ModSlabBlock {
+        public JungleSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.JUNGLE_SLAB));
+        }
+    }
+
+    // === Класс полублока акации ===
+    public static class AcaciaSlabBlock extends ModSlabBlock {
+        public AcaciaSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.ACACIA_SLAB));
+        }
+    }
+
+    // === Класс полублока темного дуба ===
+    public static class DarkOakSlabBlock extends ModSlabBlock {
+        public DarkOakSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.DARK_OAK_SLAB));
+        }
+    }
+
+    // === Класс полублока багрового дерева ===
+    public static class CrimsonSlabBlock extends ModSlabBlock {
+        public CrimsonSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.CRIMSON_SLAB));
+        }
+    }
+
+    // === Класс полублока искаженного дерева ===
+    public static class WarpedSlabBlock extends ModSlabBlock {
+        public WarpedSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.WARPED_SLAB));
+        }
+    }
+
+    // === Класс полублока камня ===
+    public static class StoneSlabBlock extends ModSlabBlock {
+        public StoneSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.STONE_SLAB));
+        }
+    }
+
     // === Блок кострища ===
     public static class FirepitBlock extends Block {
         public static final IntegerProperty X = IntegerProperty.create("x", 0, 3);

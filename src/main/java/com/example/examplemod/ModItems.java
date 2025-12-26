@@ -459,6 +459,51 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.BURNED_BRUSHWOOD_SLAB.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Полублок дуба как предмет
+    public static final RegistryObject<Item> OAK_SLAB = ITEMS.register("oak_slab",
+            () -> new BlockItem(ModBlocks.OAK_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок березы как предмет
+    public static final RegistryObject<Item> BIRCH_SLAB = ITEMS.register("birch_slab",
+            () -> new BlockItem(ModBlocks.BIRCH_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок ели как предмет
+    public static final RegistryObject<Item> SPRUCE_SLAB = ITEMS.register("spruce_slab",
+            () -> new BlockItem(ModBlocks.SPRUCE_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок тропического дерева как предмет
+    public static final RegistryObject<Item> JUNGLE_SLAB = ITEMS.register("jungle_slab",
+            () -> new BlockItem(ModBlocks.JUNGLE_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок акации как предмет
+    public static final RegistryObject<Item> ACACIA_SLAB = ITEMS.register("acacia_slab",
+            () -> new BlockItem(ModBlocks.ACACIA_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок темного дуба как предмет
+    public static final RegistryObject<Item> DARK_OAK_SLAB = ITEMS.register("dark_oak_slab",
+            () -> new BlockItem(ModBlocks.DARK_OAK_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок багрового дерева как предмет
+    public static final RegistryObject<Item> CRIMSON_SLAB = ITEMS.register("crimson_slab",
+            () -> new BlockItem(ModBlocks.CRIMSON_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок искаженного дерева как предмет
+    public static final RegistryObject<Item> WARPED_SLAB = ITEMS.register("warped_slab",
+            () -> new BlockItem(ModBlocks.WARPED_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Полублок камня как предмет
+    public static final RegistryObject<Item> STONE_SLAB = ITEMS.register("stone_slab",
+            () -> new BlockItem(ModBlocks.STONE_SLAB.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Блок кострища как предмет
     public static final RegistryObject<Item> FIREPIT_BLOCK = ITEMS.register("firepit_block",
             () -> new BlockItem(ModBlocks.FIREPIT_BLOCK.get(),

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "examplemod:block/birch_slab" },
+    "type=top":    { "model": "examplemod:block/birch_slab_top" },
+    "type=double": { "model": "block/birch_planks" }
+  }
+}

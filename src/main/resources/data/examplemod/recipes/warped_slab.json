@@ -4,5 +4,5 @@
     { "item": "minecraft:warped_planks" },
     { "tag": "minecraft:axes" }
   ],
-  "result": { "item": "examplemod:brushwood_slab", "count": 2 }
+  "result": { "item": "examplemod:warped_slab", "count": 2 }
 }

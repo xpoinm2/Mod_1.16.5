@@ -4,5 +4,5 @@
     { "item": "minecraft:crimson_planks" },
     { "tag": "minecraft:axes" }
   ],
-  "result": { "item": "examplemod:brushwood_slab", "count": 2 }
+  "result": { "item": "examplemod:crimson_slab", "count": 2 }
 }
