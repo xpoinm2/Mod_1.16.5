@@ -10,18 +10,19 @@ import net.minecraft.item.Item;
 import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.ShovelItem;
 import net.minecraft.item.SwordItem;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
 
 /**
- * Отменяет все vanilla-рецепты инструментов (namespace == "minecraft") в момент крафта.
+ * Отменяет все vanilla-рецепты инструментов и досок (namespace == "minecraft") в момент крафта.
  */
 
 public class CraftingBlocker {
     public static void onItemCrafted(ItemCraftedEvent ev) {
         // результат, который игрок только что скрафтил
         ItemStack result = ev.getCrafting();
-        if (!isVanillaTool(result)) {
+        if (!isVanillaTool(result) && !isVanillaPlanks(result)) {
             return;
         }
 
@@ -50,5 +51,33 @@ public class CraftingBlocker {
                 || item instanceof ShovelItem
                 || item instanceof HoeItem
                 || item instanceof SwordItem;
+    }
+
+    private static boolean isVanillaPlanks(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        ResourceLocation id = stack.getItem().getRegistryName();
+        if (id == null || !"minecraft".equals(id.getNamespace())) {
+            return false;
+        }
+
+        // Проверяем, является ли это ванильной доской
+        Item item = stack.getItem();
+        if (item.is(ItemTags.PLANKS)) {
+            // Проверяем, что это именно ванильная доска, а не из мода
+            String path = id.getPath();
+            return path.equals("oak_planks")
+                    || path.equals("spruce_planks")
+                    || path.equals("birch_planks")
+                    || path.equals("jungle_planks")
+                    || path.equals("acacia_planks")
+                    || path.equals("dark_oak_planks")
+                    || path.equals("crimson_planks")
+                    || path.equals("warped_planks");
+        }
+
+        return false;
     }
 }
