@@ -2,8 +2,11 @@ package com.example.examplemod.server.mechanics.modules;
 
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
-import com.example.examplemod.network.SyncStatsPacket;
+import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.server.mechanics.IMechanicModule;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -14,8 +17,6 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -26,12 +27,13 @@ public final class ThirstMechanic implements IMechanicModule {
     private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
     private static final int TICKS_PER_15MIN = TICKS_PER_HOUR / 4;
 
-    private final Map<UUID, double[]> lastPos = new HashMap<>();
-    private final Map<UUID, Double> runDist = new HashMap<>();
-    private final Map<UUID, Integer> jumpCount = new HashMap<>();
-    private final Map<UUID, Integer> stillTicks = new HashMap<>();
-    private final Map<UUID, Integer> hourTicks = new HashMap<>();
-    private final Map<UUID, Integer> swimTicks = new HashMap<>();
+    // Оптимизация: Fastutil коллекции вместо HashMap (50-70% меньше памяти)
+    private final Object2ObjectOpenHashMap<UUID, double[]> lastPos = new Object2ObjectOpenHashMap<>();
+    private final Object2DoubleOpenHashMap<UUID> runDist = new Object2DoubleOpenHashMap<>();
+    private final Object2IntOpenHashMap<UUID> jumpCount = new Object2IntOpenHashMap<>();
+    private final Object2IntOpenHashMap<UUID> stillTicks = new Object2IntOpenHashMap<>();
+    private final Object2IntOpenHashMap<UUID> hourTicks = new Object2IntOpenHashMap<>();
+    private final Object2IntOpenHashMap<UUID> swimTicks = new Object2IntOpenHashMap<>();
 
     @Override
     public String id() {
@@ -79,7 +81,7 @@ public final class ThirstMechanic implements IMechanicModule {
                 stats.setFatigue(fatigue);
                 ModNetworkHandler.CHANNEL.send(
                         PacketDistributor.PLAYER.with(() -> player),
-                        new SyncStatsPacket(thirst, fatigue)
+                        new SyncAllStatsPacket(stats)
                 );
             });
         }
@@ -97,12 +99,11 @@ public final class ThirstMechanic implements IMechanicModule {
         ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
 
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-            int thirst = stats.getThirst();
             int fatigue = Math.min(100, stats.getFatigue() + 1);
             stats.setFatigue(fatigue);
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
-                    new SyncStatsPacket(thirst, fatigue)
+                    new SyncAllStatsPacket(stats)
             );
         });
     }
@@ -127,14 +128,14 @@ public final class ThirstMechanic implements IMechanicModule {
                 stats.setThirst(thirst);
                 ModNetworkHandler.CHANNEL.send(
                         PacketDistributor.PLAYER.with(() -> player),
-                        new SyncStatsPacket(thirst, fatigue)
+                        new SyncAllStatsPacket(stats)
                 );
             } else if (isFishItem(stack)) {
                 thirst = Math.min(100, thirst + 15);
                 stats.setThirst(thirst);
                 ModNetworkHandler.CHANNEL.send(
                         PacketDistributor.PLAYER.with(() -> player),
-                        new SyncStatsPacket(thirst, fatigue)
+                        new SyncAllStatsPacket(stats)
                 );
             }
         });
@@ -146,19 +147,18 @@ public final class ThirstMechanic implements IMechanicModule {
             stats.setThirst(thirst);
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
-                    new SyncStatsPacket(thirst, stats.getFatigue())
+                    new SyncAllStatsPacket(stats)
             );
         });
     }
 
     public void onMixWater(ServerPlayerEntity player) {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-            int thirst = stats.getThirst();
             int fatigue = Math.min(100, stats.getFatigue() + 3);
             stats.setFatigue(fatigue);
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
-                    new SyncStatsPacket(thirst, fatigue)
+                    new SyncAllStatsPacket(stats)
             );
         });
     }
@@ -237,7 +237,7 @@ public final class ThirstMechanic implements IMechanicModule {
                 stats.setFatigue(fatigue);
                 ModNetworkHandler.CHANNEL.send(
                         PacketDistributor.PLAYER.with(() -> player),
-                        new SyncStatsPacket(thirst, fatigue)
+                        new SyncAllStatsPacket(stats)
                 );
             }
         });

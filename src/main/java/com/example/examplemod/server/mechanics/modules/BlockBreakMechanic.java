@@ -4,7 +4,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
-import com.example.examplemod.network.SyncStatsPacket;
+import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.server.mechanics.IMechanicModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -136,12 +136,11 @@ public class BlockBreakMechanic implements IMechanicModule {
             if (player instanceof ServerPlayerEntity) {
                 ServerPlayerEntity sp = (ServerPlayerEntity) player;
                 sp.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-                    int thirst = stats.getThirst();
                     int fatigue = Math.min(100, stats.getFatigue() + 4);
                     stats.setFatigue(fatigue);
                     ModNetworkHandler.CHANNEL.send(
                             PacketDistributor.PLAYER.with(() -> sp),
-                            new SyncStatsPacket(thirst, fatigue)
+                            new SyncAllStatsPacket(stats)
                     );
                 });
             }

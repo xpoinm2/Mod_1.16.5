@@ -6,7 +6,7 @@ import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import com.example.examplemod.util.FluidTextUtil;
 import com.example.examplemod.network.ModNetworkHandler;
-import com.example.examplemod.network.SyncStatsPacket;
+import com.example.examplemod.network.SyncAllStatsPacket;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -379,7 +379,7 @@ public class ClayCupItem extends Item {
             stats.setDisease(disease);
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
-                    new SyncStatsPacket(thirst, stats.getFatigue())
+                    new SyncAllStatsPacket(stats)
             );
         });
     }

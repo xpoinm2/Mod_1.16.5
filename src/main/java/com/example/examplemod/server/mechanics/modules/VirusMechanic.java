@@ -2,7 +2,7 @@ package com.example.examplemod.server.mechanics.modules;
 
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
-import com.example.examplemod.network.SyncVirusPacket;
+import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.server.mechanics.IMechanicModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -56,9 +56,10 @@ public class VirusMechanic implements IMechanicModule {
             int value = Math.min(100, current + amount);
             if (value != current) {
                 stats.setVirus(value);
+                // Оптимизация: SyncAllStatsPacket вместо отдельного пакета
                 ModNetworkHandler.CHANNEL.send(
                         PacketDistributor.PLAYER.with(() -> player),
-                        new SyncVirusPacket(value)
+                        new SyncAllStatsPacket(stats)
                 );
             }
         });

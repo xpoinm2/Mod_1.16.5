@@ -12,10 +12,7 @@ import com.example.examplemod.network.ClayPotModePacket;
 import com.example.examplemod.network.HarvestGrassPacket;
 import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
-import com.example.examplemod.network.SyncColdPacket;
-import com.example.examplemod.network.SyncHypothermiaPacket;
-import com.example.examplemod.network.SyncVirusPacket;
-import com.example.examplemod.network.SyncPoisonPacket;
+import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.network.WashProgressPacket;
 
 /**
@@ -54,50 +51,13 @@ public class ModNetworkHandler {
                 DrinkWaterPacket::decode,
                 DrinkWaterPacket::handle
         );
-        // НОВЫЙ: универсальный пакет для всех статов (заменяет 5 отдельных пакетов)
+        // Универсальный пакет для всех статов (заменяет 5 отдельных пакетов)
         CHANNEL.registerMessage(
                 nextId(),
                 SyncAllStatsPacket.class,
                 SyncAllStatsPacket::encode,
                 SyncAllStatsPacket::decode,
                 SyncAllStatsPacket::handle
-        );
-        
-        // УСТАРЕВШИЕ: оставлены для обратной совместимости, но рекомендуется использовать SyncAllStatsPacket
-        CHANNEL.registerMessage(
-                nextId(),
-                SyncStatsPacket.class,
-                SyncStatsPacket::encode,
-                SyncStatsPacket::decode,
-                SyncStatsPacket::handle
-        );
-        CHANNEL.registerMessage(
-                nextId(),
-                SyncHypothermiaPacket.class,
-                SyncHypothermiaPacket::encode,
-                SyncHypothermiaPacket::decode,
-                SyncHypothermiaPacket::handle
-        );
-        CHANNEL.registerMessage(
-                nextId(),
-                SyncColdPacket.class,
-                SyncColdPacket::encode,
-                SyncColdPacket::decode,
-                SyncColdPacket::handle
-        );
-        CHANNEL.registerMessage(
-                nextId(),
-                SyncVirusPacket.class,
-                SyncVirusPacket::encode,
-                SyncVirusPacket::decode,
-                SyncVirusPacket::handle
-        );
-        CHANNEL.registerMessage(
-                nextId(),
-                SyncPoisonPacket.class,
-                SyncPoisonPacket::encode,
-                SyncPoisonPacket::decode,
-                SyncPoisonPacket::handle
         );
         CHANNEL.registerMessage(
                 nextId(),
