@@ -18,6 +18,7 @@ import com.example.examplemod.ModEntities;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.ModRegistries;
+import com.example.examplemod.server.mechanics.ModMechanics;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
@@ -84,6 +85,9 @@ public class ExampleMod {
 
         // Унифицированная регистрация всех компонентов
         ModRegistries.register(modBus);
+
+        // Инициализация реестра механик (можно добавлять модули постепенно со временем)
+        ModMechanics.init();
 
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);

@@ -14,6 +14,11 @@ public class Config {
     public static final ForgeConfigSpec.IntValue THIRST;
     public static final ForgeConfigSpec.IntValue DISEASE;
 
+    // Mechanics scheduler / profiling
+    public static final ForgeConfigSpec.BooleanValue MECHANICS_PROFILING;
+    public static final ForgeConfigSpec.IntValue MECHANICS_SLOW_CALL_THRESHOLD_MS;
+    public static final ForgeConfigSpec.IntValue MECHANICS_PROFILE_LOG_EVERY_TICKS;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -31,6 +36,23 @@ public class Config {
         DISEASE = builder
                 .comment("Болезнь (0–100)")
                 .defineInRange("disease", 0, 0, 100);
+
+        builder.comment("Менеджер механик (профилирование)")
+                .push("mechanics");
+
+        MECHANICS_PROFILING = builder
+                .comment("Логировать время выполнения механик (может чуть замедлять сервер).")
+                .define("profiling", false);
+
+        MECHANICS_SLOW_CALL_THRESHOLD_MS = builder
+                .comment("Порог (мс) для warn-логов по отдельным вызовам механик. 0 = выключено.")
+                .defineInRange("slow_call_threshold_ms", 10, 0, 10_000);
+
+        MECHANICS_PROFILE_LOG_EVERY_TICKS = builder
+                .comment("Как часто печатать perf summary (в тиках). Рекомендация: 1200 = раз в минуту.")
+                .defineInRange("profile_log_every_ticks", 1200, 20, 20 * 60 * 60);
+
+        builder.pop();
 
         builder.pop();
         SPEC = builder.build();
