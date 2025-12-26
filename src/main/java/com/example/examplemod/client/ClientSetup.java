@@ -2,10 +2,8 @@ package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModBlocks;
-import com.example.examplemod.ModEntities;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.ModTileEntities;
-import com.example.examplemod.client.render.BeaverRenderer;
 import com.example.examplemod.client.render.FirepitRenderer;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,7 +24,6 @@ public final class ClientSetup {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(ModEntities.BEAVER.get(), BeaverRenderer::new);
         // Вода теперь рендерится через статические JSON модели, TESR не нужен
 
         // Register firepit smoke renderer
