@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "examplemod:rough_bone_knife",
-    "examplemod:rough_stone_knife"
+    "examplemod:rough_stone_knife",
+    "examplemod:rough_bone_knife"
   ]
 }

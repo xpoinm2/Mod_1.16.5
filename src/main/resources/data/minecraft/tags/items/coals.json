@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
+    "minecraft:coal",
+    "minecraft:charcoal",
     "examplemod:pyrite_flint"
   ]
 }

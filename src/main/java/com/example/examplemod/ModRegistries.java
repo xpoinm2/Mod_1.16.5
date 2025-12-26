@@ -1,8 +1,7 @@
 package com.example.examplemod;
 
 import com.example.examplemod.util.RegistryHelper;
-import com.example.examplemod.world.ModBiomes;
-import com.example.examplemod.world.ModFeatures;
+import com.example.examplemod.world.biome.BasaltMountainsBiome;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -31,6 +30,7 @@ public class ModRegistries {
     public static final DeferredRegister<net.minecraft.util.SoundEvent> SOUND_EVENTS =
             DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, ExampleMod.MODID);
 
+
     /**
      * Регистрирует все регистраторы в mod event bus
      */
@@ -40,8 +40,6 @@ public class ModRegistries {
 
         // Регистрируем специфические компоненты
         ModCreativeTabs.register(modBus);
-        ModBiomes.register(modBus);
-        ModFeatures.register(modBus);
         ModFluids.register(modBus);
     }
 }

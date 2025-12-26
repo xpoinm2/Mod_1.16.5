@@ -403,11 +403,11 @@ public class ModItems {
                     .tab(ModCreativeTabs.EXAMPLE_TAB)
                     .durability(20)));
 
-    // Яйцо призыва бобра
-    public static final RegistryObject<Item> BEAVER_SPAWN_EGG = ModRegistries.ITEMS.register("beaver_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntities.BEAVER,
-                    0x6B4C2E, 0x3B2A1A,
-                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+    // Яйцо призыва бобра - будет зарегистрировано позже в CommonModEvents
+    // public static final RegistryObject<Item> BEAVER_SPAWN_EGG = ModRegistries.ITEMS.register("beaver_spawn_egg",
+    //         () -> new ForgeSpawnEggItem(ModEntities.BEAVER,
+    //                 0x6B4C2E, 0x3B2A1A,
+    //                 new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Предмет для куста малины
     public static final RegistryObject<Item> RASPBERRY_BUSH = ModRegistries.ITEMS.register("raspberry_bush",
