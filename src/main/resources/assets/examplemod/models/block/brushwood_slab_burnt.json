@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "examplemod:block/brushwood_slab_burnt",
+    "top": "examplemod:block/brushwood_slab_burnt",
+    "side": "examplemod:block/brushwood_slab_burnt"
+  }
+}
+

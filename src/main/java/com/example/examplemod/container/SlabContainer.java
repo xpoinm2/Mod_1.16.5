@@ -70,7 +70,18 @@ public class SlabContainer extends Container {
     public boolean stillValid(PlayerEntity player) {
         return canInteract.evaluate((world, pos) -> {
             Block block = world.getBlockState(pos).getBlock();
-            return block == ModBlocks.BRUSHWOOD_SLAB.get() || block == ModBlocks.BURNED_BRUSHWOOD_SLAB.get();
+            // Проверяем, что блок является полублоком с GUI
+            return block == ModBlocks.BRUSHWOOD_SLAB.get() 
+                || block == ModBlocks.BURNED_BRUSHWOOD_SLAB.get()
+                || block == ModBlocks.OAK_SLAB.get()
+                || block == ModBlocks.BIRCH_SLAB.get()
+                || block == ModBlocks.SPRUCE_SLAB.get()
+                || block == ModBlocks.JUNGLE_SLAB.get()
+                || block == ModBlocks.ACACIA_SLAB.get()
+                || block == ModBlocks.DARK_OAK_SLAB.get()
+                || block == ModBlocks.CRIMSON_SLAB.get()
+                || block == ModBlocks.WARPED_SLAB.get()
+                || block == ModBlocks.STONE_SLAB.get();
         }, true);
     }
 
