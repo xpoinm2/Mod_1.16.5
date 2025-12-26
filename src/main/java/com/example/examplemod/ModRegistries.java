@@ -36,14 +36,15 @@ public class ModRegistries {
      * Регистрирует все регистраторы в mod event bus
      */
     public static void register(IEventBus modBus) {
-        // Временно отключаем все регистрации для диагностики
-        // RegistryHelper.registerAll(modBus,
-        //         ITEMS, BLOCKS, ENTITIES, CONTAINERS, TILE_ENTITIES, SOUND_EVENTS);
+        // Базовые DeferredRegister'ы мода (items/blocks/entities/containers/tile entities/sounds)
+        RegistryHelper.registerAll(modBus,
+                ITEMS, BLOCKS, ENTITIES, CONTAINERS, TILE_ENTITIES, SOUND_EVENTS);
 
-        // Регистрируем специфические компоненты
-        // ModCreativeTabs.register(modBus);
-        // ModBiomes.register(modBus);
-        // ModFeatures.register(modBus);
-        // ModFluids.register(modBus);
+        // Специфические компоненты, которые имеют собственные DeferredRegister'ы/инициализацию
+        ModCreativeTabs.register(modBus);
+        ModBiomes.register(modBus);
+        ModFeatures.register(modBus);
+        ModFluids.register(modBus);
+        Config.register(modBus);
     }
 }

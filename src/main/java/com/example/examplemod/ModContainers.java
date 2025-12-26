@@ -26,4 +26,12 @@ public class ModContainers {
     public static final RegistryObject<ContainerType<SlabContainer>> SLAB =
             ModRegistries.CONTAINERS.register("slab",
                     () -> IForgeContainerType.create((windowId, playerInventory, data) -> new SlabContainer(windowId, playerInventory, data)));
+
+    /**
+     * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)
+     * на стадии инициализации мода.
+     */
+    public static void init() {
+        // no-op
+    }
 }

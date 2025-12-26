@@ -21,4 +21,12 @@ public class ModTileEntities {
             ModRegistries.TILE_ENTITIES.register("slab",
                     () -> TileEntityType.Builder.of(SlabTileEntity::new,
                             ModBlocks.BRUSHWOOD_SLAB.get(), ModBlocks.BURNED_BRUSHWOOD_SLAB.get()).build(null));
+
+    /**
+     * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)
+     * на стадии инициализации мода.
+     */
+    public static void init() {
+        // no-op
+    }
 }

@@ -74,6 +74,14 @@ public class ExampleMod {
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        // Важно: форсируем загрузку классов с RegistryObject'ами ДО того,
+        // как Forge начнёт RegistryEvent.Register (иначе DeferredRegister не примет новые записи).
+        ModBlocks.init();
+        ModItems.init();
+        ModContainers.init();
+        ModTileEntities.init();
+        ModEntities.init();
+
         // Унифицированная регистрация всех компонентов
         ModRegistries.register(modBus);
 

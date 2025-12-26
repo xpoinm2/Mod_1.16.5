@@ -225,6 +225,14 @@ public class ModBlocks {
         ModRegistries.BLOCKS.register(bus);
     }
 
+    /**
+     * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)
+     * на стадии инициализации мода.
+     */
+    public static void init() {
+        // no-op
+    }
+
     // === Класс блока куста малины ===
     public static class RaspberryBushBlock extends SweetBerryBushBlock {
         public static final IntegerProperty CLICKS = IntegerProperty.create("clicks", 0, 10);

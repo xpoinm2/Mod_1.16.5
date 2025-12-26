@@ -509,4 +509,12 @@ public class ModItems {
     public static void register(IEventBus bus) {
         // Регистратор уже зарегистрирован в ModRegistries
     }
+
+    /**
+     * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)
+     * на стадии инициализации мода.
+     */
+    public static void init() {
+        // no-op
+    }
 }
