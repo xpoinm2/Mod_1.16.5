@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "examplemod:brushwood_burnt"
+    },
+    {
+      "tag": "forge:tools/axes"
+    }
+  ],
+  "result": {
+    "item": "examplemod:brushwood_slab_burnt",
+    "count": 2
+  }
+}

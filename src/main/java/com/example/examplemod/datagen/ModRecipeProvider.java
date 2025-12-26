@@ -36,11 +36,11 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     /**
-     * Генерирует рецепты крафта для всех типов полублоков
+     * Генерирует рецепты крафта для всех типов полублоков (плитняков)
      * МАСШТАБИРУЕМО: добавьте новый тип дерева - рецепт создастся автоматически!
      */
     private void generateSlabRecipes(Consumer<IFinishedRecipe> consumer) {
-        // Деревянные полублоки
+        // Деревянные плитняки (доски + топор = 2 плитняка)
         createSlabRecipe(consumer, "oak", Items.OAK_PLANKS, "minecraft:oak_planks");
         createSlabRecipe(consumer, "spruce", Items.SPRUCE_PLANKS, "minecraft:spruce_planks");
         createSlabRecipe(consumer, "birch", Items.BIRCH_PLANKS, "minecraft:birch_planks");
@@ -50,12 +50,19 @@ public class ModRecipeProvider extends RecipeProvider {
         createSlabRecipe(consumer, "crimson", Items.CRIMSON_PLANKS, "minecraft:crimson_planks");
         createSlabRecipe(consumer, "warped", Items.WARPED_PLANKS, "minecraft:warped_planks");
         
-        // Полублок хвороста
+        // Плитняк хвороста (палка + топор = 2 плитняка хвороста)
         createSlabRecipe(consumer, "brushwood", Items.STICK, "minecraft:stick");
+        
+        // Плитняк обожжённого хвороста (обожжённый хворост + топор = 2 плитняка)
+        // Примечание: используем обожжённый хворост из мода
+        createSlabRecipeFromModItem(consumer, "brushwood_slab_burnt", "examplemod:brushwood_burnt", Items.COAL);
+        
+        // Каменный плитняк (булыжник + кирка = 2 каменных плитняка)
+        createStoneSlabRecipe(consumer, "stone", Items.COBBLESTONE, "minecraft:cobblestone");
     }
 
     /**
-     * Создаёт рецепт для полублока
+     * Создаёт рецепт для полублока (доски/палки + топор)
      * 
      * @param consumer Consumer для рецептов
      * @param woodType Тип дерева (oak, birch, etc.)
@@ -68,25 +75,67 @@ public class ModRecipeProvider extends RecipeProvider {
             new ResourceLocation(ExampleMod.MODID, woodType + "_slab_from_axe"),
             new ResourceLocation(ExampleMod.MODID, woodType + "_slab"),
             plankItem,
+            "forge:tools/axes",
             criterionItem
         ));
     }
 
     /**
-     * Кастомный рецепт для полублоков
+     * Создаёт рецепт для полублока из модового предмета
+     * 
+     * @param consumer Consumer для рецептов
+     * @param slabName Имя плитняка
+     * @param sourceItem Исходный предмет (из мода)
+     * @param criterionItem Предмет для advancement
+     */
+    private void createSlabRecipeFromModItem(Consumer<IFinishedRecipe> consumer, String slabName,
+                                              String sourceItem, Item criterionItem) {
+        consumer.accept(new CustomSlabRecipe(
+            new ResourceLocation(ExampleMod.MODID, slabName + "_from_axe"),
+            new ResourceLocation(ExampleMod.MODID, slabName),
+            sourceItem,
+            "forge:tools/axes",
+            criterionItem
+        ));
+    }
+
+    /**
+     * Создаёт рецепт для каменного плитняка (булыжник + кирка)
+     * 
+     * @param consumer Consumer для рецептов
+     * @param slabName Имя плитняка
+     * @param criterionItem Предмет для advancement
+     * @param sourceItem Исходный предмет
+     */
+    private void createStoneSlabRecipe(Consumer<IFinishedRecipe> consumer, String slabName,
+                                        Item criterionItem, String sourceItem) {
+        consumer.accept(new CustomSlabRecipe(
+            new ResourceLocation(ExampleMod.MODID, slabName + "_slab_from_pickaxe"),
+            new ResourceLocation(ExampleMod.MODID, slabName + "_slab"),
+            sourceItem,
+            "forge:tools/pickaxes",
+            criterionItem
+        ));
+    }
+
+    /**
+     * Кастомный рецепт для плитняков
      * Решает проблему с модовыми предметами в DataGen!
+     * Поддерживает разные инструменты (топоры, кирки)
      */
     private static class CustomSlabRecipe implements IFinishedRecipe {
         private final ResourceLocation id;
         private final ResourceLocation result;
-        private final String plankItem;
+        private final String sourceItem;
+        private final String toolTag;
         private final Item criterionItem;
 
         public CustomSlabRecipe(ResourceLocation id, ResourceLocation result, 
-                                String plankItem, Item criterionItem) {
+                                String sourceItem, String toolTag, Item criterionItem) {
             this.id = id;
             this.result = result;
-            this.plankItem = plankItem;
+            this.sourceItem = sourceItem;
+            this.toolTag = toolTag;
             this.criterionItem = criterionItem;
         }
 
@@ -97,17 +146,19 @@ public class ModRecipeProvider extends RecipeProvider {
             // Ингредиенты
             JsonArray ingredients = new JsonArray();
             
-            JsonObject plank = new JsonObject();
-            plank.addProperty("item", plankItem);
-            ingredients.add(plank);
+            // Исходный предмет (доски, палки, булыжник и т.д.)
+            JsonObject source = new JsonObject();
+            source.addProperty("item", sourceItem);
+            ingredients.add(source);
             
-            JsonObject axe = new JsonObject();
-            axe.addProperty("tag", "forge:tools/axes");
-            ingredients.add(axe);
+            // Инструмент (топор, кирка и т.д.)
+            JsonObject tool = new JsonObject();
+            tool.addProperty("tag", toolTag);
+            ingredients.add(tool);
             
             json.add("ingredients", ingredients);
             
-            // Результат
+            // Результат (2 плитняка)
             JsonObject resultObj = new JsonObject();
             resultObj.addProperty("item", result.toString());
             resultObj.addProperty("count", 2);
