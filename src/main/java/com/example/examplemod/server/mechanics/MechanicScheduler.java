@@ -39,23 +39,32 @@ public final class MechanicScheduler {
     private static final class Perf {
         long totalNanos;
         long maxNanos;
+        long minNanos = Long.MAX_VALUE;
         int calls;
 
         void add(long nanos) {
             totalNanos += nanos;
             calls++;
             if (nanos > maxNanos) maxNanos = nanos;
+            if (nanos < minNanos) minNanos = nanos;
+        }
+
+        double getAvgMicros() {
+            return calls > 0 ? (double) totalNanos / calls / 1_000L : 0.0;
         }
 
         void reset() {
             totalNanos = 0;
             maxNanos = 0;
+            minNanos = Long.MAX_VALUE;
             calls = 0;
         }
     }
 
-    // простая статистика (только серверный поток)
-    private static final Map<String, Perf> PERF = new HashMap<>();
+    // Оптимизация: отдельные карты для разных событий для более детальной статистики
+    private static final Map<String, Perf> PERF_SERVER = new HashMap<>();
+    private static final Map<String, Perf> PERF_PLAYER = new HashMap<>();
+    private static final Map<String, Perf> PERF_EVENTS = new HashMap<>();
     private static int perfLogCounter = 0;
 
     private MechanicScheduler() {
@@ -98,7 +107,7 @@ public final class MechanicScheduler {
                 LOGGER.error("Mechanic '{}' crashed in onServerTick()", module.id(), e);
             } finally {
                 long nanos = System.nanoTime() - start;
-                PERF.computeIfAbsent(module.id(), k -> new Perf()).add(nanos);
+                PERF_SERVER.computeIfAbsent(module.id(), k -> new Perf()).add(nanos);
             }
         }
 
@@ -106,7 +115,7 @@ public final class MechanicScheduler {
             perfLogCounter++;
             if (perfLogCounter >= logEvery) {
                 perfLogCounter = 0;
-                flushPerf("server");
+                flushPerfReport();
             }
         }
     }
@@ -141,7 +150,7 @@ public final class MechanicScheduler {
                 LOGGER.error("Mechanic '{}' crashed in onPlayerTick() for {}", module.id(), player.getName().getString(), e);
             } finally {
                 long nanos = System.nanoTime() - start;
-                PERF.computeIfAbsent(module.id(), k -> new Perf()).add(nanos);
+                PERF_PLAYER.computeIfAbsent(module.id(), k -> new Perf()).add(nanos);
 
                 if (thresholdMs > 0) {
                     long ms = nanos / 1_000_000L;
@@ -236,12 +245,28 @@ public final class MechanicScheduler {
         if (event.getWorld().isClientSide()) return;
         ensureInit();
         if (ModMechanics.modules().isEmpty()) return;
+        
+        final boolean profile = Config.MECHANICS_PROFILING.get();
         for (IMechanicModule module : ModMechanics.modules()) {
             if (!module.enableBlockBreak()) continue;
+            
+            if (!profile) {
+                try {
+                    module.onBlockBreak(event);
+                } catch (RuntimeException e) {
+                    LOGGER.error("Mechanic '{}' crashed in onBlockBreak()", module.id(), e);
+                }
+                continue;
+            }
+            
+            long start = System.nanoTime();
             try {
                 module.onBlockBreak(event);
             } catch (RuntimeException e) {
                 LOGGER.error("Mechanic '{}' crashed in onBlockBreak()", module.id(), e);
+            } finally {
+                long nanos = System.nanoTime() - start;
+                PERF_EVENTS.computeIfAbsent(module.id() + ".blockBreak", k -> new Perf()).add(nanos);
             }
         }
     }
@@ -266,12 +291,28 @@ public final class MechanicScheduler {
         if (event.getPlayer() == null || event.getPlayer().level.isClientSide) return;
         ensureInit();
         if (ModMechanics.modules().isEmpty()) return;
+        
+        final boolean profile = Config.MECHANICS_PROFILING.get();
         for (IMechanicModule module : ModMechanics.modules()) {
             if (!module.enableAttackEntity()) continue;
+            
+            if (!profile) {
+                try {
+                    module.onAttackEntity(event);
+                } catch (RuntimeException e) {
+                    LOGGER.error("Mechanic '{}' crashed in onAttackEntity()", module.id(), e);
+                }
+                continue;
+            }
+            
+            long start = System.nanoTime();
             try {
                 module.onAttackEntity(event);
             } catch (RuntimeException e) {
                 LOGGER.error("Mechanic '{}' crashed in onAttackEntity()", module.id(), e);
+            } finally {
+                long nanos = System.nanoTime() - start;
+                PERF_EVENTS.computeIfAbsent(module.id() + ".attack", k -> new Perf()).add(nanos);
             }
         }
     }
@@ -281,12 +322,28 @@ public final class MechanicScheduler {
         if (event.getEntityLiving() == null || event.getEntityLiving().level.isClientSide) return;
         ensureInit();
         if (ModMechanics.modules().isEmpty()) return;
+        
+        final boolean profile = Config.MECHANICS_PROFILING.get();
         for (IMechanicModule module : ModMechanics.modules()) {
             if (!module.enableLivingJump()) continue;
+            
+            if (!profile) {
+                try {
+                    module.onLivingJump(event);
+                } catch (RuntimeException e) {
+                    LOGGER.error("Mechanic '{}' crashed in onLivingJump()", module.id(), e);
+                }
+                continue;
+            }
+            
+            long start = System.nanoTime();
             try {
                 module.onLivingJump(event);
             } catch (RuntimeException e) {
                 LOGGER.error("Mechanic '{}' crashed in onLivingJump()", module.id(), e);
+            } finally {
+                long nanos = System.nanoTime() - start;
+                PERF_EVENTS.computeIfAbsent(module.id() + ".jump", k -> new Perf()).add(nanos);
             }
         }
     }
@@ -296,12 +353,28 @@ public final class MechanicScheduler {
         if (event.getEntity() == null || event.getEntity().level.isClientSide) return;
         ensureInit();
         if (ModMechanics.modules().isEmpty()) return;
+        
+        final boolean profile = Config.MECHANICS_PROFILING.get();
         for (IMechanicModule module : ModMechanics.modules()) {
             if (!module.enableUseItemFinish()) continue;
+            
+            if (!profile) {
+                try {
+                    module.onUseItemFinish(event);
+                } catch (RuntimeException e) {
+                    LOGGER.error("Mechanic '{}' crashed in onUseItemFinish()", module.id(), e);
+                }
+                continue;
+            }
+            
+            long start = System.nanoTime();
             try {
                 module.onUseItemFinish(event);
             } catch (RuntimeException e) {
                 LOGGER.error("Mechanic '{}' crashed in onUseItemFinish()", module.id(), e);
+            } finally {
+                long nanos = System.nanoTime() - start;
+                PERF_EVENTS.computeIfAbsent(module.id() + ".useItem", k -> new Perf()).add(nanos);
             }
         }
     }
@@ -378,24 +451,108 @@ public final class MechanicScheduler {
         }
     }
 
-    private static void flushPerf(String scope) {
-        if (PERF.isEmpty()) return;
+    /**
+     * Выводит полный отчёт о производительности механик.
+     * Сортирует по среднему времени выполнения (самые медленные сверху).
+     */
+    private static void flushPerfReport() {
+        boolean hasData = false;
+        long totalServerNanos = 0;
+        long totalPlayerNanos = 0;
+        long totalEventsNanos = 0;
 
-        // Логируем только действительно "тяжёлые" суммарно.
-        // Это не профайлер JVM, но позволяет быстро увидеть, какая механика начала жрать время.
-        LOGGER.info("[mechanics][{}] perf summary:", scope);
-        for (Map.Entry<String, Perf> e : PERF.entrySet()) {
-            Perf p = e.getValue();
-            if (p.calls <= 0) continue;
-            long avg = p.totalNanos / p.calls;
-            LOGGER.info("  - {}: calls={}, avg={}us, max={}us",
-                    e.getKey(),
-                    p.calls,
-                    avg / 1_000L,
-                    p.maxNanos / 1_000L
-            );
-            p.reset();
+        // Подсчёт общего времени для процентов
+        for (Perf p : PERF_SERVER.values()) totalServerNanos += p.totalNanos;
+        for (Perf p : PERF_PLAYER.values()) totalPlayerNanos += p.totalNanos;
+        for (Perf p : PERF_EVENTS.values()) totalEventsNanos += p.totalNanos;
+
+        LOGGER.info("========== Mechanics Performance Report ==========");
+
+        // Server Tick
+        if (!PERF_SERVER.isEmpty() && totalServerNanos > 0) {
+            hasData = true;
+            LOGGER.info("[SERVER TICK] Total: {}ms", totalServerNanos / 1_000_000L);
+            printSortedPerf(PERF_SERVER, totalServerNanos);
+            PERF_SERVER.values().forEach(Perf::reset);
         }
+
+        // Player Tick
+        if (!PERF_PLAYER.isEmpty() && totalPlayerNanos > 0) {
+            hasData = true;
+            LOGGER.info("[PLAYER TICK] Total: {}ms", totalPlayerNanos / 1_000_000L);
+            printSortedPerf(PERF_PLAYER, totalPlayerNanos);
+            PERF_PLAYER.values().forEach(Perf::reset);
+        }
+
+        // Events
+        if (!PERF_EVENTS.isEmpty() && totalEventsNanos > 0) {
+            hasData = true;
+            LOGGER.info("[EVENTS] Total: {}ms", totalEventsNanos / 1_000_000L);
+            printSortedPerf(PERF_EVENTS, totalEventsNanos);
+            PERF_EVENTS.values().forEach(Perf::reset);
+        }
+
+        if (hasData) {
+            LOGGER.info("==================================================");
+        }
+    }
+
+    /**
+     * Выводит отсортированную статистику механик (от медленных к быстрым).
+     */
+    private static void printSortedPerf(Map<String, Perf> perfMap, long totalNanos) {
+        perfMap.entrySet().stream()
+                .filter(e -> e.getValue().calls > 0)
+                .sorted((a, b) -> Long.compare(b.getValue().totalNanos, a.getValue().totalNanos))
+                .forEach(e -> {
+                    String name = e.getKey();
+                    Perf p = e.getValue();
+                    double percent = totalNanos > 0 ? (p.totalNanos * 100.0 / totalNanos) : 0.0;
+                    LOGGER.info("  {:30} | calls={:6} | avg={:6.2f}µs | max={:6.2f}ms | min={:4.2f}µs | {:5.2f}%",
+                            name,
+                            p.calls,
+                            p.getAvgMicros(),
+                            p.maxNanos / 1_000_000.0,
+                            p.minNanos / 1_000.0,
+                            percent
+                    );
+                });
+    }
+
+    /**
+     * Получить снимок статистики (для команд или внешнего использования).
+     */
+    public static Map<String, String> getPerfSnapshot() {
+        Map<String, String> snapshot = new HashMap<>();
+        
+        for (Map.Entry<String, Perf> e : PERF_SERVER.entrySet()) {
+            Perf p = e.getValue();
+            if (p.calls > 0) {
+                snapshot.put("server." + e.getKey(), 
+                    String.format("calls=%d, avg=%.2fµs, max=%.2fms", 
+                        p.calls, p.getAvgMicros(), p.maxNanos / 1_000_000.0));
+            }
+        }
+        
+        for (Map.Entry<String, Perf> e : PERF_PLAYER.entrySet()) {
+            Perf p = e.getValue();
+            if (p.calls > 0) {
+                snapshot.put("player." + e.getKey(), 
+                    String.format("calls=%d, avg=%.2fµs, max=%.2fms", 
+                        p.calls, p.getAvgMicros(), p.maxNanos / 1_000_000.0));
+            }
+        }
+        
+        for (Map.Entry<String, Perf> e : PERF_EVENTS.entrySet()) {
+            Perf p = e.getValue();
+            if (p.calls > 0) {
+                snapshot.put("event." + e.getKey(), 
+                    String.format("calls=%d, avg=%.2fµs, max=%.2fms", 
+                        p.calls, p.getAvgMicros(), p.maxNanos / 1_000_000.0));
+            }
+        }
+        
+        return snapshot;
     }
 }
 

@@ -17,6 +17,13 @@ public class ColdMechanic implements IMechanicModule {
     private static final int TICKS_PER_HOUR = 20 * 60;
     // Оптимизация: Object2IntOpenHashMap вместо HashMap<UUID, Integer> (50-70% меньше памяти)
     private static final Object2IntOpenHashMap<UUID> HOUR_TICKS = new Object2IntOpenHashMap<>();
+    // Оптимизация: статический массив вместо создания нового каждый раз (экономия аллокаций)
+    private static final EquipmentSlotType[] ARMOR_SLOTS = {
+        EquipmentSlotType.HEAD, 
+        EquipmentSlotType.CHEST, 
+        EquipmentSlotType.LEGS, 
+        EquipmentSlotType.FEET
+    };
 
     @Override
     public String id() {
@@ -74,7 +81,7 @@ public class ColdMechanic implements IMechanicModule {
     }
 
     private static boolean noArmor(PlayerEntity player) {
-        for (EquipmentSlotType slot : new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET}) {
+        for (EquipmentSlotType slot : ARMOR_SLOTS) {
             if (!player.getItemBySlot(slot).isEmpty()) return false;
         }
         return true;

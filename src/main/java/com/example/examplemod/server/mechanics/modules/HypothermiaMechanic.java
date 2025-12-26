@@ -18,6 +18,13 @@ public class HypothermiaMechanic implements IMechanicModule {
     // Оптимизация: Object2IntOpenHashMap вместо HashMap<UUID, Integer> (50-70% меньше памяти)
     private static final Object2IntOpenHashMap<UUID> ANY_TICKS = new Object2IntOpenHashMap<>();
     private static final Object2IntOpenHashMap<UUID> BARE_TICKS = new Object2IntOpenHashMap<>();
+    // Оптимизация: статический массив вместо создания нового каждый раз (экономия аллокаций)
+    private static final EquipmentSlotType[] ARMOR_SLOTS = {
+        EquipmentSlotType.HEAD, 
+        EquipmentSlotType.CHEST, 
+        EquipmentSlotType.LEGS, 
+        EquipmentSlotType.FEET
+    };
 
     @Override
     public String id() {
@@ -85,7 +92,7 @@ public class HypothermiaMechanic implements IMechanicModule {
     }
 
     private static boolean noArmor(PlayerEntity player) {
-        for (EquipmentSlotType slot : new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET}) {
+        for (EquipmentSlotType slot : ARMOR_SLOTS) {
             if (!player.getItemBySlot(slot).isEmpty()) return false;
         }
         return true;

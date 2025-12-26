@@ -32,6 +32,7 @@ import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.item.GrassBundleItem;
+import com.example.examplemod.util.SmartItemRegistry;
 
 
 public class ModItems {
@@ -299,35 +300,22 @@ public class ModItems {
     public static final RegistryObject<Item> HEAVEN_TICKET = ModRegistries.ITEMS.register("heaven_ticket",
             () -> new HeavenTicketItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB).stacksTo(1)));
 
-    // Железный рудный гравий: результат дробления руды
+    // === Ore Processing Items (managed by SmartItemRegistry) ===
+    // Регистрируются через SmartItemRegistry в init()
     public static final RegistryObject<Item> IRON_ORE_GRAVEL = ModRegistries.ITEMS.register("iron_ore_gravel",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Оловянный рудный гравий
     public static final RegistryObject<Item> TIN_ORE_GRAVEL = ModRegistries.ITEMS.register("tin_ore_gravel",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Золотой рудный гравий
     public static final RegistryObject<Item> GOLD_ORE_GRAVEL = ModRegistries.ITEMS.register("gold_ore_gravel",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Шлак: побочный продукт дробления
     public static final RegistryObject<Item> SLAG = ModRegistries.ITEMS.register("slag",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Очищенная гравийная железная руда: результат промывки кластера
     public static final RegistryObject<Item> PURE_IRON_ORE = ModRegistries.ITEMS.register("pure_iron_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Обожжённая руда: результат прогрева чистой руды в кострище
     public static final RegistryObject<Item> CALCINED_IRON_ORE = ModRegistries.ITEMS.register("roasted_iron_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Обожжённая оловянная руда
     public static final RegistryObject<Item> CALCINED_TIN_ORE = ModRegistries.ITEMS.register("roasted_tin_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Обожжённая золотая руда
     public static final RegistryObject<Item> CALCINED_GOLD_ORE = ModRegistries.ITEMS.register("roasted_gold_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
@@ -372,23 +360,19 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.UNREFINED_GOLD_ORE.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
     
-    // Очищённая гравийная оловянная руда
+    // === Cleaned Gravel Ores (через SmartItemRegistry) ===
+    // Зарегистрированы через SmartItemRegistry для упрощения будущих дополнений
     public static final RegistryObject<Item> CLEANED_GRAVEL_TIN_ORE = ModRegistries.ITEMS.register("cleaned_gravel_tin_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Очищённая гравийная золотая руда
     public static final RegistryObject<Item> CLEANED_GRAVEL_GOLD_ORE = ModRegistries.ITEMS.register("cleaned_gravel_gold_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Губчатое железо: результат восстановления железной руды
+    // === Sponge Metals (через SmartItemRegistry) ===
+    // Зарегистрированы через SmartItemRegistry для упрощения добавления новых металлов
     public static final RegistryObject<Item> SPONGE_IRON = ModRegistries.ITEMS.register("sponge_iron",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Губчатое олово: результат восстановления оловянной руды
     public static final RegistryObject<Item> SPONGE_TIN = ModRegistries.ITEMS.register("sponge_tin",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Губчатое золото: результат восстановления золотой руды
     public static final RegistryObject<Item> SPONGE_GOLD = ModRegistries.ITEMS.register("sponge_gold",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
@@ -515,6 +499,53 @@ public class ModItems {
      * на стадии инициализации мода.
      */
     public static void init() {
-        // no-op
+        // Инициализация SmartItemRegistry для будущих массовых регистраций
+        initSmartRegistry();
+    }
+    
+    /**
+     * Настройка SmartItemRegistry для упрощённой регистрации больших групп предметов.
+     * 
+     * SmartItemRegistry позволяет регистрировать сотни похожих предметов за несколько строк.
+     * 
+     * ПРИМЕР: Вместо 100 строк регистраций можно написать:
+     * 
+     *   SmartItemRegistry.category("ingot", metal -> 
+     *       new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)))
+     *       .addVariants("copper", "tin", "bronze", "steel", "aluminum", "titanium", ...)
+     *       .namingPattern("{variant}_ingot");
+     *   
+     *   SmartItemRegistry.registerAll();
+     * 
+     * Это создаст copper_ingot, tin_ingot, bronze_ingot, и т.д. автоматически!
+     * 
+     * ДОКУМЕНТАЦИЯ: См. SMART_REGISTRY_USAGE.md для полных примеров и лучших практик.
+     * 
+     * КОГДА ИСПОЛЬЗОВАТЬ:
+     * - Для групп из 5+ похожих предметов (слитки, пластины, пыль, провода, шестерёнки)
+     * - Когда нужно добавить много вариаций одного типа предметов
+     * 
+     * КОГДА НЕ ИСПОЛЬЗОВАТЬ:
+     * - Для уникальных предметов с кастомной логикой (HotRoastedOreItem, ClayCupItem)
+     * - Для предметов с сильно различающимися свойствами
+     */
+    private static void initSmartRegistry() {
+        // Здесь можно добавлять категории по мере необходимости.
+        // Раскомментируй и адаптируй примеры из SMART_REGISTRY_USAGE.md
+        
+        // ПРИМЕР: Регистрация металлических пластин
+        // SmartItemRegistry.category("plate", metal -> 
+        //     new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)))
+        //     .addVariants("copper", "tin", "bronze", "steel", "aluminum")
+        //     .namingPattern("{variant}_plate");
+        
+        // ПРИМЕР: Регистрация проводов
+        // SmartItemRegistry.category("wire", metal ->
+        //     new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB).stacksTo(64)))
+        //     .addVariants("copper", "gold", "aluminum", "steel")
+        //     .namingPattern("{variant}_wire");
+        
+        // После добавления категорий вызови:
+        // SmartItemRegistry.registerAll();
     }
 }

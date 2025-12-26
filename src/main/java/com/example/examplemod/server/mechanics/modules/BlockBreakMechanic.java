@@ -27,18 +27,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BlockBreakMechanic implements IMechanicModule {
-    private static final Set<Block> VANILLA_ORES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            Blocks.COAL_ORE,
-            Blocks.IRON_ORE,
-            Blocks.GOLD_ORE,
-            Blocks.REDSTONE_ORE,
-            Blocks.LAPIS_ORE,
-            Blocks.DIAMOND_ORE,
-            Blocks.EMERALD_ORE,
-            Blocks.NETHER_QUARTZ_ORE,
-            Blocks.NETHER_GOLD_ORE,
-            Blocks.ANCIENT_DEBRIS
-    )));
+    // Оптимизация: прямая инициализация HashSet без промежуточного Arrays.asList()
+    private static final Set<Block> VANILLA_ORES;
+    static {
+        Set<Block> ores = new HashSet<>();
+        ores.add(Blocks.COAL_ORE);
+        ores.add(Blocks.IRON_ORE);
+        ores.add(Blocks.GOLD_ORE);
+        ores.add(Blocks.REDSTONE_ORE);
+        ores.add(Blocks.LAPIS_ORE);
+        ores.add(Blocks.DIAMOND_ORE);
+        ores.add(Blocks.EMERALD_ORE);
+        ores.add(Blocks.NETHER_QUARTZ_ORE);
+        ores.add(Blocks.NETHER_GOLD_ORE);
+        ores.add(Blocks.ANCIENT_DEBRIS);
+        VANILLA_ORES = Collections.unmodifiableSet(ores);
+    }
 
     @Override
     public String id() {

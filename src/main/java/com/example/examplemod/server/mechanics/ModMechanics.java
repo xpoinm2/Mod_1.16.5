@@ -1,7 +1,10 @@
 package com.example.examplemod.server.mechanics;
 
+import com.example.examplemod.Config;
 import com.example.examplemod.server.*;
 import com.example.examplemod.server.mechanics.modules.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +16,7 @@ import java.util.List;
  * Сюда ты добавляешь новые механики со временем, не трогая шедулер и не плодя сотни @SubscribeEvent классов.
  */
 public final class ModMechanics {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final List<IMechanicModule> MODULES = new ArrayList<>();
     private static boolean initialized = false;
 
@@ -22,28 +26,71 @@ public final class ModMechanics {
     /**
      * Инициализация + регистрация встроенных модулей.
      * Можно вызывать сколько угодно раз — сработает один раз.
+     * 
+     * ОПТИМИЗАЦИЯ: Ленивая инициализация - механики регистрируются только если включены в конфиге.
+     * Это экономит память и ускоряет загрузку для игроков, которые не используют определённые системы.
      */
     public static void init() {
         if (initialized) return;
         initialized = true;
 
+        LOGGER.info("Initializing mechanics (lazy loading enabled)...");
+        int registeredCount = 0;
+
         // Все механики теперь живут в server/mechanics/modules/*
         // Старые server/*Handler классы остаются максимум фасадами для внешних вызовов (пакеты/GUI).
-        register(new ThirstMechanic());
-        register(new RestMechanic());
-        register(new ColdMechanic());
-        register(new HypothermiaMechanic());
+        
+        // === Механики выживания (жажда, усталость, отдых) ===
+        if (Config.ENABLE_SURVIVAL_MECHANICS.get()) {
+            register(new ThirstMechanic());
+            register(new RestMechanic());
+            registeredCount += 2;
+            LOGGER.debug("Loaded survival mechanics (thirst, rest)");
+        } else {
+            LOGGER.info("Survival mechanics disabled in config - skipping");
+        }
+
+        // === Механики температуры (холод, переохлаждение) ===
+        if (Config.ENABLE_TEMPERATURE_MECHANICS.get()) {
+            register(new ColdMechanic());
+            register(new HypothermiaMechanic());
+            registeredCount += 2;
+            LOGGER.debug("Loaded temperature mechanics (cold, hypothermia)");
+        } else {
+            LOGGER.info("Temperature mechanics disabled in config - skipping");
+        }
+
+        // === Механики болезней (вирусы, яды) ===
+        if (Config.ENABLE_DISEASE_MECHANICS.get()) {
+            register(new VirusMechanic());
+            registeredCount += 1;
+            LOGGER.debug("Loaded disease mechanics (virus)");
+        } else {
+            LOGGER.info("Disease mechanics disabled in config - skipping");
+        }
+
+        // === Всегда активные механики (core gameplay) ===
         register(new BlockBreakMechanic());
         register(new DayNightCycleMechanic());
         register(new HotOreDamageMechanic());
-        register(new VirusMechanic());
+        registeredCount += 3;
 
-        // Команды
+        // === Команды (основные) ===
         register(new StatsCommandsMechanic());
-        register(new PyramidDebugCommandsMechanic());
-        register(new BiomeTeleportCommandsMechanic());
-        register(new BlockTeleportCommandsMechanic());
         register(new QuestCommandsMechanic());
+        registeredCount += 2;
+
+        // === Отладочные команды (опционально) ===
+        if (Config.ENABLE_DEBUG_COMMANDS.get()) {
+            register(new PyramidDebugCommandsMechanic());
+            register(new BiomeTeleportCommandsMechanic());
+            register(new BlockTeleportCommandsMechanic());
+            register(new MechanicsDebugCommand());
+            registeredCount += 4;
+            LOGGER.debug("Loaded debug commands");
+        } else {
+            LOGGER.info("Debug commands disabled in config - skipping");
+        }
 
         // Остальные механики, которые пока не переносились в отдельные модули
         register(new HandlerModule("gravel_ore_wash") {
@@ -137,6 +184,15 @@ public final class ModMechanics {
             @Override public boolean enableServerStopping() { return true; }
             @Override public void onServerStopping(net.minecraftforge.fml.event.server.FMLServerStoppingEvent e) { AutoSaveHandler.onServerStopping(e); }
         });
+
+        // Подсчет оставшихся механик (HandlerModule обёртки)
+        registeredCount += 13; // gravel_ore_wash, iron_cluster_wash, crafting_blocker, firepit_structure, 
+                               // flax_soak, flax_drying, sharp_bone, red_mushroom, big_bone_drop, 
+                               // hewn_stone_spawn, natural_regen_disable, auto_save
+
+        LOGGER.info("Mechanics initialization complete: {} mechanics registered", registeredCount);
+        LOGGER.info("Memory saved by lazy loading: ~{} mechanics skipped", 
+                (2 + 2 + 1 + 4) - (registeredCount - 13 - 3 - 2)); // Максимум - загруженные
     }
 
     /**

@@ -19,6 +19,12 @@ public class Config {
     public static final ForgeConfigSpec.IntValue MECHANICS_SLOW_CALL_THRESHOLD_MS;
     public static final ForgeConfigSpec.IntValue MECHANICS_PROFILE_LOG_EVERY_TICKS;
 
+    // Ленивая инициализация: включение/выключение групп механик
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SURVIVAL_MECHANICS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_TEMPERATURE_MECHANICS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_DISEASE_MECHANICS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_DEBUG_COMMANDS;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -51,6 +57,27 @@ public class Config {
         MECHANICS_PROFILE_LOG_EVERY_TICKS = builder
                 .comment("Как часто печатать perf summary (в тиках). Рекомендация: 1200 = раз в минуту.")
                 .defineInRange("profile_log_every_ticks", 1200, 20, 20 * 60 * 60);
+
+        builder.pop();
+
+        builder.comment("Ленивая инициализация: отключайте ненужные системы для ускорения загрузки и экономии памяти")
+                .push("mechanics_toggle");
+
+        ENABLE_SURVIVAL_MECHANICS = builder
+                .comment("Механики выживания: жажда, усталость, отдых. Отключение сэкономит память.")
+                .define("enable_survival_mechanics", true);
+
+        ENABLE_TEMPERATURE_MECHANICS = builder
+                .comment("Механики температуры: холод, переохлаждение. Отключение отключит кэш температур.")
+                .define("enable_temperature_mechanics", true);
+
+        ENABLE_DISEASE_MECHANICS = builder
+                .comment("Механики болезней: вирусы, яды. Отключение отключит проверки при еде/ломании блоков.")
+                .define("enable_disease_mechanics", true);
+
+        ENABLE_DEBUG_COMMANDS = builder
+                .comment("Отладочные команды: биом телепорт, пирамида, и т.д. Рекомендуется отключить на публичных серверах.")
+                .define("enable_debug_commands", true);
 
         builder.pop();
 

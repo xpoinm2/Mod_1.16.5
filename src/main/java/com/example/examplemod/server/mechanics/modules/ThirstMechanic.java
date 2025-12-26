@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.PotionUtils;
@@ -17,6 +18,8 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -26,6 +29,19 @@ import java.util.UUID;
 public final class ThirstMechanic implements IMechanicModule {
     private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
     private static final int TICKS_PER_15MIN = TICKS_PER_HOUR / 4;
+    
+    // Оптимизация: статический Set для проверки рыбных предметов (O(1) вместо O(n) сравнений)
+    private static final Set<Item> FISH_ITEMS;
+    static {
+        Set<Item> fish = new HashSet<>();
+        fish.add(Items.COD);
+        fish.add(Items.SALMON);
+        fish.add(Items.PUFFERFISH);
+        fish.add(Items.TROPICAL_FISH);
+        fish.add(Items.COOKED_COD);
+        fish.add(Items.COOKED_SALMON);
+        FISH_ITEMS = fish; // Неизменяемость не требуется, т.к. private static final
+    }
 
     // Оптимизация: Fastutil коллекции вместо HashMap (50-70% меньше памяти)
     private final Object2ObjectOpenHashMap<UUID, double[]> lastPos = new Object2ObjectOpenHashMap<>();
@@ -244,12 +260,7 @@ public final class ThirstMechanic implements IMechanicModule {
     }
 
     private static boolean isFishItem(ItemStack stack) {
-        return stack.getItem() == Items.COD
-                || stack.getItem() == Items.SALMON
-                || stack.getItem() == Items.PUFFERFISH
-                || stack.getItem() == Items.TROPICAL_FISH
-                || stack.getItem() == Items.COOKED_COD
-                || stack.getItem() == Items.COOKED_SALMON;
+        return FISH_ITEMS.contains(stack.getItem());
     }
 }
 
