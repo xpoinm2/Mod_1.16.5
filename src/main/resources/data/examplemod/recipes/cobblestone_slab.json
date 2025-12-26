@@ -4,5 +4,5 @@
     { "item": "minecraft:cobblestone" },
     { "tag": "minecraft:axes" }
   ],
-  "result": { "item": "minecraft:cobblestone_slab", "count": 2 }
+  "result": { "item": "examplemod:brushwood_slab", "count": 2 }
 }

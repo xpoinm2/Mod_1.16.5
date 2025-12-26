@@ -4,5 +4,5 @@
     { "item": "minecraft:birch_planks" },
     { "tag": "minecraft:axes" }
   ],
-  "result": { "item": "minecraft:birch_slab", "count": 2 }
+  "result": { "item": "examplemod:brushwood_slab", "count": 2 }
 }

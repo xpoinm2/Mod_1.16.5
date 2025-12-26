@@ -1,11 +1,13 @@
 package com.example.examplemod.container;
 
+import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModContainers;
 import com.example.examplemod.tileentity.SlabTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -66,7 +68,10 @@ public class SlabContainer extends Container {
 
     @Override
     public boolean stillValid(PlayerEntity player) {
-        return canInteract.evaluate((world, pos) -> world.getBlockState(pos).getBlock() instanceof net.minecraft.block.SlabBlock, true);
+        return canInteract.evaluate((world, pos) -> {
+            Block block = world.getBlockState(pos).getBlock();
+            return block == ModBlocks.BRUSHWOOD_SLAB.get() || block == ModBlocks.BURNED_BRUSHWOOD_SLAB.get();
+        }, true);
     }
 
     @Override
