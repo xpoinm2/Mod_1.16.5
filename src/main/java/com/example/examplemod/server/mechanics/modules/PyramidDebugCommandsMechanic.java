@@ -1,20 +1,25 @@
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
-import com.example.examplemod.ExampleMod;
+import com.example.examplemod.server.mechanics.IMechanicModule;
 import com.example.examplemod.world.feature.DesertPyramidFeature;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
-/**
- * Provides administrative commands related to custom world structures.
- */
-public final class PyramidDebugCommands {
-    private PyramidDebugCommands() {
+public final class PyramidDebugCommandsMechanic implements IMechanicModule {
+    @Override
+    public String id() {
+        return "pyramid_debug_commands";
     }
 
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
+    @Override
+    public boolean enableRegisterCommands() {
+        return true;
+    }
+
+    @Override
+    public void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 Commands.literal("pyramid")
                         .requires(cs -> cs.hasPermission(2))
@@ -30,3 +35,5 @@ public final class PyramidDebugCommands {
         return count;
     }
 }
+
+

@@ -1,11 +1,22 @@
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
-import com.example.examplemod.ExampleMod;
+import com.example.examplemod.server.mechanics.IMechanicModule;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 
-public class DayNightCycleHandler {
-    public static void onWorldTick(TickEvent.WorldTickEvent event) {
+public class DayNightCycleMechanic implements IMechanicModule {
+    @Override
+    public String id() {
+        return "day_night_cycle";
+    }
+
+    @Override
+    public boolean enableWorldTick() {
+        return true;
+    }
+
+    @Override
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.world instanceof ServerWorld)) return;
 
@@ -30,3 +41,4 @@ public class DayNightCycleHandler {
         }
     }
 }
+

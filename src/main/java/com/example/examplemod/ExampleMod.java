@@ -21,15 +21,10 @@ import com.example.examplemod.ModRegistries;
 import com.example.examplemod.server.mechanics.ModMechanics;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
-import com.example.examplemod.server.BlockBreakHandler;
-import com.example.examplemod.server.ColdHandler;
-import com.example.examplemod.server.HypothermiaHandler;
-import com.example.examplemod.server.VirusHandler;
 import com.example.examplemod.server.CraftingBlocker;
 import com.example.examplemod.server.HewnStoneSpawnHandler;
 import com.example.examplemod.server.FlaxDryingHandler;
 import com.example.examplemod.server.FirepitStructureHandler;
-import com.example.examplemod.server.HotOreDamageHandler;
 import com.example.examplemod.server.RedMushroomHandler;
 
 import net.minecraft.client.world.DimensionRenderInfo;

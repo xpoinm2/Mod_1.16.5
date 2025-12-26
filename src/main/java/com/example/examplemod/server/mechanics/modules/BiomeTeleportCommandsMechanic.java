@@ -1,6 +1,6 @@
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
-import com.example.examplemod.ExampleMod;
+import com.example.examplemod.server.mechanics.IMechanicModule;
 import com.example.examplemod.world.ModBiomes;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -19,14 +19,20 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
 import java.util.Objects;
-/**
- * Simple commands to teleport player to various biomes for testing.
- */
-@SuppressWarnings("unused")
-public class BiomeTeleportCommands {
 
-    @SuppressWarnings("unused")
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
+public final class BiomeTeleportCommandsMechanic implements IMechanicModule {
+    @Override
+    public String id() {
+        return "biome_teleport_commands";
+    }
+
+    @Override
+    public boolean enableRegisterCommands() {
+        return true;
+    }
+
+    @Override
+    public void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 Commands.literal("tpbiome")
                         .requires(cs -> cs.hasPermission(2))
@@ -50,15 +56,15 @@ public class BiomeTeleportCommands {
         ServerWorld world = player.getLevel();
         BlockPos origin = player.blockPosition();
         SearchResult result = findBiome(world, biomeKey, origin);
-        if (result.getPosition() == null) {
-            if (result.isTimedOut()) {
+        if (result.position == null) {
+            if (result.timedOut) {
                 ctx.getSource().sendFailure(new StringTextComponent("Biome search timed out; try again after exploring more of the world"));
             } else {
                 ctx.getSource().sendFailure(new StringTextComponent("Biome not found"));
             }
             return 0;
         }
-        BlockPos found = result.getPosition();
+        BlockPos found = result.position;
         world.getChunk(found.getX() >> 4, found.getZ() >> 4); // ensure chunk is loaded
         BlockPos top = world.getHeightmapPos(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, found);
         player.teleportTo(world, top.getX() + 0.5, top.getY(), top.getZ() + 0.5, player.yRot, player.xRot);
@@ -127,13 +133,7 @@ public class BiomeTeleportCommands {
             this.position = position;
             this.timedOut = timedOut;
         }
-
-        private BlockPos getPosition() {
-            return position;
-        }
-
-        private boolean isTimedOut() {
-            return timedOut;
-        }
     }
 }
+
+

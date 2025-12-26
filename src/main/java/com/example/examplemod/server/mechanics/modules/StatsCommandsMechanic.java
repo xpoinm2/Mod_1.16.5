@@ -1,25 +1,36 @@
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
-import com.example.examplemod.ExampleMod;
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
-import com.example.examplemod.network.SyncStatsPacket;
 import com.example.examplemod.network.SyncColdPacket;
 import com.example.examplemod.network.SyncHypothermiaPacket;
-import com.example.examplemod.network.SyncVirusPacket;
 import com.example.examplemod.network.SyncPoisonPacket;
+import com.example.examplemod.network.SyncStatsPacket;
+import com.example.examplemod.network.SyncVirusPacket;
+import com.example.examplemod.server.mechanics.IMechanicModule;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-public class StatsCommands {
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
+public final class StatsCommandsMechanic implements IMechanicModule {
+    @Override
+    public String id() {
+        return "stats_commands";
+    }
+
+    @Override
+    public boolean enableRegisterCommands() {
+        return true;
+    }
+
+    @Override
+    public void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 Commands.literal("stats")
                         .requires(cs -> cs.hasPermission(2))
@@ -145,3 +156,5 @@ public class StatsCommands {
         return 1;
     }
 }
+
+

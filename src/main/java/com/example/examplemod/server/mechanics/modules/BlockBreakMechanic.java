@@ -1,18 +1,11 @@
-// === FILE src/main/java/com/example/examplemod/BlockBreakHandler.java
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.example.examplemod.ExampleMod;
+import com.example.examplemod.ModBlocks;
+import com.example.examplemod.ModItems;
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncStatsPacket;
-import com.example.examplemod.ModItems;
-import com.example.examplemod.ModBlocks;
-import net.minecraft.util.Hand;
+import com.example.examplemod.server.mechanics.IMechanicModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -22,12 +15,18 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TieredItem;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-public class BlockBreakHandler {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+public class BlockBreakMechanic implements IMechanicModule {
     private static final Set<Block> VANILLA_ORES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             Blocks.COAL_ORE,
             Blocks.IRON_ORE,
@@ -41,9 +40,18 @@ public class BlockBreakHandler {
             Blocks.ANCIENT_DEBRIS
     )));
 
+    @Override
+    public String id() {
+        return "block_break";
+    }
 
-    public static void onBlockBreak(BreakEvent event) {
-        // 1) Получаем мир и проверяем — это сервер?
+    @Override
+    public boolean enableBlockBreak() {
+        return true;
+    }
+
+    @Override
+    public void onBlockBreak(BlockEvent.BreakEvent event) {
         World world = (World) event.getWorld();
         if (world.isClientSide()) {
             return;
@@ -54,7 +62,6 @@ public class BlockBreakHandler {
             return;
         }
 
-        // 2) Получаем состояние блока
         BlockState state = event.getState();
 
         if (isOreBlock(state.getBlock()) && !canMineOre(player)) {
@@ -116,14 +123,13 @@ public class BlockBreakHandler {
             }
         }
 
-        // 3.2) Если это листва — дропаем 3 листочка и с шансом 50% ветку
+        // Leaves drop 3 leaves and 50% chance for branch
         if (state.is(BlockTags.LEAVES)) {
             Block.popResource(world, event.getPos(), new ItemStack(ModItems.LEAF.get(), 3));
             if (world.random.nextFloat() < 0.5f) {
                 Block.popResource(world, event.getPos(), new ItemStack(ModItems.BRANCH.get()));
             }
         }
-
 
         // Fatigue when digging with bare hands
         if (player.getMainHandItem().isEmpty()) {
@@ -142,7 +148,7 @@ public class BlockBreakHandler {
         }
     }
 
-    private static boolean tryCrushOreWithHammer(World world, BreakEvent event, PlayerEntity player, Item gravelItem) {
+    private static boolean tryCrushOreWithHammer(World world, BlockEvent.BreakEvent event, PlayerEntity player, Item gravelItem) {
         ItemStack held = player.getMainHandItem();
         if (held.getItem() != ModItems.STONE_HAMMER.get() && held.getItem() != ModItems.BONE_HAMMER.get()) {
             return false;
@@ -191,3 +197,4 @@ public class BlockBreakHandler {
         return false;
     }
 }
+

@@ -1,26 +1,73 @@
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
-import com.example.examplemod.ExampleMod;
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.SyncColdPacket;
+import com.example.examplemod.server.mechanics.IMechanicModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ColdHandler {
+public class ColdMechanic implements IMechanicModule {
     private static final int TICKS_PER_HOUR = 20 * 60;
-
     private static final Map<UUID, Integer> HOUR_TICKS = new HashMap<>();
+
+    @Override
+    public String id() {
+        return "cold";
+    }
+
+    @Override
+    public int playerIntervalTicks() {
+        return 20; // раз в секунду
+    }
+
+    @Override
+    public void onPlayerTick(ServerPlayerEntity player) {
+        UUID id = player.getUUID();
+
+        int temp = getAmbientTemperature(player);
+        boolean increase = false;
+        if (temp == -40 || temp == -25) {
+            increase = true;
+        } else if (temp < 16 && noArmor(player)) {
+            increase = true;
+        }
+
+        if (increase) {
+            int t = HOUR_TICKS.getOrDefault(id, 0) + 20;
+            if (t >= TICKS_PER_HOUR) {
+                t -= TICKS_PER_HOUR;
+                player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+                    int current = stats.getCold();
+                    int cold = Math.min(100, current + 4);
+                    if (cold != current) {
+                        stats.setCold(cold);
+                        ModNetworkHandler.CHANNEL.send(
+                                PacketDistributor.PLAYER.with(() -> player),
+                                new SyncColdPacket(cold)
+                        );
+                    }
+                });
+            }
+            HOUR_TICKS.put(id, t);
+        } else {
+            HOUR_TICKS.remove(id);
+        }
+    }
+
+    @Override
+    public void onPlayerLogout(ServerPlayerEntity player) {
+        HOUR_TICKS.remove(player.getUUID());
+    }
 
     private static boolean noArmor(PlayerEntity player) {
         for (EquipmentSlotType slot : new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET}) {
@@ -71,49 +118,5 @@ public class ColdHandler {
                 return 0;
         }
     }
-
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (!(event.player instanceof ServerPlayerEntity)) return;
-        tick((ServerPlayerEntity) event.player);
-    }
-
-    /**
-     * Вынесено для менеджера механик: можно вызывать напрямую без создания TickEvent.
-     */
-    public static void tick(ServerPlayerEntity player) {
-        UUID id = player.getUUID();
-
-        // Оптимизация: пересчитываем температуру/биом не каждый тик, а раз в секунду.
-        if ((player.tickCount % 20) != 0) return;
-
-        int temp = getAmbientTemperature(player);
-        boolean increase = false;
-        if (temp == -40 || temp == -25) {
-            increase = true;
-        } else if (temp < 16 && noArmor(player)) {
-            increase = true;
-        }
-
-        if (increase) {
-            int t = HOUR_TICKS.getOrDefault(id, 0) + 20;
-            if (t >= TICKS_PER_HOUR) {
-                t -= TICKS_PER_HOUR;
-                player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-                    int current = stats.getCold();
-                    int cold = Math.min(100, current + 4);
-                    if (cold != current) {
-                        stats.setCold(cold);
-                        ModNetworkHandler.CHANNEL.send(
-                                PacketDistributor.PLAYER.with(() -> player),
-                                new SyncColdPacket(cold)
-                        );
-                    }
-                });
-            }
-            HOUR_TICKS.put(id, t);
-        } else {
-            HOUR_TICKS.remove(id);
-        }
-    }
 }
+

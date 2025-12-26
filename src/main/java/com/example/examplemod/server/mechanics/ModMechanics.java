@@ -1,6 +1,7 @@
 package com.example.examplemod.server.mechanics;
 
 import com.example.examplemod.server.*;
+import com.example.examplemod.server.mechanics.modules.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,72 +27,25 @@ public final class ModMechanics {
         if (initialized) return;
         initialized = true;
 
-        // Регистрируем существующие механики как модули-адаптеры.
-        // Важно: соответствующие *Handler/*Commands классы переведены в режим "без подписки"
-        // (без @EventBusSubscriber/@SubscribeEvent), чтобы избежать двойных срабатываний.
-        register(new HandlerModule("stats_commands") {
-            @Override public boolean enableRegisterCommands() { return true; }
-            @Override public void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent e) { StatsCommands.onRegisterCommands(e); }
-        });
-        register(new HandlerModule("pyramid_debug_commands") {
-            @Override public boolean enableRegisterCommands() { return true; }
-            @Override public void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent e) { PyramidDebugCommands.onRegisterCommands(e); }
-        });
-        register(new HandlerModule("biome_teleport_commands") {
-            @Override public boolean enableRegisterCommands() { return true; }
-            @Override public void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent e) { BiomeTeleportCommands.onRegisterCommands(e); }
-        });
-        register(new HandlerModule("block_teleport_commands") {
-            @Override public boolean enableRegisterCommands() { return true; }
-            @Override public void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent e) { BlockTeleportCommand.onRegisterCommands(e); }
-        });
-        register(new HandlerModule("quest_commands") {
-            @Override public boolean enableRegisterCommands() { return true; }
-            @Override public void onRegisterCommands(net.minecraftforge.event.RegisterCommandsEvent e) { QuestCommands.onRegisterCommands(e); }
-        });
+        // Все механики теперь живут в server/mechanics/modules/*
+        // Старые server/*Handler классы остаются максимум фасадами для внешних вызовов (пакеты/GUI).
+        register(new ThirstMechanic());
+        register(new RestMechanic());
+        register(new ColdMechanic());
+        register(new HypothermiaMechanic());
+        register(new BlockBreakMechanic());
+        register(new DayNightCycleMechanic());
+        register(new HotOreDamageMechanic());
+        register(new VirusMechanic());
 
-        register(new HandlerModule("block_break") {
-            @Override public boolean enableBlockBreak() { return true; }
-            @Override public void onBlockBreak(net.minecraftforge.event.world.BlockEvent.BreakEvent e) { BlockBreakHandler.onBlockBreak(e); }
-        });
+        // Команды
+        register(new StatsCommandsMechanic());
+        register(new PyramidDebugCommandsMechanic());
+        register(new BiomeTeleportCommandsMechanic());
+        register(new BlockTeleportCommandsMechanic());
+        register(new QuestCommandsMechanic());
 
-        register(new HandlerModule("thirst") {
-            @Override public int playerIntervalTicks() { return 5; } // как в ThirstHandler
-            @Override public void onPlayerTick(net.minecraft.entity.player.ServerPlayerEntity p) { ThirstHandler.tick(p); }
-            @Override public boolean enableAttackEntity() { return true; }
-            @Override public void onAttackEntity(net.minecraftforge.event.entity.player.AttackEntityEvent e) { ThirstHandler.onAttackEntity(e); }
-            @Override public boolean enableLivingJump() { return true; }
-            @Override public void onLivingJump(net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent e) { ThirstHandler.onPlayerJump(e); }
-            @Override public boolean enableUseItemFinish() { return true; }
-            @Override public void onUseItemFinish(net.minecraftforge.event.entity.living.LivingEntityUseItemEvent.Finish e) { ThirstHandler.onDrinkFinish(e); }
-            @Override public void onPlayerLogout(net.minecraft.entity.player.ServerPlayerEntity p) { ThirstHandler.logout(p); }
-        });
-
-        register(new HandlerModule("rest") {
-            @Override public int playerIntervalTicks() { return 1; }
-            @Override public void onPlayerTick(net.minecraft.entity.player.ServerPlayerEntity p) { RestHandler.tick(p); }
-        });
-
-        register(new HandlerModule("cold") {
-            @Override public int playerIntervalTicks() { return 20; }
-            @Override public void onPlayerTick(net.minecraft.entity.player.ServerPlayerEntity p) { ColdHandler.tick(p); }
-        });
-
-        register(new HandlerModule("hypothermia") {
-            @Override public int playerIntervalTicks() { return 20; }
-            @Override public void onPlayerTick(net.minecraft.entity.player.ServerPlayerEntity p) { HypothermiaHandler.tick(p); }
-        });
-
-        register(new HandlerModule("day_night_cycle") {
-            @Override public boolean enableWorldTick() { return true; }
-            @Override public void onWorldTick(net.minecraftforge.event.TickEvent.WorldTickEvent e) { DayNightCycleHandler.onWorldTick(e); }
-        });
-
-        register(new HandlerModule("hot_ore_damage") {
-            @Override public int playerIntervalTicks() { return 20; }
-            @Override public void onPlayerTick(net.minecraft.entity.player.ServerPlayerEntity p) { HotOreDamageHandler.tick(p); }
-        });
-
+        // Остальные механики, которые пока не переносились в отдельные модули
         register(new HandlerModule("gravel_ore_wash") {
             @Override public boolean enablePlayerInteract() { return true; }
             @Override public void onPlayerInteract(net.minecraftforge.event.entity.player.PlayerInteractEvent e) {
@@ -174,13 +128,6 @@ public final class ModMechanics {
             }
         });
 
-        register(new HandlerModule("virus") {
-            @Override public boolean enableUseItemFinish() { return true; }
-            @Override public void onUseItemFinish(net.minecraftforge.event.entity.living.LivingEntityUseItemEvent.Finish e) { VirusHandler.onFoodEaten(e); }
-            @Override public boolean enableBlockBreak() { return true; }
-            @Override public void onBlockBreak(net.minecraftforge.event.world.BlockEvent.BreakEvent e) { VirusHandler.onBlockBreak(e); }
-        });
-
         register(new HandlerModule("natural_regen_disable") {
             @Override public boolean enableServerStarting() { return true; }
             @Override public void onServerStarting(net.minecraftforge.fml.event.server.FMLServerStartingEvent e) { NaturalRegenerationDisabler.onServerStarting(e); }
@@ -208,6 +155,18 @@ public final class ModMechanics {
 
     public static List<IMechanicModule> modules() {
         return Collections.unmodifiableList(MODULES);
+    }
+
+    /**
+     * Получить модуль по типу (удобно для фасадов/внешних вызовов).
+     */
+    public static <T extends IMechanicModule> T get(Class<T> type) {
+        for (IMechanicModule m : MODULES) {
+            if (type.isInstance(m)) {
+                return type.cast(m);
+            }
+        }
+        return null;
     }
 
     public static boolean isInitialized() {

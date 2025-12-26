@@ -1,27 +1,24 @@
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
-import com.example.examplemod.ExampleMod;
 import com.example.examplemod.item.HotRoastedOreItem;
-import net.minecraft.entity.player.PlayerEntity;
+import com.example.examplemod.server.mechanics.IMechanicModule;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
-import net.minecraftforge.event.TickEvent;
 
-public class HotOreDamageHandler {
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        tick(event.player);
+public class HotOreDamageMechanic implements IMechanicModule {
+    @Override
+    public String id() {
+        return "hot_ore_damage";
     }
 
-    /**
-     * Вынесено для менеджера механик: можно вызывать напрямую без создания TickEvent.
-     */
-    public static void tick(PlayerEntity player) {
-        if (player.level.isClientSide) return;
+    @Override
+    public int playerIntervalTicks() {
+        return 20; // раз в секунду
+    }
 
-        // Наносим урон не каждый тик, а раз в секунду (иначе это слишком жёстко и дорого по CPU при множестве механик)
-        if ((player.tickCount % 20) != 0) return;
-
+    @Override
+    public void onPlayerTick(ServerPlayerEntity player) {
         boolean hasHotOre = false;
 
         for (ItemStack stack : player.inventory.items) {
@@ -55,3 +52,4 @@ public class HotOreDamageHandler {
         }
     }
 }
+

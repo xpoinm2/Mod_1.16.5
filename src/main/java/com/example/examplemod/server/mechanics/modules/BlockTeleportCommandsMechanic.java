@@ -1,6 +1,7 @@
-package com.example.examplemod.server;
+package com.example.examplemod.server.mechanics.modules;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.server.mechanics.IMechanicModule;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,20 +14,25 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.Mutable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-/**
- * Command to teleport the player to the nearest instance of a given block.
- */
-public class BlockTeleportCommand {
+public final class BlockTeleportCommandsMechanic implements IMechanicModule {
+    @Override
+    public String id() {
+        return "block_teleport_commands";
+    }
 
-    private static final int SEARCH_RADIUS = 128;
+    @Override
+    public boolean enableRegisterCommands() {
+        return true;
+    }
 
-    public static void onRegisterCommands(RegisterCommandsEvent event) {
+    @Override
+    public void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 Commands.literal("tpblock")
                         .requires(cs -> cs.hasPermission(2))
@@ -34,6 +40,8 @@ public class BlockTeleportCommand {
                                 .executes(ctx -> teleport(ctx, StringArgumentType.getString(ctx, "block"))))
         );
     }
+
+    private static final int SEARCH_RADIUS = 128;
 
     private static int teleport(CommandContext<CommandSource> ctx, String blockName) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
@@ -118,3 +126,5 @@ public class BlockTeleportCommand {
         return null;
     }
 }
+
+
