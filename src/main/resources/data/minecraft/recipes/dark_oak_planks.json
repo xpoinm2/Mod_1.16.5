@@ -1,0 +1,21 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        { "type": "forge:false" }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shapeless",
+        "ingredients": [
+          { "tag": "minecraft:dark_oak_logs" }
+        ],
+        "result": {
+          "item": "minecraft:dark_oak_planks",
+          "count": 4
+        }
+      }
+    }
+  ]
+}
+

@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "minecraft:crimson_stem"
+      "tag": "minecraft:crimson_stems"
     },
     {
       "tag": "minecraft:axes"

@@ -1,0 +1,21 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        { "type": "forge:false" }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shapeless",
+        "ingredients": [
+          { "tag": "minecraft:jungle_logs" }
+        ],
+        "result": {
+          "item": "minecraft:jungle_planks",
+          "count": 4
+        }
+      }
+    }
+  ]
+}
+

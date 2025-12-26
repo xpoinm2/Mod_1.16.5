@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "minecraft:acacia_log"
+      "tag": "minecraft:acacia_logs"
     },
     {
       "tag": "minecraft:axes"

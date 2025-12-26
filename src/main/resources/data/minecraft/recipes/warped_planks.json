@@ -1,0 +1,21 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        { "type": "forge:false" }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shapeless",
+        "ingredients": [
+          { "tag": "minecraft:warped_stems" }
+        ],
+        "result": {
+          "item": "minecraft:warped_planks",
+          "count": 4
+        }
+      }
+    }
+  ]
+}
+
