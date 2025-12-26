@@ -10,10 +10,10 @@ public final class ModEntities {
     private ModEntities() {
     }
 
-    // Используем унифицированный регистратор
+    // Определяем сущность без регистрации
     public static final RegistryObject<EntityType<BeaverEntity>> BEAVER =
-            RegistryHelper.registerEntity("beaver",
-                    EntityType.Builder.of(BeaverEntity::new, EntityClassification.CREATURE)
-                            .sized(0.9F, 0.7F),
-                    ModRegistries.ENTITIES);
+            ModRegistries.ENTITIES.register("beaver", () -> EntityType.Builder
+                    .of(BeaverEntity::new, EntityClassification.CREATURE)
+                    .sized(0.9F, 0.7F)
+                    .build(ExampleMod.MODID + ":beaver"));
 }

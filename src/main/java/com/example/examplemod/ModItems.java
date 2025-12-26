@@ -513,6 +513,6 @@ public class ModItems {
 
 
     public static void register(IEventBus bus) {
-        ModRegistries.ITEMS.register(bus);
+        // Регистратор уже зарегистрирован в ModRegistries
     }
 }

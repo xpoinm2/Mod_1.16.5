@@ -77,13 +77,6 @@ public class ExampleMod {
         // Унифицированная регистрация всех компонентов
         ModRegistries.register(modBus);
 
-        // Регистрация специфических компонентов
-        ModItems.register(modBus);
-        ModBlocks.register(modBus);
-        ModCreativeTabs.register(modBus);
-        ModBiomes.register(modBus);
-        ModFeatures.register(modBus);
-        ModFluids.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);
     }

@@ -1,6 +1,8 @@
 package com.example.examplemod;
 
 import com.example.examplemod.util.RegistryHelper;
+import com.example.examplemod.world.ModBiomes;
+import com.example.examplemod.world.ModFeatures;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -35,5 +37,11 @@ public class ModRegistries {
     public static void register(IEventBus modBus) {
         RegistryHelper.registerAll(modBus,
                 ITEMS, BLOCKS, ENTITIES, CONTAINERS, TILE_ENTITIES, SOUND_EVENTS);
+
+        // Регистрируем специфические компоненты
+        ModCreativeTabs.register(modBus);
+        ModBiomes.register(modBus);
+        ModFeatures.register(modBus);
+        ModFluids.register(modBus);
     }
 }

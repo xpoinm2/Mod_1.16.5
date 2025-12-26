@@ -10,18 +10,15 @@ import net.minecraftforge.fml.RegistryObject;
 public class ModTileEntities {
 
     public static final RegistryObject<TileEntityType<FirepitTileEntity>> FIREPIT =
-            RegistryHelper.registerTileEntity("firepit",
-                    () -> TileEntityType.Builder.of(FirepitTileEntity::new, ModBlocks.FIREPIT_BLOCK.get()).build(null),
-                    ModRegistries.TILE_ENTITIES);
+            ModRegistries.TILE_ENTITIES.register("firepit",
+                    () -> TileEntityType.Builder.of(FirepitTileEntity::new, ModBlocks.FIREPIT_BLOCK.get()).build(null));
 
     public static final RegistryObject<TileEntityType<ClayPotTileEntity>> CLAY_POT =
-            RegistryHelper.registerTileEntity("clay_pot",
-                    () -> TileEntityType.Builder.of(ClayPotTileEntity::new, ModBlocks.CLAY_POT.get()).build(null),
-                    ModRegistries.TILE_ENTITIES);
+            ModRegistries.TILE_ENTITIES.register("clay_pot",
+                    () -> TileEntityType.Builder.of(ClayPotTileEntity::new, ModBlocks.CLAY_POT.get()).build(null));
 
     public static final RegistryObject<TileEntityType<SlabTileEntity>> SLAB =
-            RegistryHelper.registerTileEntity("slab",
+            ModRegistries.TILE_ENTITIES.register("slab",
                     () -> TileEntityType.Builder.of(SlabTileEntity::new,
-                            ModBlocks.BRUSHWOOD_SLAB.get(), ModBlocks.BURNED_BRUSHWOOD_SLAB.get()).build(null),
-                    ModRegistries.TILE_ENTITIES);
+                            ModBlocks.BRUSHWOOD_SLAB.get(), ModBlocks.BURNED_BRUSHWOOD_SLAB.get()).build(null));
 }

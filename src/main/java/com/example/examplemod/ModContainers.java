@@ -12,22 +12,18 @@ import net.minecraftforge.fml.RegistryObject;
 public class ModContainers {
 
     public static final RegistryObject<ContainerType<FirepitContainer>> FIREPIT =
-            RegistryHelper.registerContainer("firepit",
-                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new FirepitContainer(windowId, playerInventory, data)),
-                    ModRegistries.CONTAINERS);
+            ModRegistries.CONTAINERS.register("firepit",
+                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new FirepitContainer(windowId, playerInventory, data)));
 
     public static final RegistryObject<ContainerType<ClayPotContainer>> CLAY_POT =
-            RegistryHelper.registerContainer("clay_pot",
-                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new ClayPotContainer(windowId, playerInventory, data)),
-                    ModRegistries.CONTAINERS);
+            ModRegistries.CONTAINERS.register("clay_pot",
+                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new ClayPotContainer(windowId, playerInventory, data)));
 
     public static final RegistryObject<ContainerType<BoneTongsContainer>> BONE_TONGS =
-            RegistryHelper.registerContainer("bone_tongs",
-                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new BoneTongsContainer(windowId, playerInventory, data)),
-                    ModRegistries.CONTAINERS);
+            ModRegistries.CONTAINERS.register("bone_tongs",
+                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new BoneTongsContainer(windowId, playerInventory, data)));
 
     public static final RegistryObject<ContainerType<SlabContainer>> SLAB =
-            RegistryHelper.registerContainer("slab",
-                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new SlabContainer(windowId, playerInventory, data)),
-                    ModRegistries.CONTAINERS);
+            ModRegistries.CONTAINERS.register("slab",
+                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new SlabContainer(windowId, playerInventory, data)));
 }
