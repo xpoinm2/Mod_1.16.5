@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "ingredients": [
-    { "item": "minecraft:acacia_planks" },
-    { "tag": "minecraft:axes" }
-  ],
-  "result": { "item": "examplemod:acacia_slab", "count": 2 }
-}

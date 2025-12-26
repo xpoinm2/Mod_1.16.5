@@ -8,6 +8,7 @@ import com.example.examplemod.block.ClayPotBlock;
 import com.example.examplemod.block.ClayShardsBlock;
 import com.example.examplemod.block.RawClayPotBlock;
 import com.example.examplemod.block.DirtyWaterBlock;
+import com.example.examplemod.block.BaseSlabBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
@@ -49,179 +50,179 @@ import javax.annotation.Nullable;
 
 
 public class ModBlocks {
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ExampleMod.MODID);
+    // Используем унифицированный регистратор из ModRegistries
 
     // Костяной блок
-    public static final RegistryObject<Block> BONE_BLOCK = BLOCKS.register("bone_block",
+    public static final RegistryObject<Block> BONE_BLOCK = ModRegistries.BLOCKS.register("bone_block",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.BONE_BLOCK)));
 
     // Сырой глиняный горшок
-    public static final RegistryObject<Block> RAW_CLAY_POT = BLOCKS.register("raw_clay_pot",
+    public static final RegistryObject<Block> RAW_CLAY_POT = ModRegistries.BLOCKS.register("raw_clay_pot",
             RawClayPotBlock::new);
 
     // Глиняный горшок
-    public static final RegistryObject<Block> CLAY_POT = BLOCKS.register("clay_pot",
+    public static final RegistryObject<Block> CLAY_POT = ModRegistries.BLOCKS.register("clay_pot",
             ClayPotBlock::new);
 
     // Глиняные осколки
-    public static final RegistryObject<Block> CLAY_SHARDS = BLOCKS.register("clay_shards",
+    public static final RegistryObject<Block> CLAY_SHARDS = ModRegistries.BLOCKS.register("clay_shards",
             ClayShardsBlock::new);
 
     // Блок Данилка
-    public static final RegistryObject<Block> DANILKA_BLOCK = BLOCKS.register("danilka_block",
+    public static final RegistryObject<Block> DANILKA_BLOCK = ModRegistries.BLOCKS.register("danilka_block",
             DanilkaBlock::new);
 
     // Куст малины
-    public static final RegistryObject<Block> RASPBERRY_BUSH = BLOCKS.register("raspberry_bush",
+    public static final RegistryObject<Block> RASPBERRY_BUSH = ModRegistries.BLOCKS.register("raspberry_bush",
             RaspberryBushBlock::new);
 
     // Куст бузины чёрной
-    public static final RegistryObject<Block> ELDERBERRY_BUSH = BLOCKS.register("elderberry_bush",
+    public static final RegistryObject<Block> ELDERBERRY_BUSH = ModRegistries.BLOCKS.register("elderberry_bush",
             ElderberryBushBlock::new);
 
     // Куст клюквы
-    public static final RegistryObject<Block> CRANBERRY_BUSH = BLOCKS.register("cranberry_bush",
+    public static final RegistryObject<Block> CRANBERRY_BUSH = ModRegistries.BLOCKS.register("cranberry_bush",
             CranberryBushBlock::new);
 
     // Дягель
-    public static final RegistryObject<Block> ANGELICA = BLOCKS.register("angelica",
+    public static final RegistryObject<Block> ANGELICA = ModRegistries.BLOCKS.register("angelica",
             AngelicaBlock::new);
 
     // Растение хрена
-    public static final RegistryObject<Block> HORSERADISH_PLANT = BLOCKS.register("horseradish_plant",
+    public static final RegistryObject<Block> HORSERADISH_PLANT = ModRegistries.BLOCKS.register("horseradish_plant",
             HorseradishPlantBlock::new);
 
     // Растение имбиря
-    public static final RegistryObject<Block> GINGER_PLANT = BLOCKS.register("ginger_plant",
+    public static final RegistryObject<Block> GINGER_PLANT = ModRegistries.BLOCKS.register("ginger_plant",
             GingerPlantBlock::new);
 
     // Растение льна
-    public static final RegistryObject<Block> FLAX_PLANT = BLOCKS.register("flax_plant",
+    public static final RegistryObject<Block> FLAX_PLANT = ModRegistries.BLOCKS.register("flax_plant",
             FlaxPlantBlock::new);
 
     // Пучок трав
-    public static final RegistryObject<Block> BUNCH_OF_GRASS = BLOCKS.register("bunch_of_grass",
+    public static final RegistryObject<Block> BUNCH_OF_GRASS = ModRegistries.BLOCKS.register("bunch_of_grass",
             BunchOfGrassBlock::new);
 
     // Сушащийся лён (вешается под листвой)
-    public static final RegistryObject<Block> HANGING_FLAX = BLOCKS.register("hanging_flax",
+    public static final RegistryObject<Block> HANGING_FLAX = ModRegistries.BLOCKS.register("hanging_flax",
             HangingFlaxBlock::new);
 
     // Высушенный лён
-    public static final RegistryObject<Block> DRIED_FLAX = BLOCKS.register("dried_flax",
+    public static final RegistryObject<Block> DRIED_FLAX = ModRegistries.BLOCKS.register("dried_flax",
             DriedFlaxBlock::new);
 
     // Полублок хвороста
-    public static final RegistryObject<Block> BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab",
+    public static final RegistryObject<Block> BRUSHWOOD_SLAB = ModRegistries.BLOCKS.register("brushwood_slab",
             BrushwoodSlabBlock::new);
 
     // Обгоревший полублок хвороста
-    public static final RegistryObject<Block> BURNED_BRUSHWOOD_SLAB = BLOCKS.register("brushwood_slab_burnt",
+    public static final RegistryObject<Block> BURNED_BRUSHWOOD_SLAB = ModRegistries.BLOCKS.register("brushwood_slab_burnt",
             BurnedBrushwoodSlabBlock::new);
 
     // Полублок дуба
-    public static final RegistryObject<Block> OAK_SLAB = BLOCKS.register("oak_slab",
+    public static final RegistryObject<Block> OAK_SLAB = ModRegistries.BLOCKS.register("oak_slab",
             OakSlabBlock::new);
 
     // Полублок березы
-    public static final RegistryObject<Block> BIRCH_SLAB = BLOCKS.register("birch_slab",
+    public static final RegistryObject<Block> BIRCH_SLAB = ModRegistries.BLOCKS.register("birch_slab",
             BirchSlabBlock::new);
 
     // Полублок ели
-    public static final RegistryObject<Block> SPRUCE_SLAB = BLOCKS.register("spruce_slab",
+    public static final RegistryObject<Block> SPRUCE_SLAB = ModRegistries.BLOCKS.register("spruce_slab",
             SpruceSlabBlock::new);
 
     // Полублок тропического дерева
-    public static final RegistryObject<Block> JUNGLE_SLAB = BLOCKS.register("jungle_slab",
+    public static final RegistryObject<Block> JUNGLE_SLAB = ModRegistries.BLOCKS.register("jungle_slab",
             JungleSlabBlock::new);
 
     // Полублок акации
-    public static final RegistryObject<Block> ACACIA_SLAB = BLOCKS.register("acacia_slab",
+    public static final RegistryObject<Block> ACACIA_SLAB = ModRegistries.BLOCKS.register("acacia_slab",
             AcaciaSlabBlock::new);
 
     // Полублок темного дуба
-    public static final RegistryObject<Block> DARK_OAK_SLAB = BLOCKS.register("dark_oak_slab",
+    public static final RegistryObject<Block> DARK_OAK_SLAB = ModRegistries.BLOCKS.register("dark_oak_slab",
             DarkOakSlabBlock::new);
 
     // Полублок багрового дерева
-    public static final RegistryObject<Block> CRIMSON_SLAB = BLOCKS.register("crimson_slab",
+    public static final RegistryObject<Block> CRIMSON_SLAB = ModRegistries.BLOCKS.register("crimson_slab",
             CrimsonSlabBlock::new);
 
     // Полублок искаженного дерева
-    public static final RegistryObject<Block> WARPED_SLAB = BLOCKS.register("warped_slab",
+    public static final RegistryObject<Block> WARPED_SLAB = ModRegistries.BLOCKS.register("warped_slab",
             WarpedSlabBlock::new);
 
     // Полублок камня
-    public static final RegistryObject<Block> STONE_SLAB = BLOCKS.register("stone_slab",
+    public static final RegistryObject<Block> STONE_SLAB = ModRegistries.BLOCKS.register("stone_slab",
             StoneSlabBlock::new);
 
     // Блок кострища (часть мультиструктуры 4x4)
-    public static final RegistryObject<Block> FIREPIT_BLOCK = BLOCKS.register("firepit_block",
+    public static final RegistryObject<Block> FIREPIT_BLOCK = ModRegistries.BLOCKS.register("firepit_block",
             FirepitBlock::new);
 
     // Железная руда с примесями
-    public static final RegistryObject<Block> IMPURE_IRON_ORE = BLOCKS.register("impure_iron_ore",
+    public static final RegistryObject<Block> IMPURE_IRON_ORE = ModRegistries.BLOCKS.register("impure_iron_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
 
     // Пиритовая жила
-    public static final RegistryObject<Block> PYRITE = BLOCKS.register("pyrite",
+    public static final RegistryObject<Block> PYRITE = ModRegistries.BLOCKS.register("pyrite",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.COAL_ORE)));
 
     // Гравийная оловянная руда
-    public static final RegistryObject<Block> TIN_GRAVEL_ORE = BLOCKS.register("tin_gravel_ore",
+    public static final RegistryObject<Block> TIN_GRAVEL_ORE = ModRegistries.BLOCKS.register("tin_gravel_ore",
             () -> new FallingBlock(AbstractBlock.Properties.copy(Blocks.GRAVEL)
                     .strength(0.6F)
                     .harvestTool(net.minecraftforge.common.ToolType.SHOVEL)
                     .harvestLevel(0)));
 
     // Оловянная руда
-    public static final RegistryObject<Block> TIN_ORE = BLOCKS.register("tin_ore",
+    public static final RegistryObject<Block> TIN_ORE = ModRegistries.BLOCKS.register("tin_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)
                     .strength(1.5F, 6.0F)
                     .harvestTool(net.minecraftforge.common.ToolType.PICKAXE)
                     .harvestLevel(1)));
 
     // Гравийная золотая руда
-    public static final RegistryObject<Block> GOLD_GRAVEL_ORE = BLOCKS.register("gold_gravel_ore",
+    public static final RegistryObject<Block> GOLD_GRAVEL_ORE = ModRegistries.BLOCKS.register("gold_gravel_ore",
             () -> new FallingBlock(AbstractBlock.Properties.copy(Blocks.GRAVEL)
                     .strength(0.6F)
                     .harvestTool(net.minecraftforge.common.ToolType.SHOVEL)
                     .harvestLevel(0)));
 
     // Неочищенная оловянная руда
-    public static final RegistryObject<Block> UNREFINED_TIN_ORE = BLOCKS.register("unrefined_tin_ore",
+    public static final RegistryObject<Block> UNREFINED_TIN_ORE = ModRegistries.BLOCKS.register("unrefined_tin_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
 
     // Неочищенная золотая руда
-    public static final RegistryObject<Block> UNREFINED_GOLD_ORE = BLOCKS.register("unrefined_gold_ore",
+    public static final RegistryObject<Block> UNREFINED_GOLD_ORE = ModRegistries.BLOCKS.register("unrefined_gold_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.GOLD_ORE)));
 
 
     // Райский блок
-    public static final RegistryObject<Block> PARADISE_BLOCK = BLOCKS.register("paradise_block",
+    public static final RegistryObject<Block> PARADISE_BLOCK = ModRegistries.BLOCKS.register("paradise_block",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.QUARTZ_BLOCK)
                     .strength(-1.0F, 3600000.0F)
                     .noDrops()
                     .lightLevel(state -> 12)));
 
     // Райская дверь
-    public static final RegistryObject<Block> PARADISE_DOOR = BLOCKS.register("paradise_door",
+    public static final RegistryObject<Block> PARADISE_DOOR = ModRegistries.BLOCKS.register("paradise_door",
             ParadiseDoorBlock::new);
 
     // Райская ограда
-    public static final RegistryObject<Block> PARADISE_FENCE = BLOCKS.register("paradise_fence",
+    public static final RegistryObject<Block> PARADISE_FENCE = ModRegistries.BLOCKS.register("paradise_fence",
             () -> new WallBlock(AbstractBlock.Properties.copy(Blocks.COBBLESTONE_WALL)
                     .strength(-1.0F, 3600000.0F)
                     .noDrops()
                     .lightLevel(state -> 12)));
 
     // Блок грязной воды
-    public static final RegistryObject<Block> DIRTY_WATER_BLOCK = BLOCKS.register("dirty_water",
+    public static final RegistryObject<Block> DIRTY_WATER_BLOCK = ModRegistries.BLOCKS.register("dirty_water",
             DirtyWaterBlock::new);
 
 
     public static void register(IEventBus bus) {
-        BLOCKS.register(bus);
+        ModRegistries.BLOCKS.register(bus);
     }
 
     // === Класс блока куста малины ===
@@ -540,104 +541,65 @@ public class ModBlocks {
         }
     }
 
-    // === Базовый класс полублока с GUI ===
-    public static abstract class ModSlabBlock extends SlabBlock {
-        public ModSlabBlock(AbstractBlock.Properties properties) {
-            super(properties);
-        }
-
-        @Override
-        public boolean hasTileEntity(BlockState state) {
-            return true;
-        }
-
-        @Nullable
-        @Override
-        public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-            return ModTileEntities.SLAB.get().create();
-        }
-
-        @Override
-        @SuppressWarnings("deprecation")
-        public ActionResultType use(BlockState state, World world, BlockPos pos,
-                                    PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
-            if (world.isClientSide) {
-                return ActionResultType.SUCCESS;
-            }
-
-            TileEntity tile = world.getBlockEntity(pos);
-            if (tile instanceof SlabTileEntity) {
-                INamedContainerProvider provider = new SimpleNamedContainerProvider(
-                        (windowId, playerInventory, playerEntity) -> new SlabContainer(windowId, playerInventory, (SlabTileEntity) tile),
-                        new TranslationTextComponent("container.examplemod.slab")
-                );
-                if (player instanceof ServerPlayerEntity) {
-                    NetworkHooks.openGui((ServerPlayerEntity) player, provider, pos);
-                }
-            }
-
-            return ActionResultType.CONSUME;
-        }
-    }
 
     // === Класс полублока дуба ===
-    public static class OakSlabBlock extends ModSlabBlock {
+    public static class OakSlabBlock extends BaseSlabBlock {
         public OakSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.OAK_SLAB));
         }
     }
 
     // === Класс полублока березы ===
-    public static class BirchSlabBlock extends ModSlabBlock {
+    public static class BirchSlabBlock extends BaseSlabBlock {
         public BirchSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.BIRCH_SLAB));
         }
     }
 
     // === Класс полублока ели ===
-    public static class SpruceSlabBlock extends ModSlabBlock {
+    public static class SpruceSlabBlock extends BaseSlabBlock {
         public SpruceSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.SPRUCE_SLAB));
         }
     }
 
     // === Класс полублока тропического дерева ===
-    public static class JungleSlabBlock extends ModSlabBlock {
+    public static class JungleSlabBlock extends BaseSlabBlock {
         public JungleSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.JUNGLE_SLAB));
         }
     }
 
     // === Класс полублока акации ===
-    public static class AcaciaSlabBlock extends ModSlabBlock {
+    public static class AcaciaSlabBlock extends BaseSlabBlock {
         public AcaciaSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.ACACIA_SLAB));
         }
     }
 
     // === Класс полублока темного дуба ===
-    public static class DarkOakSlabBlock extends ModSlabBlock {
+    public static class DarkOakSlabBlock extends BaseSlabBlock {
         public DarkOakSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.DARK_OAK_SLAB));
         }
     }
 
     // === Класс полублока багрового дерева ===
-    public static class CrimsonSlabBlock extends ModSlabBlock {
+    public static class CrimsonSlabBlock extends BaseSlabBlock {
         public CrimsonSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.CRIMSON_SLAB));
         }
     }
 
     // === Класс полублока искаженного дерева ===
-    public static class WarpedSlabBlock extends ModSlabBlock {
+    public static class WarpedSlabBlock extends BaseSlabBlock {
         public WarpedSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.WARPED_SLAB));
         }
     }
 
     // === Класс полублока камня ===
-    public static class StoneSlabBlock extends ModSlabBlock {
+    public static class StoneSlabBlock extends BaseSlabBlock {
         public StoneSlabBlock() {
             super(AbstractBlock.Properties.copy(Blocks.STONE_SLAB));
         }

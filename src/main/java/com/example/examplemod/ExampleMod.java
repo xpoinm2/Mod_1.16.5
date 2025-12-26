@@ -17,6 +17,7 @@ import com.example.examplemod.ModContainers;
 import com.example.examplemod.ModEntities;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.ModFluids;
+import com.example.examplemod.ModRegistries;
 import com.example.examplemod.server.ThirstHandler;
 import com.example.examplemod.server.RestHandler;
 import com.example.examplemod.server.BlockBreakHandler;
@@ -72,13 +73,14 @@ public class ExampleMod {
 
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        // Унифицированная регистрация всех компонентов
+        ModRegistries.register(modBus);
+
+        // Регистрация специфических компонентов
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
-        ModSounds.register(modBus);
-        ModContainers.register(modBus);
-        ModTileEntities.register(modBus);
-        ModEntities.ENTITIES.register(modBus);
         ModBiomes.register(modBus);
         ModFeatures.register(modBus);
         ModFluids.register(modBus);

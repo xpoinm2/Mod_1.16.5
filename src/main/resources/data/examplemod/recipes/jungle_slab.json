@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "ingredients": [
-    { "item": "minecraft:jungle_planks" },
-    { "tag": "minecraft:axes" }
-  ],
-  "result": { "item": "examplemod:jungle_slab", "count": 2 }
-}

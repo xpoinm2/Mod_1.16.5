@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "ingredients": [
-    { "item": "minecraft:warped_planks" },
-    { "tag": "minecraft:axes" }
-  ],
-  "result": { "item": "examplemod:warped_slab", "count": 2 }
-}
