@@ -8,7 +8,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.math.BlockPos;
@@ -105,7 +105,8 @@ public class SlabContainer extends Container {
                 }
             } else {
                 // Из инвентаря игрока в контейнер
-                if (!this.moveItemStackTo(stack, 0, containerSlots, false)) {
+                // Проверяем, что предмет можно положить в контейнер (только обычные предметы)
+                if (canPlaceItemInSlab(stack) && !this.moveItemStackTo(stack, 0, containerSlots, false)) {
                     return ItemStack.EMPTY;
                 }
             }
@@ -129,6 +130,35 @@ public class SlabContainer extends Container {
         return tileEntity.getBlockPos();
     }
 
+    /**
+     * Проверяет, можно ли положить предмет в полублок.
+     * Разрешаются только обычные предметы, блоки и инструменты запрещены.
+     */
+    private boolean canPlaceItemInSlab(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        
+        Item item = stack.getItem();
+        
+        // Запрещаем блоки
+        if (item instanceof BlockItem) {
+            return false;
+        }
+        
+        // Запрещаем инструменты
+        if (item instanceof PickaxeItem
+                || item instanceof AxeItem
+                || item instanceof ShovelItem
+                || item instanceof HoeItem
+                || item instanceof SwordItem) {
+            return false;
+        }
+        
+        // Разрешаем все остальные предметы
+        return true;
+    }
+
     private final class SlabSlot extends SlotItemHandler {
         public SlabSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
@@ -136,8 +166,8 @@ public class SlabContainer extends Container {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            // Разрешаем любые предметы, как в сундуке
-            return !stack.isEmpty();
+            // Разрешаем только обычные предметы, блоки и инструменты запрещены
+            return canPlaceItemInSlab(stack);
         }
     }
 }
