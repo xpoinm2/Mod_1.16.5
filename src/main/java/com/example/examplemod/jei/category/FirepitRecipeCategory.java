@@ -1,6 +1,7 @@
 package com.example.examplemod.jei.category;
 
 import com.example.examplemod.ModBlocks;
+import com.example.examplemod.jei.ExampleModJEIPlugin;
 import com.example.examplemod.jei.recipe.FirepitRecipe;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mezz.jei.api.constants.VanillaTypes;
