@@ -161,6 +161,10 @@ public class ModItems {
     public static final RegistryObject<Item> RAW_CLAY_BRICK = ModRegistries.ITEMS.register("raw_clay_brick",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Сушеный глиняный кирпич: получается при сушке сырого кирпича на полублоке
+    public static final RegistryObject<Item> DRIED_CLAY_BRICK = ModRegistries.ITEMS.register("dried_clay_brick",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Глиняная чашка: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_CUP = ModRegistries.ITEMS.register("clay_cup",
             () -> new ClayCupItem(new Item.Properties()

@@ -71,6 +71,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleItem(ModItems.CLAY_MASS);
         simpleItem(ModItems.RAW_CLAY_CUP);
         simpleItem(ModItems.RAW_CLAY_BRICK);
+        simpleItem(ModItems.DRIED_CLAY_BRICK);
         simpleItem(ModItems.WOODEN_COMB);
         simpleItem(ModItems.BONE_COMB);
         
