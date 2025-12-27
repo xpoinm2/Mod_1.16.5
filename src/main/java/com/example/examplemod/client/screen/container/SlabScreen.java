@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
 public class SlabScreen extends ContainerScreen<SlabContainer> {
-    private static final ResourceLocation BACKGROUND_TEXTURE =
+    private static final ResourceLocation CONTAINER_TEXTURE =
             new ResourceLocation("minecraft", "textures/gui/container/generic_54.png");
 
     public SlabScreen(SlabContainer screenContainer, PlayerInventory inv, ITextComponent title) {
@@ -25,9 +25,16 @@ public class SlabScreen extends ContainerScreen<SlabContainer> {
     @Override
     protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(BACKGROUND_TEXTURE);
-        blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight,
-                this.imageWidth, this.imageHeight);
+        this.minecraft.getTextureManager().bind(CONTAINER_TEXTURE);
+        
+        // Рисуем серый фон верхней части (фон для контейнера без нарисованных слотов)
+        blit(matrixStack, this.leftPos, this.topPos, 0, 0, 176, 54, 256, 256);
+        
+        // Рисуем серый фон нижней части (инвентарь игрока)
+        blit(matrixStack, this.leftPos, this.topPos + 54, 0, 126, 176, 97, 256, 256);
+        
+        // Окоемки слотов рисуются автоматически системой Minecraft для каждого слота
+        // Нам нужно только обеспечить правильный серый фон
     }
 
     @Override
