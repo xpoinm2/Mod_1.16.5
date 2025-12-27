@@ -8,7 +8,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IWorldPosCallable;
@@ -106,7 +105,7 @@ public class SlabContainer extends Container {
                 }
             } else {
                 // Из инвентаря игрока в контейнер
-                if (canPlaceItemInSlab(stack) && !this.moveItemStackTo(stack, 0, containerSlots, false)) {
+                if (!this.moveItemStackTo(stack, 0, containerSlots, false)) {
                     return ItemStack.EMPTY;
                 }
             }
@@ -126,11 +125,6 @@ public class SlabContainer extends Container {
         return result;
     }
 
-    private boolean canPlaceItemInSlab(ItemStack stack) {
-        // Разрешаем только твердые предметы, блоки запрещены
-        return !stack.isEmpty() && !(stack.getItem() instanceof BlockItem);
-    }
-
     public BlockPos getBlockPos() {
         return tileEntity.getBlockPos();
     }
@@ -142,7 +136,8 @@ public class SlabContainer extends Container {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return canPlaceItemInSlab(stack);
+            // Разрешаем любые предметы, как в сундуке
+            return !stack.isEmpty();
         }
     }
 }

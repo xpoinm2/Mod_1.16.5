@@ -5,6 +5,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.client.render.FirepitRenderer;
+import com.example.examplemod.client.render.SlabTileEntityRenderer;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,6 +28,9 @@ public final class ClientSetup {
 
         // Register firepit smoke renderer
         ClientRegistry.bindTileEntityRenderer(ModTileEntities.FIREPIT.get(), FirepitRenderer::new);
+        
+        // Register slab item renderer
+        ClientRegistry.bindTileEntityRenderer(ModTileEntities.SLAB.get(), SlabTileEntityRenderer::new);
         event.enqueueWork(() -> {
             BlockColors blockColors = Minecraft.getInstance().getBlockColors();
             blockColors.register((state, world, pos, tintIndex) -> {

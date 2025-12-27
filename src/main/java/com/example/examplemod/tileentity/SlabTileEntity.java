@@ -2,15 +2,12 @@ package com.example.examplemod.tileentity;
 
 import com.example.examplemod.ModTileEntities;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -27,6 +24,12 @@ public class SlabTileEntity extends TileEntity {
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
             SlabTileEntity.this.setChanged();
+            // Отправляем обновление клиенту для визуализации предметов
+            if (SlabTileEntity.this.level != null && !SlabTileEntity.this.level.isClientSide) {
+                SlabTileEntity.this.level.sendBlockUpdated(SlabTileEntity.this.worldPosition, 
+                    SlabTileEntity.this.getBlockState(), 
+                    SlabTileEntity.this.getBlockState(), 3);
+            }
         }
     };
 
