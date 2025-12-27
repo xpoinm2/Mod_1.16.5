@@ -6,12 +6,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
 public class SlabScreen extends ContainerScreen<SlabContainer> {
-    private static final ResourceLocation CRAFTING_TABLE_TEXTURE =
-            new ResourceLocation("minecraft", "textures/gui/container/crafting_table.png");
 
     public SlabScreen(SlabContainer screenContainer, PlayerInventory inv, ITextComponent title) {
         super(screenContainer, inv, title);
@@ -50,15 +47,49 @@ public class SlabScreen extends ContainerScreen<SlabContainer> {
         AbstractGui.fill(matrixStack, this.leftPos + 1, this.topPos + 54, this.leftPos + this.imageWidth - 1, this.topPos + 54, 0xFF373737);
         AbstractGui.fill(matrixStack, this.leftPos + 1, this.topPos + 55, this.leftPos + this.imageWidth - 1, this.topPos + 55, 0xFF8B8B8B);
         
-        // Рисуем окоёмку для сетки 3x3 в стиле ванильного верстака
-        // Используем текстуру верстака для окоёмки сетки
-        // В ванильном верстаке окоёмка сетки находится на координатах (7, 17) размером 58x58
-        // Наша сетка начинается с (62, 17), поэтому сдвигаем окоёмку на правильную позицию
-        this.minecraft.getTextureManager().bind(CRAFTING_TABLE_TEXTURE);
-        int frameX = this.leftPos + SlabContainer.GRID_START_X - 1;
-        int frameY = this.topPos + SlabContainer.GRID_START_Y - 1;
-        // Координаты окоёмки на текстуре верстака: (7, 17) размер 58x58 (включая рамку вокруг сетки 3x3)
-        blit(matrixStack, frameX, frameY, 7, 17, 58, 58, 256, 256);
+        // Рисуем темно-серую окоёмку вокруг сетки 3x3
+        // Сетка начинается с координат GRID_START_X = 62, GRID_START_Y = 17
+        // Размер сетки: 3x3 = 54x54 пикселей (3 * 18)
+        int gridLeft = this.leftPos + SlabContainer.GRID_START_X - 1;
+        int gridTop = this.topPos + SlabContainer.GRID_START_Y - 1;
+        int gridRight = gridLeft + 54 + 2; // 54 + 2 пикселя для рамки
+        int gridBottom = gridTop + 54 + 2;
+        
+        // Темно-серая рамка (цвет как у внутренней темной рамки GUI)
+        AbstractGui.fill(matrixStack, gridLeft, gridTop, gridRight, gridTop + 1, 0xFF555555);
+        AbstractGui.fill(matrixStack, gridLeft, gridBottom - 1, gridRight, gridBottom, 0xFF555555);
+        AbstractGui.fill(matrixStack, gridLeft, gridTop, gridLeft + 1, gridBottom, 0xFF555555);
+        AbstractGui.fill(matrixStack, gridRight - 1, gridTop, gridRight, gridBottom, 0xFF555555);
+        
+        // Рисуем темно-серые окоёмки для слотов инвентаря игрока (3x9)
+        // Инвентарь начинается с координат x=8, y=84
+        int invLeft = this.leftPos + 7; // 8 - 1 для рамки
+        int invTop = this.topPos + 83; // 84 - 1 для рамки
+        int invWidth = 9 * 18 + 2; // 9 слотов * 18 + 2 пикселя для рамки
+        int invHeight = 3 * 18 + 2; // 3 ряда * 18 + 2 пикселя для рамки
+        int invRight = invLeft + invWidth;
+        int invBottom = invTop + invHeight;
+        
+        // Темно-серая рамка вокруг инвентаря
+        AbstractGui.fill(matrixStack, invLeft, invTop, invRight, invTop + 1, 0xFF555555);
+        AbstractGui.fill(matrixStack, invLeft, invBottom - 1, invRight, invBottom, 0xFF555555);
+        AbstractGui.fill(matrixStack, invLeft, invTop, invLeft + 1, invBottom, 0xFF555555);
+        AbstractGui.fill(matrixStack, invRight - 1, invTop, invRight, invBottom, 0xFF555555);
+        
+        // Рисуем темно-серые окоёмки для слотов хотбара (1x9)
+        // Хотбар начинается с координат x=8, y=142
+        int hotbarLeft = this.leftPos + 7; // 8 - 1 для рамки
+        int hotbarTop = this.topPos + 141; // 142 - 1 для рамки
+        int hotbarWidth = 9 * 18 + 2; // 9 слотов * 18 + 2 пикселя для рамки
+        int hotbarHeight = 18 + 2; // 1 ряд * 18 + 2 пикселя для рамки
+        int hotbarRight = hotbarLeft + hotbarWidth;
+        int hotbarBottom = hotbarTop + hotbarHeight;
+        
+        // Темно-серая рамка вокруг хотбара
+        AbstractGui.fill(matrixStack, hotbarLeft, hotbarTop, hotbarRight, hotbarTop + 1, 0xFF555555);
+        AbstractGui.fill(matrixStack, hotbarLeft, hotbarBottom - 1, hotbarRight, hotbarBottom, 0xFF555555);
+        AbstractGui.fill(matrixStack, hotbarLeft, hotbarTop, hotbarLeft + 1, hotbarBottom, 0xFF555555);
+        AbstractGui.fill(matrixStack, hotbarRight - 1, hotbarTop, hotbarRight, hotbarBottom, 0xFF555555);
     }
 
     @Override
