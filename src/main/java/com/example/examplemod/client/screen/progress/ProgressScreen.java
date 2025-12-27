@@ -1,4 +1,4 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.progress;
 
 import com.example.examplemod.client.FramedButton;
 import com.mojang.blaze3d.matrix.MatrixStack;

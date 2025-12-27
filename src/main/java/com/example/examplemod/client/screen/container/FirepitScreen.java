@@ -1,4 +1,4 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.container;
 
 import com.example.examplemod.container.FirepitContainer;
 import com.example.examplemod.tileentity.FirepitTileEntity;

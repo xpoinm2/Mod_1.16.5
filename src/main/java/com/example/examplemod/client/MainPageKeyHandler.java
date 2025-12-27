@@ -1,7 +1,7 @@
 package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.client.screen.PlayerInterfaceScreen;
+import com.example.examplemod.client.screen.main.PlayerInterfaceScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;

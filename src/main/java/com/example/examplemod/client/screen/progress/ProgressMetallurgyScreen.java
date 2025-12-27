@@ -1,9 +1,10 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.progress;
 
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.ItemIconButton;
+import com.example.examplemod.client.screen.quest.*;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -111,7 +112,7 @@ public class ProgressMetallurgyScreen extends Screen {
 
         this.startSmithingButton = new ItemIconButton(baseX, baseY,
                 new ItemStack(ModItems.IMPURE_IRON_ORE.get()),
-                b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.StartSmithingQuestScreen(this)),
+                b -> this.minecraft.setScreen(new StartSmithingQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Начало кузнечного дела")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
@@ -122,7 +123,7 @@ public class ProgressMetallurgyScreen extends Screen {
 
         this.ironClusterButton = new ItemIconButton(baseX + spacingX, baseY,
                 new ItemStack(ModItems.IRON_ORE_GRAVEL.get()),
-                b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.IronClusterQuestScreen(this)),
+                b -> this.minecraft.setScreen(new IronClusterQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Железный рудный гравий")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
@@ -133,7 +134,7 @@ public class ProgressMetallurgyScreen extends Screen {
 
         this.pureIronOreButton = new ItemIconButton(baseX + spacingX * 2, baseY,
                 new ItemStack(ModItems.PURE_IRON_ORE.get()),
-                b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.PureIronOreQuestScreen(this)),
+                b -> this.minecraft.setScreen(new PureIronOreQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Очищенная гравийная железная руда")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
@@ -144,7 +145,7 @@ public class ProgressMetallurgyScreen extends Screen {
 
         this.pyriteButton = new ItemIconButton(baseX, baseY + spacingY,
                 new ItemStack(ModItems.PYRITE_PIECE.get()),
-                b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.PyriteQuestScreen(this)),
+                b -> this.minecraft.setScreen(new PyriteQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Пирит")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
@@ -155,7 +156,7 @@ public class ProgressMetallurgyScreen extends Screen {
 
         this.pyriteFlintButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
                 new ItemStack(ModItems.PYRITE_FLINT.get()),
-                b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.PyriteFlintQuestScreen(this)),
+                b -> this.minecraft.setScreen(new PyriteFlintQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Пиритовое огниво")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
@@ -166,7 +167,7 @@ public class ProgressMetallurgyScreen extends Screen {
 
         this.firepitButton = new ItemIconButton(baseX + spacingX * 2, baseY + spacingY,
                 new ItemStack(ModItems.FIREPIT_BLOCK.get()),
-                b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.FirepitQuestScreen(this)),
+                b -> this.minecraft.setScreen(new FirepitQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Кострище")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
@@ -186,7 +187,7 @@ public class ProgressMetallurgyScreen extends Screen {
 
         this.calcinedIronOreButton = new ItemIconButton(baseX + spacingX * 3, baseY + spacingY,
                 new ItemStack(ModItems.CALCINED_IRON_ORE.get()),
-                b -> this.minecraft.setScreen(new com.example.examplemod.client.screen.CalcinedIronOreQuestScreen(this)),
+                b -> this.minecraft.setScreen(new CalcinedIronOreQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Обожжённая железная руда")
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),

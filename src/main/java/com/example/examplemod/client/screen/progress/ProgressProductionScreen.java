@@ -1,9 +1,10 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.progress;
 
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.ItemIconButton;
+import com.example.examplemod.client.screen.quest.*;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;

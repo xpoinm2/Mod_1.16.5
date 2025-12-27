@@ -1,7 +1,7 @@
 package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.client.screen.ActivityScreen;
+import com.example.examplemod.client.screen.main.ActivityScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.api.distmarker.Dist;

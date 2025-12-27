@@ -1,7 +1,7 @@
 package com.example.examplemod.client;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.client.screen.PlayerInterfaceScreen;
+import com.example.examplemod.client.screen.main.PlayerInterfaceScreen;
 import com.example.examplemod.client.FramedButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.CraftingScreen;

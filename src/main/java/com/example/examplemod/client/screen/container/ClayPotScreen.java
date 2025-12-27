@@ -1,4 +1,4 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.container;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.ModFluids;

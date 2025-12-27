@@ -1,4 +1,4 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.main;
 
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.capability.IPlayerStats;

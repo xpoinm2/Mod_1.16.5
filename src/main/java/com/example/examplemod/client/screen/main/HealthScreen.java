@@ -1,4 +1,4 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.main;
 
 import com.example.examplemod.capability.IPlayerStats;
 import com.example.examplemod.capability.PlayerStatsProvider;
@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
-import com.example.examplemod.client.screen.DiseasesScreen;
+import com.example.examplemod.client.screen.main.DiseasesScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

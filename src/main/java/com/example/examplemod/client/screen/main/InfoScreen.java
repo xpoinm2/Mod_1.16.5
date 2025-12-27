@@ -1,10 +1,10 @@
-package com.example.examplemod.client.screen;
+package com.example.examplemod.client.screen.main;
 
 import com.example.examplemod.client.FramedButton;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
-import com.example.examplemod.client.screen.HiddenValuesScreen;
+import com.example.examplemod.client.screen.main.HiddenValuesScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

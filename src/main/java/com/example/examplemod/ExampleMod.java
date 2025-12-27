@@ -2,10 +2,10 @@ package com.example.examplemod;
 
 import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
-import com.example.examplemod.client.screen.BoneTongsScreen;
-import com.example.examplemod.client.screen.ClayPotScreen;
-import com.example.examplemod.client.screen.FirepitScreen;
-import com.example.examplemod.client.screen.SlabScreen;
+import com.example.examplemod.client.screen.container.BoneTongsScreen;
+import com.example.examplemod.client.screen.container.ClayPotScreen;
+import com.example.examplemod.client.screen.container.FirepitScreen;
+import com.example.examplemod.client.screen.container.SlabScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
 import com.example.examplemod.world.ModFeatures;
