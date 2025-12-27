@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "examplemod:fired_brick"
+    },
+    {
+      "item": "examplemod:fired_brick"
+    },
+    {
+      "item": "examplemod:clay_mass"
+    }
+  ],
+  "result": {
+    "item": "examplemod:clay_funnel"
+  }
+}
+
