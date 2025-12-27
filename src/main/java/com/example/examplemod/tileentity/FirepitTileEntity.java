@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 public class FirepitTileEntity extends LockableTileEntity implements ITickableTileEntity {
     public static final int COOK_TIME_TOTAL = 400;
     public static final int CLAY_OVERCOOK_TIME = 300; // 15 seconds for clay items to turn into shards
+    public static final int DRIED_BRICK_FIRE_TIME = 800; // 40 seconds for dried brick to turn into fired brick
+    public static final int FIRED_BRICK_OVERCOOK_TIME = 400; // 20 seconds for fired brick to turn into shards
     public static final int GRID_SLOT_COUNT = 12;
     public static final int FUEL_SLOT = GRID_SLOT_COUNT;
     public static final int MAX_HEAT = 100;
@@ -162,11 +164,29 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         }
 
         if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
+            // When heated, process all smeltable items
             if (processCookingCycle()) {
                 changed = true;
             }
-        } else if (!hasInput) {
-            resetCookingProgress();
+        } else {
+            // If not heated enough or no input, reset cooking progress for all items
+            if (!hasInput) {
+                resetCookingProgress();
+            } else {
+                // Reset cooking progress for all items when not heated
+                for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+                    if (slotCookTimes[i] != 0) {
+                        slotCookTimes[i] = 0;
+                        // Keep stage for items that can resume cooking (clay items, bricks)
+                        // but reset for ore items
+                        if (!isOreItem(items.get(i))) {
+                            // Keep stage for clay items and bricks
+                        } else {
+                            slotCookingStages[i] = 0;
+                        }
+                    }
+                }
+            }
         }
 
         updateCookProgress();
@@ -202,6 +222,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                     if (isRawClayItem(stack) && slotCookingStages[i] == 0) {
                         slotCookingStages[i] = 1; // Start overcooking stage
                         storeCookingStage(result, 1); // Store stage in the result item
+                    } else if (isDriedBrick(stack) && slotCookingStages[i] == 0) {
+                        // Dried brick -> Fired brick, start overcooking stage
+                        slotCookingStages[i] = 1;
+                        storeCookingStage(result, 1);
                     } else {
                         slotCookingStages[i] = 0; // Reset stage
                         storeCookingStage(result, 0); // Store stage in the result item
@@ -254,8 +278,16 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return stack.getItem() == ModItems.CLAY_CUP.get() || stack.getItem() == ModItems.CLAY_POT.get();
     }
 
+    private boolean isDriedBrick(ItemStack stack) {
+        return stack.getItem() == ModItems.DRIED_CLAY_BRICK.get();
+    }
+
+    private boolean isFiredBrick(ItemStack stack) {
+        return stack.getItem() == ModItems.FIRED_BRICK.get();
+    }
+
     private void storeCookingStage(ItemStack stack, int stage) {
-        if (!stack.isEmpty() && (isRawClayItem(stack) || isFinishedClayItem(stack))) {
+        if (!stack.isEmpty() && (isRawClayItem(stack) || isFinishedClayItem(stack) || isDriedBrick(stack) || isFiredBrick(stack))) {
             CompoundNBT nbt = stack.getOrCreateTag();
             nbt.putInt("CookingStage", stage);
         }
@@ -278,6 +310,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return COOK_TIME_TOTAL;
         } else if (isFinishedClayItem(stack) && stage == 1) {
             return CLAY_OVERCOOK_TIME;
+        } else if (isDriedBrick(stack) && stage == 0) {
+            return DRIED_BRICK_FIRE_TIME;
+        } else if (isFiredBrick(stack) && stage == 1) {
+            return FIRED_BRICK_OVERCOOK_TIME;
         }
         return COOK_TIME_TOTAL;
     }
@@ -303,6 +339,10 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         } else if (stack.getItem() == ModItems.RAW_CLAY_POT.get() && stage == 0) {
             return new ItemStack(ModItems.CLAY_POT.get());
         } else if (stack.getItem() == ModItems.CLAY_POT.get() && stage == 1) {
+            return new ItemStack(ModItems.CLAY_SHARDS.get());
+        } else if (stack.getItem() == ModItems.DRIED_CLAY_BRICK.get() && stage == 0) {
+            return new ItemStack(ModItems.FIRED_BRICK.get());
+        } else if (stack.getItem() == ModItems.FIRED_BRICK.get() && stage == 1) {
             return new ItemStack(ModItems.CLAY_SHARDS.get());
         }
         return stack; // fallback
@@ -385,6 +425,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                 } else if (isRawClayItem(stack)) {
                     // Raw clay items start at stage 0
                     slotCookingStages[i] = 0;
+                } else if (isFiredBrick(stack)) {
+                    // Fired brick should start overcooking immediately
+                    slotCookingStages[i] = 1;
+                } else if (isDriedBrick(stack)) {
+                    // Dried brick starts at stage 0
+                    slotCookingStages[i] = 0;
                 }
                 // For other items (like iron ore), keep stage 0
             }
@@ -413,7 +459,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
                 || stack.getItem() == ModItems.CLAY_CUP.get()
                 || stack.getItem() == ModItems.RAW_CLAY_POT.get()
-                || stack.getItem() == ModItems.CLAY_POT.get();
+                || stack.getItem() == ModItems.CLAY_POT.get()
+                || stack.getItem() == ModItems.DRIED_CLAY_BRICK.get()
+                || stack.getItem() == ModItems.FIRED_BRICK.get();
     }
 
 

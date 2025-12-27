@@ -165,6 +165,10 @@ public class ModItems {
     public static final RegistryObject<Item> DRIED_CLAY_BRICK = ModRegistries.ITEMS.register("dried_clay_brick",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Обоженный кирпич: получается при обжиге сушеного кирпича в кострище
+    public static final RegistryObject<Item> FIRED_BRICK = ModRegistries.ITEMS.register("fired_brick",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Глиняная чашка: готовое изделие после обжига
     public static final RegistryObject<Item> CLAY_CUP = ModRegistries.ITEMS.register("clay_cup",
             () -> new ClayCupItem(new Item.Properties()
