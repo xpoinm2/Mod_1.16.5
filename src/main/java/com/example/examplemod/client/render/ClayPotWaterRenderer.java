@@ -10,11 +10,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
 public class ClayPotWaterRenderer extends TileEntityRenderer<ClayPotTileEntity> {
     private static final ResourceLocation WATER_STILL = new ResourceLocation("minecraft", "block/water_still");
     public ClayPotWaterRenderer(TileEntityRendererDispatcher dispatcher) {
@@ -167,6 +165,11 @@ public class ClayPotWaterRenderer extends TileEntityRenderer<ClayPotTileEntity> 
                 case WEST:
                     matrix.translate(-xSize/2, (yMin + yMax) / 2, 0);
                     matrix.scale(0.001F, yMax - yMin, zSize);
+                    break;
+                case UP:
+                case DOWN:
+                default:
+                    // These directions are not used in this context
                     break;
             }
             renderFace(builder, matrix, sprite, light, overlay, r, g, b, a, dir);

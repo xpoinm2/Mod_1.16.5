@@ -1,6 +1,5 @@
 package com.example.examplemod.client.screen.container;
 
-import com.example.examplemod.ExampleMod;
 import com.example.examplemod.container.SlabContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;

@@ -15,9 +15,7 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.state.properties.SlabType;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.block.AbstractBlock;
@@ -34,7 +32,6 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import com.example.examplemod.tileentity.SlabTileEntity;
 import com.example.examplemod.container.SlabContainer;
-import com.example.examplemod.ModTileEntities;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.tileentity.TileEntity;
@@ -44,8 +41,6 @@ import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 
 
@@ -520,7 +515,6 @@ public class ModBlocks {
         }
 
         @Override
-        @SuppressWarnings("deprecation")
         public ActionResultType use(BlockState state, World world, BlockPos pos,
                                     PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
             if (world.isClientSide) {

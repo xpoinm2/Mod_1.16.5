@@ -75,7 +75,6 @@ public class ClayPotBlock extends Block {
         return true;
     }
     @Override
-    @SuppressWarnings("deprecation")
     public ActionResultType use(BlockState state, World world, BlockPos pos,
                                 PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         if (hand != Hand.MAIN_HAND) {

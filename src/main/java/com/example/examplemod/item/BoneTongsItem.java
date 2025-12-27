@@ -2,7 +2,6 @@ package com.example.examplemod.item;
 
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.container.BoneTongsContainer;
-import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +29,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 

@@ -1,6 +1,5 @@
 package com.example.examplemod.client.screen.main;
 
-import com.example.examplemod.ExampleMod;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.DrinkWaterPacket;
 import com.example.examplemod.network.MixWaterPacket;

@@ -1,6 +1,5 @@
 package com.example.examplemod;
 
-import com.example.examplemod.client.ClientInteractionHandler;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.container.BoneTongsScreen;
 import com.example.examplemod.client.screen.container.ClayPotScreen;
@@ -8,35 +7,23 @@ import com.example.examplemod.client.screen.container.FirepitScreen;
 import com.example.examplemod.client.screen.container.SlabScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
-import com.example.examplemod.world.ModFeatures;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModBlocks;
-import com.example.examplemod.ModCreativeTabs;
 import com.example.examplemod.ModContainers;
 import com.example.examplemod.ModEntities;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.ModRegistries;
 import com.example.examplemod.server.mechanics.ModMechanics;
-import com.example.examplemod.server.ThirstHandler;
-import com.example.examplemod.server.RestHandler;
-import com.example.examplemod.server.CraftingBlocker;
-import com.example.examplemod.server.HewnStoneSpawnHandler;
-import com.example.examplemod.server.FlaxDryingHandler;
-import com.example.examplemod.server.FirepitStructureHandler;
-import com.example.examplemod.server.RedMushroomHandler;
 
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.util.ResourceLocation;
-
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;

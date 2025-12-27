@@ -4,6 +4,7 @@ import com.example.examplemod.container.FirepitContainer;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
@@ -62,8 +63,8 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
             int slotAreaRight = slotAreaLeft + 22;
             int slotAreaBottom = slotAreaTop + 2 * 18 + 2;
             // Simple frame to highlight the attached tongs inventory.
-            fill(matrixStack, slotAreaLeft, slotAreaTop, slotAreaRight, slotAreaBottom, 0x88303030);
-            fill(matrixStack, slotAreaLeft + 1, slotAreaTop + 1, slotAreaRight - 1, slotAreaBottom - 1, 0xAA4A4A4A);
+            AbstractGui.fill(matrixStack, slotAreaLeft, slotAreaTop, slotAreaRight, slotAreaBottom, 0x88303030);
+            AbstractGui.fill(matrixStack, slotAreaLeft + 1, slotAreaTop + 1, slotAreaRight - 1, slotAreaBottom - 1, 0xAA4A4A4A);
         }
 
         int barWidth = 6;
@@ -73,16 +74,16 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         int barHeight = barBottom - barTop;
         int heatBarHeight = this.menu.getHeatScaled(barHeight);
         int barX = this.leftPos + this.imageWidth - barWidth - 4;
-        fill(matrixStack, barX - 1, barTop - 1, barX + barWidth + 1, barBottom + 1, 0xFF1A1A1A);
-        fill(matrixStack, barX, barTop, barX + barWidth, barBottom, 0xFF3C3C3C);
+        AbstractGui.fill(matrixStack, barX - 1, barTop - 1, barX + barWidth + 1, barBottom + 1, 0xFF1A1A1A);
+        AbstractGui.fill(matrixStack, barX, barTop, barX + barWidth, barBottom, 0xFF3C3C3C);
         if (heatBarHeight > 0) {
             int filledTop = barBottom - heatBarHeight;
-            fill(matrixStack, barX, filledTop, barX + barWidth, barBottom, 0xFFCC2A2A);
+            AbstractGui.fill(matrixStack, barX, filledTop, barX + barWidth, barBottom, 0xFFCC2A2A);
         }
         int thresholdHeight = MathHelper.ceil(
                 (double) FirepitTileEntity.MIN_HEAT_FOR_SMELTING * barHeight / FirepitTileEntity.MAX_HEAT);
         int thresholdY = barBottom - thresholdHeight;
-        fill(matrixStack, barX - 1, thresholdY, barX + barWidth + 1, thresholdY + 1, 0xFF757575);
+        AbstractGui.fill(matrixStack, barX - 1, thresholdY, barX + barWidth + 1, thresholdY + 1, 0xFF757575);
 
         float progress = this.menu.getProcessingProgress();
         if (progress > 0.0F) {
@@ -94,7 +95,7 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
             int progressCenterOffset = FUEL_SLOT_LEFT_X + fuelSlotsWidth / 2;
             int progressX = this.leftPos + progressCenterOffset - PROGRESS_FRAME_SIZE / 2;
             int progressY = this.topPos + 6;
-            this.blit(matrixStack, progressX, progressY, 0, 0, PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE,
+            AbstractGui.blit(matrixStack, progressX, progressY, 0, 0, PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE,
                     PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE);
         }
     }

@@ -19,7 +19,6 @@ public class DanilkaBlock extends Block {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public ActionResultType use(BlockState state, World world, BlockPos pos,
                                 PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         if (!world.isClientSide) {

@@ -9,6 +9,7 @@ import com.example.examplemod.network.WashProgressPacket;
 import com.example.examplemod.util.FluidTextUtil;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
@@ -118,7 +119,7 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         int right = left + FLUID_GAUGE_WIDTH;
         int bottom = this.topPos + FLUID_GAUGE_Y + FLUID_GAUGE_HEIGHT;
         int top = bottom - fill;
-        fill(matrixStack, left, top, right, bottom, getFluidColor(menu.getFluidType()));
+        AbstractGui.fill(matrixStack, left, top, right, bottom, getFluidColor(menu.getFluidType()));
     }
 
     private boolean isMouseOverGauge(double mouseX, double mouseY) {
@@ -199,11 +200,11 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
         public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float partialTicks) {
             int background = this.isHovered() ? 0xFF3F2410 : 0xFF2B190E;
             int border = this.isHovered() ? 0xFF7B4F29 : 0xFF5A3520;
-            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
-            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
-            screen.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
-            screen.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
-            screen.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
+            AbstractGui.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
+            AbstractGui.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
+            AbstractGui.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
+            AbstractGui.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
+            AbstractGui.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
 
             int arrowColor = this.isHovered() ? 0xFFF7E3C5 : 0xFFD7C2A0;
             int centerX = this.x + this.width / 2;
@@ -211,19 +212,19 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
             if (screen.menu.isDrainMode()) {
                 // Стрелка влево <- (drain mode) - широкая с треугольным наконечником
                 // Основание стрелки
-                screen.fill(matrices, centerX - 4, centerY - 1, centerX + 2, centerY + 1, arrowColor);
+                AbstractGui.fill(matrices, centerX - 4, centerY - 1, centerX + 2, centerY + 1, arrowColor);
                 // Треугольный наконечник слева (3 уровня)
-                screen.fill(matrices, centerX - 4, centerY - 3, centerX - 3, centerY + 3, arrowColor);
-                screen.fill(matrices, centerX - 5, centerY - 2, centerX - 4, centerY + 2, arrowColor);
-                screen.fill(matrices, centerX - 6, centerY - 1, centerX - 5, centerY + 1, arrowColor);
+                AbstractGui.fill(matrices, centerX - 4, centerY - 3, centerX - 3, centerY + 3, arrowColor);
+                AbstractGui.fill(matrices, centerX - 5, centerY - 2, centerX - 4, centerY + 2, arrowColor);
+                AbstractGui.fill(matrices, centerX - 6, centerY - 1, centerX - 5, centerY + 1, arrowColor);
             } else {
                 // Стрелка вправо -> (fill mode) - широкая с треугольным наконечником
                 // Основание стрелки
-                screen.fill(matrices, centerX - 2, centerY - 1, centerX + 4, centerY + 1, arrowColor);
+                AbstractGui.fill(matrices, centerX - 2, centerY - 1, centerX + 4, centerY + 1, arrowColor);
                 // Треугольный наконечник справа (3 уровня)
-                screen.fill(matrices, centerX + 3, centerY - 3, centerX + 4, centerY + 3, arrowColor);
-                screen.fill(matrices, centerX + 4, centerY - 2, centerX + 5, centerY + 2, arrowColor);
-                screen.fill(matrices, centerX + 5, centerY - 1, centerX + 6, centerY + 1, arrowColor);
+                AbstractGui.fill(matrices, centerX + 3, centerY - 3, centerX + 4, centerY + 3, arrowColor);
+                AbstractGui.fill(matrices, centerX + 4, centerY - 2, centerX + 5, centerY + 2, arrowColor);
+                AbstractGui.fill(matrices, centerX + 5, centerY - 1, centerX + 6, centerY + 1, arrowColor);
             }
         }
     }
@@ -262,12 +263,12 @@ public class ClayPotScreen extends ContainerScreen<ClayPotContainer> {
             }
 
             // Фон кнопки
-            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
+            AbstractGui.fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, background);
             // Граница
-            screen.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
-            screen.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
-            screen.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
-            screen.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
+            AbstractGui.fill(matrices, this.x, this.y, this.x + this.width, this.y + 1, border);
+            AbstractGui.fill(matrices, this.x, this.y + this.height - 1, this.x + this.width, this.y + this.height, border);
+            AbstractGui.fill(matrices, this.x, this.y, this.x + 1, this.y + this.height, border);
+            AbstractGui.fill(matrices, this.x + this.width - 1, this.y, this.x + this.width, this.y + this.height, border);
 
             // Текст
             screen.font.draw(matrices, this.getMessage().getString(),

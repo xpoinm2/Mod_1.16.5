@@ -2,13 +2,11 @@ package com.example.examplemod.fluid;
 
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModFluids;
-import com.example.examplemod.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
