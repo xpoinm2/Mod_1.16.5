@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "FFF",
+    "SSS"
+  ],
+  "key": {
+    "B": {
+      "item": "examplemod:fired_brick"
+    },
+    "F": {
+      "item": "examplemod:clay_funnel"
+    },
+    "S": {
+      "item": "examplemod:hewn_stone"
+    }
+  },
+  "result": {
+    "item": "examplemod:brick_block_with_lining"
+  }
+}
+

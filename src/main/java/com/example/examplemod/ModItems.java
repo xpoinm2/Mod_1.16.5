@@ -499,6 +499,11 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.FIREPIT_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Кирпичный блок с футеровкой как предмет
+    public static final RegistryObject<Item> BRICK_BLOCK_WITH_LINING = ModRegistries.ITEMS.register("brick_block_with_lining",
+            () -> new BlockItem(ModBlocks.BRICK_BLOCK_WITH_LINING.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
 
 
 

@@ -215,6 +215,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> DIRTY_WATER_BLOCK = ModRegistries.BLOCKS.register("dirty_water",
             DirtyWaterBlock::new);
 
+    // Кирпичный блок с футеровкой
+    public static final RegistryObject<Block> BRICK_BLOCK_WITH_LINING = ModRegistries.BLOCKS.register("brick_block_with_lining",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.BRICKS)));
+
 
     public static void register(IEventBus bus) {
         ModRegistries.BLOCKS.register(bus);

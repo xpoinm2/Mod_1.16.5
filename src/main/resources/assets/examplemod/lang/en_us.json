@@ -121,6 +121,8 @@
   "item.examplemod.stone_slab": "Stone Flagstone",
   "block.examplemod.firepit_block": "Firepit",
   "item.examplemod.firepit_block": "Firepit",
+  "block.examplemod.brick_block_with_lining": "Brick Block with Lining",
+  "item.examplemod.brick_block_with_lining": "Brick Block with Lining",
   "container.examplemod.bone_tongs": "Bone Tongs",
   "container.examplemod.clay_pot": "Clay Pot",
   "block.examplemod.raw_clay_pot": "Raw Clay Pot",
