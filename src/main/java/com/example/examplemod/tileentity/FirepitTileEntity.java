@@ -385,17 +385,20 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
     private void updateCookProgress() {
         int maxProgress = 0;
+        int maxTotal = COOK_TIME_TOTAL;
         boolean hasInput = false;
         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
             if (isSmeltable(items.get(i))) {
                 hasInput = true;
+                int requiredTime = getRequiredCookTime(items.get(i), slotCookingStages[i]);
                 if (slotCookTimes[i] > maxProgress) {
                     maxProgress = slotCookTimes[i];
+                    maxTotal = requiredTime;
                 }
             }
         }
         cookProgress = hasInput ? maxProgress : 0;
-        cookProgressTotal = COOK_TIME_TOTAL;
+        cookProgressTotal = hasInput ? maxTotal : COOK_TIME_TOTAL;
     }
 
     private void enforceInputStackLimits() {
