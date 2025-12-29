@@ -221,7 +221,7 @@ public class ModBlocks {
 
     // Кирпичный блок с футеровкой
     public static final RegistryObject<Block> BRICK_BLOCK_WITH_LINING = ModRegistries.BLOCKS.register("brick_block_with_lining",
-            () -> new Block(AbstractBlock.Properties.copy(Blocks.BRICKS)));
+            BrickBlockWithLining::new);
 
 
     public static void register(IEventBus bus) {
@@ -831,6 +831,24 @@ public class ModBlocks {
             }
             
             return brickBlocks >= 30;
+        }
+    }
+
+    // === Кирпичный блок с футеровкой ===
+    public static class BrickBlockWithLining extends Block {
+        public BrickBlockWithLining() {
+            super(AbstractBlock.Properties.copy(Blocks.BRICKS));
+        }
+
+        @Override
+        public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+            if (!world.isClientSide && hand == Hand.MAIN_HAND) {
+                // Проверяем, является ли этот блок частью активированной структуры кирпичной печи
+                if (com.example.examplemod.server.PechugaStructureHandler.tryOpenGui(world, pos, player)) {
+                    return ActionResultType.SUCCESS;
+                }
+            }
+            return ActionResultType.PASS;
         }
     }
 }

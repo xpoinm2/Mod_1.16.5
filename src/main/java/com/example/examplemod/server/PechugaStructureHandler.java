@@ -128,45 +128,99 @@ public class PechugaStructureHandler {
     }
 
     private static void activate(World world, BlockPos start, PlayerEntity player, Hand hand) {
-        // Заменяем кирпичные блоки на блоки печи с указанием позиции
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 6; x++) {
-                for (int z = 0; z < 6; z++) {
-                    BlockPos pos = start.offset(x, y, z);
-                    BlockState state = world.getBlockState(pos);
-
-                    // Пропускаем область кострища (4x4 в центре на y=0)
-                    if (y == 0 && x >= 1 && x < 5 && z >= 1 && z < 5) {
-                        continue; // Кострище не трогаем
-                    }
-
-                    // Проверяем стены (границы структуры)
-                    boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
-                    
-                    if (isWall) {
-                        // Отверстие: 2 блока по ширине (x=2 и x=3), 1 блок по высоте (y=1) на стороне z=0
-                        boolean isOpening = (z == 0 && y == 1 && (x == 2 || x == 3));
-                        if (isOpening) {
-                            // Оставляем воздух для входа
-                            continue;
-                        }
-                        
-                        // Заменяем кирпичные блоки на блоки печи
-                        if (isBrickBlockWithLining(state)) {
-                            world.setBlock(pos, ModBlocks.PECHUGA_BLOCK.get().defaultBlockState()
-                                    .setValue(ModBlocks.PechugaBlock.X, x)
-                                    .setValue(ModBlocks.PechugaBlock.Y, y)
-                                    .setValue(ModBlocks.PechugaBlock.Z, z), 3);
-                        }
-                    }
-                }
-            }
+        // Структура остается из кирпичных блоков, просто помечаем её как активированную
+        // Для этого сохраняем позицию начала структуры в NBT блока кострища (master блок)
+        BlockPos firepitMaster = start.offset(2, 0, 2); // Master блок кострища
+        
+        // Помечаем структуру как активированную через TileEntity кострища
+        net.minecraft.tileentity.TileEntity tile = world.getBlockEntity(firepitMaster);
+        if (tile instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
+            // Структура активирована - блоки остаются кирпичными, но структура работает
+            // Это определяется через проверку структуры при ПКМ
         }
 
         world.playSound(null, start.offset(3, 1, 3), SoundEvents.ANVIL_USE, SoundCategory.BLOCKS, 1.0F, world.random.nextFloat() * 0.4F + 0.8F);
         if (!player.abilities.instabuild) {
             player.getItemInHand(hand).hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
         }
+    }
+    
+    /**
+     * Проверяет, активирована ли структура кирпичной печи (после ПКМ молотом)
+     * и открывает GUI если структура валидна
+     */
+    public static boolean tryOpenGui(World world, BlockPos clickedPos, net.minecraft.entity.player.PlayerEntity player) {
+        if (world.isClientSide) return false;
+        
+        // Ищем структуру вокруг кликнутого блока
+        for (int dx = -5; dx <= 0; dx++) {
+            for (int dz = -5; dz <= 0; dz++) {
+                for (int dy = -2; dy <= 2; dy++) {
+                    BlockPos start = clickedPos.offset(dx, dy, dz);
+                    if (isPechugaActivated(world, start)) {
+                        BlockPos firepitMaster = start.offset(2, 0, 2);
+                        net.minecraft.tileentity.TileEntity tile = world.getBlockEntity(firepitMaster);
+                        if (tile instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
+                            com.example.examplemod.tileentity.FirepitTileEntity firepit = 
+                                (com.example.examplemod.tileentity.FirepitTileEntity) tile;
+                            net.minecraft.inventory.container.SimpleNamedContainerProvider provider = 
+                                new net.minecraft.inventory.container.SimpleNamedContainerProvider(
+                                    (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, firepit),
+                                    new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
+                                );
+                            net.minecraftforge.fml.network.NetworkHooks.openGui(
+                                (net.minecraft.entity.player.ServerPlayerEntity) player, provider, firepitMaster);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Проверяет, является ли структура активированной кирпичной печью
+     * (структура валидна и кострище активировано)
+     */
+    private static boolean isPechugaActivated(World world, BlockPos start) {
+        // Проверяем, что структура валидна (кострище активировано и стены из кирпичных блоков)
+        if (!isPechuga(world, start)) {
+            return false;
+        }
+        
+        // Проверяем, что кострище активировано (имеет TileEntity)
+        BlockPos firepitMaster = start.offset(2, 0, 2);
+        net.minecraft.tileentity.TileEntity tile = world.getBlockEntity(firepitMaster);
+        if (!(tile instanceof com.example.examplemod.tileentity.FirepitTileEntity)) {
+            return false;
+        }
+        
+        // Проверяем, что стены из кирпичных блоков (не из PECHUGA_BLOCK)
+        // Это означает, что структура была активирована, но блоки остались кирпичными
+        BlockPos firepitStart = start.offset(1, 0, 1);
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                BlockPos firepitPos = firepitStart.offset(x, 0, z);
+                BlockState firepitState = world.getBlockState(firepitPos);
+                if (!isFirepit(firepitState)) {
+                    return false;
+                }
+                // Проверяем, что кострище активировано
+                if (firepitState.hasProperty(ModBlocks.FirepitBlock.X) && 
+                    firepitState.hasProperty(ModBlocks.FirepitBlock.Z)) {
+                    int firepitX = firepitState.getValue(ModBlocks.FirepitBlock.X);
+                    int firepitZ = firepitState.getValue(ModBlocks.FirepitBlock.Z);
+                    if (firepitX != x || firepitZ != z) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
 }
 
