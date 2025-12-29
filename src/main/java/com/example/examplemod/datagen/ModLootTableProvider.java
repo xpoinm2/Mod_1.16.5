@@ -81,8 +81,6 @@ public class ModLootTableProvider extends LootTableProvider {
             dropsSelf(ModBlocks.DIRTY_WATER_BLOCK);
             
             // Полублоки
-            dropsSelf(ModBlocks.BRUSHWOOD_SLAB);
-            dropsSelf(ModBlocks.BURNED_BRUSHWOOD_SLAB);
             dropsSelf(ModBlocks.OAK_SLAB);
             dropsSelf(ModBlocks.BIRCH_SLAB);
             dropsSelf(ModBlocks.SPRUCE_SLAB);

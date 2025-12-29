@@ -65,12 +65,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
                  modLoc("block/cobblestone_slab"),
                  modLoc("block/cobblestone_slab_top"));
 
-        // Полублок хвороста
-        models().slab("brushwood_slab", modLoc("block/brushwood_block"), modLoc("block/brushwood_block"), modLoc("block/brushwood_block"));
-        models().slabTop("brushwood_slab_top", modLoc("block/brushwood_block"), modLoc("block/brushwood_block"), modLoc("block/brushwood_block"));
-        slabBlock((SlabBlock) ModBlocks.BRUSHWOOD_SLAB.get(),
-                 modLoc("block/brushwood_slab"),
-                 modLoc("block/brushwood_slab_top"));
     }
 
     /**

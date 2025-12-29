@@ -1,12 +1,12 @@
 package com.example.examplemod.client.screen.quest;
 
+import com.example.examplemod.ModItems;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.screen.main.ScrollArea;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,11 +30,11 @@ public class StoneToolsQuestScreen extends AbstractQuestScreen {
                               int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth, "Создать набор каменных инструментов", 0xFFFFFF00);
         ItemStack[] tools = {
-                new ItemStack(Items.STONE_PICKAXE),
-                new ItemStack(Items.STONE_AXE),
-                new ItemStack(Items.STONE_SHOVEL),
-                new ItemStack(Items.STONE_HOE),
-                new ItemStack(Items.STONE_SWORD)
+                new ItemStack(ModItems.STONE_PICKAXE.get()),
+                new ItemStack(ModItems.STONE_AXE.get()),
+                new ItemStack(ModItems.STONE_SHOVEL.get()),
+                new ItemStack(ModItems.STONE_HOE.get()),
+                new ItemStack(ModItems.STONE_SWORD.get())
         };
         int itemsPerRow = Math.max(1, innerWidth / 20);
         for (int i = 0; i < tools.length; i++) {
@@ -69,15 +69,15 @@ public class StoneToolsQuestScreen extends AbstractQuestScreen {
         boolean hasSword = false;
 
         for (ItemStack stack : this.minecraft.player.inventory.items) {
-            if (stack.getItem() == Items.STONE_PICKAXE) {
+            if (stack.getItem() == ModItems.STONE_PICKAXE.get()) {
                 hasPickaxe = true;
-            } else if (stack.getItem() == Items.STONE_AXE) {
+            } else if (stack.getItem() == ModItems.STONE_AXE.get()) {
                 hasAxe = true;
-            } else if (stack.getItem() == Items.STONE_SHOVEL) {
+            } else if (stack.getItem() == ModItems.STONE_SHOVEL.get()) {
                 hasShovel = true;
-            } else if (stack.getItem() == Items.STONE_HOE) {
+            } else if (stack.getItem() == ModItems.STONE_HOE.get()) {
                 hasHoe = true;
-            } else if (stack.getItem() == Items.STONE_SWORD) {
+            } else if (stack.getItem() == ModItems.STONE_SWORD.get()) {
                 hasSword = true;
             }
         }

@@ -241,19 +241,7 @@ public class ModBulkRecipeProvider extends RecipeProvider {
             );
         }
         
-        // Специальный рецепт для хвороста
-        shapelessRecipeWithModResult(
-            consumer,
-            "brushwood_slab",  // результат
-            2,  // количество
-            new Ingredient[]{
-                Ingredient.fromJson(createItemJson("examplemod:bunch_of_grass")),
-                Ingredient.of(ItemTags.bind("forge:tools/axes"))
-            },
-            "has_bunch_of_grass",
-            Items.DIRT,  // Placeholder для критерия
-            "brushwood_slab_from_axe"  // ID рецепта
-        );
+        // Специальный рецепт для хвороста удалён - теперь только через крафт из веток
     }
     
     /**

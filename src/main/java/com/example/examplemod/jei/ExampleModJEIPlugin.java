@@ -183,7 +183,6 @@ public class ExampleModJEIPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CLAY_POT.get()), CLAY_MASS_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FIREPIT_BLOCK.get()), FIREPIT_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.PECHUGA_BLOCK.get()), PECHUGA_CATEGORY_UID);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.BRUSHWOOD_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.OAK_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BIRCH_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPRUCE_SLAB.get()), SLAB_DRYING_CATEGORY_UID);

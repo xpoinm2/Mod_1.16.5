@@ -55,6 +55,10 @@ public class ModItems {
     public static final RegistryObject<Item> BRANCH = ModRegistries.ITEMS.register("branch",
             () -> new BranchItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Хворост: кучка веток
+    public static final RegistryObject<Item> BRUSHWOOD = ModRegistries.ITEMS.register("brushwood",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Листочек: выпадает с листвы
     public static final RegistryObject<Item> LEAF = ModRegistries.ITEMS.register("leaf",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
@@ -440,15 +444,6 @@ public class ModItems {
     () -> new GrassBundleItem(ModBlocks.BUNCH_OF_GRASS.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Полублок хвороста как предмет
-    public static final RegistryObject<Item> BRUSHWOOD_SLAB = ModRegistries.ITEMS.register("brushwood_slab",
-            () -> new BlockItem(ModBlocks.BRUSHWOOD_SLAB.get(),
-                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Обгоревший полублок хвороста как предмет
-    public static final RegistryObject<Item> BURNED_BRUSHWOOD_SLAB = ModRegistries.ITEMS.register("brushwood_slab_burnt",
-            () -> new BlockItem(ModBlocks.BURNED_BRUSHWOOD_SLAB.get(),
-                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Полублок дуба как предмет
     public static final RegistryObject<Item> OAK_SLAB = ModRegistries.ITEMS.register("oak_slab",

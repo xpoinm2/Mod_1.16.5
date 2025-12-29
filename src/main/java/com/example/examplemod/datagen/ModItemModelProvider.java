@@ -154,8 +154,6 @@ public class ModItemModelProvider extends ItemModelProvider {
         blockItem(ModItems.FLAX_PLANT, "flax_plant");
         
         // Полублоки
-        blockItem(ModItems.BRUSHWOOD_SLAB, "brushwood_slab");
-        blockItem(ModItems.BURNED_BRUSHWOOD_SLAB, "brushwood_slab_burnt");
         blockItem(ModItems.OAK_SLAB, "oak_slab");
         blockItem(ModItems.BIRCH_SLAB, "birch_slab");
         blockItem(ModItems.SPRUCE_SLAB, "spruce_slab");

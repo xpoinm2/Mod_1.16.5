@@ -70,9 +70,7 @@ public class SlabContainer extends Container {
         return canInteract.evaluate((world, pos) -> {
             Block block = world.getBlockState(pos).getBlock();
             // Проверяем, что блок является полублоком с GUI
-            return block == ModBlocks.BRUSHWOOD_SLAB.get() 
-                || block == ModBlocks.BURNED_BRUSHWOOD_SLAB.get()
-                || block == ModBlocks.OAK_SLAB.get()
+            return block == ModBlocks.OAK_SLAB.get()
                 || block == ModBlocks.BIRCH_SLAB.get()
                 || block == ModBlocks.SPRUCE_SLAB.get()
                 || block == ModBlocks.JUNGLE_SLAB.get()

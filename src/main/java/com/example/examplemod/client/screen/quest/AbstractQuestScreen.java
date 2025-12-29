@@ -144,8 +144,10 @@ public abstract class AbstractQuestScreen extends Screen {
     private void updateConfirmButtonState() {
         boolean unlocked = isQuestUnlocked();
         boolean completed = isQuestCompleted();
-        this.confirmButton.visible = unlocked && !completed;
-        this.confirmButton.active = unlocked && hasRequiredItems();
+        boolean hasItems = hasRequiredItems();
+        // Кнопка видна только когда квест разблокирован, не выполнен И есть все необходимые предметы
+        this.confirmButton.visible = unlocked && !completed && hasItems;
+        this.confirmButton.active = unlocked && hasItems;
     }
 
     protected void drawTitle(MatrixStack ms, int centerX, int y) {

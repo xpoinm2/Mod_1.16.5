@@ -51,9 +51,6 @@ public class ModRecipeProvider extends RecipeProvider {
         createSlabRecipe(consumer, "crimson", Items.CRIMSON_PLANKS, "minecraft:crimson_planks");
         createSlabRecipe(consumer, "warped", Items.WARPED_PLANKS, "minecraft:warped_planks");
         
-        // Плитняк обожжённого хвороста (обожжённый хворост + топор = 2 плитняка)
-        // Примечание: используем обожжённый хворост из мода
-        createSlabRecipeFromModItem(consumer, "brushwood_slab_burnt", "examplemod:brushwood_burnt", Items.COAL);
         
         // Плитняк из булыжника (булыжник + топор = 2 плитняка из булыжника)
         createSlabRecipe(consumer, "cobblestone", Items.COBBLESTONE, "minecraft:cobblestone");

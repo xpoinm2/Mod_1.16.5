@@ -29,7 +29,7 @@ public class BrushwoodQuestScreen extends AbstractQuestScreen {
                               int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth, "Создать 4 хвороста", 0xFFFFFF00);
         y += 6;
-        ItemStack stack = new ItemStack(ModItems.BRUSHWOOD_SLAB.get(), 4);
+        ItemStack stack = new ItemStack(ModItems.BRUSHWOOD.get(), 4);
         if (GuiUtil.renderItemWithTooltip(this, ms, stack, x, y, mouseX, mouseY)) {
             hoveredStack = stack;
         }
@@ -47,7 +47,7 @@ public class BrushwoodQuestScreen extends AbstractQuestScreen {
     @Override
     protected boolean hasRequiredItems() {
         return this.minecraft.player != null
-                && this.minecraft.player.inventory.countItem(ModItems.BRUSHWOOD_SLAB.get()) >= 4;
+                && this.minecraft.player.inventory.countItem(ModItems.BRUSHWOOD.get()) >= 4;
     }
 
     @Override

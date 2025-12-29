@@ -24,8 +24,8 @@ public class SlabDryingRecipeCategory implements IRecipeCategory<SlabDryingRecip
 
     public SlabDryingRecipeCategory(IGuiHelper guiHelper) {
         this.background = guiHelper.createBlankDrawable(120, 80);
-        // Используем плитняк из хвороста как иконку
-        this.icon = guiHelper.createDrawableIngredient(new ItemStack(ModBlocks.BRUSHWOOD_SLAB.get()));
+        // Используем дубовую плиту как иконку
+        this.icon = guiHelper.createDrawableIngredient(new ItemStack(ModBlocks.OAK_SLAB.get()));
         this.localizedName = I18n.get("jei.examplemod.category.slab_drying");
     }
 

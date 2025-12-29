@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "examplemod:brushwood_slab",
     "examplemod:oak_slab",
     "examplemod:birch_slab",
     "examplemod:spruce_slab",

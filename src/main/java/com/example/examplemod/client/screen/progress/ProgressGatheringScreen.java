@@ -139,7 +139,7 @@ public class ProgressGatheringScreen extends Screen {
         registerNode(this.hewnStoneButton, baseX, baseY + spacingY);
 
         this.brushwoodButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
-                new ItemStack(ModItems.BRUSHWOOD_SLAB.get()),
+                new ItemStack(ModItems.BRUSHWOOD.get()),
                 b -> this.minecraft.setScreen(new BrushwoodQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Хворост")

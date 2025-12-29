@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "tag": "forge:tools/axes"
+    }
+  ],
+  "result": {
+    "item": "examplemod:cobblestone_slab",
+    "count": 2
+  }
+}
+
