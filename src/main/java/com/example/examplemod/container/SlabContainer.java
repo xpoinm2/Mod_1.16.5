@@ -80,7 +80,7 @@ public class SlabContainer extends Container {
                 || block == ModBlocks.DARK_OAK_SLAB.get()
                 || block == ModBlocks.CRIMSON_SLAB.get()
                 || block == ModBlocks.WARPED_SLAB.get()
-                || block == ModBlocks.STONE_SLAB.get();
+                || block == ModBlocks.COBBLESTONE_SLAB.get();
         }, true);
     }
 

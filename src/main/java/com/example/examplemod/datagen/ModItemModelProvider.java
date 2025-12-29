@@ -164,7 +164,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         blockItem(ModItems.DARK_OAK_SLAB, "dark_oak_slab");
         blockItem(ModItems.CRIMSON_SLAB, "crimson_slab");
         blockItem(ModItems.WARPED_SLAB, "warped_slab");
-        blockItem(ModItems.STONE_SLAB, "stone_slab");
+        blockItem(ModItems.COBBLESTONE_SLAB, "cobblestone_slab");
     }
 
     /**

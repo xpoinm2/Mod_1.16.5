@@ -46,15 +46,12 @@ public class FirepitStructureHandler {
     }
 
     /**
-     * Checks if the block state represents an appropriate stone slab for the
-     * firepit centre. Players usually craft the structure using the generic
-     * stone slab ("каменная плита"), so we only need to ensure that the block
-     * is a slab with a stone material. Restricting the check to the
-     * cobblestone slab prevented the multiblock from forming with normal stone
-     * slabs.
+     * Checks if the block state represents the cobblestone slab for the
+     * firepit centre. The multiblock structure requires the cobblestone slab
+     * specifically (not the stone slab).
      */
     private static boolean isCobblestoneSlab(BlockState state) {
-        return state.getBlock() instanceof SlabBlock && state.getMaterial() == Material.STONE;
+        return state.getBlock() == ModBlocks.COBBLESTONE_SLAB.get();
     }
 
     private static boolean isFirepit(World world, BlockPos start) {

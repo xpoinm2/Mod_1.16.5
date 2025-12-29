@@ -91,7 +91,7 @@ public class ModLootTableProvider extends LootTableProvider {
             dropsSelf(ModBlocks.DARK_OAK_SLAB);
             dropsSelf(ModBlocks.CRIMSON_SLAB);
             dropsSelf(ModBlocks.WARPED_SLAB);
-            dropsSelf(ModBlocks.STONE_SLAB);
+            dropsSelf(ModBlocks.COBBLESTONE_SLAB);
         }
 
         /**

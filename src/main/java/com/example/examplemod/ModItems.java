@@ -490,9 +490,9 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.WARPED_SLAB.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Полублок камня как предмет
-    public static final RegistryObject<Item> STONE_SLAB = ModRegistries.ITEMS.register("stone_slab",
-            () -> new BlockItem(ModBlocks.STONE_SLAB.get(),
+    // Полублок булыжника как предмет
+    public static final RegistryObject<Item> COBBLESTONE_SLAB = ModRegistries.ITEMS.register("cobblestone_slab",
+            () -> new BlockItem(ModBlocks.COBBLESTONE_SLAB.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Блок кострища как предмет

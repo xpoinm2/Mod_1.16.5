@@ -147,9 +147,9 @@ public class ModBlocks {
     public static final RegistryObject<Block> WARPED_SLAB = ModRegistries.BLOCKS.register("warped_slab",
             WarpedSlabBlock::new);
 
-    // Полублок камня
-    public static final RegistryObject<Block> STONE_SLAB = ModRegistries.BLOCKS.register("stone_slab",
-            StoneSlabBlock::new);
+    // Полублок булыжника
+    public static final RegistryObject<Block> COBBLESTONE_SLAB = ModRegistries.BLOCKS.register("cobblestone_slab",
+            CobblestoneSlabBlock::new);
 
     // Блок кострища (часть мультиструктуры 4x4)
     public static final RegistryObject<Block> FIREPIT_BLOCK = ModRegistries.BLOCKS.register("firepit_block",
@@ -608,10 +608,10 @@ public class ModBlocks {
         }
     }
 
-    // === Класс полублока камня ===
-    public static class StoneSlabBlock extends BaseSlabBlock {
-        public StoneSlabBlock() {
-            super(AbstractBlock.Properties.copy(Blocks.STONE_SLAB));
+    // === Класс полублока булыжника ===
+    public static class CobblestoneSlabBlock extends BaseSlabBlock {
+        public CobblestoneSlabBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.COBBLESTONE_SLAB));
         }
     }
 
@@ -656,6 +656,14 @@ public class ModBlocks {
                 TileEntity tile = world.getBlockEntity(masterPos);
                 if (tile instanceof FirepitTileEntity) {
                     FirepitTileEntity firepit = (FirepitTileEntity) tile;
+                    
+                    // Сначала проверяем, находится ли кострище внутри структуры кирпичной печи
+                    // Если да - открываем GUI кирпичной печи, если нет - GUI кострища
+                    if (com.example.examplemod.server.PechugaStructureHandler.tryOpenGui(world, pos, player)) {
+                        return ActionResultType.SUCCESS;
+                    }
+                    
+                    // Если не внутри кирпичной печи, открываем обычный GUI кострища
                     // Check if the multiblock structure is still intact
                     if (firepit.isMultiblockIntact()) {
                         NetworkHooks.openGui((ServerPlayerEntity) player, firepit, masterPos);

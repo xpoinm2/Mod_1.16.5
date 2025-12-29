@@ -31,7 +31,7 @@ public class ModTileEntities {
                             ModBlocks.DARK_OAK_SLAB.get(),
                             ModBlocks.CRIMSON_SLAB.get(),
                             ModBlocks.WARPED_SLAB.get(),
-                            ModBlocks.STONE_SLAB.get()).build(null));
+                            ModBlocks.COBBLESTONE_SLAB.get()).build(null));
 
     public static final RegistryObject<TileEntityType<PechugaTileEntity>> PECHUGA =
             ModRegistries.TILE_ENTITIES.register("pechuga",
