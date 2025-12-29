@@ -3,9 +3,7 @@ package com.example.examplemod.server;
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -15,7 +13,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 public class PechugaStructureHandler {
     public static void onUse(PlayerInteractEvent.RightClickBlock event) {
-        ItemStack stack = event.getItemStack();
+        net.minecraft.item.ItemStack stack = event.getItemStack();
         if (stack.getItem() != ModItems.BONE_HAMMER.get() && stack.getItem() != ModItems.STONE_HAMMER.get()) {
             return;
         }
@@ -42,27 +40,30 @@ public class PechugaStructureHandler {
         return state.getBlock() == ModBlocks.BRICK_BLOCK_WITH_LINING.get();
     }
 
-    private static boolean isCampfire(BlockState state) {
-        return state.getBlock() == Blocks.CAMPFIRE;
+    private static boolean isFirepit(BlockState state) {
+        return state.getBlock() == ModBlocks.FIREPIT_BLOCK.get();
     }
 
     /**
      * Проверяет, является ли структура валидной Печугой.
-     * Структура: куб 6x6x3 из кирпичных блоков с футеровкой,
-     * в центре на уровне y=1 должно быть кострище.
-     * На одной стороне должно быть отверстие 2 блока высотой.
-     * Сверху должно быть 1 отверстие для дыма.
+     * Структура: полый куб 6x6x3 из кирпичных блоков с футеровкой,
+     * в центре на уровне y=1 должно быть кострище из мода (FIREPIT_BLOCK) размером 4x4.
+     * Внутри должна быть пустота (воздух).
      */
     private static boolean isPechuga(World world, BlockPos start) {
-        // Проверяем, что в центре на y=1 есть кострище
-        BlockPos center = start.offset(2, 1, 2); // Центр 6x6 структуры
-        if (!isCampfire(world.getBlockState(center))) {
-            return false;
+        // Проверяем, что кострище 4x4 находится в центре структуры 6x6 на y=1
+        // Кострище должно быть на позициях от (1,1,1) до (4,1,4) относительно start
+        BlockPos firepitStart = start.offset(1, 1, 1);
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                BlockPos firepitPos = firepitStart.offset(x, 0, z);
+                if (!isFirepit(world.getBlockState(firepitPos))) {
+                    return false;
+                }
+            }
         }
 
         // Проверяем структуру 6x6x3
-        int airBlocksOnTop = 0;
-        int sideOpenings = 0;
         int brickBlocks = 0;
 
         for (int y = 0; y < 3; y++) {
@@ -71,66 +72,41 @@ public class PechugaStructureHandler {
                     BlockPos pos = start.offset(x, y, z);
                     BlockState state = world.getBlockState(pos);
 
-                    // Центральная позиция на y=1 должна быть кострищем
-                    if (x == 2 && z == 2 && y == 1) {
-                        if (!isCampfire(state)) {
-                            return false;
-                        }
-                        continue;
+                    // Пропускаем область кострища (4x4 в центре на y=1)
+                    if (y == 1 && x >= 1 && x < 5 && z >= 1 && z < 5) {
+                        continue; // Кострище уже проверено
                     }
 
-                    // На верхнем уровне (y=2) считаем воздушные блоки
-                    if (y == 2) {
-                        if (world.isEmptyBlock(pos)) {
-                            airBlocksOnTop++;
-                        } else if (isBrickBlockWithLining(state)) {
+                    // Проверяем стены (границы структуры)
+                    boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
+                    
+                    if (isWall) {
+                        // Стены должны быть из кирпичных блоков или воздухом (отверстия)
+                        if (isBrickBlockWithLining(state)) {
                             brickBlocks++;
+                        } else if (!world.isEmptyBlock(pos)) {
+                            // Стена должна быть кирпичной или воздухом
+                            return false;
                         }
                     } else {
-                        // На уровнях y=0 и y=1 проверяем стены
-                        boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
-                        if (isWall) {
-                            // Проверяем наличие отверстия на стороне (2 блока высотой)
-                            if (world.isEmptyBlock(pos)) {
-                                // Проверяем, что это часть отверстия 2 блока высотой
-                                if (y == 0) {
-                                    // Проверяем, что сверху тоже воздух
-                                    BlockPos above = pos.above();
-                                    if (world.isEmptyBlock(above)) {
-                                        sideOpenings++;
-                                    }
-                                } else if (y == 1) {
-                                    // Проверяем, что снизу тоже воздух
-                                    BlockPos below = pos.below();
-                                    if (world.isEmptyBlock(below)) {
-                                        sideOpenings++;
-                                    }
-                                }
-                            } else if (isBrickBlockWithLining(state)) {
-                                brickBlocks++;
-                            } else {
-                                // Стена должна быть кирпичной или воздухом
-                                return false;
-                            }
-                        } else {
-                            // Внутренние блоки должны быть кирпичными или воздухом
-                            if (isBrickBlockWithLining(state)) {
-                                brickBlocks++;
-                            } else if (!world.isEmptyBlock(pos)) {
-                                return false;
-                            }
+                        // Внутренние блоки должны быть воздухом (полая структура)
+                        if (!world.isEmptyBlock(pos)) {
+                            return false;
                         }
                     }
                 }
             }
         }
 
-        // Проверяем условия: 1 воздушный блок сверху, хотя бы одно отверстие с одной стороны, достаточно кирпичных блоков
-        return airBlocksOnTop == 1 && sideOpenings >= 2 && brickBlocks >= 20;
+        // Проверяем условия: достаточно кирпичных блоков для стен
+        // Стены 6x6x3 = периметр * высота = (6*4 - 4 угла) * 3 = 20 * 3 = 60 блоков максимум
+        // Но с отверстиями будет меньше, поэтому проверяем минимум
+        return brickBlocks >= 30;
     }
 
     private static void activate(World world, BlockPos start, PlayerEntity player, Hand hand) {
         // Заменяем структуру на блоки Печуги
+        // Заменяем только стены (границы), внутреннее пространство остается пустым
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 6; x++) {
                 for (int z = 0; z < 6; z++) {
@@ -138,12 +114,13 @@ public class PechugaStructureHandler {
                     BlockState currentState = world.getBlockState(pos);
 
                     // Пропускаем кострище и воздушные блоки
-                    if (isCampfire(currentState) || world.isEmptyBlock(pos)) {
+                    if (isFirepit(currentState) || world.isEmptyBlock(pos)) {
                         continue;
                     }
 
-                    // Заменяем кирпичные блоки на блоки Печуги
-                    if (isBrickBlockWithLining(currentState)) {
+                    // Заменяем только стены (границы) из кирпичных блоков на блоки Печуги
+                    boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
+                    if (isWall && isBrickBlockWithLining(currentState)) {
                         world.setBlock(pos, ModBlocks.PECHUGA_BLOCK.get().defaultBlockState()
                                 .setValue(ModBlocks.PechugaBlock.X, x)
                                 .setValue(ModBlocks.PechugaBlock.Y, y)
