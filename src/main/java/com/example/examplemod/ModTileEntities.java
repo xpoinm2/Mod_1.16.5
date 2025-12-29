@@ -21,6 +21,7 @@ public class ModTileEntities {
     public static final RegistryObject<TileEntityType<SlabTileEntity>> SLAB =
             ModRegistries.TILE_ENTITIES.register("slab",
                     () -> TileEntityType.Builder.of(SlabTileEntity::new,
+                            ModBlocks.BRUSHWOOD.get(),
                             ModBlocks.OAK_SLAB.get(),
                             ModBlocks.BIRCH_SLAB.get(),
                             ModBlocks.SPRUCE_SLAB.get(),

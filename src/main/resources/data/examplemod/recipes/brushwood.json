@@ -10,7 +10,8 @@
     }
   },
   "result": {
-    "item": "examplemod:brushwood"
+    "item": "examplemod:brushwood",
+    "count": 1
   }
 }
 

@@ -55,9 +55,10 @@ public class ModItems {
     public static final RegistryObject<Item> BRANCH = ModRegistries.ITEMS.register("branch",
             () -> new BranchItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Хворост: кучка веток
+    // Хворост: кучка веток (полублок)
     public static final RegistryObject<Item> BRUSHWOOD = ModRegistries.ITEMS.register("brushwood",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new BlockItem(ModBlocks.BRUSHWOOD.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Листочек: выпадает с листвы
     public static final RegistryObject<Item> LEAF = ModRegistries.ITEMS.register("leaf",

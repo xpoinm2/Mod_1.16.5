@@ -23,12 +23,11 @@ public class FirepitStructureHandler {
         if (world.isClientSide) return;
 
         BlockPos clicked = event.getPos();
-        PlayerEntity player = event.getPlayer();
         for (int dx = -3; dx <= 0; dx++) {
             for (int dz = -3; dz <= 0; dz++) {
                 BlockPos start = clicked.offset(dx, 0, dz);
-                if (isFirepit(world, start, player)) {
-                    activate(world, start, player, event.getHand());
+                if (isFirepit(world, start, event.getPlayer())) {
+                    activate(world, start, event.getPlayer(), event.getHand());
                     event.setCanceled(true);
                     return;
                 }
@@ -50,19 +49,18 @@ public class FirepitStructureHandler {
         return state.getBlock() == ModBlocks.COBBLESTONE_SLAB.get();
     }
 
+    private static boolean isBrushwood(BlockState state) {
+        return state.getBlock() == ModBlocks.BRUSHWOOD.get();
+    }
+
     private static boolean isFirepit(World world, BlockPos start, PlayerEntity player) {
-        // Проверяем наличие хвороста в инвентаре игрока (минимум 4 штуки для углов)
-        if (player == null || player.inventory.countItem(ModItems.BRUSHWOOD.get()) < 4) {
-            return false;
-        }
-        
         for (int x = 0; x < 4; x++) {
             for (int z = 0; z < 4; z++) {
                 BlockState st = world.getBlockState(start.offset(x, 0, z));
                 boolean corner = (x == 0 || x == 3) && (z == 0 || z == 3);
                 if (corner) {
-                    // Углы - деревянные плиты (хворост проверяется в инвентаре)
-                    if (!isWoodSlab(st)) return false;
+                    // Углы - хворост
+                    if (!isBrushwood(st)) return false;
                 } else if (x == 0 || x == 3 || z == 0 || z == 3) {
                     if (!isWoodSlab(st)) return false;
                 } else {
@@ -75,19 +73,6 @@ public class FirepitStructureHandler {
 
     private static void activate(World world, BlockPos start, PlayerEntity player, Hand hand) {
         BlockPos base = start.offset(1, 0, 1);
-        
-        // Убираем хворост из инвентаря (4 штуки для углов)
-        if (!player.abilities.instabuild) {
-            int brushwoodToRemove = 4;
-            for (int i = 0; i < player.inventory.getContainerSize() && brushwoodToRemove > 0; i++) {
-                ItemStack stack = player.inventory.getItem(i);
-                if (stack.getItem() == ModItems.BRUSHWOOD.get()) {
-                    int removeCount = Math.min(stack.getCount(), brushwoodToRemove);
-                    stack.shrink(removeCount);
-                    brushwoodToRemove -= removeCount;
-                }
-            }
-        }
         
         // Заменяем область 4x4 на блоки кострища с указанием позиции
         for (int x = 0; x < 4; x++) {

@@ -107,6 +107,9 @@ public class ModBlocks {
     public static final RegistryObject<Block> DRIED_FLAX = ModRegistries.BLOCKS.register("dried_flax",
             DriedFlaxBlock::new);
 
+    // Полублок хвороста
+    public static final RegistryObject<Block> BRUSHWOOD = ModRegistries.BLOCKS.register("brushwood",
+            BrushwoodSlabBlock::new);
 
     // Полублок дуба
     public static final RegistryObject<Block> OAK_SLAB = ModRegistries.BLOCKS.register("oak_slab",
