@@ -5,9 +5,11 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.container.PechugaContainer;
 import com.example.examplemod.jei.category.ClayMassRecipeCategory;
 import com.example.examplemod.jei.category.ClayPotRecipeCategory;
 import com.example.examplemod.jei.category.FirepitRecipeCategory;
+import com.example.examplemod.jei.category.PechugaRecipeCategory;
 import com.example.examplemod.jei.category.SlabDryingRecipeCategory;
 import com.example.examplemod.jei.recipe.ClayMassRecipe;
 import com.example.examplemod.jei.recipe.ClayPotRecipe;
@@ -31,6 +33,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
 
     public static final ResourceLocation CLAY_POT_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "clay_pot_washing");
     public static final ResourceLocation FIREPIT_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "firepit_cooking");
+    public static final ResourceLocation PECHUGA_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "pechuga_cooking");
     public static final ResourceLocation CLAY_MASS_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "clay_mass_crafting");
     public static final ResourceLocation SLAB_DRYING_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "slab_drying");
 
@@ -44,6 +47,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
         registration.addRecipeCategories(
                 new ClayPotRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new FirepitRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
+                new PechugaRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new ClayMassRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new SlabDryingRecipeCategory(registration.getJeiHelpers().getGuiHelper())
         );
@@ -139,6 +143,9 @@ public class ExampleModJEIPlugin implements IModPlugin {
 
         registration.addRecipes(firepitRecipes, FIREPIT_CATEGORY_UID);
 
+        // Рецепты для кирпичной печи (те же, что и для кострища)
+        registration.addRecipes(firepitRecipes, PECHUGA_CATEGORY_UID);
+
         // Рецепт глиняной массы
         registration.addRecipes(java.util.Arrays.asList(ClayMassRecipe.create()), CLAY_MASS_CATEGORY_UID);
 
@@ -165,6 +172,9 @@ public class ExampleModJEIPlugin implements IModPlugin {
 
         registration.addRecipeTransferHandler(FirepitContainer.class, FIREPIT_CATEGORY_UID,
                 0, FirepitTileEntity.GRID_SLOT_COUNT, FirepitTileEntity.GRID_SLOT_COUNT + 1, 36);
+
+        registration.addRecipeTransferHandler(PechugaContainer.class, PECHUGA_CATEGORY_UID,
+                0, FirepitTileEntity.GRID_SLOT_COUNT, FirepitTileEntity.GRID_SLOT_COUNT + 1, 36);
     }
 
     @Override
@@ -172,6 +182,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CLAY_POT.get()), CLAY_POT_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CLAY_POT.get()), CLAY_MASS_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FIREPIT_BLOCK.get()), FIREPIT_CATEGORY_UID);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.PECHUGA_BLOCK.get()), PECHUGA_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BRUSHWOOD_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.OAK_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BIRCH_SLAB.get()), SLAB_DRYING_CATEGORY_UID);

@@ -4,6 +4,7 @@ import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.container.BoneTongsScreen;
 import com.example.examplemod.client.screen.container.ClayPotScreen;
 import com.example.examplemod.client.screen.container.FirepitScreen;
+import com.example.examplemod.client.screen.container.PechugaScreen;
 import com.example.examplemod.client.screen.container.SlabScreen;
 import com.example.examplemod.world.WorldGenRegistry;
 import com.example.examplemod.world.ModBiomes;
@@ -95,6 +96,7 @@ public class ExampleMod {
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("ExampleMod client setup");
         net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.PECHUGA.get(), PechugaScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.CLAY_POT.get(), ClayPotScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS.get(), BoneTongsScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.SLAB.get(), SlabScreen::new);

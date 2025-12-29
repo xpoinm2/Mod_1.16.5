@@ -162,6 +162,7 @@
   "fluid.examplemod.dirty_water": "Грязная вода",
   "jei.examplemod.category.clay_pot_washing": "Промывка в глиняном горшке",
   "jei.examplemod.category.firepit_cooking": "Приготовление на кострище",
+  "jei.examplemod.category.pechuga_cooking": "Приготовление в кирпичной печи",
   "jei.examplemod.category.slab_drying": "Сушка на плитняке",
   "container.examplemod.slab": "Плитняк",
   "jei.examplemod.clay_pot.description": "Используется для промывки рудного гравия водой. Кликайте пустой рукой для промывки руды. Требует воду для работы.",

@@ -115,31 +115,7 @@ public class PechugaStructureHandler {
     }
 
     private static void activate(World world, BlockPos start, PlayerEntity player, Hand hand) {
-        // Заменяем структуру на блоки Печуги
-        // Заменяем только стены (границы), внутреннее пространство остается пустым
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 6; x++) {
-                for (int z = 0; z < 6; z++) {
-                    BlockPos pos = start.offset(x, y, z);
-                    BlockState currentState = world.getBlockState(pos);
-
-                    // Пропускаем кострище и воздушные блоки
-                    if (isFirepit(currentState) || world.isEmptyBlock(pos)) {
-                        continue;
-                    }
-
-                    // Заменяем только стены (границы) из кирпичных блоков на блоки Печуги
-                    boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
-                    if (isWall && isBrickBlockWithLining(currentState)) {
-                        world.setBlock(pos, ModBlocks.PECHUGA_BLOCK.get().defaultBlockState()
-                                .setValue(ModBlocks.PechugaBlock.X, x)
-                                .setValue(ModBlocks.PechugaBlock.Y, y)
-                                .setValue(ModBlocks.PechugaBlock.Z, z), 3);
-                    }
-                }
-            }
-        }
-
+        // Структура остается без изменений, только издаем звук наковальни
         world.playSound(null, start.offset(3, 1, 3), SoundEvents.ANVIL_USE, SoundCategory.BLOCKS, 1.0F, world.random.nextFloat() * 0.4F + 0.8F);
         if (!player.abilities.instabuild) {
             player.getItemInHand(hand).hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));

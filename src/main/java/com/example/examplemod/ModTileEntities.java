@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.PechugaTileEntity;
 import com.example.examplemod.tileentity.SlabTileEntity;
 import com.example.examplemod.util.RegistryHelper;
 import net.minecraft.tileentity.TileEntityType;
@@ -31,6 +32,10 @@ public class ModTileEntities {
                             ModBlocks.CRIMSON_SLAB.get(),
                             ModBlocks.WARPED_SLAB.get(),
                             ModBlocks.STONE_SLAB.get()).build(null));
+
+    public static final RegistryObject<TileEntityType<PechugaTileEntity>> PECHUGA =
+            ModRegistries.TILE_ENTITIES.register("pechuga",
+                    () -> TileEntityType.Builder.of(PechugaTileEntity::new, ModBlocks.FIREPIT_BLOCK.get()).build(null));
 
     /**
      * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)

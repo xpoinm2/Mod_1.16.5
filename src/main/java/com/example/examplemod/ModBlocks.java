@@ -733,5 +733,93 @@ public class ModBlocks {
         protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
             builder.add(X, Y, Z);
         }
+
+        @Override
+        public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+            if (!world.isClientSide && hand == Hand.MAIN_HAND) {
+                // Находим позицию кострища в структуре
+                int x = state.getValue(X);
+                int y = state.getValue(Y);
+                int z = state.getValue(Z);
+                BlockPos structureStart = pos.offset(-x, -y, -z);
+                
+                // Master блок кострища на (2,0,2) относительно начала структуры
+                // Кострище начинается с (1,0,1), master блок на (1,1) внутри кострища = (2,0,2) относительно начала
+                BlockPos firepitMaster = structureStart.offset(2, 0, 2);
+                
+                TileEntity tile = world.getBlockEntity(firepitMaster);
+                if (tile instanceof FirepitTileEntity) {
+                    FirepitTileEntity firepit = (FirepitTileEntity) tile;
+                    // Проверяем, что структура кирпичной печи цела
+                    if (isPechugaStructureIntact(world, structureStart)) {
+                        // Открываем GUI кирпичной печи через специальный контейнер
+                        net.minecraft.inventory.container.SimpleNamedContainerProvider provider = 
+                            new net.minecraft.inventory.container.SimpleNamedContainerProvider(
+                                (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, firepit),
+                                new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
+                            );
+                        net.minecraftforge.fml.network.NetworkHooks.openGui((ServerPlayerEntity) player, provider, firepitMaster);
+                    } else {
+                        return ActionResultType.FAIL;
+                    }
+                }
+            }
+            return ActionResultType.sidedSuccess(world.isClientSide);
+        }
+
+        private static boolean isPechugaStructureIntact(World world, BlockPos start) {
+            // Проверяем, что кострище 4x4 находится в центре структуры 6x6 на y=0
+            BlockPos firepitStart = start.offset(1, 0, 1);
+            for (int x = 0; x < 4; x++) {
+                for (int z = 0; z < 4; z++) {
+                    BlockPos firepitPos = firepitStart.offset(x, 0, z);
+                    BlockState state = world.getBlockState(firepitPos);
+                    if (state.getBlock() != ModBlocks.FIREPIT_BLOCK.get()) {
+                        return false;
+                    }
+                }
+            }
+            
+            // Проверяем стены структуры 6x6x3
+            int brickBlocks = 0;
+            for (int y = 0; y < 3; y++) {
+                for (int x = 0; x < 6; x++) {
+                    for (int z = 0; z < 6; z++) {
+                        BlockPos pos = start.offset(x, y, z);
+                        BlockState state = world.getBlockState(pos);
+
+                        // Пропускаем область кострища (4x4 в центре на y=0)
+                        if (y == 0 && x >= 1 && x < 5 && z >= 1 && z < 5) {
+                            continue;
+                        }
+
+                        // Проверяем стены (границы структуры)
+                        boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
+                        
+                        if (isWall) {
+                            // Отверстие: 2 блока по ширине (x=2 и x=3), 1 блок по высоте (y=1) на стороне z=0
+                            boolean isOpening = (z == 0 && y == 1 && (x == 2 || x == 3));
+                            if (isOpening) {
+                                if (!world.isEmptyBlock(pos)) {
+                                    return false;
+                                }
+                            } else if (state.getBlock() == ModBlocks.BRICK_BLOCK_WITH_LINING.get() || 
+                                       state.getBlock() == ModBlocks.PECHUGA_BLOCK.get()) {
+                                brickBlocks++;
+                            } else if (!world.isEmptyBlock(pos)) {
+                                return false;
+                            }
+                        } else {
+                            // Внутренние блоки должны быть воздухом (полая структура)
+                            if (!world.isEmptyBlock(pos)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return brickBlocks >= 30;
+        }
     }
 }

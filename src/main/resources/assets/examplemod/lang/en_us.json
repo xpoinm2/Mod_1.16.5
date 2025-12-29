@@ -161,6 +161,7 @@
   "key.categories.examplemod": "ExampleMod",
   "jei.examplemod.category.clay_pot_washing": "Clay Pot Washing",
   "jei.examplemod.category.firepit_cooking": "Firepit Cooking",
+  "jei.examplemod.category.pechuga_cooking": "Brick Furnace Cooking",
   "jei.examplemod.category.slab_drying": "Slab Drying",
   "jei.examplemod.clay_pot.description": "Used to wash ore gravel with water. Click with empty hand to wash ore. Requires water to operate.",
   "container.examplemod.slab": "Flagstone",

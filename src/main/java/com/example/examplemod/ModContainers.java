@@ -3,6 +3,7 @@ package com.example.examplemod;
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.container.PechugaContainer;
 import com.example.examplemod.container.SlabContainer;
 import com.example.examplemod.util.RegistryHelper;
 import net.minecraft.inventory.container.ContainerType;
@@ -26,6 +27,10 @@ public class ModContainers {
     public static final RegistryObject<ContainerType<SlabContainer>> SLAB =
             ModRegistries.CONTAINERS.register("slab",
                     () -> IForgeContainerType.create((windowId, playerInventory, data) -> new SlabContainer(windowId, playerInventory, data)));
+
+    public static final RegistryObject<ContainerType<PechugaContainer>> PECHUGA =
+            ModRegistries.CONTAINERS.register("pechuga",
+                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new PechugaContainer(windowId, playerInventory, data)));
 
     /**
      * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)
