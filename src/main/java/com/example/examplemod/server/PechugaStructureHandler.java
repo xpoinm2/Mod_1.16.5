@@ -24,13 +24,16 @@ public class PechugaStructureHandler {
         BlockPos clicked = event.getPos();
         // Ищем структуру вокруг кликнутого блока
         // Структура 6x6x3, кострище должно быть в центре на уровне y=0
+        // Нужно проверить все возможные позиции начала структуры
         for (int dx = -5; dx <= 0; dx++) {
             for (int dz = -5; dz <= 0; dz++) {
-                BlockPos start = clicked.offset(dx, 0, dz);
-                if (isPechuga(world, start)) {
-                    activate(world, start, event.getPlayer(), event.getHand());
-                    event.setCanceled(true);
-                    return;
+                for (int dy = -2; dy <= 2; dy++) {
+                    BlockPos start = clicked.offset(dx, dy, dz);
+                    if (isPechuga(world, start)) {
+                        activate(world, start, event.getPlayer(), event.getHand());
+                        event.setCanceled(true);
+                        return;
+                    }
                 }
             }
         }
@@ -82,7 +85,14 @@ public class PechugaStructureHandler {
                     
                     if (isWall) {
                         // Стены должны быть из кирпичных блоков или воздухом (отверстия)
-                        if (isBrickBlockWithLining(state)) {
+                        // Отверстие: 2 блока по ширине (x=2 и x=3), 1 блок по высоте (y=2) на стороне z=0
+                        boolean isOpening = (z == 0 && y == 2 && (x == 2 || x == 3));
+                        if (isOpening) {
+                            // Это отверстие - должно быть воздухом
+                            if (!world.isEmptyBlock(pos)) {
+                                return false;
+                            }
+                        } else if (isBrickBlockWithLining(state)) {
                             brickBlocks++;
                         } else if (!world.isEmptyBlock(pos)) {
                             // Стена должна быть кирпичной или воздухом
