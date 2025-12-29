@@ -801,6 +801,25 @@ public class ModBlocks {
             
             // Проверяем стены структуры 6x6x3
             int brickBlocks = 0;
+            
+            // Проверяем наличие отверстий на каждой стене (y=1, 2 блока)
+            boolean hasOpeningNorth = world.isEmptyBlock(start.offset(2, 1, 0)) && world.isEmptyBlock(start.offset(3, 1, 0));
+            boolean hasOpeningSouth = world.isEmptyBlock(start.offset(2, 1, 5)) && world.isEmptyBlock(start.offset(3, 1, 5));
+            boolean hasOpeningWest = world.isEmptyBlock(start.offset(0, 1, 2)) && world.isEmptyBlock(start.offset(0, 1, 3));
+            boolean hasOpeningEast = world.isEmptyBlock(start.offset(5, 1, 2)) && world.isEmptyBlock(start.offset(5, 1, 3));
+            
+            // Подсчитываем количество стен с отверстиями
+            int openingCount = 0;
+            if (hasOpeningNorth) openingCount++;
+            if (hasOpeningSouth) openingCount++;
+            if (hasOpeningWest) openingCount++;
+            if (hasOpeningEast) openingCount++;
+            
+            // Отверстие должно быть ровно на одной стене
+            if (openingCount != 1) {
+                return false;
+            }
+            
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 6; x++) {
                     for (int z = 0; z < 6; z++) {
@@ -816,17 +835,29 @@ public class ModBlocks {
                         boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
                         
                         if (isWall) {
-                            // Отверстие: 2 блока по ширине (x=2 и x=3), 1 блок по высоте (y=1) на стороне z=0
-                            boolean isOpening = (z == 0 && y == 1 && (x == 2 || x == 3));
+                            // Определяем, является ли это позицией отверстия на валидной стене
+                            boolean isOpening = false;
+                            if (hasOpeningNorth && z == 0 && y == 1 && (x == 2 || x == 3)) {
+                                isOpening = true;
+                            } else if (hasOpeningSouth && z == 5 && y == 1 && (x == 2 || x == 3)) {
+                                isOpening = true;
+                            } else if (hasOpeningWest && x == 0 && y == 1 && (z == 2 || z == 3)) {
+                                isOpening = true;
+                            } else if (hasOpeningEast && x == 5 && y == 1 && (z == 2 || z == 3)) {
+                                isOpening = true;
+                            }
+                            
                             if (isOpening) {
                                 if (!world.isEmptyBlock(pos)) {
                                     return false;
                                 }
-                            } else if (state.getBlock() == ModBlocks.BRICK_BLOCK_WITH_LINING.get() || 
-                                       state.getBlock() == ModBlocks.PECHUGA_BLOCK.get()) {
+                            } else {
+                                // Все остальные блоки стены должны быть кирпичными
+                                if (state.getBlock() != ModBlocks.BRICK_BLOCK_WITH_LINING.get() && 
+                                    state.getBlock() != ModBlocks.PECHUGA_BLOCK.get()) {
+                                    return false;
+                                }
                                 brickBlocks++;
-                            } else if (!world.isEmptyBlock(pos)) {
-                                return false;
                             }
                         } else {
                             // Внутренние блоки должны быть воздухом (полая структура)
