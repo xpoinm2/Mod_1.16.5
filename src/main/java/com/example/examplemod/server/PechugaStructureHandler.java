@@ -23,7 +23,7 @@ public class PechugaStructureHandler {
 
         BlockPos clicked = event.getPos();
         // Ищем структуру вокруг кликнутого блока
-        // Структура 6x6x3, кострище должно быть в центре на уровне y=1
+        // Структура 6x6x3, кострище должно быть в центре на уровне y=0
         for (int dx = -5; dx <= 0; dx++) {
             for (int dz = -5; dz <= 0; dz++) {
                 BlockPos start = clicked.offset(dx, 0, dz);
@@ -47,13 +47,13 @@ public class PechugaStructureHandler {
     /**
      * Проверяет, является ли структура валидной Печугой.
      * Структура: полый куб 6x6x3 из кирпичных блоков с футеровкой,
-     * в центре на уровне y=1 должно быть кострище из мода (FIREPIT_BLOCK) размером 4x4.
+     * в центре на уровне y=0 должно быть кострище из мода (FIREPIT_BLOCK) размером 4x4.
      * Внутри должна быть пустота (воздух).
      */
     private static boolean isPechuga(World world, BlockPos start) {
-        // Проверяем, что кострище 4x4 находится в центре структуры 6x6 на y=1
-        // Кострище должно быть на позициях от (1,1,1) до (4,1,4) относительно start
-        BlockPos firepitStart = start.offset(1, 1, 1);
+        // Проверяем, что кострище 4x4 находится в центре структуры 6x6 на y=0
+        // Кострище должно быть на позициях от (1,0,1) до (4,0,4) относительно start
+        BlockPos firepitStart = start.offset(1, 0, 1);
         for (int x = 0; x < 4; x++) {
             for (int z = 0; z < 4; z++) {
                 BlockPos firepitPos = firepitStart.offset(x, 0, z);
@@ -72,8 +72,8 @@ public class PechugaStructureHandler {
                     BlockPos pos = start.offset(x, y, z);
                     BlockState state = world.getBlockState(pos);
 
-                    // Пропускаем область кострища (4x4 в центре на y=1)
-                    if (y == 1 && x >= 1 && x < 5 && z >= 1 && z < 5) {
+                    // Пропускаем область кострища (4x4 в центре на y=0)
+                    if (y == 0 && x >= 1 && x < 5 && z >= 1 && z < 5) {
                         continue; // Кострище уже проверено
                     }
 

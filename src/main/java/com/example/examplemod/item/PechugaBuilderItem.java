@@ -53,8 +53,8 @@ public class PechugaBuilderItem extends Item {
                     
                     // Пропускаем воздушные блоки и блоки, которые можно заменить
                     if (!world.isEmptyBlock(pos) && !state.getMaterial().isReplaceable()) {
-                        // Исключение: центральный блок на y=1 должен быть воздухом для кострища
-                        if (x == 2 && z == 2 && y == 1) {
+                        // Исключение: область кострища на y=0 должна быть воздухом
+                        if (y == 0 && x >= 1 && x < 5 && z >= 1 && z < 5) {
                             if (!world.isEmptyBlock(pos)) {
                                 return false;
                             }
@@ -71,8 +71,8 @@ public class PechugaBuilderItem extends Item {
     private void buildPechuga(World world, BlockPos start) {
         // Строим полую структуру 6x6x3 вокруг кострища
         // Кострище - это мультиблок 4x4, размещаем его в центре структуры 6x6
-        // Кострище должно быть на позициях от (1,1,1) до (4,1,4) относительно start
-        BlockPos firepitStart = start.offset(1, 1, 1);
+        // Кострище должно быть на позициях от (1,0,1) до (4,0,4) относительно start
+        BlockPos firepitStart = start.offset(1, 0, 1);
         for (int x = 0; x < 4; x++) {
             for (int z = 0; z < 4; z++) {
                 BlockPos firepitPos = firepitStart.offset(x, 0, z);
@@ -89,8 +89,8 @@ public class PechugaBuilderItem extends Item {
                 for (int z = 0; z < 6; z++) {
                     BlockPos pos = start.offset(x, y, z);
                     
-                    // Пропускаем область кострища (4x4 в центре на y=1)
-                    if (y == 1 && x >= 1 && x < 5 && z >= 1 && z < 5) {
+                    // Пропускаем область кострища (4x4 в центре на y=0)
+                    if (y == 0 && x >= 1 && x < 5 && z >= 1 && z < 5) {
                         continue; // Кострище уже построено
                     }
 
@@ -98,9 +98,9 @@ public class PechugaBuilderItem extends Item {
                     boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
                     
                     if (isWall) {
-                        // На одной стороне (z=0) делаем отверстие 2 блока высотой для входа
-                        if (z == 0 && y < 2 && (x == 2 || x == 3)) {
-                            // Оставляем воздух для входа
+                        // На одной стороне (z=0) делаем отверстие 2 блока высотой и 1 блок шириной для входа
+                        if (z == 0 && y < 2 && x == 2) {
+                            // Оставляем воздух для входа (только 1 блок по ширине)
                             continue;
                         }
                         // На верхнем уровне делаем одно отверстие для дыма
