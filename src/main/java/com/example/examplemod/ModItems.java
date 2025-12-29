@@ -32,6 +32,7 @@ import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.item.GrassBundleItem;
+import com.example.examplemod.item.PechugaBuilderItem;
 import com.example.examplemod.util.SmartItemRegistry;
 
 
@@ -504,6 +505,14 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.BRICK_BLOCK_WITH_LINING.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Креативный предмет для постройки Печуги
+    public static final RegistryObject<Item> PECHUGA_BUILDER = ModRegistries.ITEMS.register("pechuga_builder",
+            () -> new PechugaBuilderItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Блок Печуги как предмет
+    public static final RegistryObject<Item> PECHUGA_BLOCK = ModRegistries.ITEMS.register("pechuga_block",
+            () -> new BlockItem(ModBlocks.PECHUGA_BLOCK.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
 
 

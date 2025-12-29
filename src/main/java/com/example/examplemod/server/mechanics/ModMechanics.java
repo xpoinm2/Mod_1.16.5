@@ -125,6 +125,15 @@ public final class ModMechanics {
             }
         });
 
+        register(new HandlerModule("pechuga_structure") {
+            @Override public boolean enablePlayerInteract() { return true; }
+            @Override public void onPlayerInteract(net.minecraftforge.event.entity.player.PlayerInteractEvent e) {
+                if (e instanceof net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock) {
+                    PechugaStructureHandler.onUse((net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock) e);
+                }
+            }
+        });
+
         register(new HandlerModule("flax_soak") {
             @Override public boolean enablePlayerInteract() { return true; }
             @Override public void onPlayerInteract(net.minecraftforge.event.entity.player.PlayerInteractEvent e) {
@@ -186,8 +195,8 @@ public final class ModMechanics {
         });
 
         // Подсчет оставшихся механик (HandlerModule обёртки)
-        registeredCount += 13; // gravel_ore_wash, iron_cluster_wash, crafting_blocker, firepit_structure, 
-                               // flax_soak, flax_drying, sharp_bone, red_mushroom, big_bone_drop, 
+        registeredCount += 14; // gravel_ore_wash, iron_cluster_wash, crafting_blocker, firepit_structure, 
+                               // pechuga_structure, flax_soak, flax_drying, sharp_bone, red_mushroom, big_bone_drop, 
                                // hewn_stone_spawn, natural_regen_disable, auto_save
 
         LOGGER.info("Mechanics initialization complete: {} mechanics registered", registeredCount);

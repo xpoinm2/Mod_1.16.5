@@ -155,6 +155,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> FIREPIT_BLOCK = ModRegistries.BLOCKS.register("firepit_block",
             FirepitBlock::new);
 
+    // Блок Печуги (часть мультиструктуры 6x6x3)
+    public static final RegistryObject<Block> PECHUGA_BLOCK = ModRegistries.BLOCKS.register("pechuga_block",
+            PechugaBlock::new);
+
     // Железная руда с примесями
     public static final RegistryObject<Block> IMPURE_IRON_ORE = ModRegistries.BLOCKS.register("impure_iron_ore",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.IRON_ORE)));
@@ -709,5 +713,25 @@ public class ModBlocks {
                 BlockPos start = pos.offset(-xOffset, 0, -zOffset);
                 return start.offset(1, 0, 1);
             }
+    }
+
+    // === Блок Печуги ===
+    public static class PechugaBlock extends Block {
+        public static final IntegerProperty X = IntegerProperty.create("x", 0, 5);
+        public static final IntegerProperty Y = IntegerProperty.create("y", 0, 2);
+        public static final IntegerProperty Z = IntegerProperty.create("z", 0, 5);
+
+        public PechugaBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.SANDSTONE));
+            this.registerDefaultState(this.stateDefinition.any()
+                    .setValue(X, 0)
+                    .setValue(Y, 0)
+                    .setValue(Z, 0));
+        }
+
+        @Override
+        protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+            builder.add(X, Y, Z);
+        }
     }
 }
