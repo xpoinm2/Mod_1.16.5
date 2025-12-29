@@ -56,12 +56,25 @@ public class PechugaStructureHandler {
     private static boolean isPechuga(World world, BlockPos start) {
         // Проверяем, что кострище 4x4 находится в центре структуры 6x6 на y=0
         // Кострище должно быть на позициях от (1,0,1) до (4,0,4) относительно start
+        // И кострище должно быть активировано (иметь правильные координаты X и Z)
         BlockPos firepitStart = start.offset(1, 0, 1);
         for (int x = 0; x < 4; x++) {
             for (int z = 0; z < 4; z++) {
                 BlockPos firepitPos = firepitStart.offset(x, 0, z);
-                if (!isFirepit(world.getBlockState(firepitPos))) {
+                BlockState firepitState = world.getBlockState(firepitPos);
+                if (!isFirepit(firepitState)) {
                     return false;
+                }
+                // Проверяем, что кострище активировано (имеет правильные координаты)
+                if (firepitState.hasProperty(ModBlocks.FirepitBlock.X) && 
+                    firepitState.hasProperty(ModBlocks.FirepitBlock.Z)) {
+                    int firepitX = firepitState.getValue(ModBlocks.FirepitBlock.X);
+                    int firepitZ = firepitState.getValue(ModBlocks.FirepitBlock.Z);
+                    if (firepitX != x || firepitZ != z) {
+                        return false; // Кострище не активировано правильно
+                    }
+                } else {
+                    return false; // Кострище не активировано
                 }
             }
         }
@@ -115,7 +128,41 @@ public class PechugaStructureHandler {
     }
 
     private static void activate(World world, BlockPos start, PlayerEntity player, Hand hand) {
-        // Структура остается без изменений, только издаем звук наковальни
+        // Заменяем кирпичные блоки на блоки печи с указанием позиции
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 6; x++) {
+                for (int z = 0; z < 6; z++) {
+                    BlockPos pos = start.offset(x, y, z);
+                    BlockState state = world.getBlockState(pos);
+
+                    // Пропускаем область кострища (4x4 в центре на y=0)
+                    if (y == 0 && x >= 1 && x < 5 && z >= 1 && z < 5) {
+                        continue; // Кострище не трогаем
+                    }
+
+                    // Проверяем стены (границы структуры)
+                    boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
+                    
+                    if (isWall) {
+                        // Отверстие: 2 блока по ширине (x=2 и x=3), 1 блок по высоте (y=1) на стороне z=0
+                        boolean isOpening = (z == 0 && y == 1 && (x == 2 || x == 3));
+                        if (isOpening) {
+                            // Оставляем воздух для входа
+                            continue;
+                        }
+                        
+                        // Заменяем кирпичные блоки на блоки печи
+                        if (isBrickBlockWithLining(state)) {
+                            world.setBlock(pos, ModBlocks.PECHUGA_BLOCK.get().defaultBlockState()
+                                    .setValue(ModBlocks.PechugaBlock.X, x)
+                                    .setValue(ModBlocks.PechugaBlock.Y, y)
+                                    .setValue(ModBlocks.PechugaBlock.Z, z), 3);
+                        }
+                    }
+                }
+            }
+        }
+
         world.playSound(null, start.offset(3, 1, 3), SoundEvents.ANVIL_USE, SoundCategory.BLOCKS, 1.0F, world.random.nextFloat() * 0.4F + 0.8F);
         if (!player.abilities.instabuild) {
             player.getItemInHand(hand).hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));

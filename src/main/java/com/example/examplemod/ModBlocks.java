@@ -777,6 +777,17 @@ public class ModBlocks {
                     if (state.getBlock() != ModBlocks.FIREPIT_BLOCK.get()) {
                         return false;
                     }
+                    // Проверяем, что кострище активировано
+                    if (state.hasProperty(ModBlocks.FirepitBlock.X) && 
+                        state.hasProperty(ModBlocks.FirepitBlock.Z)) {
+                        int firepitX = state.getValue(ModBlocks.FirepitBlock.X);
+                        int firepitZ = state.getValue(ModBlocks.FirepitBlock.Z);
+                        if (firepitX != x || firepitZ != z) {
+                            return false; // Кострище не активировано правильно
+                        }
+                    } else {
+                        return false; // Кострище не активировано
+                    }
                 }
             }
             

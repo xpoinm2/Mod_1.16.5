@@ -110,8 +110,11 @@ public class PechugaBuilderItem extends Item {
                                 continue;
                             }
                         }
-                        // Строим стену из кирпичных блоков
-                        world.setBlock(pos, ModBlocks.BRICK_BLOCK_WITH_LINING.get().defaultBlockState(), 3);
+                        // Строим стену из блоков печи с правильными координатами (уже активированная структура)
+                        world.setBlock(pos, ModBlocks.PECHUGA_BLOCK.get().defaultBlockState()
+                                .setValue(ModBlocks.PechugaBlock.X, x)
+                                .setValue(ModBlocks.PechugaBlock.Y, y)
+                                .setValue(ModBlocks.PechugaBlock.Z, z), 3);
                     } else {
                         // Внутренние блоки остаются воздухом (полая структура)
                         // Ничего не делаем
