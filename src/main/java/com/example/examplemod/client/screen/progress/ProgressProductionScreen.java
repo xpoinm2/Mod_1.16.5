@@ -124,7 +124,7 @@ public class ProgressProductionScreen extends Screen {
                         new StringTextComponent("Нет требований")));
         QuestNode planksNode = registerNode(this.planksButton, baseX, baseY);
 
-                this.slabsButton = new ItemIconButton(baseX + spacingX, baseY, new ItemStack(Items.OAK_SLAB),
+                this.slabsButton = new ItemIconButton(baseX + spacingX, baseY, new ItemStack(ModItems.OAK_SLAB.get()),
                         b -> this.minecraft.setScreen(new SlabsQuestScreen(this)),
                         () -> Arrays.asList(
                                 new StringTextComponent("Плиты")
@@ -191,7 +191,7 @@ public class ProgressProductionScreen extends Screen {
         QuestNode clayCupNode = registerNode(this.clayCupButton, baseX, baseY + spacingY * 2);
 
         this.cobbleSlabButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
-                new ItemStack(Items.COBBLESTONE_SLAB),
+                new ItemStack(ModItems.COBBLESTONE_SLAB.get()),
                 b -> this.minecraft.setScreen(new CobbleSlabQuestScreen(this)),
                 () -> Arrays.asList(
                         new StringTextComponent("Булыжная плита")
