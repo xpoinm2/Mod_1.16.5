@@ -107,6 +107,23 @@ public class ExampleModJEIPlugin implements IModPlugin {
                 400
         ));
 
+        // Обжженная руда -> губчатые металлы (30 секунд = 600 тиков)
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CALCINED_IRON_ORE.get()),
+                new ItemStack(ModItems.SPONGE_IRON.get()),
+                600
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CALCINED_TIN_ORE.get()),
+                new ItemStack(ModItems.SPONGE_TIN.get()),
+                600
+        ));
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CALCINED_GOLD_ORE.get()),
+                new ItemStack(ModItems.SPONGE_GOLD.get()),
+                600
+        ));
+
         // Глина (первый этап - 400 тиков, второй этап пережаривания - 300 тиков)
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.RAW_CLAY_CUP.get()),
