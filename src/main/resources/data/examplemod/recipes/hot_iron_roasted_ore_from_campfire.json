@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:campfire_cooking",
-  "ingredient": {
-    "item": "examplemod:iron_ore_gravel"
-  },
-  "result": "examplemod:hot_iron_roasted_ore",
-  "experience": 0.35,
-  "cookingtime": 600
-}
