@@ -67,7 +67,7 @@ public class BrickKilnStructureScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         int renderSize = Math.min(this.width, this.height) / 3;
-        float modelScale = renderSize / 7.5f;
+        float modelScale = renderSize / 5.0f;
 
         // Очищаем область
         RenderSystem.enableDepthTest();
