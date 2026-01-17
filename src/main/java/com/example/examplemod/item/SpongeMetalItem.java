@@ -122,8 +122,8 @@ public class SpongeMetalItem extends Item {
         // Проверяем переход состояний
         checkStateTransition(stack);
 
-        // Применяем эффект горячего состояния
-        applyHotDamage(stack, player);
+        // Эффект урона теперь обрабатывается в CommonModEvents.onPlayerTick
+        // для корректной работы с перетаскиванием предметов
     }
 
     @Override
