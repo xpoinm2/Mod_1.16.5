@@ -33,6 +33,7 @@ import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.item.GrassBundleItem;
 import com.example.examplemod.item.PechugaBuilderItem;
+import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.util.SmartItemRegistry;
 
 
@@ -385,14 +386,14 @@ public class ModItems {
     public static final RegistryObject<Item> CLEANED_GRAVEL_GOLD_ORE = ModRegistries.ITEMS.register("cleaned_gravel_gold_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // === Sponge Metals (через SmartItemRegistry) ===
-    // Зарегистрированы через SmartItemRegistry для упрощения добавления новых металлов
+    // === Sponge Metals ===
+    // Губчатые металлы с состояниями: горячий, теплый, холодный, влажный
     public static final RegistryObject<Item> SPONGE_IRON = ModRegistries.ITEMS.register("sponge_iron",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new SpongeMetalItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
     public static final RegistryObject<Item> SPONGE_TIN = ModRegistries.ITEMS.register("sponge_tin",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new SpongeMetalItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
     public static final RegistryObject<Item> SPONGE_GOLD = ModRegistries.ITEMS.register("sponge_gold",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new SpongeMetalItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Оловянная руда как предмет
     public static final RegistryObject<Item> TIN_ORE = ModRegistries.ITEMS.register("tin_ore",
