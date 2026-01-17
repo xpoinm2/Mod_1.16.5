@@ -107,23 +107,6 @@ public class ExampleModJEIPlugin implements IModPlugin {
                 400
         ));
 
-        // Обжженная руда -> губчатые металлы (30 секунд = 600 тиков)
-        firepitRecipes.add(new FirepitRecipe(
-                new ItemStack(ModItems.CALCINED_IRON_ORE.get()),
-                new ItemStack(ModItems.SPONGE_IRON.get()),
-                600
-        ));
-        firepitRecipes.add(new FirepitRecipe(
-                new ItemStack(ModItems.CALCINED_TIN_ORE.get()),
-                new ItemStack(ModItems.SPONGE_TIN.get()),
-                600
-        ));
-        firepitRecipes.add(new FirepitRecipe(
-                new ItemStack(ModItems.CALCINED_GOLD_ORE.get()),
-                new ItemStack(ModItems.SPONGE_GOLD.get()),
-                600
-        ));
-
         // Глина (первый этап - 400 тиков, второй этап пережаривания - 300 тиков)
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.RAW_CLAY_CUP.get()),
@@ -160,8 +143,27 @@ public class ExampleModJEIPlugin implements IModPlugin {
 
         registration.addRecipes(firepitRecipes, FIREPIT_CATEGORY_UID);
 
-        // Рецепты для кирпичной печи (те же, что и для кострища)
-        registration.addRecipes(firepitRecipes, PECHUGA_CATEGORY_UID);
+        // Рецепты для кирпичной печи (расширенные рецепты кострища + губчатые металлы)
+        List<FirepitRecipe> pechugaRecipes = new ArrayList<>(firepitRecipes);
+
+        // Обжженная руда -> губчатые металлы (30 секунд = 600 тиков, только в кирпичной печи)
+        pechugaRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CALCINED_IRON_ORE.get()),
+                new ItemStack(ModItems.SPONGE_IRON.get()),
+                600
+        ));
+        pechugaRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CALCINED_TIN_ORE.get()),
+                new ItemStack(ModItems.SPONGE_TIN.get()),
+                600
+        ));
+        pechugaRecipes.add(new FirepitRecipe(
+                new ItemStack(ModItems.CALCINED_GOLD_ORE.get()),
+                new ItemStack(ModItems.SPONGE_GOLD.get()),
+                600
+        ));
+
+        registration.addRecipes(pechugaRecipes, PECHUGA_CATEGORY_UID);
 
         // Рецепт глиняной массы
         registration.addRecipes(java.util.Arrays.asList(ClayMassRecipe.create()), CLAY_MASS_CATEGORY_UID);
