@@ -67,7 +67,7 @@ public class FirepitStructureScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         int renderSize = Math.min(this.width, this.height) / 3;
-        float modelScale = renderSize / 2.0f;
+        float modelScale = renderSize / 6.0f;
 
         // Очищаем область
         RenderSystem.enableDepthTest();
