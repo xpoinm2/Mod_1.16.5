@@ -85,8 +85,8 @@ public class BrickKilnStructureScreen extends Screen {
         ms.mulPose(Vector3f.YP.rotationDegrees(rotationY));
         ms.mulPose(Vector3f.XP.rotationDegrees(rotationX));
 
-        // Центрируем структуру
-        ms.translate(-0.5D, -0.5D, -0.5D);
+        // Центрируем структуру (6x6x3)
+        ms.translate(-3.0D, -1.5D, -3.0D);
 
         // Рендерим блоки мультиблока
         renderMultiblock(ms);
@@ -100,32 +100,44 @@ public class BrickKilnStructureScreen extends Screen {
     private void renderMultiblock(MatrixStack ms) {
         BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 
-        // Получаем состояние кирпичного блока
+        // Состояния блоков
         BlockState brickState = ModBlocks.BRICK_BLOCK_WITH_LINING.get().defaultBlockState();
+        BlockState firepitState = ModBlocks.FIREPIT_BLOCK.get().defaultBlockState();
 
-        // Структура мультиблока: 3x3x3 с пустотой в центре
-        // Y=0 (нижний слой): ███
-        // Y=1 (средний слой): █ █
-        // Y=2 (верхний слой): ███
+        // Структура мультиблока: 6x6x3
+        // - Стены: кирпичные блоки по периметру
+        // - Внутри пусто
+        // - На y=0 в центре 4x4 кострище
+        // - На y=1 на одной стене отверстие 2 блока по центру (северная сторона)
+
+        IRenderTypeBuffer.Impl bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
         for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                for (int z = 0; z < 3; z++) {
-                    // Пропускаем центральный блок на среднем слое
-                    if (y == 1 && x == 1 && z == 1) continue;
+            for (int x = 0; x < 6; x++) {
+                for (int z = 0; z < 6; z++) {
+                    boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
+                    boolean isFirepit = (y == 0 && x >= 1 && x <= 4 && z >= 1 && z <= 4);
+                    boolean isOpening = (y == 1 && z == 0 && (x == 2 || x == 3));
 
-                    ms.pushPose();
-                    ms.translate(x, y, z);
+                    if (isFirepit) {
+                        ms.pushPose();
+                        ms.translate(x, y, z);
+                        blockRenderer.renderBlock(firepitState, ms, bufferSource, 0xF000F0, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                        ms.popPose();
+                        continue;
+                    }
 
-                    // Рендерим блок
-                    IRenderTypeBuffer.Impl bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-                    blockRenderer.renderBlock(brickState, ms, bufferSource, 0xF000F0, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
-                    bufferSource.endBatch();
-
-                    ms.popPose();
+                    if (isWall && !isOpening) {
+                        ms.pushPose();
+                        ms.translate(x, y, z);
+                        blockRenderer.renderBlock(brickState, ms, bufferSource, 0xF000F0, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                        ms.popPose();
+                    }
                 }
             }
         }
+        
+        bufferSource.endBatch();
     }
 
     @Override
