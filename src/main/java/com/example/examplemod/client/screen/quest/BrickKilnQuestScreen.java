@@ -1,6 +1,7 @@
 package com.example.examplemod.client.screen.quest;
 
 import com.example.examplemod.ModItems;
+import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.screen.main.ScrollArea;
 import com.example.examplemod.quest.QuestManager;
@@ -13,8 +14,21 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class BrickKilnQuestScreen extends AbstractQuestScreen {
 
+    private FramedButton viewStructureButton;
+
     public BrickKilnQuestScreen(Screen parent) {
         super(parent, "Кирпичная печь");
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        // Добавляем кнопку просмотра 3D структуры
+        this.viewStructureButton = new FramedButton(0, 0, 120, 20, "Просмотреть структуру",
+                0xFF000000, 0xFFFFFF00,
+                b -> this.minecraft.setScreen(new BrickKilnStructureScreen(this)));
+        this.addButton(viewStructureButton);
     }
 
     @Override
@@ -48,31 +62,21 @@ public class BrickKilnQuestScreen extends AbstractQuestScreen {
         y = drawParagraph(ms, x, y, innerWidth, "и ударить молотом для активации.", 0xFFFFFF00);
         y += 10;
 
-        // Схема мультиблока кирпичной печи
-        y = drawParagraph(ms, x, y, innerWidth, "Схема сборки мультиблока:", 0xFFFFA500);
-        y += 8;
+        // Позиционируем кнопку просмотра структуры
+        if (viewStructureButton != null) {
+            viewStructureButton.x = x;
+            viewStructureButton.y = y;
+            viewStructureButton.setWidth(Math.min(innerWidth, 150));
+        }
+        y += 30;
 
-        // Верхний слой (уровень Y+2)
-        y = drawParagraph(ms, x, y, innerWidth, "   Уровень Y+2:", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "   ███", 0xFF8B4513);
-        y += 2;
-
-        // Средний слой (уровень Y+1)
-        y = drawParagraph(ms, x, y, innerWidth, "   Уровень Y+1:", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "   █ █", 0xFF8B4513);
-        y += 2;
-
-        // Нижний слой (уровень Y)
-        y = drawParagraph(ms, x, y, innerWidth, "   Уровень Y:", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "   ███", 0xFF8B4513);
-        y += 8;
-
-        y = drawParagraph(ms, x, y, innerWidth, "   █ = Кирпичный блок с футеровкой", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "   Центральный блок - контроллер печи", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "Мультиблок состоит из 3x3x3 кирпичных блоков", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "с футеровкой. Центральный блок среднего слоя", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "должен оставаться пустым.", 0xFFFFFF00);
         y += 10;
 
         y = drawParagraph(ms, x, y, innerWidth, "После сборки мультиблока ударьте молотом", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth, "по центральному блоку для формирования печи.", 0xFFFFFF00);
+        y = drawParagraph(ms, x, y, innerWidth, "по любому блоку структуры для формирования печи.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth, "Печь готова к использованию!", 0xFFFFFF00);
 
         return y;
