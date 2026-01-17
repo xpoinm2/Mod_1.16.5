@@ -27,6 +27,7 @@ public class QuestManager {
     private static boolean calcinedIronOreCompleted = false;
     private static boolean calcinedGoldOreCompleted = false;
     private static boolean calcinedTinOreCompleted = false;
+    private static boolean brickKilnCompleted = false;
     private static boolean clayPotCompleted = false;
     private static boolean clayCupCompleted = false;
     private static boolean unrefinedTinOreCompleted = false;
@@ -244,6 +245,14 @@ public class QuestManager {
         calcinedTinOreCompleted = value;
     }
 
+    public static boolean isBrickKilnCompleted() {
+        return brickKilnCompleted;
+    }
+
+    public static void setBrickKilnCompleted(boolean value) {
+        brickKilnCompleted = value;
+    }
+
     public static boolean isClayPotCompleted() {
         return clayPotCompleted;
     }
@@ -346,6 +355,7 @@ public class QuestManager {
         calcinedIronOreCompleted = false;
         calcinedGoldOreCompleted = false;
         calcinedTinOreCompleted = false;
+        brickKilnCompleted = false;
         clayPotCompleted = false;
         clayCupCompleted = false;
         unrefinedTinOreCompleted = false;

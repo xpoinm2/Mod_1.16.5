@@ -45,6 +45,7 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton clayPotButton;
     private ItemIconButton clayCupButton;
     private ItemIconButton boneTongsButton;
+    private ItemIconButton brickKilnButton;
 
 
     private int offsetX;
@@ -271,6 +272,8 @@ public class ProgressProductionScreen extends Screen {
     private void initMetallurgyQuests() {
         int baseX = 140;
         int baseY = 130;
+        int spacingX = 110;
+
         this.boneTongsButton = new ItemIconButton(baseX, baseY,
                 new ItemStack(ModItems.BONE_TONGS.get()),
                 b -> this.minecraft.setScreen(new BoneTongsQuestScreen(this)),
@@ -281,6 +284,17 @@ public class ProgressProductionScreen extends Screen {
                                 .append(new StringTextComponent("Пройти древний мир")
                                         .withStyle(TextFormatting.GOLD))));
         registerNode(this.boneTongsButton, baseX, baseY);
+
+        this.brickKilnButton = new ItemIconButton(baseX + spacingX, baseY,
+                new ItemStack(ModItems.BRICK_BLOCK_WITH_LINING.get()),
+                b -> this.minecraft.setScreen(new BrickKilnQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Кирпичная печь")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Пройти древний мир")
+                                        .withStyle(TextFormatting.GOLD))));
+        registerNode(this.brickKilnButton, baseX + spacingX, baseY);
     }
 
     @Override
@@ -312,6 +326,9 @@ public class ProgressProductionScreen extends Screen {
         } else if (parent instanceof AncientMetallurgyEraScreen) {
             if (this.boneTongsButton != null) {
                 this.boneTongsButton.setBorderColor(colorForState(getBoneTongsState()));
+            }
+            if (this.brickKilnButton != null) {
+                this.brickKilnButton.setBorderColor(colorForState(getBrickKilnState()));
             }
         }
 
@@ -453,6 +470,13 @@ private QuestState getBoneToolsState() {
             return QuestState.LOCKED;
         }
         return QuestManager.isBoneTongsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getBrickKilnState() {
+        if (!QuestManager.isAncientWorldCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isBrickKilnCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
 private QuestState getCombState() {
