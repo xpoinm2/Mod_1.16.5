@@ -42,17 +42,12 @@ public class ColdMechanic implements IMechanicModule {
         // ОПТИМИЗАЦИЯ: используем кэш вместо прямого вызова world.getBiome()
         // Кэш с TTL 30 секунд → 50-70% меньше дорогих вызовов
         int temp = BiomeTemperatureCache.getTemperature(player);
-        boolean increase = false;
-        if (temp == -40 || temp == -25) {
-            increase = true;
-        } else if (temp < 16 && noArmor(player)) {
-            increase = true;
-        }
+        boolean increase = temp < 16; // Cold increases when biome temperature < 16°C (always, no armor dependency)
 
         if (increase) {
             int t = HOUR_TICKS.getOrDefault(id, 0) + 20;
-            if (t >= TICKS_PER_HOUR) {
-                t -= TICKS_PER_HOUR;
+            if (t >= 2400) { // Every 2400 ticks (2 real minutes)
+                t -= 2400;
                 player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
                     int current = stats.getCold();
                     int cold = Math.min(100, current + 4);

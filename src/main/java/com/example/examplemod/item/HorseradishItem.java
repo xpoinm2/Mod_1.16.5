@@ -25,7 +25,7 @@ public class HorseradishItem extends Item {
         if (!world.isClientSide && entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
             player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-                int virus = Math.max(0, stats.getVirus() - 5);
+                int virus = Math.max(0, stats.getVirus() - 3); // -2.5 rounded to -3
                 stats.setVirus(virus);
                 if (player instanceof ServerPlayerEntity) {
                     ModNetworkHandler.CHANNEL.send(

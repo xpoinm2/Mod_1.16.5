@@ -45,7 +45,6 @@ public class CapabilityHandler {
                 ev.getPlayer().getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(newStats -> {
                     newStats.setThirst(oldStats.getThirst());
                     newStats.setFatigue(oldStats.getFatigue());
-                    newStats.setDisease(oldStats.getDisease());
                     newStats.setPoison(oldStats.getPoison());
                     newStats.setVirus(oldStats.getVirus());
                     newStats.setHypothermia(oldStats.getHypothermia());

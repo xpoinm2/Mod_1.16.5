@@ -6,9 +6,7 @@ import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.server.mechanics.IMechanicModule;
 import com.example.examplemod.server.mechanics.util.BiomeTemperatureCache;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.UUID;
@@ -17,14 +15,6 @@ public class HypothermiaMechanic implements IMechanicModule {
     private static final int TICKS_PER_HOUR = 20 * 60;
     // Оптимизация: Object2IntOpenHashMap вместо HashMap<UUID, Integer> (50-70% меньше памяти)
     private static final Object2IntOpenHashMap<UUID> ANY_TICKS = new Object2IntOpenHashMap<>();
-    private static final Object2IntOpenHashMap<UUID> BARE_TICKS = new Object2IntOpenHashMap<>();
-    // Оптимизация: статический массив вместо создания нового каждый раз (экономия аллокаций)
-    private static final EquipmentSlotType[] ARMOR_SLOTS = {
-        EquipmentSlotType.HEAD, 
-        EquipmentSlotType.CHEST, 
-        EquipmentSlotType.LEGS, 
-        EquipmentSlotType.FEET
-    };
 
     @Override
     public String id() {
@@ -43,27 +33,15 @@ public class HypothermiaMechanic implements IMechanicModule {
         // ОПТИМИЗАЦИЯ: используем кэш вместо прямого вызова world.getBiome()
         // Кэш с TTL 30 секунд → 50-70% меньше дорогих вызовов
         int temp = BiomeTemperatureCache.getTemperature(player);
-        if (temp < -24) {
+        if (temp < 0) { // Hypothermia increases when biome temperature < 0°C (always, no armor dependency)
             int t = ANY_TICKS.getOrDefault(id, 0) + 20;
-            if (t >= TICKS_PER_HOUR * 5) {
-                t -= TICKS_PER_HOUR * 5;
+            if (t >= 2400) { // Every 2400 ticks (2 real minutes)
+                t -= 2400;
                 increase(player);
             }
             ANY_TICKS.put(id, t);
-
-            if (noArmor(player)) {
-                int b = BARE_TICKS.getOrDefault(id, 0) + 20;
-                if (b >= TICKS_PER_HOUR * 2) {
-                    b -= TICKS_PER_HOUR * 2;
-                    increase(player);
-                }
-                BARE_TICKS.put(id, b);
-            } else {
-                BARE_TICKS.remove(id);
-            }
         } else {
             ANY_TICKS.remove(id);
-            BARE_TICKS.remove(id);
         }
     }
 
@@ -71,7 +49,6 @@ public class HypothermiaMechanic implements IMechanicModule {
     public void onPlayerLogout(ServerPlayerEntity player) {
         UUID id = player.getUUID();
         ANY_TICKS.remove(id);
-        BARE_TICKS.remove(id);
         // Очищаем кэш температуры при выходе игрока
         BiomeTemperatureCache.clearPlayer(id);
     }
@@ -89,13 +66,6 @@ public class HypothermiaMechanic implements IMechanicModule {
                 );
             }
         });
-    }
-
-    private static boolean noArmor(PlayerEntity player) {
-        for (EquipmentSlotType slot : ARMOR_SLOTS) {
-            if (!player.getItemBySlot(slot).isEmpty()) return false;
-        }
-        return true;
     }
     
     // УДАЛЕНО: getAmbientTemperature() больше не нужен,

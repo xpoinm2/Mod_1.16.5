@@ -364,19 +364,16 @@ public class ClayCupItem extends Item {
     private void applyDrinkEffects(ServerPlayerEntity player, FluidStack fluid) {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
             int thirst = stats.getThirst();
-            int disease = stats.getDisease();
             Fluid drinkFluid = fluid.getFluid();
             if (drinkFluid.isSame(Fluids.WATER)) {
                 thirst = Math.max(0, thirst - 20);
             } else if (drinkFluid.isSame(ModFluids.DIRTY_WATER.get())) {
                 thirst = Math.max(0, thirst - 15);
-                disease = Math.min(100, disease + 5);
                 player.addEffect(new EffectInstance(Effects.CONFUSION, 100, 0));
             } else {
                 return;
             }
             stats.setThirst(thirst);
-            stats.setDisease(disease);
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
                     new SyncAllStatsPacket(stats)

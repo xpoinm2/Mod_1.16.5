@@ -6,7 +6,6 @@ import com.example.examplemod.Config;
 public class PlayerStats implements IPlayerStats {
     private int thirst;
     private int fatigue;
-    private int disease;
     private int poison  = 0;
     private int virus   = 0;
     private int cold    = 0;
@@ -18,7 +17,6 @@ public class PlayerStats implements IPlayerStats {
         // Если конфиг ещё не подгрузился, Forge всё равно отдаст дефолт из SPEC.
         this.thirst = clamp01to100(Config.THIRST.get());
         this.fatigue = clamp01to100(Config.FATIGUE.get());
-        this.disease = clamp01to100(Config.DISEASE.get());
     }
 
     private static int clamp01to100(int v) {
@@ -29,8 +27,6 @@ public class PlayerStats implements IPlayerStats {
     @Override public void setThirst(int v)   { this.thirst = v; }
     @Override public int  getFatigue()       { return fatigue; }
     @Override public void setFatigue(int v)  { this.fatigue = v; }
-    @Override public int  getDisease()       { return disease; }
-    @Override public void setDisease(int v)  { this.disease = v; }
     @Override public int  getPoison()        { return poison; }
     @Override public void setPoison(int v)   { this.poison = v; }
     @Override public int  getVirus()         { return virus; }

@@ -31,6 +31,9 @@ public class ModRegistries {
     public static final DeferredRegister<net.minecraft.util.SoundEvent> SOUND_EVENTS =
             DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, ExampleMod.MODID);
 
+    public static final DeferredRegister<net.minecraft.potion.Effect> EFFECTS =
+            DeferredRegister.create(ForgeRegistries.POTIONS, ExampleMod.MODID);
+
 
     /**
      * Регистрирует все регистраторы в mod event bus
@@ -38,13 +41,14 @@ public class ModRegistries {
     public static void register(IEventBus modBus) {
         // Базовые DeferredRegister'ы мода (items/blocks/entities/containers/tile entities/sounds)
         RegistryHelper.registerAll(modBus,
-                ITEMS, BLOCKS, ENTITIES, CONTAINERS, TILE_ENTITIES, SOUND_EVENTS);
+                ITEMS, BLOCKS, ENTITIES, CONTAINERS, TILE_ENTITIES, SOUND_EVENTS, EFFECTS);
 
         // Специфические компоненты, которые имеют собственные DeferredRegister'ы/инициализацию
         ModCreativeTabs.register(modBus);
         ModBiomes.register(modBus);
         ModFeatures.register(modBus);
         ModFluids.register(modBus);
+        ModEffects.register(modBus);
         Config.register(modBus);
     }
 }

@@ -12,7 +12,6 @@ public class Config {
 
     public static final ForgeConfigSpec.IntValue FATIGUE;
     public static final ForgeConfigSpec.IntValue THIRST;
-    public static final ForgeConfigSpec.IntValue DISEASE;
 
     // Mechanics scheduler / profiling
     public static final ForgeConfigSpec.BooleanValue MECHANICS_PROFILING;
@@ -38,10 +37,6 @@ public class Config {
         THIRST = builder
                 .comment("Жажда (0–100)")
                 .defineInRange("thirst", 40, 0, 100);
-
-        DISEASE = builder
-                .comment("Болезнь (0–100)")
-                .defineInRange("disease", 0, 0, 100);
 
         builder.comment("Менеджер механик (профилирование)")
                 .push("mechanics");

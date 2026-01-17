@@ -24,9 +24,7 @@ public class InfoScreen extends Screen {
         int y0 = 5;
         this.addButton(new FramedButton(x0 + 5, y0 + 5, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
                 b -> this.minecraft.setScreen(parent)));
-        this.addButton(new FramedButton(x0 + 15, y0 + 40, 120, 20, "Системное", 0xFFFFFF00, 0xFFFF0000,
-                b -> this.minecraft.setScreen(new SystemInfoScreen(this))));
-        this.addButton(new FramedButton(x0 + 15, y0 + 100, 120, 20, "Скрытые значения", 0xFFFFFF00, 0xFFFF0000,
+        this.addButton(new FramedButton(x0 + 15, y0 + 70, 120, 20, "Скрытые значения", 0xFFFFFF00, 0xFFFF0000,
                 b -> this.minecraft.setScreen(new HiddenValuesScreen(this))));
         super.init();
     }
@@ -40,6 +38,11 @@ public class InfoScreen extends Screen {
         fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
         drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
         super.render(ms, mouseX, mouseY, pt);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     @Override

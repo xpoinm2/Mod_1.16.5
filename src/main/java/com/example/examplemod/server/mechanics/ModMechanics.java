@@ -63,8 +63,9 @@ public final class ModMechanics {
         // === Механики болезней (вирусы, яды) ===
         if (Config.ENABLE_DISEASE_MECHANICS.get()) {
             register(new VirusMechanic());
-            registeredCount += 1;
-            LOGGER.debug("Loaded disease mechanics (virus)");
+            register(new HealthEffectsMechanic());
+            registeredCount += 2;
+            LOGGER.debug("Loaded disease mechanics (virus, health effects)");
         } else {
             LOGGER.info("Disease mechanics disabled in config - skipping");
         }

@@ -36,9 +36,6 @@ public final class StatsCommandsMechanic implements IMechanicModule {
                         .then(Commands.literal("fatigue")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
                                         .executes(ctx -> setFatigue(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
-                        .then(Commands.literal("disease")
-                                .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
-                                        .executes(ctx -> setDisease(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
                         .then(Commands.literal("poison")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 100))
                                         .executes(ctx -> setPoison(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
@@ -57,6 +54,8 @@ public final class StatsCommandsMechanic implements IMechanicModule {
                         .then(Commands.literal("health")
                                 .then(Commands.argument("value", IntegerArgumentType.integer(0, 20))
                                         .executes(ctx -> setHealth(ctx, IntegerArgumentType.getInteger(ctx, "value")))))
+                        .then(Commands.literal("reset")
+                                .executes(ctx -> resetStats(ctx)))
         );
     }
 
@@ -83,13 +82,6 @@ public final class StatsCommandsMechanic implements IMechanicModule {
             );
         });
         ctx.getSource().sendSuccess(new StringTextComponent("Fatigue set to " + value), true);
-        return 1;
-    }
-
-    private static int setDisease(CommandContext<CommandSource> ctx, int value) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(s -> s.setDisease(value));
-        ctx.getSource().sendSuccess(new StringTextComponent("Disease set to " + value), true);
         return 1;
     }
 
@@ -157,6 +149,40 @@ public final class StatsCommandsMechanic implements IMechanicModule {
         float clamped = Math.min(player.getMaxHealth(), Math.max(0, value));
         player.setHealth(clamped);
         ctx.getSource().sendSuccess(new StringTextComponent("Health set to " + value), true);
+        return 1;
+    }
+
+    private static int resetStats(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
+
+        // Check if player is in creative mode
+        if (!player.abilities.instabuild) {
+            ctx.getSource().sendFailure(new StringTextComponent("This command can only be used in Creative mode!"));
+            return 0;
+        }
+
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+            // Reset thirst and fatigue to 0
+            stats.setThirst(0);
+            stats.setFatigue(0);
+
+            // Restore blood to 100
+            stats.setBlood(100);
+
+            // Reset all diseases to 0
+            stats.setPoison(0);
+            stats.setVirus(0);
+            stats.setCold(0);
+            stats.setHypothermia(0);
+
+            // Send updated stats to client
+            ModNetworkHandler.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> player),
+                    new SyncAllStatsPacket(stats)
+            );
+        });
+
+        ctx.getSource().sendSuccess(new StringTextComponent("All stats reset! Thirst: 0, Fatigue: 0, Blood: 100, Diseases: 0"), true);
         return 1;
     }
 }

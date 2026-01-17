@@ -60,18 +60,12 @@ public class HealthScreen extends Screen {
             }
 
             int y2 = by + spacing * 2;
-            drawBar(ms, bx, y2, w, h, stats.getDisease(), 0xFF88CC88, 0xFF00AA00);
-            if (mouseX >= bx && mouseX <= bx + w && mouseY >= y2 && mouseY <= y2 + h) {
-                drawValue(ms, "Болезнь: " + stats.getDisease() + "/100", bx, y2, w, h);
-            }
-
-            int y3 = by + spacing * 3;
             int bloodVal = stats.getBlood();
-            drawBar(ms, bx, y3, w, h, bloodVal, 0xFFCC5555, 0xFF880000);
-            if (mouseX >= bx && mouseX <= bx + w && mouseY >= y3 && mouseY <= y3 + h) {
+            drawBar(ms, bx, y2, w, h, bloodVal, 0xFFCC5555, 0xFF880000);
+            if (mouseX >= bx && mouseX <= bx + w && mouseY >= y2 && mouseY <= y2 + h) {
                 float liters = 5f * bloodVal / 100f;
                 String text = String.format("Кровь: %.2f/5 л", liters);
-                drawValue(ms, text, bx, y3, w, h);
+                drawValue(ms, text, bx, y2, w, h);
             }
         });
 
@@ -96,6 +90,10 @@ public class HealthScreen extends Screen {
         ms.popPose();
     }
 
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
 
     @Override
     public void onClose() {

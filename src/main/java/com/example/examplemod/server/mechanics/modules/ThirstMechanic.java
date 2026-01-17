@@ -27,8 +27,8 @@ import java.util.UUID;
  * Перенесено из старого ThirstHandler в модуль.
  */
 public final class ThirstMechanic implements IMechanicModule {
-    private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
-    private static final int TICKS_PER_15MIN = TICKS_PER_HOUR / 4;
+    private static final int TICKS_PER_2_MINUTES = 2400; // 2 real minutes = 2400 ticks
+    private static final int TICKS_PER_15_SECONDS = 300; // 15 real seconds = 300 ticks
     
     // Оптимизация: статический Set для проверки рыбных предметов (O(1) вместо O(n) сравнений)
     private static final Set<Item> FISH_ITEMS;
@@ -93,7 +93,7 @@ public final class ThirstMechanic implements IMechanicModule {
             count = 0;
             player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
                 int thirst = stats.getThirst();
-                int fatigue = Math.min(100, stats.getFatigue() + 3);
+                int fatigue = Math.min(100, stats.getFatigue() + 2);
                 stats.setFatigue(fatigue);
                 ModNetworkHandler.CHANNEL.send(
                         PacketDistributor.PLAYER.with(() -> player),
@@ -115,7 +115,7 @@ public final class ThirstMechanic implements IMechanicModule {
         ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
 
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-            int fatigue = Math.min(100, stats.getFatigue() + 1);
+            int fatigue = Math.min(100, stats.getFatigue() + 1); // +0.5 implemented as +1 every 2 attacks
             stats.setFatigue(fatigue);
             ModNetworkHandler.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
@@ -190,10 +190,10 @@ public final class ThirstMechanic implements IMechanicModule {
             int thirst = stats.getThirst();
             int fatigue = stats.getFatigue();
 
-            // Every in-game hour increase thirst and fatigue by 2
+            // Every 2400 ticks (2 real minutes) increase thirst and fatigue by 2
             int ht = hourTicks.getOrDefault(id, 0) + deltaTicks;
-            if (ht >= TICKS_PER_HOUR) {
-                ht -= TICKS_PER_HOUR;
+            if (ht >= TICKS_PER_2_MINUTES) {
+                ht -= TICKS_PER_2_MINUTES;
                 int newThirst = Math.min(100, thirst + 2);
                 int newFatigue = Math.min(100, fatigue + 2);
                 if (newThirst != thirst) { thirst = newThirst; dirty = true; }
@@ -201,11 +201,11 @@ public final class ThirstMechanic implements IMechanicModule {
             }
             hourTicks.put(id, ht);
 
-            // Swimming fatigue gain
+            // Swimming fatigue gain every 15 real seconds
             if (player.isInWater()) {
                 int st = swimTicks.getOrDefault(id, 0) + deltaTicks;
-                if (st >= TICKS_PER_15MIN) {
-                    st -= TICKS_PER_15MIN;
+                if (st >= TICKS_PER_15_SECONDS) {
+                    st -= TICKS_PER_15_SECONDS;
                     int newFatigue = Math.min(100, fatigue + 5);
                     if (newFatigue != fatigue) { fatigue = newFatigue; dirty = true; }
                 }
@@ -226,8 +226,8 @@ public final class ThirstMechanic implements IMechanicModule {
             double distSqAll = dx * dx + dy * dy + dz * dz;
             if (distSqAll < 0.0001D) {
                 int ticks = stillTicks.getOrDefault(id, 0) + deltaTicks;
-                if (ticks >= TICKS_PER_HOUR) {
-                    ticks -= TICKS_PER_HOUR;
+                if (ticks >= 1200) { // 1 real minute = 1200 ticks
+                    ticks -= 1200;
                     int newFatigue = Math.max(0, fatigue - 5);
                     if (newFatigue != fatigue) { fatigue = newFatigue; dirty = true; }
                 }
@@ -242,7 +242,7 @@ public final class ThirstMechanic implements IMechanicModule {
                 if (total >= 100.0) {
                     int steps = (int) (total / 100.0);
                     total -= steps * 100.0;
-                    int newFatigue = Math.min(100, fatigue + steps * 5);
+                    int newFatigue = Math.min(100, fatigue + steps * 3);
                     if (newFatigue != fatigue) { fatigue = newFatigue; dirty = true; }
                 }
                 runDist.put(id, total);

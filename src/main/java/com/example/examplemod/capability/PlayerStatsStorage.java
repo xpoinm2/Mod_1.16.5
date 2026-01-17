@@ -11,7 +11,6 @@ public class PlayerStatsStorage implements IStorage<IPlayerStats> {
         CompoundNBT tag = new CompoundNBT();
         tag.putInt("Thirst",  stats.getThirst());
         tag.putInt("Fatigue", stats.getFatigue());
-        tag.putInt("Disease", stats.getDisease());
         tag.putInt("Poison",  stats.getPoison());
         tag.putInt("Virus",   stats.getVirus());
         tag.putInt("Cold",    stats.getCold());
@@ -25,7 +24,6 @@ public class PlayerStatsStorage implements IStorage<IPlayerStats> {
         CompoundNBT tag = (CompoundNBT)in;
         stats.setThirst( tag.getInt("Thirst") );
         stats.setFatigue(tag.getInt("Fatigue"));
-        stats.setDisease(tag.getInt("Disease"));
         stats.setPoison( tag.getInt("Poison"));
         stats.setVirus(  tag.getInt("Virus"));
         stats.setCold(   tag.getInt("Cold"));

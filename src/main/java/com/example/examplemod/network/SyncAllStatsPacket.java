@@ -19,7 +19,6 @@ public class SyncAllStatsPacket {
     private final int hypothermia;
     private final int virus;
     private final int poison;
-    private final int disease;
     private final int blood;
 
     /**
@@ -32,7 +31,6 @@ public class SyncAllStatsPacket {
         this.hypothermia = stats.getHypothermia();
         this.virus = stats.getVirus();
         this.poison = stats.getPoison();
-        this.disease = stats.getDisease();
         this.blood = stats.getBlood();
     }
 
@@ -40,14 +38,13 @@ public class SyncAllStatsPacket {
      * Создаёт пакет вручную (для тестирования или специфичных случаев)
      */
     public SyncAllStatsPacket(int thirst, int fatigue, int cold, int hypothermia,
-                              int virus, int poison, int disease, int blood) {
+                              int virus, int poison, int blood) {
         this.thirst = thirst;
         this.fatigue = fatigue;
         this.cold = cold;
         this.hypothermia = hypothermia;
         this.virus = virus;
         this.poison = poison;
-        this.disease = disease;
         this.blood = blood;
     }
 
@@ -58,7 +55,6 @@ public class SyncAllStatsPacket {
         buf.writeInt(pkt.hypothermia);
         buf.writeInt(pkt.virus);
         buf.writeInt(pkt.poison);
-        buf.writeInt(pkt.disease);
         buf.writeInt(pkt.blood);
     }
 
@@ -70,7 +66,6 @@ public class SyncAllStatsPacket {
                 buf.readInt(), // hypothermia
                 buf.readInt(), // virus
                 buf.readInt(), // poison
-                buf.readInt(), // disease
                 buf.readInt()  // blood
         );
     }
@@ -88,7 +83,6 @@ public class SyncAllStatsPacket {
                         stats.setHypothermia(pkt.hypothermia);
                         stats.setVirus(pkt.virus);
                         stats.setPoison(pkt.poison);
-                        stats.setDisease(pkt.disease);
                         stats.setBlood(pkt.blood);
                     });
         });
@@ -102,7 +96,6 @@ public class SyncAllStatsPacket {
     public int getHypothermia() { return hypothermia; }
     public int getVirus() { return virus; }
     public int getPoison() { return poison; }
-    public int getDisease() { return disease; }
     public int getBlood() { return blood; }
 }
 

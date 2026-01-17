@@ -64,6 +64,11 @@ public class ActivityScreen extends Screen {
         this.renderBackground(ms);
         super.render(ms, mouseX, mouseY, partialTicks);
     }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
     @Override
     public void tick() {
         super.tick();

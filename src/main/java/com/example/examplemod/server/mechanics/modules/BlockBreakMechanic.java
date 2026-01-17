@@ -140,7 +140,7 @@ public class BlockBreakMechanic implements IMechanicModule {
             if (player instanceof ServerPlayerEntity) {
                 ServerPlayerEntity sp = (ServerPlayerEntity) player;
                 sp.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-                    int fatigue = Math.min(100, stats.getFatigue() + 4);
+                    int fatigue = Math.min(100, stats.getFatigue() + 2);
                     stats.setFatigue(fatigue);
                     ModNetworkHandler.CHANNEL.send(
                             PacketDistributor.PLAYER.with(() -> sp),

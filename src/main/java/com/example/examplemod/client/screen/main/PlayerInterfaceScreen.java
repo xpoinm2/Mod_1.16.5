@@ -48,6 +48,11 @@ public class PlayerInterfaceScreen extends Screen {
     }
 
     @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
     public void onClose() {
         if (this.minecraft != null && this.minecraft.player != null && this.minecraft.level != null && parent != null) {
             this.minecraft.setScreen(parent);

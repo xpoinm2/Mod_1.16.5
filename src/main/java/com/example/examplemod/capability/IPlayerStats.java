@@ -6,8 +6,6 @@ public interface IPlayerStats {
     void setThirst(int v);
     int  getFatigue();
     void setFatigue(int v);
-    int  getDisease();
-    void setDisease(int v);
     int  getVirus();
     void setVirus(int v);
     int  getPoison();
