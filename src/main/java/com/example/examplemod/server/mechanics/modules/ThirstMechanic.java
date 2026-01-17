@@ -63,6 +63,10 @@ public final class ThirstMechanic implements IMechanicModule {
 
     @Override
     public void onPlayerTick(ServerPlayerEntity player) {
+        // Не применяем механики, если игрок вышел из мира (в главном меню)
+        if (player.connection == null || player.hasDisconnected()) {
+            return;
+        }
         tick(player);
     }
 

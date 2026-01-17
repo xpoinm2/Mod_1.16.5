@@ -37,6 +37,11 @@ public class ColdMechanic implements IMechanicModule {
 
     @Override
     public void onPlayerTick(ServerPlayerEntity player) {
+        // Не применяем механики, если игрок вышел из мира (в главном меню)
+        if (player.connection == null || player.hasDisconnected()) {
+            return;
+        }
+
         UUID id = player.getUUID();
 
         // ОПТИМИЗАЦИЯ: используем кэш вместо прямого вызова world.getBiome()
