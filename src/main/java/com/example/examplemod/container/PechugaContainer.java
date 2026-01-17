@@ -55,8 +55,7 @@ public class PechugaContainer extends Container {
                 this.addSlot(new Slot(pechugaInv, slotIndex, 52 + col * 18, 20 + row * 18) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
-                        return tileEntity != null && (tileEntity.isSmeltable(stack)
-                                || stack.getItem() == ModItems.CALCINED_IRON_ORE.get());
+                        return tileEntity != null && tileEntity.isSmeltable(stack);
                     }
 
                     @Override
