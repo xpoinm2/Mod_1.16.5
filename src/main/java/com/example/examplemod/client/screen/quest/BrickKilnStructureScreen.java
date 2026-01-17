@@ -73,6 +73,7 @@ public class BrickKilnStructureScreen extends Screen {
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(515);
         RenderSystem.depthMask(true);
+        RenderSystem.disableCull();
 
         ms.pushPose();
 
@@ -95,6 +96,7 @@ public class BrickKilnStructureScreen extends Screen {
         ms.popPose();
 
         RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
         RenderSystem.disableDepthTest();
     }
 
