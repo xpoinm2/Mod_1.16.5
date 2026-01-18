@@ -22,6 +22,7 @@ public class EnhancedDualContainer extends Container {
     private final Container mainContainer; // Основной контейнер (печь/кострище)
     private final IItemHandler tongsHandler;
     private final List<Slot> originalMainSlots = new ArrayList<>();
+    private final int tongsSlotCount;
 
     // Константы для позиционирования
     public static final int MAIN_GUI_OFFSET_X = 80; // Сдвиг основного GUI вправо
@@ -39,9 +40,9 @@ public class EnhancedDualContainer extends Container {
 
         // Получаем FirepitTileEntity из мира
         com.example.examplemod.tileentity.FirepitTileEntity firepitTile = null;
-        if (playerInventory.player.level instanceof net.minecraft.world.server.ServerWorld) {
-            net.minecraft.world.server.ServerWorld serverWorld = (net.minecraft.world.server.ServerWorld) playerInventory.player.level;
-            net.minecraft.tileentity.TileEntity tileEntity = serverWorld.getBlockEntity(blockPos);
+        net.minecraft.world.World world = playerInventory.player.level;
+        if (world != null) {
+            net.minecraft.tileentity.TileEntity tileEntity = world.getBlockEntity(blockPos);
             if (tileEntity instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
                 firepitTile = (com.example.examplemod.tileentity.FirepitTileEntity) tileEntity;
             }
@@ -52,20 +53,18 @@ public class EnhancedDualContainer extends Container {
                 .orElseGet(() -> new BoneTongsCapabilityProvider(tongsStack).getHandler());
 
         // Создаем основной контейнер
-        if (isFirepit && firepitTile != null) {
-            mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, firepitTile);
-        } else if (!isFirepit && firepitTile != null) {
-            mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, firepitTile);
+        if (firepitTile == null) {
+            throw new IllegalStateException("Firepit tile entity not found at " + blockPos);
+        }
+
+        if (isFirepit) {
+            mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, firepitTile, false);
         } else {
-            // Fallback - создаем контейнер без tile entity
-            if (isFirepit) {
-                mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, (com.example.examplemod.tileentity.FirepitTileEntity) null);
-            } else {
-                mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, (com.example.examplemod.tileentity.FirepitTileEntity) null);
-            }
+            mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, firepitTile, false);
         }
 
         // Добавляем слоты щипцов слева
+        this.tongsSlotCount = tongsHandler.getSlots();
         for (int i = 0; i < tongsHandler.getSlots(); i++) {
             addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * 18));
         }
@@ -108,10 +107,10 @@ public class EnhancedDualContainer extends Container {
         if (slotId >= 0 && slotId < slots.size()) {
             int mainSlotsCount = originalMainSlots.size();
 
-            if (slotId < mainSlotsCount) {
+            if (slotId >= tongsSlotCount && slotId < tongsSlotCount + mainSlotsCount) {
                 // Слот из основного контейнера - перенаправляем
                 // Индекс в оригинальном контейнере соответствует индексу в нашем списке
-                return mainContainer.clicked(slotId, dragType, clickType, player);
+                return mainContainer.clicked(slotId - tongsSlotCount, dragType, clickType, player);
             } else {
                 // Слот из щипцов - обрабатываем локально
                 return super.clicked(slotId, dragType, clickType, player);
@@ -133,18 +132,21 @@ public class EnhancedDualContainer extends Container {
             itemstack = itemstack1.copy();
 
             int mainSlotsCount = originalMainSlots.size();
-            int tongsSlotsStart = mainSlotsCount;
+            int mainSlotsStart = tongsSlotCount;
+            int mainSlotsEnd = tongsSlotCount + mainSlotsCount;
 
-            if (index < mainSlotsCount) {
+            if (index >= mainSlotsStart && index < mainSlotsEnd) {
                 // Из основного контейнера в щипцы
-                if (!this.moveItemStackTo(itemstack1, tongsSlotsStart, slots.size(), false)) {
+                if (!this.moveItemStackTo(itemstack1, 0, tongsSlotCount, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (index >= 0 && index < tongsSlotCount) {
+                // Из щипцов в основной контейнер
+                if (!this.moveItemStackTo(itemstack1, mainSlotsStart, mainSlotsEnd, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {
-                // Из щипцов в основной контейнер
-                if (!this.moveItemStackTo(itemstack1, 0, mainSlotsCount, false)) {
-                    return ItemStack.EMPTY;
-                }
+                return ItemStack.EMPTY;
             }
 
             if (itemstack1.isEmpty()) {

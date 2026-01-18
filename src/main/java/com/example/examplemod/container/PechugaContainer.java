@@ -36,11 +36,15 @@ public class PechugaContainer extends Container {
     }
 
     public PechugaContainer(int id, PlayerInventory playerInv, FirepitTileEntity tileEntity) {
+        this(id, playerInv, tileEntity, true);
+    }
+
+    public PechugaContainer(int id, PlayerInventory playerInv, FirepitTileEntity tileEntity, boolean includeTongsSlots) {
         super(com.example.examplemod.ModContainers.PECHUGA.get(), id);
         this.tileEntity = tileEntity;
         this.pechugaInv = tileEntity;
         this.dataAccess = tileEntity.getDataAccess();
-        this.tongsHandler = findTongsHandler(playerInv.player);
+        this.tongsHandler = includeTongsSlots ? findTongsHandler(playerInv.player) : null;
         this.tongsSlotStart = 13;
         this.tongsSlotEnd = this.tongsSlotStart + (tongsHandler != null ? tongsHandler.getSlots() : 0);
         checkContainerSize(this.pechugaInv, 13);

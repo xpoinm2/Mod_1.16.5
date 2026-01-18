@@ -122,10 +122,16 @@ public class BoneTongsItem extends Item {
     }
 
     private boolean tryOpenEnhancedDualForBrick(World world, BlockPos pos, ServerPlayerEntity player, ItemStack tongs) {
-        // Логика аналогична PechugaStructureHandler, но открываем enhanced dual GUI
-        // Здесь нужно найти кострище и открыть dual GUI
-        // Пока что возвращаем false, чтобы использовать обычный обработчик
-        return false;
+        BlockPos firepitMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedFirepitMaster(world, pos);
+        if (firepitMaster == null) {
+            return false;
+        }
+        if (!(world.getBlockEntity(firepitMaster) instanceof FirepitTileEntity)) {
+            return false;
+        }
+        FirepitTileEntity firepit = (FirepitTileEntity) world.getBlockEntity(firepitMaster);
+        openEnhancedDualGUI(player, firepit, firepitMaster, tongs, false);
+        return true;
     }
 
     public static void openEnhancedDualGUI(ServerPlayerEntity player, FirepitTileEntity firepit, BlockPos firepitPos, ItemStack tongs, boolean isFirepit) {

@@ -14,6 +14,8 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
 
     private static final ResourceLocation FIREPIT_TEXTURE =
             new ResourceLocation("examplemod", "textures/gui/firepit.png");
+    private static final ResourceLocation PECHUGA_TEXTURE =
+            new ResourceLocation("examplemod", "textures/gui/pechuga.png");        
     private static final ResourceLocation TONGS_TEXTURE =
             new ResourceLocation(ExampleMod.MODID, "textures/gui/bone_tongs.png");
 
@@ -32,7 +34,7 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
         blit(matrixStack, leftPos, topPos + 8, 0, 0, 70, 80);
 
         // Рисуем фон основного контейнера справа
-        this.minecraft.getTextureManager().bind(FIREPIT_TEXTURE);
+        this.minecraft.getTextureManager().bind(getMainTexture());
         blit(matrixStack, leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X, topPos, 0, 0, 176, 166);
     }
 
@@ -55,7 +57,7 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
         // из оригинального FirepitScreen
 
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(FIREPIT_TEXTURE);
+        this.minecraft.getTextureManager().bind(getMainTexture());
 
         // Пример: рендеринг огня в топке
         int fireHeight = getFireProgress();
@@ -77,14 +79,22 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
     }
 
     private int getFireProgress() {
-        // Получаем прогресс огня из контейнера
-        // Пока что возвращаем 0 - можно реализовать позже
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.FirepitContainer) {
+            return ((com.example.examplemod.container.FirepitContainer) menu.getMainContainer()).getHeatScaled(12);
+        }
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.PechugaContainer) {
+            return ((com.example.examplemod.container.PechugaContainer) menu.getMainContainer()).getHeatScaled(12);
+        }
         return 0;
     }
 
     private int getSmeltProgress() {
-        // Получаем прогресс плавки из контейнера
-        // Пока что возвращаем 0 - можно реализовать позже
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.FirepitContainer) {
+            return ((com.example.examplemod.container.FirepitContainer) menu.getMainContainer()).getProcessingScaled(24);
+        }
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.PechugaContainer) {
+            return ((com.example.examplemod.container.PechugaContainer) menu.getMainContainer()).getProcessingScaled(24);
+        }
         return 0;
     }
 
@@ -126,5 +136,12 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
         return mouseX >= leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X &&
                mouseX <= leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X + 176 &&
                mouseY >= topPos && mouseY <= topPos + 166;
+    }
+
+    private ResourceLocation getMainTexture() {
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.PechugaContainer) {
+            return PECHUGA_TEXTURE;
+        }
+        return FIREPIT_TEXTURE;
     }
 }

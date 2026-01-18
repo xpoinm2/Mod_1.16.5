@@ -180,31 +180,42 @@ public class PechugaStructureHandler {
     public static boolean tryOpenGui(World world, BlockPos clickedPos, net.minecraft.entity.player.PlayerEntity player) {
         if (world.isClientSide) return false;
         
+        BlockPos firepitMaster = findActivatedFirepitMaster(world, clickedPos);
+        if (firepitMaster == null) {
+            return false;
+        }
+        net.minecraft.tileentity.TileEntity tile = world.getBlockEntity(firepitMaster);
+        if (!(tile instanceof com.example.examplemod.tileentity.FirepitTileEntity)) {
+            return false;
+        }
+        com.example.examplemod.tileentity.FirepitTileEntity firepit =
+            (com.example.examplemod.tileentity.FirepitTileEntity) tile;
+        net.minecraft.inventory.container.SimpleNamedContainerProvider provider =
+            new net.minecraft.inventory.container.SimpleNamedContainerProvider(
+                (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, firepit),
+                new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
+            );
+        net.minecraftforge.fml.network.NetworkHooks.openGui(
+            (net.minecraft.entity.player.ServerPlayerEntity) player, provider, firepitMaster);
+        return true;
+    }
+
+    public static BlockPos findActivatedFirepitMaster(World world, BlockPos clickedPos) {
+        if (world.isClientSide) {
+            return null;
+        }
         // Ищем структуру вокруг кликнутого блока
         for (int dx = -5; dx <= 0; dx++) {
             for (int dz = -5; dz <= 0; dz++) {
                 for (int dy = -2; dy <= 2; dy++) {
                     BlockPos start = clickedPos.offset(dx, dy, dz);
                     if (isPechugaActivated(world, start)) {
-                        BlockPos firepitMaster = start.offset(2, 0, 2);
-                        net.minecraft.tileentity.TileEntity tile = world.getBlockEntity(firepitMaster);
-                        if (tile instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
-                            com.example.examplemod.tileentity.FirepitTileEntity firepit = 
-                                (com.example.examplemod.tileentity.FirepitTileEntity) tile;
-                            net.minecraft.inventory.container.SimpleNamedContainerProvider provider = 
-                                new net.minecraft.inventory.container.SimpleNamedContainerProvider(
-                                    (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, firepit),
-                                    new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
-                                );
-                            net.minecraftforge.fml.network.NetworkHooks.openGui(
-                                (net.minecraft.entity.player.ServerPlayerEntity) player, provider, firepitMaster);
-                            return true;
-                        }
+                        return start.offset(2, 0, 2);
                     }
                 }
             }
         }
-        return false;
+        return null;
     }
     
     /**

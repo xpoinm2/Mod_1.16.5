@@ -36,11 +36,15 @@ public class FirepitContainer extends Container {
     }
 
     public FirepitContainer(int id, PlayerInventory playerInv, FirepitTileEntity tileEntity) {
+        this(id, playerInv, tileEntity, true);
+    }
+
+    public FirepitContainer(int id, PlayerInventory playerInv, FirepitTileEntity tileEntity, boolean includeTongsSlots) {
         super(ModContainers.FIREPIT.get(), id);
         this.tileEntity = tileEntity;
         this.firepitInv = tileEntity;
         this.dataAccess = tileEntity.getDataAccess();
-        this.tongsHandler = findTongsHandler(playerInv.player);
+        this.tongsHandler = includeTongsSlots ? findTongsHandler(playerInv.player) : null;
         this.tongsSlotStart = 13;
         this.tongsSlotEnd = this.tongsSlotStart + (tongsHandler != null ? tongsHandler.getSlots() : 0);
         // FirepitTileEntity exposes 13 inventory slots (12 inputs + 1 fuel).

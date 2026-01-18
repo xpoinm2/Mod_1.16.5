@@ -655,6 +655,20 @@ public class ModBlocks {
                     
                     // Сначала проверяем, находится ли кострище внутри структуры кирпичной печи
                     // Если да - открываем GUI кирпичной печи, если нет - GUI кострища
+                    ItemStack mainHand = player.getMainHandItem();
+                    ItemStack offHand = player.getOffhandItem();
+                    boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
+                                     (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
+
+                    if (hasTongs) {
+                        BlockPos pechugaMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedFirepitMaster(world, pos);
+                        if (pechugaMaster != null) {
+                            ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
+                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, firepit, pechugaMaster, tongs, false);
+                            return ActionResultType.SUCCESS;
+                        }
+                    }
+
                     if (com.example.examplemod.server.PechugaStructureHandler.tryOpenGui(world, pos, player)) {
                         return ActionResultType.SUCCESS;
                     }
@@ -663,11 +677,6 @@ public class ModBlocks {
                     // Check if the multiblock structure is still intact
                     if (firepit.isMultiblockIntact()) {
                         // Проверяем, есть ли щипцы у игрока
-                        ItemStack mainHand = player.getMainHandItem();
-                        ItemStack offHand = player.getOffhandItem();
-                        boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
-                                         (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
-
                         if (hasTongs) {
                             // Открываем enhanced dual GUI
                             ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
@@ -763,19 +772,29 @@ public class ModBlocks {
                 // Master блок кострища на (2,0,2) относительно начала структуры
                 // Кострище начинается с (1,0,1), master блок на (1,1) внутри кострища = (2,0,2) относительно начала
                 BlockPos firepitMaster = structureStart.offset(2, 0, 2);
+
+                ItemStack mainHand = player.getMainHandItem();
+                ItemStack offHand = player.getOffhandItem();
+                boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
+                                 (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
                 
                 TileEntity tile = world.getBlockEntity(firepitMaster);
                 if (tile instanceof FirepitTileEntity) {
                     FirepitTileEntity firepit = (FirepitTileEntity) tile;
                     // Проверяем, что структура кирпичной печи цела
                     if (isPechugaStructureIntact(world, structureStart)) {
-                        // Открываем GUI кирпичной печи через специальный контейнер
-                        net.minecraft.inventory.container.SimpleNamedContainerProvider provider = 
-                            new net.minecraft.inventory.container.SimpleNamedContainerProvider(
-                                (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, firepit),
-                                new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
-                            );
-                        net.minecraftforge.fml.network.NetworkHooks.openGui((ServerPlayerEntity) player, provider, firepitMaster);
+                        if (hasTongs) {
+                            ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
+                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, firepit, firepitMaster, tongs, false);
+                        } else {
+                            // Открываем GUI кирпичной печи через специальный контейнер
+                            net.minecraft.inventory.container.SimpleNamedContainerProvider provider =
+                                new net.minecraft.inventory.container.SimpleNamedContainerProvider(
+                                    (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, firepit),
+                                    new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
+                                );
+                            net.minecraftforge.fml.network.NetworkHooks.openGui((ServerPlayerEntity) player, provider, firepitMaster);
+                        }
                     } else {
                         return ActionResultType.FAIL;
                     }
@@ -892,6 +911,20 @@ public class ModBlocks {
         public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
             if (!world.isClientSide && hand == Hand.MAIN_HAND) {
                 // Проверяем, является ли этот блок частью активированной структуры кирпичной печи
+                ItemStack mainHand = player.getMainHandItem();
+                ItemStack offHand = player.getOffhandItem();
+                boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
+                                 (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
+
+                if (hasTongs) {
+                    BlockPos firepitMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedFirepitMaster(world, pos);
+                    if (firepitMaster != null && world.getBlockEntity(firepitMaster) instanceof FirepitTileEntity) {
+                        ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
+                        com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player,
+                                (FirepitTileEntity) world.getBlockEntity(firepitMaster), firepitMaster, tongs, false);
+                        return ActionResultType.SUCCESS;
+                    }
+                }
                 if (com.example.examplemod.server.PechugaStructureHandler.tryOpenGui(world, pos, player)) {
                     return ActionResultType.SUCCESS;
                 }
