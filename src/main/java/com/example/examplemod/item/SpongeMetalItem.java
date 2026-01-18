@@ -29,6 +29,7 @@ public class SpongeMetalItem extends Item {
     private static final String STATE_TAG = "SpongeState";
     private static final String CREATION_TIME_TAG = "CreationTime";
     private static final String TRANSITION_TIME_TAG = "TransitionTime";
+    private static final String FRESH_FROM_HOT_FURNACE_TAG = "FreshFromHotFurnace";
 
     // Время переходов в секундах
     private static final int TRANSITION_TIME = 20; // 20 секунд
@@ -118,6 +119,19 @@ public class SpongeMetalItem extends Item {
         if (!(entity instanceof PlayerEntity)) return;
 
         PlayerEntity player = (PlayerEntity) entity;
+
+        // Проверяем, был ли предмет только что взят из горячей печи/кострища
+        CompoundNBT nbt = stack.getOrCreateTag();
+        if (nbt.contains(FRESH_FROM_HOT_FURNACE_TAG)) {
+            // Удаляем флаг через некоторое время (например, через 5 секунд)
+            long freshTime = nbt.getLong(FRESH_FROM_HOT_FURNACE_TAG);
+            long currentTime = System.currentTimeMillis() / 1000;
+            if (currentTime - freshTime > 5) {
+                nbt.remove(FRESH_FROM_HOT_FURNACE_TAG);
+                stack.setTag(nbt);
+            }
+            return; // Не начинаем охлаждение
+        }
 
         // Проверяем переход состояний
         checkStateTransition(stack);

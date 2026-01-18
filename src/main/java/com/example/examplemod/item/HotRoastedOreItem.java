@@ -1,6 +1,7 @@
 // === FILE src/main/java/com/example/examplemod/item/HotRoastedOreItem.java
 package com.example.examplemod.item;
 
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,12 +10,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
 public class HotRoastedOreItem extends Item {
-    private static final String TIMER_TAG = "HotTimer";
-    private static final int MAX_TIMER = 180; // 180 секунд = 3 минуты
-    private static final String WATER_BONUS_TAG = "HotWaterBonus";
-    private static final String WATER_LAST_TAG = "HotWaterLast";
+    // Константы для состояний (как у губчатого металла)
+    public static final int STATE_HOT = 1;    // Горячий
+    public static final int STATE_COLD = 2;   // Холодный
+
+    // Константы для NBT тегов
+    private static final String STATE_TAG = "HotOreState";
+    private static final String CREATION_TIME_TAG = "CreationTime";
+    private static final String TRANSITION_TIME_TAG = "TransitionTime";
+    private static final String FRESH_FROM_HOT_FURNACE_TAG = "FreshFromHotFurnace";
+
+    // Время перехода из горячего в холодное состояние (в тиках)
+    private static final int TRANSITION_TIME = 1200; // 1200 тиков = 60 секунд
 
     private final Item resultItem; // Предмет, в который преобразуется горячая руда
 
@@ -23,73 +39,57 @@ public class HotRoastedOreItem extends Item {
         this.resultItem = resultItem;
     }
 
-    // Получить оставшееся время таймера в секундах
-    public static int getRemainingTime(ItemStack stack) {
+    /**
+     * Получить текущее состояние предмета
+     */
+    public static int getState(ItemStack stack) {
         CompoundNBT nbt = stack.getOrCreateTag();
-        long creationTime = nbt.getLong(TIMER_TAG);
-        if (creationTime == 0) {
-            // Если время создания не установлено, устанавливаем текущее время и сбрасываем бонусы
-            setCreationTime(stack, System.currentTimeMillis() / 1000);
-            return MAX_TIMER;
+        int state = nbt.getInt(STATE_TAG);
+
+        // Инициализируем состояние, если его нет
+        if (state == 0) {
+            setState(stack, STATE_HOT);
+            return STATE_HOT;
         }
 
+        return state;
+    }
+
+    /**
+     * Установить состояние предмета
+     */
+    public static void setState(ItemStack stack, int state) {
+        CompoundNBT nbt = stack.getOrCreateTag();
+        nbt.putInt(STATE_TAG, state);
+        nbt.putLong(CREATION_TIME_TAG, System.currentTimeMillis() / 1000);
+        nbt.putLong(TRANSITION_TIME_TAG, System.currentTimeMillis() / 1000);
+        stack.setTag(nbt);
+    }
+
+    /**
+     * Проверить, нужно ли перейти к следующему состоянию
+     */
+    private static void checkStateTransition(ItemStack stack) {
+        int currentState = getState(stack);
+        if (currentState == STATE_COLD) {
+            return; // Холодное состояние финальное
+        }
+
+        CompoundNBT nbt = stack.getOrCreateTag();
+        long transitionTime = nbt.getLong(TRANSITION_TIME_TAG);
         long currentTime = System.currentTimeMillis() / 1000;
-        int elapsedSeconds = (int) (currentTime - creationTime);
-        int waterBonus = Math.max(0, nbt.getInt(WATER_BONUS_TAG));
-        int remaining = MAX_TIMER - elapsedSeconds - waterBonus;
-        return Math.max(0, remaining);
-    }
 
-    // Установить время создания предмета
-    public static void setCreationTime(ItemStack stack, long timestamp) {
-        CompoundNBT nbt = stack.getOrCreateTag();
-        nbt.putLong(TIMER_TAG, timestamp);
-        nbt.putInt(WATER_BONUS_TAG, 0);
-        nbt.putLong(WATER_LAST_TAG, 0);
-        stack.setTag(nbt);
-    }
-
-    // Проверить, истек ли таймер
-    public static boolean isTimerExpired(ItemStack stack) {
-        return isTimerExpired(stack, 1.0f, false);
-    }
-
-    // Проверить, истек ли таймер с множителем скорости и информацией об ускоренном охлаждении
-    public static boolean isTimerExpired(ItemStack stack, float speedMultiplier, boolean inWater) {
-        if (inWater && speedMultiplier > 1.0f) {
-            applyWaterAcceleration(stack, speedMultiplier);
-        } else {
-            resetWaterTracking(stack);
+        if (currentTime - transitionTime >= TRANSITION_TIME) {
+            setState(stack, STATE_COLD);
         }
-        return getRemainingTime(stack) <= 0;
     }
 
-    private static void applyWaterAcceleration(ItemStack stack, float speedMultiplier) {
-        CompoundNBT nbt = stack.getOrCreateTag();
-        long now = System.currentTimeMillis() / 1000;
-        long lastWaterTime = nbt.getLong(WATER_LAST_TAG);
-        if (lastWaterTime == 0) {
-            nbt.putLong(WATER_LAST_TAG, now);
-            return;
-        }
-
-        long deltaSeconds = now - lastWaterTime;
-        if (deltaSeconds > 0) {
-            int extraSeconds = (int) (deltaSeconds * (speedMultiplier - 1.0f));
-            if (extraSeconds > 0) {
-                int bonus = Math.min(MAX_TIMER, nbt.getInt(WATER_BONUS_TAG) + extraSeconds);
-                nbt.putInt(WATER_BONUS_TAG, bonus);
-            }
-        }
-
-        nbt.putLong(WATER_LAST_TAG, now);
-        stack.setTag(nbt);
-    }
-
-    private static void resetWaterTracking(ItemStack stack) {
-        CompoundNBT nbt = stack.getOrCreateTag();
-        nbt.putLong(WATER_LAST_TAG, 0);
-        stack.setTag(nbt);
+    /**
+     * Проверить контакт с водой (для совместимости, хотя горячие руды не должны реагировать на воду)
+     */
+    private static void checkWaterContact(ItemStack stack, World world, Entity entity) {
+        // Для горячих руд контакт с водой не влияет на состояние
+        // Они просто постепенно охлаждаются со временем
     }
 
     // Преобразовать предмет в обычную обожженную руду
@@ -103,16 +103,15 @@ public class HotRoastedOreItem extends Item {
         return resultStack;
     }
 
-    // Отображение шкалы таймера (как durability bar)
+    // Не показываем полоску durability (как у губчатых металлов)
     @Override
     public boolean showDurabilityBar(ItemStack stack) {
-        return true;
+        return false;
     }
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-        int remainingTime = getRemainingTime(stack);
-        return 1.0 - ((double) remainingTime / MAX_TIMER);
+        return 0.0;
     }
 
     @Override
@@ -128,8 +127,8 @@ public class HotRoastedOreItem extends Item {
     }
 
     /**
-     * Обновление таймера в инвентаре без глобальных TickEvent-сканирований.
-     * Если таймер истёк — заменяем предмет на "обычную" обожжённую руду.
+     * Обновление состояния в инвентаре игрока.
+     * Если предмет охладелся — заменяем на обычную обожжённую руду.
      */
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
@@ -137,30 +136,72 @@ public class HotRoastedOreItem extends Item {
         if (world.isClientSide) return;
         if (!(entity instanceof PlayerEntity)) return;
 
-        // Инициализируем таймер, если он ещё не установлен
-        int remaining = getRemainingTime(stack);
-        if (remaining > 0) return;
-
         PlayerEntity player = (PlayerEntity) entity;
-        // Заменяем стек в конкретном слоте (предмет не стакается, так что count=1)
-        player.inventory.setItem(slot, getResultItemStack(stack));
+
+        // Проверяем, был ли предмет только что взят из горячей печи/кострища
+        CompoundNBT nbt = stack.getOrCreateTag();
+        if (nbt.contains(FRESH_FROM_HOT_FURNACE_TAG)) {
+            // Удаляем флаг через некоторое время (например, через 5 секунд)
+            long freshTime = nbt.getLong(FRESH_FROM_HOT_FURNACE_TAG);
+            long currentTime = System.currentTimeMillis() / 1000;
+            if (currentTime - freshTime > 5) {
+                nbt.remove(FRESH_FROM_HOT_FURNACE_TAG);
+                stack.setTag(nbt);
+            }
+            return; // Не начинаем охлаждение
+        }
+
+        // Проверяем переход состояний
+        checkStateTransition(stack);
+
+        // Если предмет стал холодным, заменяем на обычную руду
+        if (getState(stack) == STATE_COLD) {
+            player.inventory.setItem(slot, getResultItemStack(stack));
+        }
     }
 
     /**
-     * Обновление таймера у ItemEntity прямо "на предмете", без перебора всех сущностей мира.
+     * Обновление состояния у ItemEntity (выброшенные предметы).
      */
     @Override
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         if (entity.level.isClientSide) return false;
 
-        BlockPos pos = entity.blockPosition();
-        boolean inWater = entity.level.getFluidState(pos).is(FluidTags.WATER);
-        float speedMultiplier = inWater ? 10.0f : 1.0f;
+        // Проверяем переход состояний
+        checkStateTransition(stack);
 
-        if (isTimerExpired(stack, speedMultiplier, inWater)) {
+        // Проверяем контакт с водой (для совместимости)
+        checkWaterContact(stack, entity.level, entity);
+
+        // Если предмет стал холодным, заменяем на обычную руду
+        if (getState(stack) == STATE_COLD) {
             entity.setItem(getResultItemStack(stack));
         }
 
         return false;
+    }
+
+    // Отображаем состояние в тултипе
+    @Override
+    public void appendHoverText(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+        super.appendHoverText(stack, world, tooltip, flag);
+
+        int state = getState(stack);
+        String stateText = "";
+        TextFormatting color = TextFormatting.GRAY;
+
+        switch (state) {
+            case STATE_HOT:
+                stateText = "Горячий";
+                color = TextFormatting.RED;
+                break;
+            case STATE_COLD:
+                stateText = "Холодный";
+                color = TextFormatting.BLUE;
+                break;
+        }
+
+        tooltip.add(new TranslationTextComponent("tooltip.examplemod.hot_ore.state", stateText)
+                .withStyle(color));
     }
 }

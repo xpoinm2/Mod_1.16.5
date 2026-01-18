@@ -5,6 +5,8 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.container.FirepitContainer;
 import com.example.examplemod.item.HotRoastedOreItem;
+import com.example.examplemod.item.SpongeMetalItem;
+import com.example.examplemod.item.HotRoastedOreItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -361,9 +363,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         double roll = level != null ? level.random.nextDouble() : Math.random();
         if (roll < successChance) {
             ItemStack resultStack = new ItemStack(resultItem);
-            // Если результат - горячая руда, устанавливаем время создания
+            // Если результат - горячая руда, устанавливаем горячее состояние
             if (resultItem instanceof HotRoastedOreItem) {
-                HotRoastedOreItem.setCreationTime(resultStack, System.currentTimeMillis() / 1000);
+                HotRoastedOreItem.setState(resultStack, HotRoastedOreItem.STATE_HOT);
             }
             return resultStack;
         }
@@ -529,6 +531,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             // Store the current cooking stage in the item before removing it
             if (index < GRID_SLOT_COUNT) {
                 storeCookingStage(stack, slotCookingStages[index]);
+                // Если печь горячая и предмет горячий - помечаем его как свежий из горячей печи
+                if (heat >= MIN_HEAT_FOR_SMELTING && (stack.getItem() instanceof HotRoastedOreItem || stack.getItem() instanceof SpongeMetalItem)) {
+                    CompoundNBT nbt = stack.getOrCreateTag();
+                    nbt.putLong("FreshFromHotFurnace", System.currentTimeMillis() / 1000);
+                    stack.setTag(nbt);
+                }
             }
             onInventoryChanged();
             setChanged();
@@ -543,6 +551,12 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             // Store the current cooking stage in the item before removing it
             if (index < GRID_SLOT_COUNT) {
                 storeCookingStage(stack, slotCookingStages[index]);
+                // Если печь горячая и предмет горячий - помечаем его как свежий из горячей печи
+                if (heat >= MIN_HEAT_FOR_SMELTING && (stack.getItem() instanceof HotRoastedOreItem || stack.getItem() instanceof SpongeMetalItem)) {
+                    CompoundNBT nbt = stack.getOrCreateTag();
+                    nbt.putLong("FreshFromHotFurnace", System.currentTimeMillis() / 1000);
+                    stack.setTag(nbt);
+                }
             }
             onInventoryChanged();
             setChanged();

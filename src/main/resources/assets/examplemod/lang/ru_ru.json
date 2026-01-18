@@ -172,5 +172,6 @@
   "item.examplemod.sponge_iron": "Губчатое железо",
   "item.examplemod.sponge_tin": "Губчатое олово",
   "item.examplemod.sponge_gold": "Губчатое золото",
-  "tooltip.examplemod.sponge_metal.state": "Состояние: %s"
+  "tooltip.examplemod.sponge_metal.state": "Состояние: %s",
+  "tooltip.examplemod.hot_ore.state": "Состояние: %s"
 }
