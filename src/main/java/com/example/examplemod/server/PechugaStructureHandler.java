@@ -39,8 +39,9 @@ public class PechugaStructureHandler {
         }
     }
 
-    private static boolean isBrickBlockWithLining(BlockState state) {
-        return state.getBlock() == ModBlocks.BRICK_BLOCK_WITH_LINING.get();
+    private static boolean isPechugaWallBlock(BlockState state) {
+        return state.getBlock() == ModBlocks.BRICK_BLOCK_WITH_LINING.get()
+                || state.getBlock() == ModBlocks.PECHUGA_BLOCK.get();
     }
 
     private static boolean isFirepit(BlockState state) {
@@ -133,8 +134,8 @@ public class PechugaStructureHandler {
                                 return false;
                             }
                         } else {
-                            // Все остальные блоки стены должны быть кирпичными
-                            if (!isBrickBlockWithLining(state)) {
+                            // Все остальные блоки стены должны быть кирпичными или печугой
+                            if (!isPechugaWallBlock(state)) {
                                 return false;
                             }
                             brickBlocks++;
@@ -235,8 +236,8 @@ public class PechugaStructureHandler {
             return false;
         }
         
-        // Проверяем, что стены из кирпичных блоков (не из PECHUGA_BLOCK)
-        // Это означает, что структура была активирована, но блоки остались кирпичными
+        // Проверяем, что стены из кирпичных блоков или печуги
+        // Это означает, что структура была активирована и валидна
         BlockPos firepitStart = start.offset(1, 0, 1);
         for (int x = 0; x < 4; x++) {
             for (int z = 0; z < 4; z++) {

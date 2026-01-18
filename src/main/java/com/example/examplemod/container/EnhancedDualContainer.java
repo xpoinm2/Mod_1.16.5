@@ -27,8 +27,8 @@ public class EnhancedDualContainer extends Container {
     // Константы для позиционирования
     public static final int MAIN_GUI_OFFSET_X = 80; // Сдвиг основного GUI вправо
     public static final int MAIN_GUI_OFFSET_Y = 0;
-    public static final int TONGS_GUI_X = 8; // Позиция GUI щипцов
-    public static final int TONGS_GUI_Y = 18;
+    public static final int TONGS_GUI_X = 30; // Позиция GUI щипцов
+    public static final int TONGS_GUI_Y = 26;
 
     public EnhancedDualContainer(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
         super(ModContainers.ENHANCED_DUAL_CONTAINER.get(), windowId);
