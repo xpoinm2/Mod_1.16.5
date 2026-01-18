@@ -9,6 +9,7 @@ import com.example.examplemod.block.ClayShardsBlock;
 import com.example.examplemod.block.RawClayPotBlock;
 import com.example.examplemod.block.DirtyWaterBlock;
 import com.example.examplemod.block.BaseSlabBlock;
+import com.example.examplemod.block.CobblestoneAnvilBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
@@ -218,6 +219,10 @@ public class ModBlocks {
     // Кирпичный блок с футеровкой
     public static final RegistryObject<Block> BRICK_BLOCK_WITH_LINING = ModRegistries.BLOCKS.register("brick_block_with_lining",
             BrickBlockWithLining::new);
+
+    // Наковальня из булыжника
+    public static final RegistryObject<Block> COBBLESTONE_ANVIL = ModRegistries.BLOCKS.register("cobblestone_anvil",
+            CobblestoneAnvilBlock::new);
 
 
     public static void register(IEventBus bus) {

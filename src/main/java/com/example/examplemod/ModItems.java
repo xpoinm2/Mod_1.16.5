@@ -504,6 +504,11 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.PECHUGA_BLOCK.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Наковальня из булыжника как предмет
+    public static final RegistryObject<Item> COBBLESTONE_ANVIL = ModRegistries.ITEMS.register("cobblestone_anvil",
+            () -> new BlockItem(ModBlocks.COBBLESTONE_ANVIL.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
 
 
     public static void register(IEventBus bus) {

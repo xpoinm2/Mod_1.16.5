@@ -4,6 +4,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.network.ModNetworkHandler;
+import com.example.examplemod.network.OpenCobblestoneDialogPacket;
 import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.server.mechanics.IMechanicModule;
 import net.minecraft.block.Block;
@@ -67,6 +68,13 @@ public class BlockBreakMechanic implements IMechanicModule {
         }
 
         BlockState state = event.getState();
+
+        // Check if player is hitting cobblestone with a hammer
+        if (state.getBlock() == Blocks.COBBLESTONE && isHoldingHammer(player)) {
+            event.setCanceled(true);
+            openCobblestoneDialog((ServerPlayerEntity) player, event.getPos());
+            return;
+        }
 
         if (isOreBlock(state.getBlock()) && !canMineOre(player)) {
             event.setCanceled(true);
@@ -198,6 +206,20 @@ public class BlockBreakMechanic implements IMechanicModule {
             return tiered.getTier().getLevel() >= 1;
         }
         return false;
+    }
+
+    private static boolean isHoldingHammer(PlayerEntity player) {
+        ItemStack held = player.getMainHandItem();
+        if (held.isEmpty()) {
+            return false;
+        }
+        Item item = held.getItem();
+        return item == ModItems.STONE_HAMMER.get() || item == ModItems.BONE_HAMMER.get();
+    }
+
+    private static void openCobblestoneDialog(ServerPlayerEntity player, BlockPos pos) {
+        ModNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                new OpenCobblestoneDialogPacket(pos));
     }
 }
 

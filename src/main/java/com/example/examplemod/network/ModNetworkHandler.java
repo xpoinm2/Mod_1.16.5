@@ -11,7 +11,9 @@ import com.example.examplemod.network.ActivityPacket;
 import com.example.examplemod.network.ClayPotModePacket;
 import com.example.examplemod.network.HarvestGrassPacket;
 import com.example.examplemod.network.OpenBoneTongsItemPacket;
+import com.example.examplemod.network.OpenCobblestoneDialogPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
+import com.example.examplemod.network.PlaceAnvilPacket;
 import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.network.WashProgressPacket;
 
@@ -100,6 +102,20 @@ public class ModNetworkHandler {
                 WashProgressPacket::encode,
                 WashProgressPacket::decode,
                 WashProgressPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                OpenCobblestoneDialogPacket.class,
+                OpenCobblestoneDialogPacket::encode,
+                OpenCobblestoneDialogPacket::decode,
+                OpenCobblestoneDialogPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                PlaceAnvilPacket.class,
+                PlaceAnvilPacket::encode,
+                PlaceAnvilPacket::decode,
+                PlaceAnvilPacket::handle
         );
     }
 }
