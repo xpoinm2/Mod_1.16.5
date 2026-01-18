@@ -2,7 +2,6 @@ package com.example.examplemod;
 
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.container.BoneTongsScreen;
-import com.example.examplemod.client.screen.container.BoneTongsSelectionScreen;
 import com.example.examplemod.client.screen.container.ClayPotScreen;
 import com.example.examplemod.client.screen.container.FirepitScreen;
 import com.example.examplemod.client.screen.container.PechugaScreen;
@@ -100,7 +99,6 @@ public class ExampleMod {
         net.minecraft.client.gui.ScreenManager.register(ModContainers.PECHUGA.get(), PechugaScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.CLAY_POT.get(), ClayPotScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS.get(), BoneTongsScreen::new);
-        net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS_SELECTION.get(), BoneTongsSelectionScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.SLAB.get(), SlabScreen::new);
         registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                 new HeavenDimensionRenderInfo());
