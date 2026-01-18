@@ -1,6 +1,7 @@
 package com.example.examplemod.item;
 
 import com.example.examplemod.ModBlocks;
+import com.example.examplemod.ModContainers;
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.block.BlockState;
@@ -23,6 +24,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import io.netty.buffer.Unpooled;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -82,6 +85,12 @@ public class BoneTongsItem extends Item {
         }
         if (blockEntity == null) {
             return ActionResultType.PASS;
+        }
+
+        // Проверяем, нажат ли Shift - если да, открываем GUI выбора
+        if (player instanceof ServerPlayerEntity && player.isCrouching()) {
+            openSelectionGUI((ServerPlayerEntity) player, held, firepitPos);
+            return ActionResultType.SUCCESS;
         }
 
         boolean transferred = false;
@@ -259,5 +268,16 @@ public class BoneTongsItem extends Item {
                     pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
                     6, 0.2, 0.1, 0.2, 0.005);
         }
+    }
+
+    private void openSelectionGUI(ServerPlayerEntity player, ItemStack boneStack, BlockPos blockPos) {
+        NetworkHooks.openGui(player,
+                new SimpleNamedContainerProvider(
+                        (windowId, playerInventory, playerEntity) -> new com.example.examplemod.container.BoneTongsSelectionContainer(windowId, playerInventory, new PacketBuffer(Unpooled.buffer()).writeBlockPos(blockPos).writeItem(boneStack)),
+                        new TranslationTextComponent("container.examplemod.bone_tongs_selection")),
+                buffer -> {
+                    buffer.writeBlockPos(blockPos);
+                    buffer.writeItem(boneStack);
+                });
     }
 }
