@@ -1,0 +1,8 @@
+# Placeholder for cobblestone_anvil.png texture
+# This should be a 176x166 pixel GUI texture similar to vanilla anvil GUI
+# but with cobblestone background instead of iron texture
+# The texture should have 3 slots positioned like vanilla anvil:
+# - Left slot (metal input): ~27x47
+# - Middle slot (tool input): ~76x47  
+# - Right slot (output): ~134x47
+# Background should use cobblestone texture pattern

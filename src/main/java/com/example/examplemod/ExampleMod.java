@@ -3,6 +3,7 @@ package com.example.examplemod;
 import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
 import com.example.examplemod.client.screen.container.BoneTongsScreen;
 import com.example.examplemod.client.screen.container.ClayPotScreen;
+import com.example.examplemod.client.screen.container.CobblestoneAnvilScreen;
 import com.example.examplemod.client.screen.container.EnhancedDualScreen;
 import com.example.examplemod.client.screen.container.FirepitScreen;
 import com.example.examplemod.client.screen.container.PechugaScreen;
@@ -102,6 +103,7 @@ public class ExampleMod {
         net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS.get(), BoneTongsScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.ENHANCED_DUAL_CONTAINER.get(), EnhancedDualScreen::new);
         net.minecraft.client.gui.ScreenManager.register(ModContainers.SLAB.get(), SlabScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.COBBLESTONE_ANVIL.get(), CobblestoneAnvilScreen::new);
         registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
                 new HeavenDimensionRenderInfo());
         RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
