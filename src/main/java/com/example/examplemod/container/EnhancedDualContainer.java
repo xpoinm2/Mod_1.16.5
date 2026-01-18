@@ -9,6 +9,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -34,18 +35,34 @@ public class EnhancedDualContainer extends Container {
         // Читаем данные
         boolean isFirepit = data.readBoolean();
         ItemStack tongsStack = data.readItem();
+        BlockPos blockPos = data.readBlockPos();
+
+        // Получаем FirepitTileEntity из мира
+        com.example.examplemod.tileentity.FirepitTileEntity firepitTile = null;
+        if (playerInventory.player.level instanceof net.minecraft.world.server.ServerWorld) {
+            net.minecraft.world.server.ServerWorld serverWorld = (net.minecraft.world.server.ServerWorld) playerInventory.player.level;
+            net.minecraft.tileentity.TileEntity tileEntity = serverWorld.getBlockEntity(blockPos);
+            if (tileEntity instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
+                firepitTile = (com.example.examplemod.tileentity.FirepitTileEntity) tileEntity;
+            }
+        }
 
         // Получаем обработчик щипцов
         tongsHandler = tongsStack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
                 .orElseGet(() -> new BoneTongsCapabilityProvider(tongsStack).getHandler());
 
-        // Создаем основной контейнер (упрощенная версия)
-        if (isFirepit) {
-            // Создаем FirepitContainer без дополнительных данных
-            // Используем конструктор с null для tile entity
-            mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, (com.example.examplemod.tileentity.FirepitTileEntity) null);
+        // Создаем основной контейнер
+        if (isFirepit && firepitTile != null) {
+            mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, firepitTile);
+        } else if (!isFirepit && firepitTile != null) {
+            mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, firepitTile);
         } else {
-            mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, (com.example.examplemod.tileentity.FirepitTileEntity) null);
+            // Fallback - создаем контейнер без tile entity
+            if (isFirepit) {
+                mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, (com.example.examplemod.tileentity.FirepitTileEntity) null);
+            } else {
+                mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, (com.example.examplemod.tileentity.FirepitTileEntity) null);
+            }
         }
 
         // Добавляем слоты щипцов слева

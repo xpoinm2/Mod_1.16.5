@@ -156,6 +156,8 @@ public class BoneTongsItem extends Item {
         packetBuffer.writeItem(tongs);
         packetBuffer.writeBlockPos(firepitPos);
 
-        return new EnhancedDualContainer(windowId, playerInventory, packetBuffer);
+        // Создаем контейнер напрямую с правильными данными
+        EnhancedDualContainer container = new EnhancedDualContainer(windowId, playerInventory, packetBuffer);
+        return container;
     }
 }
