@@ -32,17 +32,10 @@ public class CalcinedIronOreQuestScreen extends AbstractQuestScreen {
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth,
-                "Получить 16 горячей обожжённой железной руды и 16 обожжённой железной руды", 0xFFFFFF00);
+                "Получить 16 обожжённой железной руды", 0xFFFFFF00);
         y += 6;
-        int iconX = x;
-        ItemStack hotStack = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
-        RoastedOreItem.setState(hotStack, RoastedOreItem.STATE_HOT);
-        if (GuiUtil.renderItemWithTooltip(this, ms, hotStack, iconX, y, mouseX, mouseY)) {
-            hoveredStack = hotStack;
-        }
-        iconX += 22;
         ItemStack calcinedStack = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
-        if (GuiUtil.renderItemWithTooltip(this, ms, calcinedStack, iconX, y, mouseX, mouseY)) {
+        if (GuiUtil.renderItemWithTooltip(this, ms, calcinedStack, x, y, mouseX, mouseY)) {
             hoveredStack = calcinedStack;
         }
         y += 22;

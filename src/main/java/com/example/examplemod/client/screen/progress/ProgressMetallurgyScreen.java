@@ -40,6 +40,7 @@ public class ProgressMetallurgyScreen extends Screen {
     private ItemIconButton calcinedIronOreButton;
     private ItemIconButton calcinedGoldButton;
     private ItemIconButton calcinedTinButton;
+    private ItemIconButton spongeMetalsButton;
 
 
     private int offsetX;
@@ -230,6 +231,17 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .append(new StringTextComponent("Очищённая гравийная оловянная руда")
                                         .withStyle(TextFormatting.GOLD))));
         registerNode(this.calcinedTinButton, baseX + spacingX, baseY);
+
+        this.spongeMetalsButton = new ItemIconButton(baseX + spacingX * 2, baseY,
+                new ItemStack(ModItems.SPONGE_IRON.get()),
+                b -> this.minecraft.setScreen(new SpongeMetalsQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Губчатые металлы")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Кирпичная печь")
+                                        .withStyle(TextFormatting.GOLD))));
+        registerNode(this.spongeMetalsButton, baseX + spacingX * 2, baseY);
     }
 
     @Override
@@ -261,6 +273,9 @@ public class ProgressMetallurgyScreen extends Screen {
             }
             if (this.calcinedTinButton != null) {
                 this.calcinedTinButton.setBorderColor(colorForState(getCalcinedTinState()));
+            }
+            if (this.spongeMetalsButton != null) {
+                this.spongeMetalsButton.setBorderColor(colorForState(getSpongeMetalsState()));
             }
         }
 
@@ -339,6 +354,13 @@ public class ProgressMetallurgyScreen extends Screen {
             return QuestState.LOCKED;
         }
         return QuestManager.isCalcinedTinOreCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getSpongeMetalsState() {
+        if (!QuestManager.isBrickKilnCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isSpongeMetalsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
     @Override

@@ -64,7 +64,7 @@ public class BoneTongsQuestScreen extends AbstractQuestScreen {
 
     @Override
     protected boolean isQuestUnlocked() {
-        return QuestManager.isAncientWorldCompleted();
+        return QuestManager.isFirepitCompleted();
     }
 
     @Override

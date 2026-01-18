@@ -191,6 +191,17 @@ public class ProgressProductionScreen extends Screen {
                                         .withStyle(TextFormatting.BLUE))));
         QuestNode clayCupNode = registerNode(this.clayCupButton, baseX, baseY + spacingY * 2);
 
+        this.boneTongsButton = new ItemIconButton(baseX + spacingX * 4, baseY + spacingY,
+                new ItemStack(ModItems.BONE_TONGS.get()),
+                b -> this.minecraft.setScreen(new BoneTongsQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Костяные щипцы")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Кострище")
+                                        .withStyle(TextFormatting.BLUE))));
+        QuestNode boneTongsNode = registerNode(this.boneTongsButton, baseX + spacingX * 4, baseY + spacingY);
+
         this.cobbleSlabButton = new ItemIconButton(baseX + spacingX, baseY + spacingY,
                 new ItemStack(ModItems.COBBLESTONE_SLAB.get()),
                 b -> this.minecraft.setScreen(new CobbleSlabQuestScreen(this)),
@@ -274,18 +285,7 @@ public class ProgressProductionScreen extends Screen {
         int baseY = 130;
         int spacingX = 110;
 
-        this.boneTongsButton = new ItemIconButton(baseX, baseY,
-                new ItemStack(ModItems.BONE_TONGS.get()),
-                b -> this.minecraft.setScreen(new BoneTongsQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Костяные щипцы")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Пройти древний мир")
-                                        .withStyle(TextFormatting.GOLD))));
-        registerNode(this.boneTongsButton, baseX, baseY);
-
-        this.brickKilnButton = new ItemIconButton(baseX + spacingX, baseY,
+        this.brickKilnButton = new ItemIconButton(baseX, baseY,
                 new ItemStack(ModItems.BRICK_BLOCK_WITH_LINING.get()),
                 b -> this.minecraft.setScreen(new BrickKilnQuestScreen(this)),
                 () -> Arrays.asList(
@@ -323,10 +323,8 @@ public class ProgressProductionScreen extends Screen {
             this.scrapedLeatherButton.setBorderColor(colorForState(getScrapedLeatherState()));
             this.clayPotButton.setBorderColor(colorForState(getClayPotState()));
             this.clayCupButton.setBorderColor(colorForState(getClayCupState()));
+            this.boneTongsButton.setBorderColor(colorForState(getBoneTongsState()));
         } else if (parent instanceof AncientMetallurgyEraScreen) {
-            if (this.boneTongsButton != null) {
-                this.boneTongsButton.setBorderColor(colorForState(getBoneTongsState()));
-            }
             if (this.brickKilnButton != null) {
                 this.brickKilnButton.setBorderColor(colorForState(getBrickKilnState()));
             }
