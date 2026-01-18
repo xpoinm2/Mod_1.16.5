@@ -7,6 +7,7 @@ import com.example.examplemod.container.FirepitContainer;
 import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.item.HotRoastedOreItem;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -221,6 +222,11 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                     items.set(i, result);
                     slotCookTimes[i] = 0;
 
+                    // Generate slag when producing sponge metal
+                    if (isSpongeMetal(result)) {
+                        generateSlagForSpongeMetal();
+                    }
+
                     // If we just cooked raw clay to finished clay, start the overcooking stage
                     if (isRawClayItem(stack) && slotCookingStages[i] == 0) {
                         slotCookingStages[i] = 1; // Start overcooking stage
@@ -393,6 +399,48 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return item == ModItems.CALCINED_IRON_ORE.get()
                 || item == ModItems.CALCINED_TIN_ORE.get()
                 || item == ModItems.CALCINED_GOLD_ORE.get();
+    }
+
+    private boolean isSpongeMetal(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        Item item = stack.getItem();
+        return item == ModItems.SPONGE_IRON.get()
+                || item == ModItems.SPONGE_TIN.get()
+                || item == ModItems.SPONGE_GOLD.get();
+    }
+
+    private void generateSlagForSpongeMetal() {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+
+        // Generate slag count: 1 or 2 with 50% chance each
+        int slagCount = level.random.nextDouble() < 0.5D ? 1 : 2;
+        ItemStack slagStack = new ItemStack(ModItems.SLAG.get(), slagCount);
+
+        // Try to add slag to an empty slot in the firepit inventory
+        boolean addedToInventory = false;
+        for (int slot = 0; slot < FUEL_SLOT; slot++) { // Don't use fuel slot
+            ItemStack slotStack = items.get(slot);
+            if (slotStack.isEmpty()) {
+                items.set(slot, slagStack);
+                addedToInventory = true;
+                break;
+            } else if (slotStack.getItem() == ModItems.SLAG.get() &&
+                       slotStack.getCount() + slagCount <= slotStack.getMaxStackSize()) {
+                // Try to merge with existing slag stack
+                slotStack.grow(slagCount);
+                addedToInventory = true;
+                break;
+            }
+        }
+
+        // If couldn't add to inventory, drop on ground
+        if (!addedToInventory) {
+            Block.popResource(level, worldPosition.above(), slagStack);
+        }
     }
 
     private void resetCookingProgress() {
