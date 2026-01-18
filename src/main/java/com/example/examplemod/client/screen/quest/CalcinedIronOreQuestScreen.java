@@ -3,6 +3,7 @@ package com.example.examplemod.client.screen.quest;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.GuiUtil;
 import com.example.examplemod.client.screen.main.ScrollArea;
+import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
@@ -34,7 +35,8 @@ public class CalcinedIronOreQuestScreen extends AbstractQuestScreen {
                 "Получить 16 горячей обожжённой железной руды и 16 обожжённой железной руды", 0xFFFFFF00);
         y += 6;
         int iconX = x;
-        ItemStack hotStack = new ItemStack(ModItems.HOT_IRON_ROASTED_ORE.get());
+        ItemStack hotStack = new ItemStack(ModItems.CALCINED_IRON_ORE.get());
+        RoastedOreItem.setState(hotStack, RoastedOreItem.STATE_HOT);
         if (GuiUtil.renderItemWithTooltip(this, ms, hotStack, iconX, y, mouseX, mouseY)) {
             hoveredStack = hotStack;
         }
@@ -64,7 +66,6 @@ public class CalcinedIronOreQuestScreen extends AbstractQuestScreen {
     @Override
     protected boolean hasRequiredItems() {
         return this.minecraft.player != null
-                && this.minecraft.player.inventory.countItem(ModItems.HOT_IRON_ROASTED_ORE.get()) >= 16
                 && this.minecraft.player.inventory.countItem(ModItems.CALCINED_IRON_ORE.get()) >= 16;
     }
 

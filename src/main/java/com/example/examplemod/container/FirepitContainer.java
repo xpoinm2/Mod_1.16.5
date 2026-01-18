@@ -3,7 +3,7 @@ package com.example.examplemod.container;
 import com.example.examplemod.ModContainers;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.item.BoneTongsItem;
-import com.example.examplemod.item.HotRoastedOreItem;
+import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -208,7 +208,7 @@ public class FirepitContainer extends Container {
     }
     
     private boolean tryMoveToTongs(ItemStack stack) {
-        if (tongsHandler == null || !(stack.getItem() instanceof HotRoastedOreItem)) {
+        if (tongsHandler == null || !(stack.getItem() instanceof RoastedOreItem)) {
             return false;
         }
         return this.moveItemStackTo(stack, tongsSlotStart, tongsSlotEnd, false);

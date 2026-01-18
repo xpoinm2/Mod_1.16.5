@@ -30,7 +30,7 @@ import com.example.examplemod.item.ClayCupItem;
 import com.example.examplemod.item.ClayPotBlockItem;
 import com.example.examplemod.item.ClayShardsBlockItem;
 import com.example.examplemod.item.BoneTongsItem;
-import com.example.examplemod.item.HotRoastedOreItem;
+import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.GrassBundleItem;
 import com.example.examplemod.item.PechugaBuilderItem;
 import com.example.examplemod.item.SpongeMetalItem;
@@ -331,24 +331,17 @@ public class ModItems {
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
     public static final RegistryObject<Item> PURE_IRON_ORE = ModRegistries.ITEMS.register("pure_iron_ore",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+    // Обожжённая железная руда (с состояниями горячий/холодный)
     public static final RegistryObject<Item> CALCINED_IRON_ORE = ModRegistries.ITEMS.register("roasted_iron_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new RoastedOreItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Обожжённая оловянная руда (с состояниями горячий/холодный)
     public static final RegistryObject<Item> CALCINED_TIN_ORE = ModRegistries.ITEMS.register("roasted_tin_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new RoastedOreItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // Обожжённая золотая руда (с состояниями горячий/холодный)
     public static final RegistryObject<Item> CALCINED_GOLD_ORE = ModRegistries.ITEMS.register("roasted_gold_ore",
-            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Горячая обожжённая оловянная руда
-    public static final RegistryObject<Item> HOT_TIN_ROASTED_ORE = ModRegistries.ITEMS.register("hot_tin_roasted_ore",
-            () -> new HotRoastedOreItem(CALCINED_TIN_ORE.get(), new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Горячая обожжённая золотая руда
-    public static final RegistryObject<Item> HOT_GOLD_ROASTED_ORE = ModRegistries.ITEMS.register("hot_gold_roasted_ore",
-            () -> new HotRoastedOreItem(CALCINED_GOLD_ORE.get(), new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Горячая обожжённая железная руда
-    public static final RegistryObject<Item> HOT_IRON_ROASTED_ORE = ModRegistries.ITEMS.register("hot_iron_roasted_ore",
-            () -> new HotRoastedOreItem(CALCINED_IRON_ORE.get(), new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+            () -> new RoastedOreItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Кусочек пирита
     public static final RegistryObject<Item> PYRITE_PIECE = ModRegistries.ITEMS.register("pyrite_piece",
@@ -549,7 +542,7 @@ public class ModItems {
      * - Когда нужно добавить много вариаций одного типа предметов
      * 
      * КОГДА НЕ ИСПОЛЬЗОВАТЬ:
-     * - Для уникальных предметов с кастомной логикой (HotRoastedOreItem, ClayCupItem)
+     * - Для уникальных предметов с кастомной логикой (RoastedOreItem, ClayCupItem)
      * - Для предметов с сильно различающимися свойствами
      */
     private static void initSmartRegistry() {

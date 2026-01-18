@@ -4,7 +4,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.container.FirepitContainer;
-import com.example.examplemod.item.HotRoastedOreItem;
+import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.item.HotRoastedOreItem;
 import net.minecraft.block.BlockState;
@@ -328,15 +328,15 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         if (item == ModItems.PURE_IRON_ORE.get()) {
             return rollOreCookingResult(ModItems.CALCINED_IRON_ORE.get(), 0.8D);
         } else if (item == ModItems.IRON_ORE_GRAVEL.get()) {
-            return rollOreCookingResult(ModItems.HOT_IRON_ROASTED_ORE.get(), 0.5D);
+            return rollOreCookingResult(ModItems.CALCINED_IRON_ORE.get(), 0.5D);
         } else if (item == ModItems.CLEANED_GRAVEL_TIN_ORE.get()) {
             return rollOreCookingResult(ModItems.CALCINED_TIN_ORE.get(), 0.8D);
         } else if (item == ModItems.TIN_ORE_GRAVEL.get()) {
-            return rollOreCookingResult(ModItems.HOT_TIN_ROASTED_ORE.get(), 0.5D);
+            return rollOreCookingResult(ModItems.CALCINED_TIN_ORE.get(), 0.5D);
         } else if (item == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()) {
             return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.8D);
         } else if (item == ModItems.GOLD_ORE_GRAVEL.get()) {
-            return rollOreCookingResult(ModItems.HOT_GOLD_ROASTED_ORE.get(), 0.5D);
+            return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.5D);
         } else if (item == ModItems.CALCINED_IRON_ORE.get()) {
             return new ItemStack(ModItems.SPONGE_IRON.get());
         } else if (item == ModItems.CALCINED_TIN_ORE.get()) {
@@ -363,9 +363,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         double roll = level != null ? level.random.nextDouble() : Math.random();
         if (roll < successChance) {
             ItemStack resultStack = new ItemStack(resultItem);
-            // Если результат - горячая руда, устанавливаем горячее состояние
-            if (resultItem instanceof HotRoastedOreItem) {
-                HotRoastedOreItem.setState(resultStack, HotRoastedOreItem.STATE_HOT);
+            // Если результат - обожжённая руда, устанавливаем горячее состояние
+            if (resultItem instanceof RoastedOreItem) {
+                RoastedOreItem.setState(resultStack, RoastedOreItem.STATE_HOT);
             }
             return resultStack;
         }
@@ -532,7 +532,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             if (index < GRID_SLOT_COUNT) {
                 storeCookingStage(stack, slotCookingStages[index]);
                 // Если печь горячая и предмет горячий - помечаем его как свежий из горячей печи
-                if (heat >= MIN_HEAT_FOR_SMELTING && (stack.getItem() instanceof HotRoastedOreItem || stack.getItem() instanceof SpongeMetalItem)) {
+                if (heat >= MIN_HEAT_FOR_SMELTING && (stack.getItem() instanceof RoastedOreItem || stack.getItem() instanceof SpongeMetalItem)) {
                     CompoundNBT nbt = stack.getOrCreateTag();
                     nbt.putLong("FreshFromHotFurnace", System.currentTimeMillis() / 1000);
                     stack.setTag(nbt);
@@ -552,7 +552,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             if (index < GRID_SLOT_COUNT) {
                 storeCookingStage(stack, slotCookingStages[index]);
                 // Если печь горячая и предмет горячий - помечаем его как свежий из горячей печи
-                if (heat >= MIN_HEAT_FOR_SMELTING && (stack.getItem() instanceof HotRoastedOreItem || stack.getItem() instanceof SpongeMetalItem)) {
+                if (heat >= MIN_HEAT_FOR_SMELTING && (stack.getItem() instanceof RoastedOreItem || stack.getItem() instanceof SpongeMetalItem)) {
                     CompoundNBT nbt = stack.getOrCreateTag();
                     nbt.putLong("FreshFromHotFurnace", System.currentTimeMillis() / 1000);
                     stack.setTag(nbt);
@@ -570,6 +570,17 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         int max = (index < GRID_SLOT_COUNT) ? 1 : getMaxStackSize();
         if (stack.getCount() > max) {
             stack.setCount(max);
+        }
+
+        // Если печь разогрета и предмет помещается в слот для предметов
+        if (heat >= MIN_HEAT_FOR_SMELTING && index < GRID_SLOT_COUNT && !stack.isEmpty()) {
+            if (stack.getItem() instanceof RoastedOreItem) {
+                // Устанавливаем горячее состояние и сбрасываем таймер перехода
+                RoastedOreItem.setState(stack, RoastedOreItem.STATE_HOT);
+            } else if (stack.getItem() instanceof SpongeMetalItem) {
+                // Для губчатых металлов тоже сбрасываем таймер, чтобы они оставались горячими
+                SpongeMetalItem.setState(stack, SpongeMetalItem.STATE_HOT);
+            }
         }
 
         onInventoryChanged();

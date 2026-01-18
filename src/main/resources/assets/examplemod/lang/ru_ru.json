@@ -70,9 +70,6 @@
   "item.examplemod.roasted_iron_ore": "Обожённая железная руда",
   "item.examplemod.roasted_tin_ore": "Обожённая оловянная руда",
   "item.examplemod.roasted_gold_ore": "Обожённая золотая руда",
-  "item.examplemod.hot_tin_roasted_ore": "Горячая обожённая оловянная руда",
-  "item.examplemod.hot_gold_roasted_ore": "Горячая обожённая золотая руда",
-  "item.examplemod.hot_iron_roasted_ore": "Горячая обожённая железная руда",
   "item.examplemod.sponge_iron": "Губчатое железо",
   "item.examplemod.sponge_tin": "Губчатое олово",
   "item.examplemod.sponge_gold": "Губчатое золото",
@@ -173,5 +170,5 @@
   "item.examplemod.sponge_tin": "Губчатое олово",
   "item.examplemod.sponge_gold": "Губчатое золото",
   "tooltip.examplemod.sponge_metal.state": "Состояние: %s",
-  "tooltip.examplemod.hot_ore.state": "Состояние: %s"
+  "tooltip.examplemod.roasted_ore.state": "Состояние: %s"
 }

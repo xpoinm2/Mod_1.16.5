@@ -84,9 +84,6 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleItem(ModItems.CALCINED_IRON_ORE);
         simpleItem(ModItems.CALCINED_TIN_ORE);
         simpleItem(ModItems.CALCINED_GOLD_ORE);
-        simpleItem(ModItems.HOT_IRON_ROASTED_ORE);
-        simpleItem(ModItems.HOT_TIN_ROASTED_ORE);
-        simpleItem(ModItems.HOT_GOLD_ROASTED_ORE);
         simpleItem(ModItems.PYRITE_PIECE);
         simpleItem(ModItems.CLEANED_GRAVEL_TIN_ORE);
         simpleItem(ModItems.CLEANED_GRAVEL_GOLD_ORE);

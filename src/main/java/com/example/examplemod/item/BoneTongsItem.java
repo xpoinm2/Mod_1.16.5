@@ -216,7 +216,7 @@ public class BoneTongsItem extends Item {
             outer:
             for (int slot = 0; slot < FirepitTileEntity.GRID_SLOT_COUNT; slot++) {
                 ItemStack candidate = firepit.getItem(slot);
-                if (candidate.isEmpty() || !(candidate.getItem() instanceof HotRoastedOreItem)) {
+                if (candidate.isEmpty() || !(candidate.getItem() instanceof RoastedOreItem)) {
                     continue;
                 }
                 for (int targetSlot = 0; targetSlot < targetHandler.getSlots(); targetSlot++) {

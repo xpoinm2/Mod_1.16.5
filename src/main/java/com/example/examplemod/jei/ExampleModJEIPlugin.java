@@ -83,7 +83,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.IRON_ORE_GRAVEL.get()),
-                new ItemStack(ModItems.HOT_IRON_ROASTED_ORE.get()),
+                new ItemStack(ModItems.CALCINED_IRON_ORE.get()),
                 400
         ));
         firepitRecipes.add(new FirepitRecipe(
@@ -93,7 +93,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.TIN_ORE_GRAVEL.get()),
-                new ItemStack(ModItems.HOT_TIN_ROASTED_ORE.get()),
+                new ItemStack(ModItems.CALCINED_TIN_ORE.get()),
                 400
         ));
         firepitRecipes.add(new FirepitRecipe(
@@ -103,7 +103,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
         ));
         firepitRecipes.add(new FirepitRecipe(
                 new ItemStack(ModItems.GOLD_ORE_GRAVEL.get()),
-                new ItemStack(ModItems.HOT_GOLD_ROASTED_ORE.get()),
+                new ItemStack(ModItems.CALCINED_GOLD_ORE.get()),
                 400
         ));
 
