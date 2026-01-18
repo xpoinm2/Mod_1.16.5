@@ -1,5 +1,6 @@
 package com.example.examplemod.client.screen.progress;
 
+import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.client.GuiUtil;
@@ -46,6 +47,7 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton clayCupButton;
     private ItemIconButton boneTongsButton;
     private ItemIconButton brickKilnButton;
+    private ItemIconButton cobblestoneAnvilButton;
 
 
     private int offsetX;
@@ -295,6 +297,17 @@ public class ProgressProductionScreen extends Screen {
                                 .append(new StringTextComponent("Пройти древний мир")
                                         .withStyle(TextFormatting.GOLD))));
         registerNode(this.brickKilnButton, baseX + spacingX, baseY);
+
+        this.cobblestoneAnvilButton = new ItemIconButton(baseX + spacingX * 2, baseY,
+                new ItemStack(ModBlocks.COBBLESTONE_ANVIL.get()),
+                b -> this.minecraft.setScreen(new CobblestoneAnvilQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Булыжниковая наковальня")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Требуется: ")
+                                .append(new StringTextComponent("Пройти древний мир")
+                                        .withStyle(TextFormatting.GOLD))));
+        registerNode(this.cobblestoneAnvilButton, baseX + spacingX * 2, baseY);
     }
 
     @Override
@@ -327,6 +340,9 @@ public class ProgressProductionScreen extends Screen {
         } else if (parent instanceof AncientMetallurgyEraScreen) {
             if (this.brickKilnButton != null) {
                 this.brickKilnButton.setBorderColor(colorForState(getBrickKilnState()));
+            }
+            if (this.cobblestoneAnvilButton != null) {
+                this.cobblestoneAnvilButton.setBorderColor(colorForState(getCobblestoneAnvilState()));
             }
         }
 
@@ -475,6 +491,13 @@ private QuestState getBoneToolsState() {
             return QuestState.LOCKED;
         }
         return QuestManager.isBrickKilnCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getCobblestoneAnvilState() {
+        if (!QuestManager.isAncientWorldCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isCobblestoneAnvilCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
 private QuestState getCombState() {

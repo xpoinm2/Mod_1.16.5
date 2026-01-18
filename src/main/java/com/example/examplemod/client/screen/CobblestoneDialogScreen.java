@@ -2,8 +2,10 @@ package com.example.examplemod.client.screen;
 
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.network.CompleteCobblestoneAnvilQuestPacket;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.network.PlaceAnvilPacket;
+import com.example.examplemod.quest.QuestManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.BlockPos;
@@ -35,6 +37,10 @@ public class CobblestoneDialogScreen extends Screen {
             // Отправляем пакет на сервер для размещения наковальни
             if (targetPos != null) {
                 ModNetworkHandler.CHANNEL.sendToServer(new PlaceAnvilPacket(targetPos));
+                // Выполняем квест, если он еще не выполнен
+                if (!QuestManager.isCobblestoneAnvilCompleted()) {
+                    ModNetworkHandler.CHANNEL.sendToServer(new CompleteCobblestoneAnvilQuestPacket());
+                }
             }
             this.onClose();
         });
