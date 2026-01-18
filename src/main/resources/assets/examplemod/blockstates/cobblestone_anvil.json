@@ -1,5 +1,8 @@
 {
   "variants": {
-    "": { "model": "examplemod:block/cobblestone_anvil" }
+    "facing=north": { "model": "examplemod:block/cobblestone_anvil" },
+    "facing=south": { "model": "examplemod:block/cobblestone_anvil", "y": 180 },
+    "facing=west": { "model": "examplemod:block/cobblestone_anvil", "y": 270 },
+    "facing=east": { "model": "examplemod:block/cobblestone_anvil", "y": 90 }
   }
 }

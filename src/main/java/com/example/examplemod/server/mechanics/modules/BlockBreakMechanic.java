@@ -20,6 +20,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.Arrays;
@@ -56,6 +57,37 @@ public class BlockBreakMechanic implements IMechanicModule {
     }
 
     @Override
+    public boolean enablePlayerInteract() {
+        return true;
+    }
+
+    @Override
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (!(event instanceof PlayerInteractEvent.RightClickBlock)) {
+            return;
+        }
+
+        PlayerInteractEvent.RightClickBlock rightClickEvent = (PlayerInteractEvent.RightClickBlock) event;
+        World world = rightClickEvent.getWorld();
+        if (world.isClientSide()) {
+            return;
+        }
+
+        PlayerEntity player = rightClickEvent.getPlayer();
+        if (player == null) {
+            return;
+        }
+
+        BlockState state = world.getBlockState(rightClickEvent.getPos());
+
+        // Check if player is right-clicking cobblestone with a hammer
+        if (state.getBlock() == Blocks.COBBLESTONE && isHoldingHammer(player)) {
+            event.setCanceled(true);
+            openCobblestoneDialog((ServerPlayerEntity) player, rightClickEvent.getPos());
+        }
+    }
+
+    @Override
     public void onBlockBreak(BlockEvent.BreakEvent event) {
         World world = (World) event.getWorld();
         if (world.isClientSide()) {
@@ -68,13 +100,6 @@ public class BlockBreakMechanic implements IMechanicModule {
         }
 
         BlockState state = event.getState();
-
-        // Check if player is hitting cobblestone with a hammer
-        if (state.getBlock() == Blocks.COBBLESTONE && isHoldingHammer(player)) {
-            event.setCanceled(true);
-            openCobblestoneDialog((ServerPlayerEntity) player, event.getPos());
-            return;
-        }
 
         if (isOreBlock(state.getBlock()) && !canMineOre(player)) {
             event.setCanceled(true);
