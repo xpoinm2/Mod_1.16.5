@@ -659,10 +659,23 @@ public class ModBlocks {
                         return ActionResultType.SUCCESS;
                     }
                     
-                    // Если не внутри кирпичной печи, открываем обычный GUI кострища
+                    // Если не внутри кирпичной печи, открываем GUI кострища
                     // Check if the multiblock structure is still intact
                     if (firepit.isMultiblockIntact()) {
-                        NetworkHooks.openGui((ServerPlayerEntity) player, firepit, masterPos);
+                        // Проверяем, есть ли щипцы у игрока
+                        ItemStack mainHand = player.getMainHandItem();
+                        ItemStack offHand = player.getOffhandItem();
+                        boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
+                                         (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
+
+                        if (hasTongs) {
+                            // Открываем enhanced dual GUI
+                            ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
+                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, firepit, masterPos, tongs, true);
+                        } else {
+                            // Открываем обычный GUI кострища
+                            NetworkHooks.openGui((ServerPlayerEntity) player, firepit, masterPos);
+                        }
                     } else {
                         // Structure is damaged, show message or just do nothing
                         return ActionResultType.FAIL;

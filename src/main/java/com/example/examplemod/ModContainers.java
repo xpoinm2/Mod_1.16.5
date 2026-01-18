@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.container.ClayPotContainer;
+import com.example.examplemod.container.EnhancedDualContainer;
 import com.example.examplemod.container.FirepitContainer;
 import com.example.examplemod.container.PechugaContainer;
 import com.example.examplemod.container.SlabContainer;
@@ -31,6 +32,10 @@ public class ModContainers {
     public static final RegistryObject<ContainerType<PechugaContainer>> PECHUGA =
             ModRegistries.CONTAINERS.register("pechuga",
                     () -> IForgeContainerType.create((windowId, playerInventory, data) -> new PechugaContainer(windowId, playerInventory, data)));
+
+    public static final RegistryObject<ContainerType<EnhancedDualContainer>> ENHANCED_DUAL_CONTAINER =
+            ModRegistries.CONTAINERS.register("enhanced_dual_container",
+                    () -> IForgeContainerType.create((windowId, playerInventory, data) -> new EnhancedDualContainer(windowId, playerInventory, data)));
 
     /**
      * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)
