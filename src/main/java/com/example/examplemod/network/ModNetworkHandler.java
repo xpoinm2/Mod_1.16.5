@@ -9,6 +9,8 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import com.example.examplemod.network.ActivityPacket;
 import com.example.examplemod.network.ClayPotModePacket;
+import com.example.examplemod.network.CobblestoneAnvilHammerPacket;
+import com.example.examplemod.network.CobblestoneAnvilProgressPacket;
 import com.example.examplemod.network.CompleteCobblestoneAnvilQuestPacket;
 import com.example.examplemod.network.HarvestGrassPacket;
 import com.example.examplemod.network.OpenBoneTongsItemPacket;
@@ -124,6 +126,20 @@ public class ModNetworkHandler {
                 CompleteCobblestoneAnvilQuestPacket::encode,
                 CompleteCobblestoneAnvilQuestPacket::decode,
                 CompleteCobblestoneAnvilQuestPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                CobblestoneAnvilProgressPacket.class,
+                CobblestoneAnvilProgressPacket::encode,
+                CobblestoneAnvilProgressPacket::decode,
+                CobblestoneAnvilProgressPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                CobblestoneAnvilHammerPacket.class,
+                CobblestoneAnvilHammerPacket::encode,
+                CobblestoneAnvilHammerPacket::decode,
+                CobblestoneAnvilHammerPacket::handle
         );
     }
 }

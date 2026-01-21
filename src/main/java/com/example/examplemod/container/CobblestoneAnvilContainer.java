@@ -10,6 +10,7 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -96,6 +97,10 @@ public class CobblestoneAnvilContainer extends Container {
             slot.onTake(player, stack);
         }
         return result;
+    }
+
+    public BlockPos getBlockPos() {
+        return tileEntity.getBlockPos();
     }
 
     private static CobblestoneAnvilTileEntity getTileEntity(PlayerInventory playerInventory, PacketBuffer buffer) {

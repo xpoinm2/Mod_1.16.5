@@ -21,6 +21,9 @@ public class CobblestoneAnvilTileEntity extends TileEntity {
     public static final int TOOL_SLOT = 1;
     public static final int OUTPUT_SLOT = 2;
     public static final int TOTAL_SLOTS = 3;
+    public static final int MAX_PROGRESS = 8;
+
+    private int progress = 0;
 
     private final ItemStackHandler inventory = new ItemStackHandler(TOTAL_SLOTS) {
         @Override
@@ -51,13 +54,40 @@ public class CobblestoneAnvilTileEntity extends TileEntity {
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
         inventory.deserializeNBT(nbt.getCompound("Inventory"));
+        progress = nbt.getInt("Progress");
     }
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         super.save(nbt);
         nbt.put("Inventory", inventory.serializeNBT());
+        nbt.putInt("Progress", progress);
         return nbt;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public void setProgress(int progress) {
+        this.progress = Math.max(0, Math.min(MAX_PROGRESS, progress));
+        setChanged();
+    }
+
+    public void incrementProgress() {
+        if (progress < MAX_PROGRESS) {
+            progress++;
+            setChanged();
+        }
+    }
+
+    public boolean isComplete() {
+        return progress >= MAX_PROGRESS;
+    }
+
+    public void resetProgress() {
+        progress = 0;
+        setChanged();
     }
 
     @Nullable

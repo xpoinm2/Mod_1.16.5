@@ -4,6 +4,8 @@
   "item.examplemod.branch": "Branch",
   "block.examplemod.brushwood": "Brushwood",
   "item.examplemod.brushwood": "Brushwood",
+  "block.examplemod.brushwood_slab_burnt": "Burnt Brushwood",
+  "item.examplemod.brushwood_slab_burnt": "Burnt Brushwood",
   "item.examplemod.leaf": "Leaf",
   "item.examplemod.handful_of_sand": "Handful of Sand",
   "item.examplemod.big_bone": "Big Bone",

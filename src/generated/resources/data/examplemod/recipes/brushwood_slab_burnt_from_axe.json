@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "examplemod:brushwood_burnt"
+      "item": "examplemod:brushwood"
     },
     {
-      "tag": "minecraft:axes"
+      "tag": "forge:tools/axes"
     }
   ],
   "result": {

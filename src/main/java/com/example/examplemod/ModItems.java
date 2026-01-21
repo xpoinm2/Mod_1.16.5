@@ -61,6 +61,11 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.BRUSHWOOD.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Обгоревший хворост (полублок)
+    public static final RegistryObject<Item> BRUSHWOOD_SLAB_BURNT = ModRegistries.ITEMS.register("brushwood_slab_burnt",
+            () -> new BlockItem(ModBlocks.BRUSHWOOD_SLAB_BURNT.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Листочек: выпадает с листвы
     public static final RegistryObject<Item> LEAF = ModRegistries.ITEMS.register("leaf",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));

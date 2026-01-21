@@ -4,6 +4,8 @@
   "item.examplemod.branch": "Ветка",
   "block.examplemod.brushwood": "Хворост",
   "item.examplemod.brushwood": "Хворост",
+  "block.examplemod.brushwood_slab_burnt": "Обгоревший хворост",
+  "item.examplemod.brushwood_slab_burnt": "Обгоревший хворост",
   "item.examplemod.leaf": "Листочек",
   "item.examplemod.handful_of_sand": "Горсть песка",
   "item.examplemod.big_bone": "Большая кость",

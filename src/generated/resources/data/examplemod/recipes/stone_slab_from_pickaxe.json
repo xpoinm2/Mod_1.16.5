@@ -5,11 +5,11 @@
       "item": "minecraft:cobblestone"
     },
     {
-      "tag": "minecraft:pickaxes"
+      "tag": "forge:tools/pickaxes"
     }
   ],
   "result": {
-    "item": "examplemod:stone_slab",
+    "item": "examplemod:cobblestone_slab",
     "count": 2
   }
 }

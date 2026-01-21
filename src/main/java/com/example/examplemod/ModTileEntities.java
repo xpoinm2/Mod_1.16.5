@@ -23,6 +23,7 @@ public class ModTileEntities {
             ModRegistries.TILE_ENTITIES.register("slab",
                     () -> TileEntityType.Builder.of(SlabTileEntity::new,
                             ModBlocks.BRUSHWOOD.get(),
+                            ModBlocks.BRUSHWOOD_SLAB_BURNT.get(),
                             ModBlocks.OAK_SLAB.get(),
                             ModBlocks.BIRCH_SLAB.get(),
                             ModBlocks.SPRUCE_SLAB.get(),

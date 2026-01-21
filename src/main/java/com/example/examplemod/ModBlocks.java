@@ -112,6 +112,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> BRUSHWOOD = ModRegistries.BLOCKS.register("brushwood",
             BrushwoodSlabBlock::new);
 
+    // Полублок обгоревшего хвороста
+    public static final RegistryObject<Block> BRUSHWOOD_SLAB_BURNT = ModRegistries.BLOCKS.register("brushwood_slab_burnt",
+    BurnedBrushwoodSlabBlock::new);
+
     // Полублок дуба
     public static final RegistryObject<Block> OAK_SLAB = ModRegistries.BLOCKS.register("oak_slab",
             OakSlabBlock::new);

@@ -5,11 +5,11 @@
       "item": "minecraft:stick"
     },
     {
-      "tag": "minecraft:axes"
+      "tag": "forge:tools/axes"
     }
   ],
   "result": {
-    "item": "examplemod:brushwood_slab",
+    "item": "examplemod:brushwood",
     "count": 2
   }
 }
