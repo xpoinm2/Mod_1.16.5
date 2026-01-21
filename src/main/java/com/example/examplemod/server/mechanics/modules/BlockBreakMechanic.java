@@ -101,6 +101,11 @@ public class BlockBreakMechanic implements IMechanicModule {
 
         BlockState state = event.getState();
 
+        if (player.getMainHandItem().isEmpty() && state.is(BlockTags.LOGS)) {
+            event.setCanceled(true);
+            return;
+        }
+
         if (isOreBlock(state.getBlock()) && !canMineOre(player)) {
             event.setCanceled(true);
             return;
