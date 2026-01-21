@@ -219,7 +219,11 @@ public final class ThirstMechanic implements IMechanicModule {
             }
 
             // movement based logic
-            double[] prev = lastPos.computeIfAbsent(id, u -> new double[]{player.getX(), player.getY(), player.getZ()});
+            double[] prev = lastPos.get(id);
+            if (prev == null) {
+                prev = new double[]{player.getX(), player.getY(), player.getZ()};
+                lastPos.put(id, prev);
+            }
             double dx = player.getX() - prev[0];
             double dy = player.getY() - prev[1];
             double dz = player.getZ() - prev[2];

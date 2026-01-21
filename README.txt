@@ -30,6 +30,21 @@ If at any point you are missing libraries in your IDE, or you've run into proble
 run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
 {this does not affect your code} and then start the process again.
 
+Packaging for players:
+==============================
+When you need a .jar for a normal Minecraft client/launcher, use Gradle to build the
+reobfuscated artifact (it is different from the IDE output). Run:
+`gradlew build` (or `gradlew reobfJar`) and take the jar from `build/libs/`.
+Using a non-reobfuscated IDE jar can cause the client to hang or behave incorrectly.
+
+Troubleshooting world creation (0% / hang):
+===========================================
+If the log contains messages like:
+`Feature: Not a JSON object: "minecraft:ore_lapis"...`
+it usually means an incompatible data pack (often from a different Minecraft version)
+is being loaded. Remove extra data packs/resource packs and ensure the launcher is
+running Minecraft/Forge 1.16.5, then try again.
+
 Mapping Names:
 =============================
 By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
