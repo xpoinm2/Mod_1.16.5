@@ -6,15 +6,19 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.container.ClayPotContainer;
 import com.example.examplemod.container.FirepitContainer;
 import com.example.examplemod.container.PechugaContainer;
+import com.example.examplemod.item.MetalChunkItem;
+import com.example.examplemod.jei.category.CobblestoneAnvilRecipeCategory;
 import com.example.examplemod.jei.category.ClayMassRecipeCategory;
 import com.example.examplemod.jei.category.ClayPotRecipeCategory;
 import com.example.examplemod.jei.category.FirepitRecipeCategory;
 import com.example.examplemod.jei.category.PechugaRecipeCategory;
 import com.example.examplemod.jei.category.SlabDryingRecipeCategory;
+import com.example.examplemod.jei.recipe.CobblestoneAnvilRecipe;
 import com.example.examplemod.jei.recipe.ClayMassRecipe;
 import com.example.examplemod.jei.recipe.ClayPotRecipe;
 import com.example.examplemod.jei.recipe.FirepitRecipe;
 import com.example.examplemod.jei.recipe.SlabDryingRecipe;
+import com.example.examplemod.tileentity.CobblestoneAnvilTileEntity;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import mezz.jei.api.IModPlugin;
@@ -36,6 +40,7 @@ public class ExampleModJEIPlugin implements IModPlugin {
     public static final ResourceLocation PECHUGA_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "pechuga_cooking");
     public static final ResourceLocation CLAY_MASS_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "clay_mass_crafting");
     public static final ResourceLocation SLAB_DRYING_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "slab_drying");
+    public static final ResourceLocation COBBLESTONE_ANVIL_CATEGORY_UID = new ResourceLocation(ExampleMod.MODID, "cobblestone_anvil");
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -49,7 +54,8 @@ public class ExampleModJEIPlugin implements IModPlugin {
                 new FirepitRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new PechugaRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new ClayMassRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
-                new SlabDryingRecipeCategory(registration.getJeiHelpers().getGuiHelper())
+                new SlabDryingRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
+                new CobblestoneAnvilRecipeCategory(registration.getJeiHelpers().getGuiHelper())
         );
     }
 
@@ -177,6 +183,32 @@ public class ExampleModJEIPlugin implements IModPlugin {
         ));
         registration.addRecipes(slabDryingRecipes, SLAB_DRYING_CATEGORY_UID);
 
+        // Рецепты каменной наковальни (губчатый металл -> металлический кусок)
+        List<CobblestoneAnvilRecipe> cobblestoneAnvilRecipes = new ArrayList<>();
+        java.util.List<ItemStack> hammerTools = java.util.Arrays.asList(
+                new ItemStack(ModItems.STONE_HAMMER.get()),
+                new ItemStack(ModItems.BONE_HAMMER.get())
+        );
+        cobblestoneAnvilRecipes.add(new CobblestoneAnvilRecipe(
+                new ItemStack(ModItems.SPONGE_IRON.get()),
+                createDefaultChunk(ModItems.IRON_CHUNK.get()),
+                hammerTools,
+                CobblestoneAnvilTileEntity.MAX_PROGRESS
+        ));
+        cobblestoneAnvilRecipes.add(new CobblestoneAnvilRecipe(
+                new ItemStack(ModItems.SPONGE_TIN.get()),
+                createDefaultChunk(ModItems.TIN_CHUNK.get()),
+                hammerTools,
+                CobblestoneAnvilTileEntity.MAX_PROGRESS
+        ));
+        cobblestoneAnvilRecipes.add(new CobblestoneAnvilRecipe(
+                new ItemStack(ModItems.SPONGE_GOLD.get()),
+                createDefaultChunk(ModItems.GOLD_CHUNK.get()),
+                hammerTools,
+                CobblestoneAnvilTileEntity.MAX_PROGRESS
+        ));
+        registration.addRecipes(cobblestoneAnvilRecipes, COBBLESTONE_ANVIL_CATEGORY_UID);
+
         // Регистрируем информацию о предметах
         registration.addIngredientInfo(new ItemStack(ModBlocks.CLAY_POT.get()), VanillaTypes.ITEM,
                 "jei.examplemod.clay_pot.description");
@@ -206,5 +238,12 @@ public class ExampleModJEIPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BIRCH_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPRUCE_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.COBBLESTONE_SLAB.get()), SLAB_DRYING_CATEGORY_UID);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.COBBLESTONE_ANVIL.get()), COBBLESTONE_ANVIL_CATEGORY_UID);
+    }
+
+    private static ItemStack createDefaultChunk(net.minecraft.item.Item chunkItem) {
+        ItemStack stack = new ItemStack(chunkItem);
+        MetalChunkItem.setState(stack, MetalChunkItem.STATE_MEDIUM);
+        return stack;
     }
 }
