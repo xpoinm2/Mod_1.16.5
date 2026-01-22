@@ -22,13 +22,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class BlockBreakMechanic implements IMechanicModule {
+    private static final int BLOCKS_PER_FATIGUE = 5;
     // Оптимизация: прямая инициализация HashSet без промежуточного Arrays.asList()
     private static final Set<Block> VANILLA_ORES;
     static {
@@ -45,6 +47,8 @@ public class BlockBreakMechanic implements IMechanicModule {
         ores.add(Blocks.ANCIENT_DEBRIS);
         VANILLA_ORES = Collections.unmodifiableSet(ores);
     }
+
+    private final Object2IntOpenHashMap<UUID> bareHandBreaks = new Object2IntOpenHashMap<>();
 
     @Override
     public String id() {
@@ -85,6 +89,11 @@ public class BlockBreakMechanic implements IMechanicModule {
             event.setCanceled(true);
             openCobblestoneDialog((ServerPlayerEntity) player, rightClickEvent.getPos());
         }
+    }
+
+    @Override
+    public void onPlayerLogout(ServerPlayerEntity player) {
+        bareHandBreaks.removeInt(player.getUUID());
     }
 
     @Override
@@ -178,12 +187,18 @@ public class BlockBreakMechanic implements IMechanicModule {
             if (player instanceof ServerPlayerEntity) {
                 ServerPlayerEntity sp = (ServerPlayerEntity) player;
                 sp.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-                    int fatigue = Math.min(100, stats.getFatigue() + 2);
-                    stats.setFatigue(fatigue);
-                    ModNetworkHandler.CHANNEL.send(
-                            PacketDistributor.PLAYER.with(() -> sp),
-                            new SyncAllStatsPacket(stats)
-                    );
+                    UUID id = sp.getUUID();
+                    int broken = bareHandBreaks.getOrDefault(id, 0) + 1;
+                    if (broken >= BLOCKS_PER_FATIGUE) {
+                        broken -= BLOCKS_PER_FATIGUE;
+                        int fatigue = Math.min(100, stats.getFatigue() + 1);
+                        stats.setFatigue(fatigue);
+                        ModNetworkHandler.CHANNEL.send(
+                                PacketDistributor.PLAYER.with(() -> sp),
+                                new SyncAllStatsPacket(stats)
+                        );
+                    }
+                    bareHandBreaks.put(id, broken);
                 });
             }
         }
@@ -252,4 +267,3 @@ public class BlockBreakMechanic implements IMechanicModule {
                 new OpenCobblestoneDialogPacket(pos));
     }
 }
-

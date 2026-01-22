@@ -96,9 +96,9 @@ public class WorldGenRegistry {
                 new net.minecraft.world.gen.feature.OreFeatureConfig(
                         net.minecraft.world.gen.feature.OreFeatureConfig.FillerBlockType.NATURAL_STONE,
                         ModBlocks.TIN_ORE.get().defaultBlockState(),
-                        4);
+                        6);
         ConfiguredFeature<?, ?> feature = net.minecraft.world.gen.feature.Feature.ORE
-                .configured(config).range(40).squared().count(6); // Y=10-50, ~1.5x less than iron
+        .configured(config).range(64).squared().count(13); // ~1.5x less than iron by size/count
         Registry.register(WorldGenRegistries.CONFIGURED_FEATURE,
                 new ResourceLocation(ExampleMod.MODID, "tin_ore"), feature);
         return feature;

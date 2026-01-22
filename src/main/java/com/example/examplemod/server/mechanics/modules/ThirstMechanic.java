@@ -29,6 +29,7 @@ import java.util.UUID;
 public final class ThirstMechanic implements IMechanicModule {
     private static final int TICKS_PER_2_MINUTES = 2400; // 2 real minutes = 2400 ticks
     private static final int TICKS_PER_15_SECONDS = 300; // 15 real seconds = 300 ticks
+    private static final int TICKS_PER_10_SECONDS = 200; // 10 real seconds = 200 ticks
     
     // Оптимизация: статический Set для проверки рыбных предметов (O(1) вместо O(n) сравнений)
     private static final Set<Item> FISH_ITEMS;
@@ -234,9 +235,9 @@ public final class ThirstMechanic implements IMechanicModule {
             double distSqAll = dx * dx + dy * dy + dz * dz;
             if (distSqAll < 0.0001D) {
                 int ticks = stillTicks.getOrDefault(id, 0) + deltaTicks;
-                if (ticks >= 1200) { // 1 real minute = 1200 ticks
-                    ticks -= 1200;
-                    int newFatigue = Math.max(0, fatigue - 5);
+                if (ticks >= TICKS_PER_10_SECONDS) {
+                    ticks -= TICKS_PER_10_SECONDS;
+                    int newFatigue = Math.max(0, fatigue - 10);
                     if (newFatigue != fatigue) { fatigue = newFatigue; dirty = true; }
                 }
                 stillTicks.put(id, ticks);
@@ -271,5 +272,3 @@ public final class ThirstMechanic implements IMechanicModule {
         return FISH_ITEMS.contains(stack.getItem());
     }
 }
-
-

@@ -19,7 +19,7 @@ import java.util.UUID;
  * Отдых/сидение. Перенесено из RestHandler в модуль.
  */
 public final class RestMechanic implements IMechanicModule {
-    private static final int TICKS_PER_HOUR = 20 * 60; // 1 real minute
+    private static final int TICKS_PER_10_SECONDS = 20 * 10; // 10 real seconds
 
     private enum Type { SIT }
 
@@ -131,11 +131,9 @@ public final class RestMechanic implements IMechanicModule {
         }
 
         info.ticks++;
-        if (info.type == Type.SIT && info.ticks >= TICKS_PER_HOUR / 4) {
-            info.ticks -= TICKS_PER_HOUR / 4;
-            reduceFatigue(player, 5);
+        if (info.type == Type.SIT && info.ticks >= TICKS_PER_10_SECONDS) {
+            info.ticks -= TICKS_PER_10_SECONDS;
+            reduceFatigue(player, 15);
         }
     }
 }
-
-

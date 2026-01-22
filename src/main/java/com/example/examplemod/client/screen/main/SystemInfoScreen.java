@@ -49,7 +49,7 @@ public class SystemInfoScreen extends Screen {
         ty += lh;
         this.font.draw(ms, "15 минут плавания: +5 усталости", tx, ty, 0xFFFFFF);
         ty += lh;
-        this.font.draw(ms, "Час без движения: -5 усталости", tx, ty, 0xFFFFFF);
+        this.font.draw(ms, "10 секунд без движения: -10 усталости", tx, ty, 0xFFFFFF);
         ty += lh;
         this.font.draw(ms, "100м бега: +5 усталости", tx, ty, 0xFFFFFF);
         ty += lh;
@@ -67,9 +67,9 @@ public class SystemInfoScreen extends Screen {
         ty += lh;
         this.font.draw(ms, "Заточка камня: +5 усталости", tx, ty, 0xFFFFFF);
         ty += lh;
-        this.font.draw(ms, "Ломание блоков руками: +4 усталости", tx, ty, 0xFFFFFF);
+        this.font.draw(ms, "Ломание блоков руками: +1 усталости за 5 блоков", tx, ty, 0xFFFFFF);
         ty += lh;
-        this.font.draw(ms, "Отдых сидя 15 мин: -5 усталости", tx, ty, 0xFFFFFF);
+        this.font.draw(ms, "Отдых сидя 10 сек: -15 усталости", tx, ty, 0xFFFFFF);
         ty += lh;
         this.font.draw(ms, "Полный сон: усталость = 0", tx, ty, 0xFFFFFF);
 
