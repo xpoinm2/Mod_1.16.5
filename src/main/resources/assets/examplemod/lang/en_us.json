@@ -173,7 +173,14 @@
   "item.examplemod.sponge_iron": "Sponge Iron",
   "item.examplemod.sponge_tin": "Sponge Tin",
   "item.examplemod.sponge_gold": "Sponge Gold",
+  "item.examplemod.iron_chunk": "Iron Chunk",
+  "item.examplemod.tin_chunk": "Tin Chunk",
+  "item.examplemod.gold_chunk": "Gold Chunk",
   "tooltip.examplemod.sponge_metal.state": "State: %s",
+  "tooltip.examplemod.metal_chunk.state": "State: %s",
+  "tooltip.examplemod.metal_chunk.state_good": "Good",
+  "tooltip.examplemod.metal_chunk.state_medium": "Medium",
+  "tooltip.examplemod.metal_chunk.state_bad": "Bad",
   "block.examplemod.cobblestone_anvil": "Cobblestone Anvil",
   "item.examplemod.cobblestone_anvil": "Cobblestone Anvil"
 }

@@ -34,6 +34,7 @@ import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.GrassBundleItem;
 import com.example.examplemod.item.PechugaBuilderItem;
 import com.example.examplemod.item.SpongeMetalItem;
+import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.util.SmartItemRegistry;
 
 
@@ -392,6 +393,15 @@ public class ModItems {
             () -> new SpongeMetalItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
     public static final RegistryObject<Item> SPONGE_GOLD = ModRegistries.ITEMS.register("sponge_gold",
             () -> new SpongeMetalItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
+    // === Metal Chunks ===
+    // Куски металла с состояниями: хорошее, среднее, плохое
+    public static final RegistryObject<Item> IRON_CHUNK = ModRegistries.ITEMS.register("iron_chunk",
+            () -> new MetalChunkItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+    public static final RegistryObject<Item> TIN_CHUNK = ModRegistries.ITEMS.register("tin_chunk",
+            () -> new MetalChunkItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+    public static final RegistryObject<Item> GOLD_CHUNK = ModRegistries.ITEMS.register("gold_chunk",
+            () -> new MetalChunkItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
     // Оловянная руда как предмет
     public static final RegistryObject<Item> TIN_ORE = ModRegistries.ITEMS.register("tin_ore",

@@ -2,6 +2,8 @@ package com.example.examplemod.container;
 
 import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModContainers;
+import com.example.examplemod.ModItems;
+import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.tileentity.CobblestoneAnvilTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -116,8 +118,7 @@ public class CobblestoneAnvilContainer extends Container {
         @Override
         public boolean mayPlace(ItemStack stack) {
             // Здесь можно добавить проверку на то, что это металл для ковки
-            // Пока разрешаем любые предметы
-            return true;
+            return stack.getItem() instanceof SpongeMetalItem;
         }
     }
 
@@ -130,8 +131,8 @@ public class CobblestoneAnvilContainer extends Container {
         @Override
         public boolean mayPlace(ItemStack stack) {
             // Здесь можно добавить проверку на то, что это подходящий инструмент (молот)
-            // Пока разрешаем любые предметы
-            return true;
+            return stack.getItem() == ModItems.STONE_HAMMER.get()
+                    || stack.getItem() == ModItems.BONE_HAMMER.get();
         }
     }
 
