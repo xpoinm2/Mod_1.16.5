@@ -1,6 +1,7 @@
 package com.example.examplemod.client.screen.container;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.client.HammerButton;
 import com.example.examplemod.container.CobblestoneAnvilContainer;
 import com.example.examplemod.network.CobblestoneAnvilHammerPacket;
 import com.example.examplemod.network.ModNetworkHandler;
@@ -9,16 +10,12 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilContainer> {
     private static final ResourceLocation BACKGROUND =
@@ -33,7 +30,7 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
         }
     }
 
-    private Button hammerButton;
+    private HammerButton hammerButton;
 
     public CobblestoneAnvilScreen(CobblestoneAnvilContainer container, PlayerInventory playerInventory, ITextComponent title) {
         super(container, playerInventory, title);
@@ -48,7 +45,7 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
         // Кнопка с молоточком между слотами 2 и 3 (инструмент и выход)
         int buttonX = this.leftPos + 108; // Между слотами
         int buttonY = this.topPos + 43;   // На уровне слотов
-        this.hammerButton = new Button(buttonX, buttonY, 16, 16, new StringTextComponent("⚒"), button -> {
+        this.hammerButton = new HammerButton(buttonX, buttonY, 16, 16, new StringTextComponent("⚒"), button -> {
             // Логика нажатия кнопки
             hammerPressed();
         });
@@ -84,7 +81,7 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
     }
 
     private void renderProgressAnimation(MatrixStack matrixStack, int guiLeft, int guiTop) {
-        // Получаем текущий прогресс (пока имитируем, потом будет из TileEntity)
+        // Получаем текущий прогресс из TileEntity
         int progress = getCurrentProgress();
 
         if (progress > 0 && progress <= CobblestoneAnvilTileEntity.MAX_PROGRESS) {
@@ -92,6 +89,9 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
             int animX = guiLeft + 67; // Между слотами 1 (27+18=45) и 2 (76)
             int animY = guiTop + 43;  // На уровне слотов
 
+            // Сбрасываем цвет перед рендерингом анимации
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            
             // Привязываем текстуру прогресса
             this.minecraft.getTextureManager().bind(PROGRESS_FRAMES[progress - 1]);
 
@@ -114,10 +114,10 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
 
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
-        // Заголовок (голубой цвет)
-        this.font.draw(matrixStack, this.title, (float)(this.imageWidth / 2 - this.font.width(this.title) / 2), 6.0F, 0xFF0080FF);
-        // Инвентарь игрока (голубой цвет)
-        this.font.draw(matrixStack, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 0xFF0080FF);
+        // Заголовок (белый цвет)
+        this.font.draw(matrixStack, this.title, (float)(this.imageWidth / 2 - this.font.width(this.title) / 2), 6.0F, 0xFFFFFFFF);
+        // Инвентарь игрока (белый цвет)
+        this.font.draw(matrixStack, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 0xFFFFFFFF);
     }
 
     @Override

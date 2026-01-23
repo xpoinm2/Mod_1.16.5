@@ -55,7 +55,7 @@ public class CobblestoneAnvilHammerPacket {
                     // Отправляем обновление прогресса клиенту
                     ModNetworkHandler.CHANNEL.send(
                         PacketDistributor.PLAYER.with(() -> player),
-                        new CobblestoneAnvilProgressPacket(anvil.getProgress())
+                        new CobblestoneAnvilProgressPacket(pkt.pos, anvil.getProgress())
                     );
                 }
             }
