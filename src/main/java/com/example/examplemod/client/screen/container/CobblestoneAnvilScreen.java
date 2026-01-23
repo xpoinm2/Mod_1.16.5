@@ -86,7 +86,7 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
 
         if (progress > 0 && progress <= CobblestoneAnvilTileEntity.MAX_PROGRESS) {
             // Позиция анимации между слотами металла и инструмента
-            int animX = guiLeft + 67; // Между слотами 1 (27+18=45) и 2 (76)
+            int animX = guiLeft + 57; // Сдвинуто влево на 10 пикселей от исходной позиции
             int animY = guiTop + 43;  // На уровне слотов
 
             // Сбрасываем цвет перед рендерингом анимации
@@ -95,8 +95,9 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
             // Привязываем текстуру прогресса
             this.minecraft.getTextureManager().bind(PROGRESS_FRAMES[progress - 1]);
 
-            // Рендерим кадр анимации (предполагаем размер 18x18 пикселей)
-            this.blit(matrixStack, animX, animY, 0, 0, 18, 18);
+            int frameSize = 16;
+            // Рендерим кадр анимации (размер текстуры 16x16 пикселей)
+            this.blit(matrixStack, animX, animY, 0, 0, frameSize, frameSize, frameSize, frameSize);
         }
     }
 

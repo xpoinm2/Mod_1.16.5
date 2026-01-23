@@ -1,0 +1,67 @@
+diff --git a/src/main/java/com/example/examplemod/client/screen/container/CobblestoneAnvilScreen.java b/src/main/java/com/example/examplemod/client/screen/container/CobblestoneAnvilScreen.java
+index eab4c4f408c2f7b095fa50987c97a3542fa8a602..72067b133194af036a00d0892b672e21ff6bc001 100644
+--- a/src/main/java/com/example/examplemod/client/screen/container/CobblestoneAnvilScreen.java
++++ b/src/main/java/com/example/examplemod/client/screen/container/CobblestoneAnvilScreen.java
+@@ -73,57 +73,58 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
+         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+         this.minecraft.getTextureManager().bind(BACKGROUND);
+         int i = (this.width - this.imageWidth) / 2;
+         int j = (this.height - this.imageHeight) / 2;
+         this.blit(matrixStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
+ 
+         // Рендерим анимацию прогресса между слотами 1 и 2
+         renderProgressAnimation(matrixStack, i, j);
+     }
+ 
+     private void renderProgressAnimation(MatrixStack matrixStack, int guiLeft, int guiTop) {
+         // Получаем текущий прогресс из TileEntity
+         int progress = getCurrentProgress();
+ 
+         if (progress > 0 && progress <= CobblestoneAnvilTileEntity.MAX_PROGRESS) {
+             // Позиция анимации между слотами металла и инструмента
+             int animX = guiLeft + 67; // Между слотами 1 (27+18=45) и 2 (76)
+             int animY = guiTop + 43;  // На уровне слотов
+ 
+             // Сбрасываем цвет перед рендерингом анимации
+             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+             
+             // Привязываем текстуру прогресса
+             this.minecraft.getTextureManager().bind(PROGRESS_FRAMES[progress - 1]);
+ 
+-            // Рендерим кадр анимации (предполагаем размер 18x18 пикселей)
+-            this.blit(matrixStack, animX, animY, 0, 0, 18, 18);
++            int frameSize = 16;
++            // Рендерим кадр анимации (размер текстуры 16x16 пикселей)
++            this.blit(matrixStack, animX, animY, 0, 0, frameSize, frameSize, frameSize, frameSize);
+         }
+     }
+ 
+     private int getCurrentProgress() {
+         // Получаем прогресс из TileEntity
+         BlockPos anvilPos = getAnvilPosition();
+         if (anvilPos != null && this.minecraft.level != null) {
+             TileEntity tileEntity = this.minecraft.level.getBlockEntity(anvilPos);
+             if (tileEntity instanceof CobblestoneAnvilTileEntity) {
+                 return ((CobblestoneAnvilTileEntity) tileEntity).getProgress();
+             }
+         }
+         return 0;
+     }
+ 
+     @Override
+     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+         // Заголовок (белый цвет)
+         this.font.draw(matrixStack, this.title, (float)(this.imageWidth / 2 - this.font.width(this.title) / 2), 6.0F, 0xFFFFFFFF);
+         // Инвентарь игрока (белый цвет)
+         this.font.draw(matrixStack, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 0xFFFFFFFF);
+     }
+ 
+     @Override
+     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+         this.renderBackground(matrixStack);
+         super.render(matrixStack, mouseX, mouseY, partialTicks);
+         this.renderTooltip(matrixStack, mouseX, mouseY);
+     }
+-}
+\ No newline at end of file
++}
