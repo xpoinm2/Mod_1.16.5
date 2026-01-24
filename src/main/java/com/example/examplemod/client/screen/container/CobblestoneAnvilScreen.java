@@ -77,9 +77,6 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
         int j = (this.height - this.imageHeight) / 2;
         this.blit(matrixStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
 
-        // Рисуем предметы, лежащие на наковальне
-        renderItemsOnAnvil(matrixStack, i, j);
-
         // Рендерим анимацию прогресса между слотами 1 и 2
         renderProgressAnimation(matrixStack, i, j);
     }
@@ -102,37 +99,6 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
             int frameSize = 16;
             // Рендерим кадр анимации (размер текстуры 16x16 пикселей)
             this.blit(matrixStack, animX, animY, 0, 0, frameSize, frameSize, frameSize, frameSize);
-        }
-    }
-
-    /**
-     * Отрисовка предметов, визуально лежащих на наковальне.
-     */
-    private void renderItemsOnAnvil(MatrixStack matrixStack, int guiLeft, int guiTop) {
-        BlockPos anvilPos = getAnvilPosition();
-        if (anvilPos == null || this.minecraft == null || this.minecraft.level == null) {
-            return;
-        }
-
-        TileEntity tileEntity = this.minecraft.level.getBlockEntity(anvilPos);
-        if (!(tileEntity instanceof CobblestoneAnvilTileEntity)) {
-            return;
-        }
-
-        CobblestoneAnvilTileEntity anvil = (CobblestoneAnvilTileEntity) tileEntity;
-        ItemStack metalStack = anvil.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT);
-        ItemStack toolStack = anvil.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT);
-
-        // Координаты “поверх наковальни” (подбираются под текстуру cobblestone_anvil.png)
-        int baseX = guiLeft + 48;
-        int baseY = guiTop + 32;
-
-        if (!metalStack.isEmpty()) {
-            this.itemRenderer.renderAndDecorateItem(metalStack, baseX, baseY);
-        }
-
-        if (!toolStack.isEmpty()) {
-            this.itemRenderer.renderAndDecorateItem(toolStack, baseX + 28, baseY + 2);
         }
     }
 
