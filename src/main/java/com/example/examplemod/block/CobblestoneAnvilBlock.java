@@ -22,7 +22,12 @@ import javax.annotation.Nullable;
 
 public class CobblestoneAnvilBlock extends AnvilBlock {
     public CobblestoneAnvilBlock() {
-        super(Properties.copy(net.minecraft.block.Blocks.ANVIL));
+        // Копируем свойства ванильной наковальни, но делаем её в 3 раза менее прочной.
+        // У ванильной наковальни прочность ~5.0F и взрывоустойчивость ~1200.0F.
+        // Здесь выставляем 5 / 3 и 1200 / 3.
+        super(Properties
+                .copy(net.minecraft.block.Blocks.ANVIL)
+                .strength(5.0F / 3.0F, 1200.0F / 3.0F));
     }
 
     @Override

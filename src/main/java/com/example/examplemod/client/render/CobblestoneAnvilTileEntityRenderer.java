@@ -24,46 +24,9 @@ public class CobblestoneAnvilTileEntityRenderer extends TileEntityRenderer<Cobbl
 
     @Override
     public void render(CobblestoneAnvilTileEntity tileEntity, float partialTicks, MatrixStack matrixStack,
-                      IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
-        if (tileEntity == null) {
-            return;
-        }
-
-        ItemStack metalStack = tileEntity.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT);
-        ItemStack toolStack = tileEntity.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT);
-        if (metalStack.isEmpty() && toolStack.isEmpty()) {
-            return;
-        }
-
-        BlockState state = tileEntity.getBlockState();
-        Direction facing = state.getValue(AnvilBlock.FACING);
-        float rotation = -facing.toYRot();
-
-        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-
-        matrixStack.pushPose();
-        matrixStack.translate(0.5D, ITEM_Y_OFFSET, 0.5D);
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(rotation));
-
-        renderStack(itemRenderer, metalStack, matrixStack, buffer, combinedLight, combinedOverlay, -0.18D, 0.0D);
-        renderStack(itemRenderer, toolStack, matrixStack, buffer, combinedLight, combinedOverlay, 0.18D, 0.0D);
-
-        matrixStack.popPose();
-    }
-
-    private void renderStack(ItemRenderer itemRenderer, ItemStack stack, MatrixStack matrixStack,
-                             IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay,
-                             double xOffset, double zOffset) {
-        if (stack.isEmpty()) {
-            return;
-        }
-
-        matrixStack.pushPose();
-        matrixStack.translate(xOffset, 0.0D, zOffset);
-        matrixStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
-        itemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED,
-                combinedLight, combinedOverlay, matrixStack, buffer);
-        matrixStack.popPose();
+                       IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
+        // Нам больше не нужно отображать предметы на булыжниковой наковальне.
+        // Оставляем метод пустым, чтобы логика блока и инвентаря не менялась,
+        // но визуальные предметы сверху больше не рендерились.
     }
 }
