@@ -8,6 +8,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -131,12 +133,18 @@ public class CobblestoneAnvilTileEntity extends TileEntity {
         if (level == null || level.isClientSide) {
             return;
         }
+        double dropY = worldPosition.getY() + 0.5D;
+        BlockState state = getBlockState();
+        VoxelShape shape = state.getShape(level, worldPosition);
+        if (!shape.isEmpty()) {
+            dropY = worldPosition.getY() + shape.max(Direction.Axis.Y) + 0.1D;
+        }
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
             ItemStack stack = inventory.getStackInSlot(slot);
             if (!stack.isEmpty()) {
                 InventoryHelper.dropItemStack(level,
                         worldPosition.getX() + 0.5D,
-                        worldPosition.getY() + 0.5D,
+                        dropY,
                         worldPosition.getZ() + 0.5D,
                         stack);
                 inventory.setStackInSlot(slot, ItemStack.EMPTY);
