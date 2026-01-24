@@ -98,7 +98,8 @@ public class CobblestoneAnvilHammerPacket {
         metalStack.shrink(1);
         inventory.setStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT, metalStack);
 
-        if (toolStack.hurt(1, random, player)) {
+        // Отнимаем 5 прочности у молота за один полный крафт
+        if (toolStack.hurt(5, random, player)) {
             toolStack.shrink(1);
         }
         inventory.setStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT, toolStack);

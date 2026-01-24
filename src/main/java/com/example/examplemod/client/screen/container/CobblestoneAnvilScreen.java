@@ -77,6 +77,9 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
         int j = (this.height - this.imageHeight) / 2;
         this.blit(matrixStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
 
+        // Рисуем предметы, лежащие на наковальне
+        renderItemsOnAnvil(matrixStack, i, j);
+
         // Рендерим анимацию прогресса между слотами 1 и 2
         renderProgressAnimation(matrixStack, i, j);
     }
@@ -174,9 +177,11 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        // Обновляем активность кнопки: она доступна только при валидном входном предмете
+        // Обновляем активность кнопки:
+        // 1) в левом слоте должен быть валидный предмет
+        // 2) кнопка не должна быть в кулдауне
         if (this.hammerButton != null) {
-            this.hammerButton.active = hasValidInput();
+            this.hammerButton.active = hasValidInput() && !this.hammerButton.isOnCooldown();
         }
 
         this.renderBackground(matrixStack);
