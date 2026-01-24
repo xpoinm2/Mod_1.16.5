@@ -133,11 +133,11 @@ public class CobblestoneAnvilTileEntity extends TileEntity {
         if (level == null || level.isClientSide) {
             return;
         }
-        double dropY = worldPosition.getY() + 0.5D;
+        double dropY = worldPosition.getY() + 1.1D;
         BlockState state = getBlockState();
         VoxelShape shape = state.getShape(level, worldPosition);
         if (!shape.isEmpty()) {
-            dropY = worldPosition.getY() + shape.max(Direction.Axis.Y) + 0.1D;
+            dropY = worldPosition.getY() + shape.max(Direction.Axis.Y) + 0.6D;
         }
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
             ItemStack stack = inventory.getStackInSlot(slot);
