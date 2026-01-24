@@ -2,6 +2,7 @@ package com.example.examplemod.tileentity;
 
 import com.example.examplemod.ModTileEntities;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -139,13 +140,20 @@ public class CobblestoneAnvilTileEntity extends TileEntity {
         if (!shape.isEmpty()) {
             dropY = worldPosition.getY() + shape.max(Direction.Axis.Y) + 0.6D;
         }
+        double dropX = worldPosition.getX() + 0.5D;
+        double dropZ = worldPosition.getZ() + 0.5D;
+        if (state.hasProperty(HorizontalBlock.FACING)) {
+            Direction facing = state.getValue(HorizontalBlock.FACING);
+            dropX += facing.getStepX() * 0.35D;
+            dropZ += facing.getStepZ() * 0.35D;
+        }
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
             ItemStack stack = inventory.getStackInSlot(slot);
             if (!stack.isEmpty()) {
                 InventoryHelper.dropItemStack(level,
-                        worldPosition.getX() + 0.5D,
+                        dropX,
                         dropY,
-                        worldPosition.getZ() + 0.5D,
+                        dropZ,
                         stack);
                 inventory.setStackInSlot(slot, ItemStack.EMPTY);
             }
