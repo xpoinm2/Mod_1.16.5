@@ -6,11 +6,12 @@ import com.example.examplemod.container.CobblestoneAnvilContainer;
 import com.example.examplemod.network.CobblestoneAnvilHammerPacket;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.tileentity.CobblestoneAnvilTileEntity;
+import com.example.examplemod.item.SpongeMetalItem;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -86,7 +87,7 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
 
         if (progress > 0 && progress <= CobblestoneAnvilTileEntity.MAX_PROGRESS) {
             // Позиция анимации между слотами металла и инструмента
-            int animX = guiLeft + 57; // Сдвинуто влево на 10 пикселей от исходной позиции
+            int animX = guiLeft + 52; // Сдвинуто влево ещё на 5 пикселей от предыдущей позиции
             int animY = guiTop + 43;  // На уровне слотов
 
             // Сбрасываем цвет перед рендерингом анимации
@@ -98,6 +99,37 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
             int frameSize = 16;
             // Рендерим кадр анимации (размер текстуры 16x16 пикселей)
             this.blit(matrixStack, animX, animY, 0, 0, frameSize, frameSize, frameSize, frameSize);
+        }
+    }
+
+    /**
+     * Отрисовка предметов, визуально лежащих на наковальне.
+     */
+    private void renderItemsOnAnvil(MatrixStack matrixStack, int guiLeft, int guiTop) {
+        BlockPos anvilPos = getAnvilPosition();
+        if (anvilPos == null || this.minecraft == null || this.minecraft.level == null) {
+            return;
+        }
+
+        TileEntity tileEntity = this.minecraft.level.getBlockEntity(anvilPos);
+        if (!(tileEntity instanceof CobblestoneAnvilTileEntity)) {
+            return;
+        }
+
+        CobblestoneAnvilTileEntity anvil = (CobblestoneAnvilTileEntity) tileEntity;
+        ItemStack metalStack = anvil.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT);
+        ItemStack toolStack = anvil.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT);
+
+        // Координаты “поверх наковальни” (подбираются под текстуру cobblestone_anvil.png)
+        int baseX = guiLeft + 48;
+        int baseY = guiTop + 32;
+
+        if (!metalStack.isEmpty()) {
+            this.itemRenderer.renderAndDecorateItem(metalStack, baseX, baseY);
+        }
+
+        if (!toolStack.isEmpty()) {
+            this.itemRenderer.renderAndDecorateItem(toolStack, baseX + 28, baseY + 2);
         }
     }
 
@@ -113,6 +145,25 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
         return 0;
     }
 
+    /**
+     * Проверка, есть ли в левом слоте валидный предмет для крафта (губчатый металл).
+     */
+    private boolean hasValidInput() {
+        BlockPos anvilPos = getAnvilPosition();
+        if (anvilPos == null || this.minecraft == null || this.minecraft.level == null) {
+            return false;
+        }
+
+        TileEntity tileEntity = this.minecraft.level.getBlockEntity(anvilPos);
+        if (!(tileEntity instanceof CobblestoneAnvilTileEntity)) {
+            return false;
+        }
+
+        CobblestoneAnvilTileEntity anvil = (CobblestoneAnvilTileEntity) tileEntity;
+        ItemStack metalStack = anvil.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT);
+        return !metalStack.isEmpty() && metalStack.getItem() instanceof SpongeMetalItem;
+    }
+
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
         // Заголовок (белый цвет)
@@ -123,6 +174,11 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        // Обновляем активность кнопки: она доступна только при валидном входном предмете
+        if (this.hammerButton != null) {
+            this.hammerButton.active = hasValidInput();
+        }
+
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrixStack, mouseX, mouseY);

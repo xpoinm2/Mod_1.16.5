@@ -117,8 +117,8 @@ public class CobblestoneAnvilContainer extends Container {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            // Здесь можно добавить проверку на то, что это металл для ковки
-            return stack.getItem() instanceof SpongeMetalItem;
+            // В левый слот можно класть любые предметы
+            return true;
         }
     }
 
