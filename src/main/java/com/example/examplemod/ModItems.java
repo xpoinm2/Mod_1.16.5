@@ -403,6 +403,15 @@ public class ModItems {
     public static final RegistryObject<Item> GOLD_CHUNK = ModRegistries.ITEMS.register("gold_chunk",
             () -> new MetalChunkItem(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // === Raw Metal Blanks ===
+    // Сырые заготовки для дальнейшей обработки
+    public static final RegistryObject<Item> RAW_IRON_BLANK = ModRegistries.ITEMS.register("raw_iron_blank",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+    public static final RegistryObject<Item> RAW_TIN_BLANK = ModRegistries.ITEMS.register("raw_tin_blank",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+    public static final RegistryObject<Item> RAW_GOLD_BLANK = ModRegistries.ITEMS.register("raw_gold_blank",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Оловянная руда как предмет
     public static final RegistryObject<Item> TIN_ORE = ModRegistries.ITEMS.register("tin_ore",
             () -> new BlockItem(ModBlocks.TIN_ORE.get(),
