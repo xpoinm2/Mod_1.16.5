@@ -179,6 +179,7 @@
   "item.examplemod.tin_chunk": "Tin Chunk",
   "item.examplemod.gold_chunk": "Gold Chunk",
   "tooltip.examplemod.sponge_metal.state": "State: %s",
+  "tooltip.examplemod.sponge_metal.temperature": "Temperature: %s",
   "tooltip.examplemod.metal_chunk.state": "State: %s",
   "tooltip.examplemod.metal_chunk.temperature": "Temperature: %s",
   "tooltip.examplemod.metal_chunk.state_good": "Good",
@@ -186,6 +187,8 @@
   "tooltip.examplemod.metal_chunk.state_bad": "Bad",
   "tooltip.examplemod.metal_chunk.temperature_hot": "Hot",
   "tooltip.examplemod.metal_chunk.temperature_cold": "Cold",
+  "tooltip.examplemod.roasted_ore.temperature": "Temperature: %s",
+  "tooltip.examplemod.hot_ore.temperature": "Temperature: %s",
   "block.examplemod.cobblestone_anvil": "Cobblestone Anvil",
   "item.examplemod.cobblestone_anvil": "Cobblestone Anvil"
 }

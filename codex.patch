@@ -1,8 +1,9 @@
 diff --git a/src/main/resources/assets/examplemod/lang/ru_ru.json b/src/main/resources/assets/examplemod/lang/ru_ru.json
-index 2cc62ec8dcd9dd6140d6b704c10cf59b699988bb..a3c8a3e994948d4061ebdf7e05ba92afd5ea6eaa 100644
+index a3c8a3e994948d4061ebdf7e05ba92afd5ea6eaa..affd9951f07c3ed602b24d437b890b4911edc0e6 100644
 --- a/src/main/resources/assets/examplemod/lang/ru_ru.json
 +++ b/src/main/resources/assets/examplemod/lang/ru_ru.json
-@@ -156,32 +156,35 @@
+@@ -155,36 +155,38 @@
+   "key.examplemod.activity": "Активность",
    "key.examplemod.progress": "Технологический прогресс",
    "key.examplemod.extra_inventory": "Доп. инвентарь",
    "key.categories.examplemod": "ExampleMod",
@@ -27,16 +28,17 @@ index 2cc62ec8dcd9dd6140d6b704c10cf59b699988bb..a3c8a3e994948d4061ebdf7e05ba92af
    "item.examplemod.tin_chunk": "Кусок олова",
    "item.examplemod.gold_chunk": "Кусок золота",
    "tooltip.examplemod.sponge_metal.state": "Состояние: %s",
++  "tooltip.examplemod.sponge_metal.temperature": "Температура: %s",
    "tooltip.examplemod.metal_chunk.state": "Состояние: %s",
-+  "tooltip.examplemod.metal_chunk.temperature": "Температура: %s",
+   "tooltip.examplemod.metal_chunk.temperature": "Температура: %s",
    "tooltip.examplemod.metal_chunk.state_good": "Хорошее",
    "tooltip.examplemod.metal_chunk.state_medium": "Среднее",
    "tooltip.examplemod.metal_chunk.state_bad": "Плохое",
-+  "tooltip.examplemod.metal_chunk.temperature_hot": "Горячее",
-+  "tooltip.examplemod.metal_chunk.temperature_cold": "Холодное",
-   "tooltip.examplemod.roasted_ore.state": "Состояние: %s",
+   "tooltip.examplemod.metal_chunk.temperature_hot": "Горячее",
+   "tooltip.examplemod.metal_chunk.temperature_cold": "Холодное",
+-  "tooltip.examplemod.roasted_ore.state": "Состояние: %s",
++  "tooltip.examplemod.roasted_ore.temperature": "Температура: %s",
++  "tooltip.examplemod.hot_ore.temperature": "Температура: %s",
    "block.examplemod.cobblestone_anvil": "Булыжниковая наковальня",
    "item.examplemod.cobblestone_anvil": "Булыжниковая наковальня"
--}
-\ No newline at end of file
-+}
+ }

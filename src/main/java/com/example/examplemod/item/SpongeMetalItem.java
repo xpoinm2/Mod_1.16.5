@@ -167,6 +167,7 @@ public class SpongeMetalItem extends Item {
         int state = getState(stack);
         String stateText = "";
         TextFormatting color = TextFormatting.GRAY;
+        String categoryKey = "tooltip.examplemod.sponge_metal.temperature";
 
         switch (state) {
             case STATE_HOT:
@@ -184,10 +185,11 @@ public class SpongeMetalItem extends Item {
             case STATE_WET:
                 stateText = "Влажный (портится!)";
                 color = TextFormatting.DARK_BLUE;
+                categoryKey = "tooltip.examplemod.sponge_metal.state";
                 break;
         }
 
-        tooltip.add(new TranslationTextComponent("tooltip.examplemod.sponge_metal.state", stateText)
+        tooltip.add(new TranslationTextComponent(categoryKey, stateText)
                 .withStyle(color));
     }
 }

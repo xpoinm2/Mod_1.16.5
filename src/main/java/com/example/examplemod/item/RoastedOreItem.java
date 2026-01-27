@@ -164,7 +164,7 @@ public class RoastedOreItem extends Item {
                 break;
         }
 
-        tooltip.add(new TranslationTextComponent("tooltip.examplemod.roasted_ore.state", stateText)
+        tooltip.add(new TranslationTextComponent("tooltip.examplemod.roasted_ore.temperature", stateText)
                 .withStyle(color));
     }
 }
