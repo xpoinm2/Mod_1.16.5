@@ -175,6 +175,21 @@ public class ExampleModJEIPlugin implements IModPlugin {
                 new ItemStack(ModItems.SPONGE_GOLD.get()),
                 600
         ));
+        pechugaRecipes.add(new FirepitRecipe(
+                createChunkWithTemperature(ModItems.IRON_CHUNK.get(), MetalChunkItem.TEMP_COLD),
+                createChunkWithTemperature(ModItems.IRON_CHUNK.get(), MetalChunkItem.TEMP_HOT),
+                400
+        ));
+        pechugaRecipes.add(new FirepitRecipe(
+                createChunkWithTemperature(ModItems.TIN_CHUNK.get(), MetalChunkItem.TEMP_COLD),
+                createChunkWithTemperature(ModItems.TIN_CHUNK.get(), MetalChunkItem.TEMP_HOT),
+                400
+        ));
+        pechugaRecipes.add(new FirepitRecipe(
+                createChunkWithTemperature(ModItems.GOLD_CHUNK.get(), MetalChunkItem.TEMP_COLD),
+                createChunkWithTemperature(ModItems.GOLD_CHUNK.get(), MetalChunkItem.TEMP_HOT),
+                400
+        ));
 
         registration.addRecipes(pechugaRecipes, PECHUGA_CATEGORY_UID);
 
@@ -251,6 +266,12 @@ public class ExampleModJEIPlugin implements IModPlugin {
     private static ItemStack createDefaultChunk(net.minecraft.item.Item chunkItem) {
         ItemStack stack = new ItemStack(chunkItem);
         MetalChunkItem.setState(stack, MetalChunkItem.STATE_MEDIUM);
+        return stack;
+    }
+
+    private static ItemStack createChunkWithTemperature(net.minecraft.item.Item chunkItem, int temperature) {
+        ItemStack stack = createDefaultChunk(chunkItem);
+        MetalChunkItem.setTemperature(stack, temperature);
         return stack;
     }
 }

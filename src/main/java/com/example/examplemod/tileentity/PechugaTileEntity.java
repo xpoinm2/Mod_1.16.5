@@ -4,9 +4,9 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.container.PechugaContainer;
+import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
-import com.example.examplemod.item.HotRoastedOreItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -347,6 +347,8 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
     private int getRequiredCookTime(ItemStack stack, int stage) {
         if (isRoastedOreItem(stack)) {
             return SPONGE_COOK_TIME;
+        } else if (isColdMetalChunk(stack)) {
+            return COOK_TIME_TOTAL;
         } else if (isOreItem(stack)) {
             return COOK_TIME_TOTAL;
         } else if (isLogItem(stack)) {
@@ -397,6 +399,10 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
             return new ItemStack(ModItems.FIRED_BRICK.get());
         } else if (stack.getItem() == ModItems.FIRED_BRICK.get() && stage == 1) {
             return new ItemStack(ModItems.CLAY_SHARDS.get());
+        } else if (isColdMetalChunk(stack)) {
+            ItemStack resultStack = stack.copy();
+            MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_HOT);
+            return resultStack;
         }
         return stack;
     }
@@ -442,6 +448,13 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
             return false;
         }
         return stack.getItem().is(ItemTags.LOGS);
+    }
+
+    private boolean isColdMetalChunk(ItemStack stack) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof MetalChunkItem)) {
+            return false;
+        }
+        return MetalChunkItem.getTemperature(stack) == MetalChunkItem.TEMP_COLD;
     }
 
     private void resetCookingProgress() {
@@ -526,6 +539,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
                 || stack.getItem() == ModItems.CALCINED_IRON_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_TIN_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_GOLD_ORE.get()
+                || isColdMetalChunk(stack)
                 || isLogItem(stack)
                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
                 || stack.getItem() == ModItems.CLAY_CUP.get()
