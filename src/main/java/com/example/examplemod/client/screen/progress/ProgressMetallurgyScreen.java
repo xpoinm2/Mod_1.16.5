@@ -41,6 +41,7 @@ public class ProgressMetallurgyScreen extends Screen {
     private ItemIconButton calcinedGoldButton;
     private ItemIconButton calcinedTinButton;
     private ItemIconButton spongeMetalsButton;
+    private ItemIconButton metalChunksButton;
 
 
     private int offsetX;
@@ -241,7 +242,19 @@ public class ProgressMetallurgyScreen extends Screen {
                         new StringTextComponent("Нужно для открытия: ")
                                 .append(new StringTextComponent("Кирпичная печь")
                                         .withStyle(TextFormatting.GOLD))));
-        registerNode(this.spongeMetalsButton, baseX + spacingX * 2, baseY);
+        QuestNode spongeMetalsNode = registerNode(this.spongeMetalsButton, baseX + spacingX * 2, baseY);
+
+        this.metalChunksButton = new ItemIconButton(baseX + spacingX * 3, baseY,
+                new ItemStack(ModItems.IRON_CHUNK.get()),
+                b -> this.minecraft.setScreen(new MetalChunksQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Куски металлов")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Губчатые металлы")
+                                        .withStyle(TextFormatting.GOLD))));
+        QuestNode metalChunksNode = registerNode(this.metalChunksButton, baseX + spacingX * 3, baseY);
+        addConnection(spongeMetalsNode, metalChunksNode, this::getMetalChunksState);
     }
 
     @Override
@@ -276,6 +289,9 @@ public class ProgressMetallurgyScreen extends Screen {
             }
             if (this.spongeMetalsButton != null) {
                 this.spongeMetalsButton.setBorderColor(colorForState(getSpongeMetalsState()));
+            }
+            if (this.metalChunksButton != null) {
+                this.metalChunksButton.setBorderColor(colorForState(getMetalChunksState()));
             }
         }
 
@@ -361,6 +377,13 @@ public class ProgressMetallurgyScreen extends Screen {
             return QuestState.LOCKED;
         }
         return QuestManager.isSpongeMetalsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getMetalChunksState() {
+        if (!QuestManager.isSpongeMetalsCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isMetalChunksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
     @Override

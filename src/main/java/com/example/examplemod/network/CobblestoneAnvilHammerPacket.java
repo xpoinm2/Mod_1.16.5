@@ -4,6 +4,7 @@ import com.example.examplemod.ModItems;
 import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.tileentity.CobblestoneAnvilTileEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -98,6 +99,8 @@ public class CobblestoneAnvilHammerPacket {
         metalStack.shrink(1);
         inventory.setStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT, metalStack);
 
+        dropSlag(anvil, random, player.level);
+
         // Отнимаем 5 прочности у молота за один полный крафт
         if (toolStack.hurt(5, random, player)) {
             toolStack.shrink(1);
@@ -105,6 +108,23 @@ public class CobblestoneAnvilHammerPacket {
         inventory.setStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT, toolStack);
 
         return true;
+    }
+
+    private static void dropSlag(CobblestoneAnvilTileEntity anvil, Random random, World world) {
+        if (world == null || world.isClientSide) {
+            return;
+        }
+        int slagCount = random.nextBoolean() ? 1 : 2;
+        ItemStack slagStack = new ItemStack(ModItems.SLAG.get(), slagCount);
+        BlockPos pos = anvil.getBlockPos();
+        double x = pos.getX() + 0.5D;
+        double y = pos.getY() + 1.0D;
+        double z = pos.getZ() + 0.5D;
+        ItemEntity entity = new ItemEntity(world, x, y, z, slagStack);
+        float angle = random.nextFloat() * ((float) Math.PI * 2F);
+        double speed = 0.2D + random.nextDouble() * 0.1D;
+        entity.setDeltaMovement(Math.cos(angle) * speed, 0.2D + random.nextDouble() * 0.1D, Math.sin(angle) * speed);
+        world.addFreshEntity(entity);
     }
 
     private static Item getChunkForSponge(Item spongeItem) {

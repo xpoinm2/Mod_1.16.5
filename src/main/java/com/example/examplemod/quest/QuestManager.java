@@ -36,6 +36,7 @@ public class QuestManager {
     private static boolean cleanedGravelGoldOreCompleted = false;
     private static boolean spongeMetalsCompleted = false;
     private static boolean cobblestoneAnvilCompleted = false;
+    private static boolean metalChunksCompleted = false;
 
 
     public static boolean isPlanksCompleted() {
@@ -319,6 +320,14 @@ public class QuestManager {
         cobblestoneAnvilCompleted = value;
     }
 
+    public static boolean isMetalChunksCompleted() {
+        return metalChunksCompleted;
+    }
+
+    public static void setMetalChunksCompleted(boolean value) {
+        metalChunksCompleted = value;
+    }
+
     public static boolean isAncientWorldCompleted() {
         return planksCompleted
                 && slabsCompleted
@@ -382,5 +391,6 @@ public class QuestManager {
         cleanedGravelGoldOreCompleted = false;
         spongeMetalsCompleted = false;
         boneTongsCompleted = false;
+        metalChunksCompleted = false;
     }
 }
