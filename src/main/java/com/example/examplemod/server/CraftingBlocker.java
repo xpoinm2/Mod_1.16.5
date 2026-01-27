@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.ShovelItem;
 import net.minecraft.item.SwordItem;
@@ -22,7 +23,7 @@ public class CraftingBlocker {
     public static void onItemCrafted(ItemCraftedEvent ev) {
         // результат, который игрок только что скрафтил
         ItemStack result = ev.getCrafting();
-        if (!isVanillaTool(result) && !isVanillaPlanks(result)) {
+        if (!isVanillaTool(result) && !isVanillaPlanks(result) && !isVanillaFurnace(result)) {
             return;
         }
 
@@ -79,5 +80,16 @@ public class CraftingBlocker {
         }
 
         return false;
+    }
+
+    private static boolean isVanillaFurnace(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        ResourceLocation id = stack.getItem().getRegistryName();
+        if (id == null || !"minecraft".equals(id.getNamespace())) {
+            return false;
+        }
+        return stack.getItem() == Items.FURNACE;
     }
 }

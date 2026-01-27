@@ -1,146 +1,42 @@
-diff --git a/src/main/java/com/example/examplemod/quest/QuestManager.java b/src/main/java/com/example/examplemod/quest/QuestManager.java
-index f710d9c34ebf03721a585f7174c9c2ff94df4112..1286f4e8e32dd0264b1c0ab6f383161358e914b3 100644
---- a/src/main/java/com/example/examplemod/quest/QuestManager.java
-+++ b/src/main/java/com/example/examplemod/quest/QuestManager.java
-@@ -14,50 +14,51 @@ public class QuestManager {
-     private static boolean flaxFibersCompleted = false;
-     private static boolean branchCompleted = false;
-     private static boolean brushwoodCompleted = false;
-     private static boolean startSmithingCompleted = false;
-     private static boolean initialFaunaCompleted = false;
-     private static boolean startHammersCompleted = false;
-     private static boolean ironClusterCompleted = false;
-     private static boolean pureIronOreCompleted = false;
-     private static boolean firepitCompleted = false;
-     private static boolean pyriteCompleted = false;
-     private static boolean pyriteFlintCompleted = false;
-     private static boolean roughKnivesCompleted = false;
-     private static boolean scrapedLeatherCompleted = false;
-     private static boolean calcinedIronOreCompleted = false;
-     private static boolean calcinedGoldOreCompleted = false;
-     private static boolean calcinedTinOreCompleted = false;
-     private static boolean brickKilnCompleted = false;
-     private static boolean clayPotCompleted = false;
-     private static boolean clayCupCompleted = false;
-     private static boolean unrefinedTinOreCompleted = false;
-     private static boolean unrefinedGoldOreCompleted = false;
-     private static boolean cleanedGravelTinOreCompleted = false;
-     private static boolean cleanedGravelGoldOreCompleted = false;
-     private static boolean spongeMetalsCompleted = false;
-     private static boolean cobblestoneAnvilCompleted = false;
-+    private static boolean metalChunksCompleted = false;
- 
- 
-     public static boolean isPlanksCompleted() {
-         return planksCompleted;
-     }
- 
-     public static void setPlanksCompleted(boolean value) {
-         planksCompleted = value;
-     }
- 
- 
-     public static boolean isSlabsCompleted() {
-         return slabsCompleted;
-     }
- 
-     public static void setSlabsCompleted(boolean value) {
-         slabsCompleted = value;
-     }
- 
-     public static boolean isCobbleSlabsCompleted() {
-         return cobbleSlabsCompleted;
-     }
- 
-     public static void setCobbleSlabsCompleted(boolean value) {
-         cobbleSlabsCompleted = value;
-@@ -297,50 +298,58 @@ public class QuestManager {
- 
-     public static boolean isCleanedGravelGoldOreCompleted() {
-         return cleanedGravelGoldOreCompleted;
-     }
- 
-     public static void setCleanedGravelGoldOreCompleted(boolean value) {
-         cleanedGravelGoldOreCompleted = value;
-     }
- 
-     public static boolean isSpongeMetalsCompleted() {
-         return spongeMetalsCompleted;
-     }
- 
-     public static void setSpongeMetalsCompleted(boolean value) {
-         spongeMetalsCompleted = value;
-     }
- 
-     public static boolean isCobblestoneAnvilCompleted() {
-         return cobblestoneAnvilCompleted;
-     }
- 
-     public static void setCobblestoneAnvilCompleted(boolean value) {
-         cobblestoneAnvilCompleted = value;
-     }
- 
-+    public static boolean isMetalChunksCompleted() {
-+        return metalChunksCompleted;
-+    }
-+
-+    public static void setMetalChunksCompleted(boolean value) {
-+        metalChunksCompleted = value;
-+    }
-+
-     public static boolean isAncientWorldCompleted() {
-         return planksCompleted
-                 && slabsCompleted
-                 && cobbleSlabsCompleted
-                 && hewnStonesCompleted
-                 && bigBonesCompleted
-                 && sharpenedBoneCompleted
-                 && stoneToolsCompleted
-                 && boneToolsCompleted
-                 && combsCompleted
-                 && flaxFibersCompleted
-                 && branchCompleted
-                 && brushwoodCompleted
-                 && startSmithingCompleted
-                 && initialFaunaCompleted
-                 && startHammersCompleted
-                 && ironClusterCompleted
-                 && pureIronOreCompleted
-                 && firepitCompleted
-                 && pyriteCompleted
-                 && pyriteFlintCompleted
-                 && roughKnivesCompleted
-                 && scrapedLeatherCompleted
-                 && calcinedIronOreCompleted
-                 && clayPotCompleted
-@@ -360,27 +369,28 @@ public class QuestManager {
-         flaxFibersCompleted = false;
-         branchCompleted = false;
-         brushwoodCompleted = false;
-         startSmithingCompleted = false;
-         initialFaunaCompleted = false;
-         startHammersCompleted = false;
-         ironClusterCompleted = false;
-         pureIronOreCompleted = false;
-         firepitCompleted = false;
-         pyriteCompleted = false;
-         pyriteFlintCompleted = false;
-         roughKnivesCompleted = false;
-         scrapedLeatherCompleted = false;
-         calcinedIronOreCompleted = false;
-         calcinedGoldOreCompleted = false;
-         calcinedTinOreCompleted = false;
-         brickKilnCompleted = false;
-         clayPotCompleted = false;
-         clayCupCompleted = false;
-         unrefinedTinOreCompleted = false;
-         unrefinedGoldOreCompleted = false;
-         cleanedGravelTinOreCompleted = false;
-         cleanedGravelGoldOreCompleted = false;
-         spongeMetalsCompleted = false;
-         boneTongsCompleted = false;
-+        metalChunksCompleted = false;
-     }
+diff --git a/src/main/resources/assets/examplemod/lang/ru_ru.json b/src/main/resources/assets/examplemod/lang/ru_ru.json
+index 2cc62ec8dcd9dd6140d6b704c10cf59b699988bb..a3c8a3e994948d4061ebdf7e05ba92afd5ea6eaa 100644
+--- a/src/main/resources/assets/examplemod/lang/ru_ru.json
++++ b/src/main/resources/assets/examplemod/lang/ru_ru.json
+@@ -156,32 +156,35 @@
+   "key.examplemod.progress": "Технологический прогресс",
+   "key.examplemod.extra_inventory": "Доп. инвентарь",
+   "key.categories.examplemod": "ExampleMod",
+   "fluid.examplemod.dirty_water": "Грязная вода",
+   "jei.examplemod.category.clay_pot_washing": "Промывка в глиняном горшке",
+   "jei.examplemod.category.firepit_cooking": "Приготовление на кострище",
+   "jei.examplemod.category.pechuga_cooking": "Приготовление в кирпичной печи",
+   "jei.examplemod.category.slab_drying": "Сушка на плитняке",
+   "jei.examplemod.category.cobblestone_anvil": "Кузнечное дело на булыжниковой наковальне",
+   "container.examplemod.slab": "Плитняк",
+   "jei.examplemod.clay_pot.description": "Используется для промывки рудного гравия водой. Кликайте пустой рукой для промывки руды. Требует воду для работы.",
+   "jei.examplemod.firepit.description": "Используется для приготовления и обжарки различных предметов. Добавьте топливо в нижний слот и предметы для приготовления в верхние слоты.",
+   "jei.examplemod.category.clay_mass_crafting": "Создание глиняной массы",
+   "jei.examplemod.clicks": "кликов",
+   "jei.examplemod.hits": "ударов",
+   "jei.examplemod.seconds": "секунд",
+   "jei.examplemod.water_required": "мл воды",
+   "item.examplemod.sponge_iron": "Губчатое железо",
+   "item.examplemod.sponge_tin": "Губчатое олово",
+   "item.examplemod.sponge_gold": "Губчатое золото",
+   "item.examplemod.iron_chunk": "Кусок железа",
+   "item.examplemod.tin_chunk": "Кусок олова",
+   "item.examplemod.gold_chunk": "Кусок золота",
+   "tooltip.examplemod.sponge_metal.state": "Состояние: %s",
+   "tooltip.examplemod.metal_chunk.state": "Состояние: %s",
++  "tooltip.examplemod.metal_chunk.temperature": "Температура: %s",
+   "tooltip.examplemod.metal_chunk.state_good": "Хорошее",
+   "tooltip.examplemod.metal_chunk.state_medium": "Среднее",
+   "tooltip.examplemod.metal_chunk.state_bad": "Плохое",
++  "tooltip.examplemod.metal_chunk.temperature_hot": "Горячее",
++  "tooltip.examplemod.metal_chunk.temperature_cold": "Холодное",
+   "tooltip.examplemod.roasted_ore.state": "Состояние: %s",
+   "block.examplemod.cobblestone_anvil": "Булыжниковая наковальня",
+   "item.examplemod.cobblestone_anvil": "Булыжниковая наковальня"
 -}
 \ No newline at end of file
 +}

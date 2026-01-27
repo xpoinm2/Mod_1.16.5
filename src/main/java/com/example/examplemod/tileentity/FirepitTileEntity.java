@@ -36,6 +36,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     public static final int DRIED_BRICK_FIRE_TIME = 800; // 40 seconds for dried brick to turn into fired brick
     public static final int FIRED_BRICK_OVERCOOK_TIME = 400; // 20 seconds for fired brick to turn into shards
     public static final int SPONGE_COOK_TIME = 600; // 30 seconds for roasted ore to turn into sponge
+    public static final int CHARCOAL_COOK_TIME = 200; // 10 seconds, vanilla-like charcoal cook time
     public static final int GRID_SLOT_COUNT = 12;
     public static final int FUEL_SLOT = GRID_SLOT_COUNT;
     public static final int MAX_HEAT = 100;
@@ -317,6 +318,8 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return SPONGE_COOK_TIME;
         } else if (isOreItem(stack)) {
             return COOK_TIME_TOTAL;
+        } else if (isLogItem(stack)) {
+            return CHARCOAL_COOK_TIME;
         } else if (isRawClayItem(stack) && stage == 0) {
             return COOK_TIME_TOTAL;
         } else if (isFinishedClayItem(stack) && stage == 1) {
@@ -349,6 +352,8 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return new ItemStack(ModItems.SPONGE_TIN.get());
         } else if (item == ModItems.CALCINED_GOLD_ORE.get()) {
             return new ItemStack(ModItems.SPONGE_GOLD.get());
+        } else if (isLogItem(stack)) {
+            return new ItemStack(Items.CHARCOAL);
         } else if (stack.getItem() == ModItems.RAW_CLAY_CUP.get() && stage == 0) {
             return new ItemStack(ModItems.CLAY_CUP.get());
         } else if (stack.getItem() == ModItems.CLAY_CUP.get() && stage == 1) {
@@ -389,6 +394,13 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                 || item == ModItems.TIN_ORE_GRAVEL.get()
                 || item == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()
                 || item == ModItems.GOLD_ORE_GRAVEL.get();
+    }
+
+    private boolean isLogItem(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        return stack.getItem().is(ItemTags.LOGS);
     }
 
     private boolean isRoastedOreItem(ItemStack stack) {
@@ -531,6 +543,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                 || stack.getItem() == ModItems.CALCINED_IRON_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_TIN_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_GOLD_ORE.get()
+                || isLogItem(stack)
                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
                 || stack.getItem() == ModItems.CLAY_CUP.get()
                 || stack.getItem() == ModItems.RAW_CLAY_POT.get()

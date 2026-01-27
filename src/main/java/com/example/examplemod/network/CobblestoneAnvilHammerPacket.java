@@ -1,6 +1,7 @@
 package com.example.examplemod.network;
 
 import com.example.examplemod.ModItems;
+import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.tileentity.CobblestoneAnvilTileEntity;
@@ -93,8 +94,20 @@ public class CobblestoneAnvilHammerPacket {
         }
 
         ItemStack resultStack = new ItemStack(resultItem);
+        MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_COLD);
         MetalChunkItem.setState(resultStack, rollState(random));
         inventory.setStackInSlot(CobblestoneAnvilTileEntity.OUTPUT_SLOT, resultStack);
+
+        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+            int fatigue = Math.min(100, stats.getFatigue() + 2);
+            if (fatigue != stats.getFatigue()) {
+                stats.setFatigue(fatigue);
+                ModNetworkHandler.CHANNEL.send(
+                        PacketDistributor.PLAYER.with(() -> player),
+                        new SyncAllStatsPacket(stats)
+                );
+            }
+        });
 
         metalStack.shrink(1);
         inventory.setStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT, metalStack);

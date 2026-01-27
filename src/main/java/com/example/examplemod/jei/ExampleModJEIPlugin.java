@@ -147,6 +147,13 @@ public class ExampleModJEIPlugin implements IModPlugin {
                 400
         ));
 
+        // Древесный уголь (ванильный аналог: бревно -> древесный уголь)
+        firepitRecipes.add(new FirepitRecipe(
+                new ItemStack(net.minecraft.item.Items.OAK_LOG),
+                new ItemStack(net.minecraft.item.Items.CHARCOAL),
+                200
+        ));
+
         registration.addRecipes(firepitRecipes, FIREPIT_CATEGORY_UID);
 
         // Рецепты для кирпичной печи (расширенные рецепты кострища + губчатые металлы)

@@ -65,7 +65,7 @@ public class VirusMechanic implements IMechanicModule {
         World world = (World) event.getWorld();
         if (world.isClientSide()) return;
         PlayerEntity player = event.getPlayer();
-        if (world.random.nextFloat() < 0.01f && player instanceof ServerPlayerEntity) {
+        if (world.random.nextFloat() < (0.01f / 3f) && player instanceof ServerPlayerEntity) {
             increase((ServerPlayerEntity) player, 5);
         }
     }
@@ -89,4 +89,3 @@ public class VirusMechanic implements IMechanicModule {
         });
     }
 }
-

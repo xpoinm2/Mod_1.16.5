@@ -36,6 +36,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
     public static final int DRIED_BRICK_FIRE_TIME = 800;
     public static final int FIRED_BRICK_OVERCOOK_TIME = 400;
     public static final int SPONGE_COOK_TIME = 600; // 30 seconds for roasted ore to turn into sponge
+    public static final int CHARCOAL_COOK_TIME = 200; // 10 seconds, vanilla-like charcoal cook time
     public static final int GRID_SLOT_COUNT = 12;
     public static final int FUEL_SLOT = GRID_SLOT_COUNT;
     public static final int MAX_HEAT = 100;
@@ -348,6 +349,8 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
             return SPONGE_COOK_TIME;
         } else if (isOreItem(stack)) {
             return COOK_TIME_TOTAL;
+        } else if (isLogItem(stack)) {
+            return CHARCOAL_COOK_TIME;
         } else if (isRawClayItem(stack) && stage == 0) {
             return COOK_TIME_TOTAL;
         } else if (isFinishedClayItem(stack) && stage == 1) {
@@ -380,6 +383,8 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
             return new ItemStack(ModItems.SPONGE_TIN.get());
         } else if (item == ModItems.CALCINED_GOLD_ORE.get()) {
             return new ItemStack(ModItems.SPONGE_GOLD.get());
+        } else if (isLogItem(stack)) {
+            return new ItemStack(Items.CHARCOAL);
         } else if (stack.getItem() == ModItems.RAW_CLAY_CUP.get() && stage == 0) {
             return new ItemStack(ModItems.CLAY_CUP.get());
         } else if (stack.getItem() == ModItems.CLAY_CUP.get() && stage == 1) {
@@ -430,6 +435,13 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         return item == ModItems.CALCINED_IRON_ORE.get()
                 || item == ModItems.CALCINED_TIN_ORE.get()
                 || item == ModItems.CALCINED_GOLD_ORE.get();
+    }
+
+    private boolean isLogItem(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        return stack.getItem().is(ItemTags.LOGS);
     }
 
     private void resetCookingProgress() {
@@ -514,6 +526,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
                 || stack.getItem() == ModItems.CALCINED_IRON_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_TIN_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_GOLD_ORE.get()
+                || isLogItem(stack)
                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
                 || stack.getItem() == ModItems.CLAY_CUP.get()
                 || stack.getItem() == ModItems.RAW_CLAY_POT.get()
@@ -730,4 +743,3 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         return 0;
     }
 }
-

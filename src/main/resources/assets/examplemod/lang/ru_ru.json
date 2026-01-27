@@ -178,9 +178,12 @@
   "item.examplemod.gold_chunk": "Кусок золота",
   "tooltip.examplemod.sponge_metal.state": "Состояние: %s",
   "tooltip.examplemod.metal_chunk.state": "Состояние: %s",
+  "tooltip.examplemod.metal_chunk.temperature": "Температура: %s",
   "tooltip.examplemod.metal_chunk.state_good": "Хорошее",
   "tooltip.examplemod.metal_chunk.state_medium": "Среднее",
   "tooltip.examplemod.metal_chunk.state_bad": "Плохое",
+  "tooltip.examplemod.metal_chunk.temperature_hot": "Горячее",
+  "tooltip.examplemod.metal_chunk.temperature_cold": "Холодное",
   "tooltip.examplemod.roasted_ore.state": "Состояние: %s",
   "block.examplemod.cobblestone_anvil": "Булыжниковая наковальня",
   "item.examplemod.cobblestone_anvil": "Булыжниковая наковальня"

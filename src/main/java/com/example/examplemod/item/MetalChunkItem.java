@@ -16,8 +16,11 @@ public class MetalChunkItem extends Item {
     public static final int STATE_GOOD = 1;
     public static final int STATE_MEDIUM = 2;
     public static final int STATE_BAD = 3;
+    public static final int TEMP_HOT = 1;
+    public static final int TEMP_COLD = 2;
 
     private static final String STATE_TAG = "MetalChunkState";
+    private static final String TEMPERATURE_TAG = "MetalChunkTemperature";
 
     public MetalChunkItem(Properties properties) {
         super(properties);
@@ -36,6 +39,22 @@ public class MetalChunkItem extends Item {
     public static void setState(ItemStack stack, int state) {
         CompoundNBT nbt = stack.getOrCreateTag();
         nbt.putInt(STATE_TAG, state);
+        stack.setTag(nbt);
+    }
+
+    public static int getTemperature(ItemStack stack) {
+        CompoundNBT nbt = stack.getOrCreateTag();
+        int temperature = nbt.getInt(TEMPERATURE_TAG);
+        if (temperature == 0) {
+            setTemperature(stack, TEMP_COLD);
+            return TEMP_COLD;
+        }
+        return temperature;
+    }
+
+    public static void setTemperature(ItemStack stack, int temperature) {
+        CompoundNBT nbt = stack.getOrCreateTag();
+        nbt.putInt(TEMPERATURE_TAG, temperature);
         stack.setTag(nbt);
     }
 
@@ -70,5 +89,23 @@ public class MetalChunkItem extends Item {
         }
 
         tooltip.add(new TranslationTextComponent("tooltip.examplemod.metal_chunk.state", stateText).withStyle(color));
+
+        int temperature = getTemperature(stack);
+        TextFormatting temperatureColor = TextFormatting.GRAY;
+        ITextComponent temperatureText = new TranslationTextComponent("tooltip.examplemod.metal_chunk.temperature_cold");
+        switch (temperature) {
+            case TEMP_HOT:
+                temperatureColor = TextFormatting.RED;
+                temperatureText = new TranslationTextComponent("tooltip.examplemod.metal_chunk.temperature_hot");
+                break;
+            case TEMP_COLD:
+                temperatureColor = TextFormatting.BLUE;
+                temperatureText = new TranslationTextComponent("tooltip.examplemod.metal_chunk.temperature_cold");
+                break;
+            default:
+                break;
+        }
+        tooltip.add(new TranslationTextComponent("tooltip.examplemod.metal_chunk.temperature", temperatureText)
+                .withStyle(temperatureColor));
     }
 }
