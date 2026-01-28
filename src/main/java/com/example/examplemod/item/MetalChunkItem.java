@@ -1,6 +1,8 @@
 package com.example.examplemod.item;
 
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -21,6 +23,8 @@ public class MetalChunkItem extends Item {
 
     private static final String STATE_TAG = "MetalChunkState";
     private static final String TEMPERATURE_TAG = "MetalChunkTemperature";
+    private static final String HOT_START_TICK_TAG = "MetalChunkHotStartTick";
+    private static final int HOT_DURATION_TICKS = 800;
 
     public MetalChunkItem(Properties properties) {
         super(properties);
@@ -55,7 +59,50 @@ public class MetalChunkItem extends Item {
     public static void setTemperature(ItemStack stack, int temperature) {
         CompoundNBT nbt = stack.getOrCreateTag();
         nbt.putInt(TEMPERATURE_TAG, temperature);
+        if (temperature != TEMP_HOT) {
+            nbt.remove(HOT_START_TICK_TAG);
+        }
         stack.setTag(nbt);
+    }
+
+    public static void setHotStartTick(ItemStack stack, long gameTime) {
+        CompoundNBT nbt = stack.getOrCreateTag();
+        nbt.putLong(HOT_START_TICK_TAG, gameTime);
+        stack.setTag(nbt);
+    }
+
+    private static void checkTemperatureTransition(ItemStack stack, World world) {
+        if (getTemperature(stack) != TEMP_HOT) {
+            return;
+        }
+        CompoundNBT nbt = stack.getOrCreateTag();
+        long startTick = nbt.getLong(HOT_START_TICK_TAG);
+        long gameTime = world.getGameTime();
+        if (startTick == 0L) {
+            setHotStartTick(stack, gameTime);
+            return;
+        }
+        if (gameTime - startTick >= HOT_DURATION_TICKS) {
+            setTemperature(stack, TEMP_COLD);
+        }
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, world, entity, slot, selected);
+        if (world.isClientSide) {
+            return;
+        }
+        checkTemperatureTransition(stack, world);
+    }
+
+    @Override
+    public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
+        if (entity.level.isClientSide) {
+            return false;
+        }
+        checkTemperatureTransition(stack, entity.level);
+        return false;
     }
 
     @Override

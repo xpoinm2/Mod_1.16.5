@@ -402,6 +402,9 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         } else if (isColdMetalChunk(stack)) {
             ItemStack resultStack = stack.copy();
             MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_HOT);
+            if (level != null) {
+                MetalChunkItem.setHotStartTick(resultStack, level.getGameTime());
+            }
             return resultStack;
         }
         return stack;

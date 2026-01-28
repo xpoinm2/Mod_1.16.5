@@ -1,12 +1,58 @@
-diff --git a/src/main/resources/assets/examplemod/models/item/raw_tin_blank.json b/src/main/resources/assets/examplemod/models/item/raw_tin_blank.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..e21b4941c2b87afcb943e34f60d1f4cd58836e6b
---- /dev/null
-+++ b/src/main/resources/assets/examplemod/models/item/raw_tin_blank.json
-@@ -0,0 +1,6 @@
-+{
-+  "parent": "item/generated",
-+  "textures": {
-+    "layer0": "examplemod:item/raw_tin_blank"
-+  }
-+}
+diff --git a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
+index 3cda5fe1e954278ba16ae2f3b4b79750fdbdfb42..91ee0c20201825fc5e7f5a5b096b071bc287cda5 100644
+--- a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
++++ b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
+@@ -380,50 +380,53 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
+         } else if (item == ModItems.GOLD_ORE_GRAVEL.get()) {
+             return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.5D);
+         } else if (item == ModItems.CALCINED_IRON_ORE.get()) {
+             return new ItemStack(ModItems.SPONGE_IRON.get());
+         } else if (item == ModItems.CALCINED_TIN_ORE.get()) {
+             return new ItemStack(ModItems.SPONGE_TIN.get());
+         } else if (item == ModItems.CALCINED_GOLD_ORE.get()) {
+             return new ItemStack(ModItems.SPONGE_GOLD.get());
+         } else if (isLogItem(stack)) {
+             return new ItemStack(Items.CHARCOAL);
+         } else if (stack.getItem() == ModItems.RAW_CLAY_CUP.get() && stage == 0) {
+             return new ItemStack(ModItems.CLAY_CUP.get());
+         } else if (stack.getItem() == ModItems.CLAY_CUP.get() && stage == 1) {
+             return new ItemStack(ModItems.CLAY_SHARDS.get());
+         } else if (stack.getItem() == ModItems.RAW_CLAY_POT.get() && stage == 0) {
+             return new ItemStack(ModItems.CLAY_POT.get());
+         } else if (stack.getItem() == ModItems.CLAY_POT.get() && stage == 1) {
+             return new ItemStack(ModItems.CLAY_SHARDS.get());
+         } else if (stack.getItem() == ModItems.DRIED_CLAY_BRICK.get() && stage == 0) {
+             return new ItemStack(ModItems.FIRED_BRICK.get());
+         } else if (stack.getItem() == ModItems.FIRED_BRICK.get() && stage == 1) {
+             return new ItemStack(ModItems.CLAY_SHARDS.get());
+         } else if (isColdMetalChunk(stack)) {
+             ItemStack resultStack = stack.copy();
+             MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_HOT);
++            if (level != null) {
++                MetalChunkItem.setHotStartTick(resultStack, level.getGameTime());
++            }
+             return resultStack;
+         }
+         return stack;
+     }
+ 
+     private ItemStack rollOreCookingResult(Item resultItem, double successChance) {
+         double roll = level != null ? level.random.nextDouble() : Math.random();
+         if (roll < successChance) {
+             ItemStack resultStack = new ItemStack(resultItem);
+             // Если результат - обожжённая руда, устанавливаем горячее состояние
+             if (resultItem instanceof RoastedOreItem) {
+                 RoastedOreItem.setState(resultStack, RoastedOreItem.STATE_HOT);
+             }
+             return resultStack;
+         }
+         return new ItemStack(ModItems.SLAG.get(), 3);
+     }
+ 
+     private boolean isOreItem(ItemStack stack) {
+         if (stack.isEmpty()) {
+             return false;
+         }
+         Item item = stack.getItem();
+         return item == ModItems.PURE_IRON_ORE.get()
+                 || item == ModItems.IRON_ORE_GRAVEL.get()
