@@ -4,8 +4,10 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.container.FirepitContainer;
+import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
+import com.example.examplemod.server.PechugaStructureHandler;
 import com.example.examplemod.item.HotRoastedOreItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -316,6 +318,8 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     private int getRequiredCookTime(ItemStack stack, int stage) {
         if (isRoastedOreItem(stack)) {
             return SPONGE_COOK_TIME;
+        } else if (isColdMetalChunk(stack)) {
+            return COOK_TIME_TOTAL;
         } else if (isOreItem(stack)) {
             return COOK_TIME_TOTAL;
         } else if (isLogItem(stack)) {
@@ -366,6 +370,13 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return new ItemStack(ModItems.FIRED_BRICK.get());
         } else if (stack.getItem() == ModItems.FIRED_BRICK.get() && stage == 1) {
             return new ItemStack(ModItems.CLAY_SHARDS.get());
+        } else if (isColdMetalChunk(stack)) {
+            ItemStack resultStack = stack.copy();
+            MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_HOT);
+            if (level != null) {
+                MetalChunkItem.setHotStartTick(resultStack, level.getGameTime());
+            }
+            return resultStack;
         }
         return stack; // fallback
     }
@@ -401,6 +412,20 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             return false;
         }
         return stack.getItem().is(ItemTags.LOGS);
+    }
+
+    private boolean isColdMetalChunk(ItemStack stack) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof MetalChunkItem)) {
+            return false;
+        }
+        return MetalChunkItem.getTemperature(stack) == MetalChunkItem.TEMP_COLD;
+    }
+
+    private boolean isPechugaStructureActive() {
+        if (level == null || level.isClientSide) {
+            return false;
+        }
+        return PechugaStructureHandler.findActivatedFirepitMaster(level, worldPosition) != null;
     }
 
     private boolean isRoastedOreItem(ItemStack stack) {
@@ -543,6 +568,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
                 || stack.getItem() == ModItems.CALCINED_IRON_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_TIN_ORE.get()
                 || stack.getItem() == ModItems.CALCINED_GOLD_ORE.get()
+                || (isColdMetalChunk(stack) && isPechugaStructureActive())
                 || isLogItem(stack)
                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
                 || stack.getItem() == ModItems.CLAY_CUP.get()
