@@ -559,16 +559,17 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         if (stack.isEmpty()) {
             return false;
         }
+        boolean isPechugaActive = isPechugaStructureActive();
         return stack.getItem() == ModItems.PURE_IRON_ORE.get()
                 || stack.getItem() == ModItems.IRON_ORE_GRAVEL.get()
                 || stack.getItem() == ModItems.TIN_ORE_GRAVEL.get()
                 || stack.getItem() == ModItems.GOLD_ORE_GRAVEL.get()
                 || stack.getItem() == ModItems.CLEANED_GRAVEL_TIN_ORE.get()
                 || stack.getItem() == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()
-                || stack.getItem() == ModItems.CALCINED_IRON_ORE.get()
-                || stack.getItem() == ModItems.CALCINED_TIN_ORE.get()
-                || stack.getItem() == ModItems.CALCINED_GOLD_ORE.get()
-                || (isColdMetalChunk(stack) && isPechugaStructureActive())
+                || (stack.getItem() == ModItems.CALCINED_IRON_ORE.get() && isPechugaActive)
+                || (stack.getItem() == ModItems.CALCINED_TIN_ORE.get() && isPechugaActive)
+                || (stack.getItem() == ModItems.CALCINED_GOLD_ORE.get() && isPechugaActive)
+                || (isColdMetalChunk(stack) && isPechugaActive)
                 || isLogItem(stack)
                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
                 || stack.getItem() == ModItems.CLAY_CUP.get()
