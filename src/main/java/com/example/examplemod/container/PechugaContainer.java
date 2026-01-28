@@ -4,7 +4,7 @@ import com.example.examplemod.ModContainers;
 import com.example.examplemod.ModItems;
 import com.example.examplemod.item.BoneTongsItem;
 import com.example.examplemod.item.RoastedOreItem;
-import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.PechugaTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
@@ -22,7 +22,7 @@ import net.minecraftforge.items.SlotItemHandler;
 
 public class PechugaContainer extends Container {
     private final IInventory pechugaInv;
-    private final FirepitTileEntity tileEntity;
+    private final PechugaTileEntity tileEntity;
     private final IIntArray dataAccess;
     private final IItemHandler tongsHandler;
     private final int tongsSlotStart;
@@ -35,11 +35,11 @@ public class PechugaContainer extends Container {
         this(id, playerInv, getTileEntity(playerInv, buffer));
     }
 
-    public PechugaContainer(int id, PlayerInventory playerInv, FirepitTileEntity tileEntity) {
+    public PechugaContainer(int id, PlayerInventory playerInv, PechugaTileEntity tileEntity) {
         this(id, playerInv, tileEntity, true);
     }
 
-    public PechugaContainer(int id, PlayerInventory playerInv, FirepitTileEntity tileEntity, boolean includeTongsSlots) {
+    public PechugaContainer(int id, PlayerInventory playerInv, PechugaTileEntity tileEntity, boolean includeTongsSlots) {
         super(com.example.examplemod.ModContainers.PECHUGA.get(), id);
         this.tileEntity = tileEntity;
         this.pechugaInv = tileEntity;
@@ -97,19 +97,19 @@ public class PechugaContainer extends Container {
         }
     }
 
-    private static FirepitTileEntity getTileEntity(PlayerInventory playerInventory, PacketBuffer buffer) {
+    private static PechugaTileEntity getTileEntity(PlayerInventory playerInventory, PacketBuffer buffer) {
         BlockPos pos = buffer.readBlockPos();
         if (playerInventory.player.level != null) {
-            if (playerInventory.player.level.getBlockEntity(pos) instanceof FirepitTileEntity) {
-                return (FirepitTileEntity) playerInventory.player.level.getBlockEntity(pos);
+            if (playerInventory.player.level.getBlockEntity(pos) instanceof PechugaTileEntity) {
+                return (PechugaTileEntity) playerInventory.player.level.getBlockEntity(pos);
             }
         }
-        throw new IllegalStateException("Firepit tile entity not found at " + pos);
+        throw new IllegalStateException("Pechuga tile entity not found at " + pos);
     }
 
     public int getHeatScaled(int pixels) {
-        int heat = MathHelper.clamp(this.dataAccess.get(0), 0, FirepitTileEntity.MAX_HEAT);
-        return MathHelper.ceil((double) heat * pixels / FirepitTileEntity.MAX_HEAT);
+        int heat = MathHelper.clamp(this.dataAccess.get(0), 0, PechugaTileEntity.MAX_HEAT);
+        return MathHelper.ceil((double) heat * pixels / PechugaTileEntity.MAX_HEAT);
     }
 
     public int getProcessingScaled(int pixels) {
@@ -233,4 +233,3 @@ public class PechugaContainer extends Container {
         return null;
     }
 }
-

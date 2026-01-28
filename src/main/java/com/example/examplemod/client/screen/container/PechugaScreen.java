@@ -1,7 +1,7 @@
 package com.example.examplemod.client.screen.container;
 
 import com.example.examplemod.container.PechugaContainer;
-import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.PechugaTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
@@ -73,7 +73,7 @@ public class PechugaScreen extends ContainerScreen<PechugaContainer> {
             AbstractGui.fill(matrixStack, barX, filledTop, barX + barWidth, barBottom, 0xFFCC2A2A);
         }
         int thresholdHeight = MathHelper.ceil(
-                (double) FirepitTileEntity.MIN_HEAT_FOR_SMELTING * barHeight / FirepitTileEntity.MAX_HEAT);
+                (double) PechugaTileEntity.MIN_HEAT_FOR_SMELTING * barHeight / PechugaTileEntity.MAX_HEAT);
         int thresholdY = barBottom - thresholdHeight;
         AbstractGui.fill(matrixStack, barX - 1, thresholdY, barX + barWidth + 1, thresholdY + 1, 0xFF757575);
 
@@ -108,4 +108,3 @@ public class PechugaScreen extends ContainerScreen<PechugaContainer> {
         }
     }
 }
-

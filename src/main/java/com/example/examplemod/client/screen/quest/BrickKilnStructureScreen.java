@@ -105,7 +105,7 @@ public class BrickKilnStructureScreen extends Screen {
 
         // Состояния блоков
         BlockState brickState = ModBlocks.BRICK_BLOCK_WITH_LINING.get().defaultBlockState();
-        BlockState firepitState = ModBlocks.FIREPIT_BLOCK.get().defaultBlockState();
+        BlockState coreState = ModBlocks.PECHUGA_CORE_BLOCK.get().defaultBlockState();
 
         // Структура мультиблока: 6x6x3
         // - Стены: кирпичные блоки по периметру
@@ -119,13 +119,13 @@ public class BrickKilnStructureScreen extends Screen {
             for (int x = 0; x < 6; x++) {
                 for (int z = 0; z < 6; z++) {
                     boolean isWall = (x == 0 || x == 5 || z == 0 || z == 5);
-                    boolean isFirepit = (y == 0 && x >= 1 && x <= 4 && z >= 1 && z <= 4);
+                    boolean isCore = (y == 0 && x >= 1 && x <= 4 && z >= 1 && z <= 4);
                     boolean isOpening = (y == 1 && z == 0 && (x == 2 || x == 3));
 
-                    if (isFirepit) {
+                    if (isCore) {
                         ms.pushPose();
                         ms.translate(x, y, z);
-                        blockRenderer.renderBlock(firepitState, ms, bufferSource, 0xF000F0, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                        blockRenderer.renderBlock(coreState, ms, bufferSource, 0xF000F0, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
                         ms.popPose();
                         continue;
                     }

@@ -425,7 +425,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         if (level == null || level.isClientSide) {
             return false;
         }
-        return PechugaStructureHandler.findActivatedFirepitMaster(level, worldPosition) != null;
+        return PechugaStructureHandler.findActivatedPechugaMaster(level, worldPosition) != null;
     }
 
     private boolean isRoastedOreItem(ItemStack stack) {

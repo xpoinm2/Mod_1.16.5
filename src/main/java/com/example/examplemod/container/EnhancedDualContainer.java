@@ -40,11 +40,14 @@ public class EnhancedDualContainer extends Container {
 
         // Получаем FirepitTileEntity из мира
         com.example.examplemod.tileentity.FirepitTileEntity firepitTile = null;
+        com.example.examplemod.tileentity.PechugaTileEntity pechugaTile = null;
         net.minecraft.world.World world = playerInventory.player.level;
         if (world != null) {
             net.minecraft.tileentity.TileEntity tileEntity = world.getBlockEntity(blockPos);
             if (tileEntity instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
                 firepitTile = (com.example.examplemod.tileentity.FirepitTileEntity) tileEntity;
+            } else if (tileEntity instanceof com.example.examplemod.tileentity.PechugaTileEntity) {
+                pechugaTile = (com.example.examplemod.tileentity.PechugaTileEntity) tileEntity;
             }
         }
 
@@ -53,14 +56,16 @@ public class EnhancedDualContainer extends Container {
                 .orElseGet(() -> new BoneTongsCapabilityProvider(tongsStack).getHandler());
 
         // Создаем основной контейнер
-        if (firepitTile == null) {
-            throw new IllegalStateException("Firepit tile entity not found at " + blockPos);
-        }
-
         if (isFirepit) {
+            if (firepitTile == null) {
+                throw new IllegalStateException("Firepit tile entity not found at " + blockPos);
+            }
             mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, firepitTile, false);
         } else {
-            mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, firepitTile, false);
+            if (pechugaTile == null) {
+                throw new IllegalStateException("Pechuga tile entity not found at " + blockPos);
+            }
+            mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, pechugaTile, false);
         }
 
         // Добавляем слоты щипцов слева

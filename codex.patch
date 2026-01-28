@@ -1,70 +1,26 @@
-diff --git a/src/main/java/com/example/examplemod/tileentity/FirepitTileEntity.java b/src/main/java/com/example/examplemod/tileentity/FirepitTileEntity.java
-index f89fccd59c7997e94555b67c52fbe2600a2f88d2..1ad2129216939190c291365049e4c81ac57f4d4d 100644
---- a/src/main/java/com/example/examplemod/tileentity/FirepitTileEntity.java
-+++ b/src/main/java/com/example/examplemod/tileentity/FirepitTileEntity.java
-@@ -537,60 +537,61 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
-                 } else if (isFiredBrick(stack)) {
-                     // Fired brick should start overcooking immediately
-                     slotCookingStages[i] = 1;
-                 } else if (isDriedBrick(stack)) {
-                     // Dried brick starts at stage 0
-                     slotCookingStages[i] = 0;
-                 }
-                 // For other items (like iron ore), keep stage 0
-             }
-         }
-         updateCookProgress();
-     }
- 
-     public boolean isHeating() {
-         return heatingTicks > 0 || (heat < MAX_HEAT && getSpecificHeat(items.get(FUEL_SLOT)) > 0);
-     }
- 
-     public int getHeat() {
-         return heat;
-     }
- 
-     public boolean isSmeltable(ItemStack stack) {
-         if (stack.isEmpty()) {
-             return false;
-         }
-+        boolean isPechugaActive = isPechugaStructureActive();
-         return stack.getItem() == ModItems.PURE_IRON_ORE.get()
-                 || stack.getItem() == ModItems.IRON_ORE_GRAVEL.get()
-                 || stack.getItem() == ModItems.TIN_ORE_GRAVEL.get()
-                 || stack.getItem() == ModItems.GOLD_ORE_GRAVEL.get()
-                 || stack.getItem() == ModItems.CLEANED_GRAVEL_TIN_ORE.get()
-                 || stack.getItem() == ModItems.CLEANED_GRAVEL_GOLD_ORE.get()
--                || stack.getItem() == ModItems.CALCINED_IRON_ORE.get()
--                || stack.getItem() == ModItems.CALCINED_TIN_ORE.get()
--                || stack.getItem() == ModItems.CALCINED_GOLD_ORE.get()
--                || (isColdMetalChunk(stack) && isPechugaStructureActive())
-+                || (stack.getItem() == ModItems.CALCINED_IRON_ORE.get() && isPechugaActive)
-+                || (stack.getItem() == ModItems.CALCINED_TIN_ORE.get() && isPechugaActive)
-+                || (stack.getItem() == ModItems.CALCINED_GOLD_ORE.get() && isPechugaActive)
-+                || (isColdMetalChunk(stack) && isPechugaActive)
-                 || isLogItem(stack)
-                 || stack.getItem() == ModItems.RAW_CLAY_CUP.get()
-                 || stack.getItem() == ModItems.CLAY_CUP.get()
-                 || stack.getItem() == ModItems.RAW_CLAY_POT.get()
-                 || stack.getItem() == ModItems.CLAY_POT.get()
-                 || stack.getItem() == ModItems.DRIED_CLAY_BRICK.get()
-                 || stack.getItem() == ModItems.FIRED_BRICK.get();
-     }
- 
- 
-     public IIntArray getDataAccess() {
-         return dataAccess;
-     }
-     // LockableTileEntity (official Mojang mappings) does not expose helper
-     // hooks such as getItems/setItems, so inventory access is implemented via
-     // the IInventory methods below.
- 
-     @Override
-     protected ITextComponent getDefaultName() {
-         return new StringTextComponent("Кострище");
-     }
- 
-     @Override
-     public int getContainerSize() {
-         return items.size();
+diff --git a/src/main/resources/assets/examplemod/models/block/pechuga_core.json b/src/main/resources/assets/examplemod/models/block/pechuga_core.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..2d626afebc89fee38ed4107b5afe74a90baaf4e7
+--- /dev/null
++++ b/src/main/resources/assets/examplemod/models/block/pechuga_core.json
+@@ -0,0 +1,20 @@
++{
++  "parent": "block/block",
++  "textures": {
++    "texture": "examplemod:block/pechuga_core"
++  },
++  "elements": [
++    {
++      "from": [0, 0, 0],
++      "to": [16, 8, 16],
++      "faces": {
++        "north": { "texture": "#texture" },
++        "east": { "texture": "#texture" },
++        "south": { "texture": "#texture" },
++        "west": { "texture": "#texture" },
++        "up": { "texture": "#texture" },
++        "down": { "texture": "#texture" }
++      }
++    }
++  ]
++}

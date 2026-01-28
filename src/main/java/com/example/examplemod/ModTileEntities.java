@@ -36,7 +36,7 @@ public class ModTileEntities {
 
     public static final RegistryObject<TileEntityType<PechugaTileEntity>> PECHUGA =
             ModRegistries.TILE_ENTITIES.register("pechuga",
-                    () -> TileEntityType.Builder.of(PechugaTileEntity::new, ModBlocks.FIREPIT_BLOCK.get()).build(null));
+                    () -> TileEntityType.Builder.of(PechugaTileEntity::new, ModBlocks.PECHUGA_CORE_BLOCK.get()).build(null));
 
     public static final RegistryObject<TileEntityType<CobblestoneAnvilTileEntity>> COBBLESTONE_ANVIL =
             ModRegistries.TILE_ENTITIES.register("cobblestone_anvil",

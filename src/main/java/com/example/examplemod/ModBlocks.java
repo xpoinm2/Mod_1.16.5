@@ -31,6 +31,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockRayTraceResult;
 import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.PechugaTileEntity;
 import com.example.examplemod.tileentity.SlabTileEntity;
 import com.example.examplemod.container.SlabContainer;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -155,6 +156,10 @@ public class ModBlocks {
     // Блок кострища (часть мультиструктуры 4x4)
     public static final RegistryObject<Block> FIREPIT_BLOCK = ModRegistries.BLOCKS.register("firepit_block",
             FirepitBlock::new);
+
+    // Блок ядра кирпичной печи (4x4 внутри структуры)
+    public static final RegistryObject<Block> PECHUGA_CORE_BLOCK = ModRegistries.BLOCKS.register("pechuga_core",
+            PechugaCoreBlock::new);
 
     // Блок Печуги (часть мультиструктуры 6x6x3)
     public static final RegistryObject<Block> PECHUGA_BLOCK = ModRegistries.BLOCKS.register("pechuga_block",
@@ -662,34 +667,17 @@ public class ModBlocks {
                 if (tile instanceof FirepitTileEntity) {
                     FirepitTileEntity firepit = (FirepitTileEntity) tile;
                     
-                    // Сначала проверяем, находится ли кострище внутри структуры кирпичной печи
-                    // Если да - открываем GUI кирпичной печи, если нет - GUI кострища
                     ItemStack mainHand = player.getMainHandItem();
                     ItemStack offHand = player.getOffhandItem();
                     boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
                                      (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
 
-                    if (hasTongs) {
-                        BlockPos pechugaMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedFirepitMaster(world, pos);
-                        if (pechugaMaster != null) {
-                            ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
-                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, firepit, pechugaMaster, tongs, false);
-                            return ActionResultType.SUCCESS;
-                        }
-                    }
-
-                    if (com.example.examplemod.server.PechugaStructureHandler.tryOpenGui(world, pos, player)) {
-                        return ActionResultType.SUCCESS;
-                    }
-                    
                     // Если не внутри кирпичной печи, открываем GUI кострища
                     // Check if the multiblock structure is still intact
                     if (firepit.isMultiblockIntact()) {
-                        // Проверяем, есть ли щипцы у игрока
                         if (hasTongs) {
-                            // Открываем enhanced dual GUI
                             ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
-                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, firepit, masterPos, tongs, true);
+                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, masterPos, tongs, true);
                         } else {
                             // Открываем обычный GUI кострища
                             NetworkHooks.openGui((ServerPlayerEntity) player, firepit, masterPos);
@@ -750,6 +738,102 @@ public class ModBlocks {
             }
     }
 
+    // === Ядро кирпичной печи ===
+    public static class PechugaCoreBlock extends Block {
+        public static final IntegerProperty X = IntegerProperty.create("x", 0, 3);
+        public static final IntegerProperty Z = IntegerProperty.create("z", 0, 3);
+        private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 8, 16);
+
+        public PechugaCoreBlock() {
+            super(AbstractBlock.Properties.copy(Blocks.BRICKS));
+            this.registerDefaultState(this.stateDefinition.any()
+                    .setValue(X, 0)
+                    .setValue(Z, 0));
+        }
+
+        @Override
+        public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+            return SHAPE;
+        }
+
+        @Override
+        protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+            builder.add(X, Z);
+        }
+
+        @Override
+        public boolean hasTileEntity(BlockState state) {
+            return isMaster(state);
+        }
+
+        @Nullable
+        @Override
+        public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+            return isMaster(state) ? ModTileEntities.PECHUGA.get().create() : null;
+        }
+
+        @Override
+        public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+            if (!world.isClientSide && hand == Hand.MAIN_HAND) {
+                BlockPos masterPos = getMasterPos(pos, state);
+                TileEntity tile = world.getBlockEntity(masterPos);
+                if (tile instanceof PechugaTileEntity) {
+                    PechugaTileEntity pechuga = (PechugaTileEntity) tile;
+
+                    ItemStack mainHand = player.getMainHandItem();
+                    ItemStack offHand = player.getOffhandItem();
+                    boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
+                                     (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
+
+                    if (hasTongs) {
+                        ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
+                        com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, masterPos, tongs, false);
+                        return ActionResultType.SUCCESS;
+                    }
+
+                    if (pechuga.isMultiblockIntact()) {
+                        net.minecraft.inventory.container.SimpleNamedContainerProvider provider =
+                            new net.minecraft.inventory.container.SimpleNamedContainerProvider(
+                                (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, pechuga),
+                                new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
+                            );
+                        net.minecraftforge.fml.network.NetworkHooks.openGui((ServerPlayerEntity) player, provider, masterPos);
+                        return ActionResultType.SUCCESS;
+                    }
+                    return ActionResultType.FAIL;
+                }
+            }
+            return ActionResultType.sidedSuccess(world.isClientSide);
+        }
+
+        @Override
+        public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+            if (!state.is(newState.getBlock())) {
+                if (isMaster(state)) {
+                    TileEntity tile = world.getBlockEntity(pos);
+                    if (tile instanceof PechugaTileEntity) {
+                        InventoryHelper.dropContents(world, pos, (PechugaTileEntity) tile);
+                        world.updateNeighbourForOutputSignal(pos, this);
+                    }
+                }
+                super.onRemove(state, world, pos, newState, isMoving);
+            } else {
+                super.onRemove(state, world, pos, newState, isMoving);
+            }
+        }
+
+        private static boolean isMaster(BlockState state) {
+            return state.getValue(X) == 1 && state.getValue(Z) == 1;
+        }
+
+        public static BlockPos getMasterPos(BlockPos pos, BlockState state) {
+            int xOffset = state.getValue(X);
+            int zOffset = state.getValue(Z);
+            BlockPos start = pos.offset(-xOffset, 0, -zOffset);
+            return start.offset(1, 0, 1);
+        }
+    }
+
     // === Блок Печуги ===
     public static class PechugaBlock extends Block {
         public static final IntegerProperty X = IntegerProperty.create("x", 0, 5);
@@ -780,29 +864,29 @@ public class ModBlocks {
                 
                 // Master блок кострища на (2,0,2) относительно начала структуры
                 // Кострище начинается с (1,0,1), master блок на (1,1) внутри кострища = (2,0,2) относительно начала
-                BlockPos firepitMaster = structureStart.offset(2, 0, 2);
+                BlockPos pechugaMaster = structureStart.offset(2, 0, 2);
 
                 ItemStack mainHand = player.getMainHandItem();
                 ItemStack offHand = player.getOffhandItem();
                 boolean hasTongs = (mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem) ||
                                  (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
                 
-                TileEntity tile = world.getBlockEntity(firepitMaster);
-                if (tile instanceof FirepitTileEntity) {
-                    FirepitTileEntity firepit = (FirepitTileEntity) tile;
+                TileEntity tile = world.getBlockEntity(pechugaMaster);
+                if (tile instanceof PechugaTileEntity) {
+                    PechugaTileEntity pechuga = (PechugaTileEntity) tile;
                     // Проверяем, что структура кирпичной печи цела
                     if (isPechugaStructureIntact(world, structureStart)) {
                         if (hasTongs) {
                             ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
-                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, firepit, firepitMaster, tongs, false);
+                            com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player, pechugaMaster, tongs, false);
                         } else {
                             // Открываем GUI кирпичной печи через специальный контейнер
                             net.minecraft.inventory.container.SimpleNamedContainerProvider provider =
                                 new net.minecraft.inventory.container.SimpleNamedContainerProvider(
-                                    (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, firepit),
+                                    (id, inv, p) -> new com.example.examplemod.container.PechugaContainer(id, inv, pechuga),
                                     new net.minecraft.util.text.StringTextComponent("Кирпичная печь")
                                 );
-                            net.minecraftforge.fml.network.NetworkHooks.openGui((ServerPlayerEntity) player, provider, firepitMaster);
+                            net.minecraftforge.fml.network.NetworkHooks.openGui((ServerPlayerEntity) player, provider, pechugaMaster);
                         }
                     } else {
                         return ActionResultType.FAIL;
@@ -814,24 +898,24 @@ public class ModBlocks {
 
         private static boolean isPechugaStructureIntact(World world, BlockPos start) {
             // Проверяем, что кострище 4x4 находится в центре структуры 6x6 на y=0
-            BlockPos firepitStart = start.offset(1, 0, 1);
+            BlockPos coreStart = start.offset(1, 0, 1);
             for (int x = 0; x < 4; x++) {
                 for (int z = 0; z < 4; z++) {
-                    BlockPos firepitPos = firepitStart.offset(x, 0, z);
-                    BlockState state = world.getBlockState(firepitPos);
-                    if (state.getBlock() != ModBlocks.FIREPIT_BLOCK.get()) {
+                    BlockPos corePos = coreStart.offset(x, 0, z);
+                    BlockState state = world.getBlockState(corePos);
+                    if (state.getBlock() != ModBlocks.PECHUGA_CORE_BLOCK.get()) {
                         return false;
                     }
-                    // Проверяем, что кострище активировано
-                    if (state.hasProperty(ModBlocks.FirepitBlock.X) && 
-                        state.hasProperty(ModBlocks.FirepitBlock.Z)) {
-                        int firepitX = state.getValue(ModBlocks.FirepitBlock.X);
-                        int firepitZ = state.getValue(ModBlocks.FirepitBlock.Z);
-                        if (firepitX != x || firepitZ != z) {
-                            return false; // Кострище не активировано правильно
+                    // Проверяем, что ядро активировано
+                    if (state.hasProperty(ModBlocks.PechugaCoreBlock.X) &&
+                        state.hasProperty(ModBlocks.PechugaCoreBlock.Z)) {
+                        int coreX = state.getValue(ModBlocks.PechugaCoreBlock.X);
+                        int coreZ = state.getValue(ModBlocks.PechugaCoreBlock.Z);
+                        if (coreX != x || coreZ != z) {
+                            return false; // Ядро не активировано правильно
                         }
                     } else {
-                        return false; // Кострище не активировано
+                        return false; // Ядро не активировано
                     }
                 }
             }
@@ -926,11 +1010,11 @@ public class ModBlocks {
                                  (offHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem);
 
                 if (hasTongs) {
-                    BlockPos firepitMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedFirepitMaster(world, pos);
-                    if (firepitMaster != null && world.getBlockEntity(firepitMaster) instanceof FirepitTileEntity) {
+                    BlockPos pechugaMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedPechugaMaster(world, pos);
+                    if (pechugaMaster != null && world.getBlockEntity(pechugaMaster) instanceof PechugaTileEntity) {
                         ItemStack tongs = mainHand.getItem() instanceof com.example.examplemod.item.BoneTongsItem ? mainHand : offHand;
                         com.example.examplemod.item.BoneTongsItem.openEnhancedDualGUI((ServerPlayerEntity) player,
-                                (FirepitTileEntity) world.getBlockEntity(firepitMaster), firepitMaster, tongs, false);
+                                pechugaMaster, tongs, false);
                         return ActionResultType.SUCCESS;
                     }
                 }

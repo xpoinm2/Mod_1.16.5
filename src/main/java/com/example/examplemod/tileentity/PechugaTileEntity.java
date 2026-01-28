@@ -229,13 +229,17 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         // Начало структуры = worldPosition.offset(-2, 0, -2)
         BlockPos structureStart = worldPosition.offset(-2, 0, -2);
 
-        // Проверяем кострище 4x4 в центре на y=0
-        BlockPos firepitStart = structureStart.offset(1, 0, 1);
+        // Проверяем ядро 4x4 в центре на y=0
+        BlockPos coreStart = structureStart.offset(1, 0, 1);
         for (int x = 0; x < 4; x++) {
             for (int z = 0; z < 4; z++) {
-                BlockPos firepitPos = firepitStart.offset(x, 0, z);
-                BlockState state = level.getBlockState(firepitPos);
-                if (state.getBlock() != ModBlocks.FIREPIT_BLOCK.get()) {
+                BlockPos corePos = coreStart.offset(x, 0, z);
+                BlockState state = level.getBlockState(corePos);
+                if (state.getBlock() != ModBlocks.PECHUGA_CORE_BLOCK.get()) {
+                    return false;
+                }
+                if (state.getValue(ModBlocks.PechugaCoreBlock.X) != x ||
+                    state.getValue(ModBlocks.PechugaCoreBlock.Z) != z) {
                     return false;
                 }
             }
@@ -736,9 +740,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
     @Nullable
     @Override
     public Container createMenu(int id, PlayerInventory playerInventory) {
-        // PechugaContainer использует FirepitTileEntity, поэтому не используем этот метод
-        // Вместо этого используем кострище как TileEntity
-        return null;
+        return new com.example.examplemod.container.PechugaContainer(id, playerInventory, this);
     }
 
     private int getSpecificHeat(ItemStack stack) {

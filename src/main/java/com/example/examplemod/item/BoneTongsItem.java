@@ -4,7 +4,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModContainers;
 import com.example.examplemod.container.BoneTongsContainer;
 import com.example.examplemod.container.EnhancedDualContainer;
-import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.PechugaTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -90,15 +90,15 @@ public class BoneTongsItem extends Item {
         // Находим начало структуры
         BlockPos structureStart = pos.offset(-x, -y, -z);
 
-        // Находим позицию кострища (центр структуры)
-        BlockPos firepitPos = structureStart.offset(2, 0, 2);
+        // Находим позицию ядра печи (центр структуры)
+        BlockPos pechugaPos = structureStart.offset(2, 0, 2);
 
-        // Проверяем, что кострище существует и активно
-        if (world.getBlockState(firepitPos).getBlock() == ModBlocks.FIREPIT_BLOCK.get()) {
-            FirepitTileEntity firepit = (FirepitTileEntity) world.getBlockEntity(firepitPos);
-            if (firepit != null) {
+        // Проверяем, что ядро существует и активно
+        if (world.getBlockState(pechugaPos).getBlock() == ModBlocks.PECHUGA_CORE_BLOCK.get()) {
+            PechugaTileEntity pechuga = (PechugaTileEntity) world.getBlockEntity(pechugaPos);
+            if (pechuga != null) {
                 // Открываем enhanced dual GUI вместо обычного
-                openEnhancedDualGUI(player, firepit, firepitPos, tongs, false);
+                openEnhancedDualGUI(player, pechugaPos, tongs, false);
                 return ActionResultType.SUCCESS;
             }
         }
@@ -122,45 +122,43 @@ public class BoneTongsItem extends Item {
     }
 
     private boolean tryOpenEnhancedDualForBrick(World world, BlockPos pos, ServerPlayerEntity player, ItemStack tongs) {
-        BlockPos firepitMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedFirepitMaster(world, pos);
-        if (firepitMaster == null) {
+        BlockPos pechugaMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedPechugaMaster(world, pos);
+        if (pechugaMaster == null) {
             return false;
         }
-        if (!(world.getBlockEntity(firepitMaster) instanceof FirepitTileEntity)) {
+        if (!(world.getBlockEntity(pechugaMaster) instanceof PechugaTileEntity)) {
             return false;
         }
-        FirepitTileEntity firepit = (FirepitTileEntity) world.getBlockEntity(firepitMaster);
-        openEnhancedDualGUI(player, firepit, firepitMaster, tongs, false);
+        openEnhancedDualGUI(player, pechugaMaster, tongs, false);
         return true;
     }
 
-    public static void openEnhancedDualGUI(ServerPlayerEntity player, FirepitTileEntity firepit, BlockPos firepitPos, ItemStack tongs, boolean isFirepit) {
+    public static void openEnhancedDualGUI(ServerPlayerEntity player, BlockPos corePos, ItemStack tongs, boolean isFirepit) {
         NetworkHooks.openGui(player,
                 new SimpleNamedContainerProvider(
                         (windowId, playerInventory, playerEntity) -> {
                             // Создаем enhanced dual контейнер
                             // Передаем данные: isFirepit, tongs, и данные для основного контейнера
-                            return createEnhancedDualContainer(windowId, playerInventory, firepit, firepitPos, tongs, isFirepit);
+                            return createEnhancedDualContainer(windowId, playerInventory, corePos, tongs, isFirepit);
                         },
                         new TranslationTextComponent(isFirepit ? "container.examplemod.firepit" : "container.examplemod.pechuga")),
                 buffer -> {
                     // Пишем данные для контейнера
                     buffer.writeBoolean(isFirepit);
                     buffer.writeItem(tongs);
-                    buffer.writeBlockPos(firepitPos);
+                    buffer.writeBlockPos(corePos);
                 });
     }
 
     private static EnhancedDualContainer createEnhancedDualContainer(int windowId, PlayerInventory playerInventory,
-                                                            FirepitTileEntity firepit, BlockPos firepitPos,
-                                                            ItemStack tongs, boolean isFirepit) {
+                                                            BlockPos corePos, ItemStack tongs, boolean isFirepit) {
         // Создаем PacketBuffer с необходимыми данными
         io.netty.buffer.ByteBuf buffer = io.netty.buffer.Unpooled.buffer();
         net.minecraft.network.PacketBuffer packetBuffer = new net.minecraft.network.PacketBuffer(buffer);
 
         packetBuffer.writeBoolean(isFirepit);
         packetBuffer.writeItem(tongs);
-        packetBuffer.writeBlockPos(firepitPos);
+        packetBuffer.writeBlockPos(corePos);
 
         // Создаем контейнер напрямую с правильными данными
         EnhancedDualContainer container = new EnhancedDualContainer(windowId, playerInventory, packetBuffer);
