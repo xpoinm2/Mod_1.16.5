@@ -49,7 +49,7 @@ public class CobblestoneAnvilHammerPacket {
 
                     // Если достигли максимального прогресса, выполняем крафт
                     if (anvil.isComplete()) {
-                        if (tryCraftMetalChunk(anvil, world.random, player)) {
+                        if (tryCraftAnvil(anvil, world.random, player)) {
                             anvil.resetProgress();
                         }
                     }
@@ -65,7 +65,7 @@ public class CobblestoneAnvilHammerPacket {
         ctx.get().setPacketHandled(true);
     }
 
-    private static boolean tryCraftMetalChunk(CobblestoneAnvilTileEntity anvil, Random random, ServerPlayerEntity player) {
+    private static boolean tryCraftAnvil(CobblestoneAnvilTileEntity anvil, Random random, ServerPlayerEntity player) {
         net.minecraftforge.items.ItemStackHandler inventory = anvil.getInventory();
         ItemStack metalStack = inventory.getStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT);
         ItemStack toolStack = inventory.getStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT);
@@ -79,25 +79,63 @@ public class CobblestoneAnvilHammerPacket {
             return false;
         }
 
-        if (!(metalStack.getItem() instanceof SpongeMetalItem)) {
-            return false;
-        }
-
         if (toolStack.getItem() != ModItems.STONE_HAMMER.get()
                 && toolStack.getItem() != ModItems.BONE_HAMMER.get()) {
             return false;
         }
 
-        Item resultItem = getChunkForSponge(metalStack.getItem());
-        if (resultItem == null) {
+        ItemStack resultStack = ItemStack.EMPTY;
+        boolean dropSlag = false;
+
+        if (metalStack.getItem() instanceof SpongeMetalItem) {
+            if (SpongeMetalItem.getState(metalStack) == SpongeMetalItem.STATE_COLD) {
+                return false;
+            }
+
+            Item resultItem = getChunkForSponge(metalStack.getItem());
+            if (resultItem == null) {
+                return false;
+            }
+
+            resultStack = new ItemStack(resultItem);
+            MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_COLD);
+            MetalChunkItem.setState(resultStack, rollState(random));
+            dropSlag = true;
+        } else if (metalStack.getItem() instanceof MetalChunkItem) {
+            if (MetalChunkItem.getTemperature(metalStack) != MetalChunkItem.TEMP_HOT) {
+                return false;
+            }
+
+            Item resultItem = getBlankForChunk(metalStack.getItem());
+            if (resultItem == null) {
+                return false;
+            }
+            resultStack = new ItemStack(resultItem);
+        } else {
             return false;
         }
 
-        ItemStack resultStack = new ItemStack(resultItem);
-        MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_COLD);
-        MetalChunkItem.setState(resultStack, rollState(random));
         inventory.setStackInSlot(CobblestoneAnvilTileEntity.OUTPUT_SLOT, resultStack);
 
+        applyFatigue(player);
+
+        metalStack.shrink(1);
+        inventory.setStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT, metalStack);
+
+        if (dropSlag) {
+            dropSlag(anvil, random, player.level);
+        }
+
+        // Отнимаем 5 прочности у молота за один полный крафт
+        if (toolStack.hurt(5, random, player)) {
+            toolStack.shrink(1);
+        }
+        inventory.setStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT, toolStack);
+
+        return true;
+    }
+
+    private static void applyFatigue(ServerPlayerEntity player) {
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
             int fatigue = Math.min(100, stats.getFatigue() + 2);
             if (fatigue != stats.getFatigue()) {
@@ -108,19 +146,6 @@ public class CobblestoneAnvilHammerPacket {
                 );
             }
         });
-
-        metalStack.shrink(1);
-        inventory.setStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT, metalStack);
-
-        dropSlag(anvil, random, player.level);
-
-        // Отнимаем 5 прочности у молота за один полный крафт
-        if (toolStack.hurt(5, random, player)) {
-            toolStack.shrink(1);
-        }
-        inventory.setStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT, toolStack);
-
-        return true;
     }
 
     private static void dropSlag(CobblestoneAnvilTileEntity anvil, Random random, World world) {
@@ -149,6 +174,19 @@ public class CobblestoneAnvilHammerPacket {
         }
         if (spongeItem == ModItems.SPONGE_GOLD.get()) {
             return ModItems.GOLD_CHUNK.get();
+        }
+        return null;
+    }
+
+    private static Item getBlankForChunk(Item chunkItem) {
+        if (chunkItem == ModItems.IRON_CHUNK.get()) {
+            return ModItems.RAW_IRON_BLANK.get();
+        }
+        if (chunkItem == ModItems.TIN_CHUNK.get()) {
+            return ModItems.RAW_TIN_BLANK.get();
+        }
+        if (chunkItem == ModItems.GOLD_CHUNK.get()) {
+            return ModItems.RAW_GOLD_BLANK.get();
         }
         return null;
     }

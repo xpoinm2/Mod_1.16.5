@@ -1,58 +1,205 @@
-diff --git a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-index 3cda5fe1e954278ba16ae2f3b4b79750fdbdfb42..91ee0c20201825fc5e7f5a5b096b071bc287cda5 100644
---- a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-+++ b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-@@ -380,50 +380,53 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
-         } else if (item == ModItems.GOLD_ORE_GRAVEL.get()) {
-             return rollOreCookingResult(ModItems.CALCINED_GOLD_ORE.get(), 0.5D);
-         } else if (item == ModItems.CALCINED_IRON_ORE.get()) {
-             return new ItemStack(ModItems.SPONGE_IRON.get());
-         } else if (item == ModItems.CALCINED_TIN_ORE.get()) {
-             return new ItemStack(ModItems.SPONGE_TIN.get());
-         } else if (item == ModItems.CALCINED_GOLD_ORE.get()) {
-             return new ItemStack(ModItems.SPONGE_GOLD.get());
-         } else if (isLogItem(stack)) {
-             return new ItemStack(Items.CHARCOAL);
-         } else if (stack.getItem() == ModItems.RAW_CLAY_CUP.get() && stage == 0) {
-             return new ItemStack(ModItems.CLAY_CUP.get());
-         } else if (stack.getItem() == ModItems.CLAY_CUP.get() && stage == 1) {
-             return new ItemStack(ModItems.CLAY_SHARDS.get());
-         } else if (stack.getItem() == ModItems.RAW_CLAY_POT.get() && stage == 0) {
-             return new ItemStack(ModItems.CLAY_POT.get());
-         } else if (stack.getItem() == ModItems.CLAY_POT.get() && stage == 1) {
-             return new ItemStack(ModItems.CLAY_SHARDS.get());
-         } else if (stack.getItem() == ModItems.DRIED_CLAY_BRICK.get() && stage == 0) {
-             return new ItemStack(ModItems.FIRED_BRICK.get());
-         } else if (stack.getItem() == ModItems.FIRED_BRICK.get() && stage == 1) {
-             return new ItemStack(ModItems.CLAY_SHARDS.get());
-         } else if (isColdMetalChunk(stack)) {
-             ItemStack resultStack = stack.copy();
-             MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_HOT);
-+            if (level != null) {
-+                MetalChunkItem.setHotStartTick(resultStack, level.getGameTime());
-+            }
-             return resultStack;
-         }
-         return stack;
+diff --git a/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java b/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java
+index a964153d787738c96dd12111c03a15dacd2680b2..b05c6c92af89b781a9bf923b8db7d5d139b51c07 100644
+--- a/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java
++++ b/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java
+@@ -27,140 +27,178 @@ public class CobblestoneAnvilHammerPacket {
      }
  
-     private ItemStack rollOreCookingResult(Item resultItem, double successChance) {
-         double roll = level != null ? level.random.nextDouble() : Math.random();
-         if (roll < successChance) {
-             ItemStack resultStack = new ItemStack(resultItem);
-             // Если результат - обожжённая руда, устанавливаем горячее состояние
-             if (resultItem instanceof RoastedOreItem) {
-                 RoastedOreItem.setState(resultStack, RoastedOreItem.STATE_HOT);
+     public static void encode(CobblestoneAnvilHammerPacket pkt, PacketBuffer buf) {
+         buf.writeBlockPos(pkt.pos);
+     }
+ 
+     public static CobblestoneAnvilHammerPacket decode(PacketBuffer buf) {
+         return new CobblestoneAnvilHammerPacket(buf.readBlockPos());
+     }
+ 
+     public static void handle(CobblestoneAnvilHammerPacket pkt, Supplier<NetworkEvent.Context> ctx) {
+         ctx.get().enqueueWork(() -> {
+             ServerPlayerEntity player = ctx.get().getSender();
+             if (player != null) {
+                 World world = player.level;
+                 TileEntity tileEntity = world.getBlockEntity(pkt.pos);
+ 
+                 if (tileEntity instanceof CobblestoneAnvilTileEntity) {
+                     CobblestoneAnvilTileEntity anvil = (CobblestoneAnvilTileEntity) tileEntity;
+ 
+                     // Увеличиваем прогресс
+                     anvil.incrementProgress();
+ 
+                     // Если достигли максимального прогресса, выполняем крафт
+                     if (anvil.isComplete()) {
+-                        if (tryCraftMetalChunk(anvil, world.random, player)) {
++                        if (tryCraftAnvil(anvil, world.random, player)) {
+                             anvil.resetProgress();
+                         }
+                     }
+ 
+                     // Отправляем обновление прогресса клиенту
+                     ModNetworkHandler.CHANNEL.send(
+                         PacketDistributor.PLAYER.with(() -> player),
+                         new CobblestoneAnvilProgressPacket(pkt.pos, anvil.getProgress())
+                     );
+                 }
              }
-             return resultStack;
-         }
-         return new ItemStack(ModItems.SLAG.get(), 3);
+         });
+         ctx.get().setPacketHandled(true);
      }
  
-     private boolean isOreItem(ItemStack stack) {
-         if (stack.isEmpty()) {
+-    private static boolean tryCraftMetalChunk(CobblestoneAnvilTileEntity anvil, Random random, ServerPlayerEntity player) {
++    private static boolean tryCraftAnvil(CobblestoneAnvilTileEntity anvil, Random random, ServerPlayerEntity player) {
+         net.minecraftforge.items.ItemStackHandler inventory = anvil.getInventory();
+         ItemStack metalStack = inventory.getStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT);
+         ItemStack toolStack = inventory.getStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT);
+         ItemStack outputStack = inventory.getStackInSlot(CobblestoneAnvilTileEntity.OUTPUT_SLOT);
+ 
+         if (metalStack.isEmpty() || toolStack.isEmpty()) {
              return false;
          }
-         Item item = stack.getItem();
-         return item == ModItems.PURE_IRON_ORE.get()
-                 || item == ModItems.IRON_ORE_GRAVEL.get()
+ 
+         if (!outputStack.isEmpty()) {
+             return false;
+         }
+ 
+-        if (!(metalStack.getItem() instanceof SpongeMetalItem)) {
+-            return false;
+-        }
+-
+         if (toolStack.getItem() != ModItems.STONE_HAMMER.get()
+                 && toolStack.getItem() != ModItems.BONE_HAMMER.get()) {
+             return false;
+         }
+ 
+-        Item resultItem = getChunkForSponge(metalStack.getItem());
+-        if (resultItem == null) {
++        ItemStack resultStack = ItemStack.EMPTY;
++        boolean dropSlag = false;
++
++        if (metalStack.getItem() instanceof SpongeMetalItem) {
++            if (SpongeMetalItem.getState(metalStack) == SpongeMetalItem.STATE_COLD) {
++                return false;
++            }
++
++            Item resultItem = getChunkForSponge(metalStack.getItem());
++            if (resultItem == null) {
++                return false;
++            }
++
++            resultStack = new ItemStack(resultItem);
++            MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_COLD);
++            MetalChunkItem.setState(resultStack, rollState(random));
++            dropSlag = true;
++        } else if (metalStack.getItem() instanceof MetalChunkItem) {
++            if (MetalChunkItem.getTemperature(metalStack) != MetalChunkItem.TEMP_HOT) {
++                return false;
++            }
++
++            Item resultItem = getBlankForChunk(metalStack.getItem());
++            if (resultItem == null) {
++                return false;
++            }
++            resultStack = new ItemStack(resultItem);
++        } else {
+             return false;
+         }
+ 
+-        ItemStack resultStack = new ItemStack(resultItem);
+-        MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_COLD);
+-        MetalChunkItem.setState(resultStack, rollState(random));
+         inventory.setStackInSlot(CobblestoneAnvilTileEntity.OUTPUT_SLOT, resultStack);
+ 
+-        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+-            int fatigue = Math.min(100, stats.getFatigue() + 2);
+-            if (fatigue != stats.getFatigue()) {
+-                stats.setFatigue(fatigue);
+-                ModNetworkHandler.CHANNEL.send(
+-                        PacketDistributor.PLAYER.with(() -> player),
+-                        new SyncAllStatsPacket(stats)
+-                );
+-            }
+-        });
++        applyFatigue(player);
+ 
+         metalStack.shrink(1);
+         inventory.setStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT, metalStack);
+ 
+-        dropSlag(anvil, random, player.level);
++        if (dropSlag) {
++            dropSlag(anvil, random, player.level);
++        }
+ 
+         // Отнимаем 5 прочности у молота за один полный крафт
+         if (toolStack.hurt(5, random, player)) {
+             toolStack.shrink(1);
+         }
+         inventory.setStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT, toolStack);
+ 
+         return true;
+     }
+ 
++    private static void applyFatigue(ServerPlayerEntity player) {
++        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
++            int fatigue = Math.min(100, stats.getFatigue() + 2);
++            if (fatigue != stats.getFatigue()) {
++                stats.setFatigue(fatigue);
++                ModNetworkHandler.CHANNEL.send(
++                        PacketDistributor.PLAYER.with(() -> player),
++                        new SyncAllStatsPacket(stats)
++                );
++            }
++        });
++    }
++
+     private static void dropSlag(CobblestoneAnvilTileEntity anvil, Random random, World world) {
+         if (world == null || world.isClientSide) {
+             return;
+         }
+         int slagCount = random.nextBoolean() ? 1 : 2;
+         ItemStack slagStack = new ItemStack(ModItems.SLAG.get(), slagCount);
+         BlockPos pos = anvil.getBlockPos();
+         double x = pos.getX() + 0.5D;
+         double y = pos.getY() + 1.0D;
+         double z = pos.getZ() + 0.5D;
+         ItemEntity entity = new ItemEntity(world, x, y, z, slagStack);
+         float angle = random.nextFloat() * ((float) Math.PI * 2F);
+         double speed = 0.2D + random.nextDouble() * 0.1D;
+         entity.setDeltaMovement(Math.cos(angle) * speed, 0.2D + random.nextDouble() * 0.1D, Math.sin(angle) * speed);
+         world.addFreshEntity(entity);
+     }
+ 
+     private static Item getChunkForSponge(Item spongeItem) {
+         if (spongeItem == ModItems.SPONGE_IRON.get()) {
+             return ModItems.IRON_CHUNK.get();
+         }
+         if (spongeItem == ModItems.SPONGE_TIN.get()) {
+             return ModItems.TIN_CHUNK.get();
+         }
+         if (spongeItem == ModItems.SPONGE_GOLD.get()) {
+             return ModItems.GOLD_CHUNK.get();
+         }
+         return null;
+     }
+ 
++    private static Item getBlankForChunk(Item chunkItem) {
++        if (chunkItem == ModItems.IRON_CHUNK.get()) {
++            return ModItems.RAW_IRON_BLANK.get();
++        }
++        if (chunkItem == ModItems.TIN_CHUNK.get()) {
++            return ModItems.RAW_TIN_BLANK.get();
++        }
++        if (chunkItem == ModItems.GOLD_CHUNK.get()) {
++            return ModItems.RAW_GOLD_BLANK.get();
++        }
++        return null;
++    }
++
+     private static int rollState(Random random) {
+         int roll = random.nextInt(100);
+         if (roll < 20) {
+             return MetalChunkItem.STATE_GOOD;
+         }
+         if (roll < 70) {
+             return MetalChunkItem.STATE_MEDIUM;
+         }
+         return MetalChunkItem.STATE_BAD;
+     }
+ }

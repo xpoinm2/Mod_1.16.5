@@ -229,6 +229,24 @@ public class ExampleModJEIPlugin implements IModPlugin {
                 hammerTools,
                 CobblestoneAnvilTileEntity.MAX_PROGRESS
         ));
+        cobblestoneAnvilRecipes.add(new CobblestoneAnvilRecipe(
+                createChunkWithTemperature(ModItems.IRON_CHUNK.get(), MetalChunkItem.TEMP_HOT),
+                new ItemStack(ModItems.RAW_IRON_BLANK.get()),
+                hammerTools,
+                CobblestoneAnvilTileEntity.MAX_PROGRESS
+        ));
+        cobblestoneAnvilRecipes.add(new CobblestoneAnvilRecipe(
+                createChunkWithTemperature(ModItems.TIN_CHUNK.get(), MetalChunkItem.TEMP_HOT),
+                new ItemStack(ModItems.RAW_TIN_BLANK.get()),
+                hammerTools,
+                CobblestoneAnvilTileEntity.MAX_PROGRESS
+        ));
+        cobblestoneAnvilRecipes.add(new CobblestoneAnvilRecipe(
+                createChunkWithTemperature(ModItems.GOLD_CHUNK.get(), MetalChunkItem.TEMP_HOT),
+                new ItemStack(ModItems.RAW_GOLD_BLANK.get()),
+                hammerTools,
+                CobblestoneAnvilTileEntity.MAX_PROGRESS
+        ));
         registration.addRecipes(cobblestoneAnvilRecipes, COBBLESTONE_ANVIL_CATEGORY_UID);
 
         // Регистрируем информацию о предметах

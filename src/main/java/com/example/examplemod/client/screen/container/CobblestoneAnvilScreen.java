@@ -3,6 +3,7 @@ package com.example.examplemod.client.screen.container;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.client.HammerButton;
 import com.example.examplemod.container.CobblestoneAnvilContainer;
+import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.network.CobblestoneAnvilHammerPacket;
 import com.example.examplemod.network.ModNetworkHandler;
 import com.example.examplemod.tileentity.CobblestoneAnvilTileEntity;
@@ -130,7 +131,16 @@ public class CobblestoneAnvilScreen extends ContainerScreen<CobblestoneAnvilCont
 
         CobblestoneAnvilTileEntity anvil = (CobblestoneAnvilTileEntity) tileEntity;
         ItemStack metalStack = anvil.getInventory().getStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT);
-        return !metalStack.isEmpty() && metalStack.getItem() instanceof SpongeMetalItem;
+        if (metalStack.isEmpty()) {
+            return false;
+        }
+        if (metalStack.getItem() instanceof SpongeMetalItem) {
+            return SpongeMetalItem.getState(metalStack) != SpongeMetalItem.STATE_COLD;
+        }
+        if (metalStack.getItem() instanceof MetalChunkItem) {
+            return MetalChunkItem.getTemperature(metalStack) == MetalChunkItem.TEMP_HOT;
+        }
+        return false;
     }
 
     @Override
