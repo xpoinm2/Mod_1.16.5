@@ -48,7 +48,6 @@ public class ProgressProductionScreen extends Screen {
     private ItemIconButton boneTongsButton;
     private ItemIconButton brickKilnButton;
     private ItemIconButton cobblestoneAnvilButton;
-    private ItemIconButton rawBlanksButton;
 
 
     private int offsetX;
@@ -310,16 +309,6 @@ public class ProgressProductionScreen extends Screen {
                                         .withStyle(TextFormatting.GOLD))));
         registerNode(this.cobblestoneAnvilButton, baseX + spacingX * 2, baseY);
 
-        this.rawBlanksButton = new ItemIconButton(baseX + spacingX * 3, baseY,
-                new ItemStack(ModItems.RAW_IRON_BLANK.get()),
-                b -> this.minecraft.setScreen(new RawBlanksQuestScreen(this)),
-                () -> Arrays.asList(
-                        new StringTextComponent("Сырые заготовки")
-                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                        new StringTextComponent("Требуется: ")
-                                .append(new StringTextComponent("Куски металлов")
-                                        .withStyle(TextFormatting.GOLD))));
-        registerNode(this.rawBlanksButton, baseX + spacingX * 3, baseY);
     }
 
     @Override
@@ -355,9 +344,6 @@ public class ProgressProductionScreen extends Screen {
             }
             if (this.cobblestoneAnvilButton != null) {
                 this.cobblestoneAnvilButton.setBorderColor(colorForState(getCobblestoneAnvilState()));
-            }
-            if (this.rawBlanksButton != null) {
-                this.rawBlanksButton.setBorderColor(colorForState(getRawBlanksState()));
             }
         }
 
@@ -515,12 +501,6 @@ private QuestState getBoneToolsState() {
         return QuestManager.isCobblestoneAnvilCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
-    private QuestState getRawBlanksState() {
-        if (!QuestManager.isMetalChunksCompleted()) {
-            return QuestState.LOCKED;
-        }
-        return QuestManager.isRawBlanksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-    }
 
 private QuestState getCombState() {
     boolean unlocked = QuestManager.isBigBonesCompleted()

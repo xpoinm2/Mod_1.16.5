@@ -42,6 +42,7 @@ public class ProgressMetallurgyScreen extends Screen {
     private ItemIconButton calcinedTinButton;
     private ItemIconButton spongeMetalsButton;
     private ItemIconButton metalChunksButton;
+    private ItemIconButton rawBlanksButton;
 
 
     private int offsetX;
@@ -210,6 +211,7 @@ public class ProgressMetallurgyScreen extends Screen {
         int baseX = 100;
         int baseY = 90;
         int spacingX = 110;
+        int spacingY = 70;
 
         this.calcinedGoldButton = new ItemIconButton(baseX, baseY,
                 new ItemStack(ModItems.CALCINED_GOLD_ORE.get()),
@@ -258,6 +260,18 @@ public class ProgressMetallurgyScreen extends Screen {
                                         .withStyle(TextFormatting.GOLD))));
         QuestNode metalChunksNode = registerNode(this.metalChunksButton, baseX + spacingX * 3, baseY);
         addConnection(spongeMetalsNode, metalChunksNode, this::getMetalChunksState);
+
+        this.rawBlanksButton = new ItemIconButton(baseX + spacingX * 3, baseY + spacingY,
+                new ItemStack(ModItems.RAW_IRON_BLANK.get()),
+                b -> this.minecraft.setScreen(new RawBlanksQuestScreen(this)),
+                () -> Arrays.asList(
+                        new StringTextComponent("Сырые заготовки")
+                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
+                        new StringTextComponent("Нужно для открытия: ")
+                                .append(new StringTextComponent("Куски металлов")
+                                        .withStyle(TextFormatting.GOLD))));
+        QuestNode rawBlanksNode = registerNode(this.rawBlanksButton, baseX + spacingX * 3, baseY + spacingY);
+        addConnection(metalChunksNode, rawBlanksNode, this::getRawBlanksState);
     }
 
     @Override
@@ -295,6 +309,9 @@ public class ProgressMetallurgyScreen extends Screen {
             }
             if (this.metalChunksButton != null) {
                 this.metalChunksButton.setBorderColor(colorForState(getMetalChunksState()));
+            }
+            if (this.rawBlanksButton != null) {
+                this.rawBlanksButton.setBorderColor(colorForState(getRawBlanksState()));
             }
         }
 
@@ -388,6 +405,13 @@ public class ProgressMetallurgyScreen extends Screen {
             return QuestState.LOCKED;
         }
         return QuestManager.isMetalChunksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
+    }
+
+    private QuestState getRawBlanksState() {
+        if (!QuestManager.isMetalChunksCompleted()) {
+            return QuestState.LOCKED;
+        }
+        return QuestManager.isRawBlanksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
     }
 
     @Override
