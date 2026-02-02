@@ -1,144 +1,71 @@
-diff --git a/src/main/java/com/example/examplemod/quest/QuestManager.java b/src/main/java/com/example/examplemod/quest/QuestManager.java
-index 1286f4e8e32dd0264b1c0ab6f383161358e914b3..88c85a6f3469073df46b3d3ee85ddbde79e2c6fe 100644
---- a/src/main/java/com/example/examplemod/quest/QuestManager.java
-+++ b/src/main/java/com/example/examplemod/quest/QuestManager.java
-@@ -15,50 +15,51 @@ public class QuestManager {
-     private static boolean branchCompleted = false;
-     private static boolean brushwoodCompleted = false;
-     private static boolean startSmithingCompleted = false;
-     private static boolean initialFaunaCompleted = false;
-     private static boolean startHammersCompleted = false;
-     private static boolean ironClusterCompleted = false;
-     private static boolean pureIronOreCompleted = false;
-     private static boolean firepitCompleted = false;
-     private static boolean pyriteCompleted = false;
-     private static boolean pyriteFlintCompleted = false;
-     private static boolean roughKnivesCompleted = false;
-     private static boolean scrapedLeatherCompleted = false;
-     private static boolean calcinedIronOreCompleted = false;
-     private static boolean calcinedGoldOreCompleted = false;
-     private static boolean calcinedTinOreCompleted = false;
-     private static boolean brickKilnCompleted = false;
-     private static boolean clayPotCompleted = false;
-     private static boolean clayCupCompleted = false;
-     private static boolean unrefinedTinOreCompleted = false;
-     private static boolean unrefinedGoldOreCompleted = false;
-     private static boolean cleanedGravelTinOreCompleted = false;
-     private static boolean cleanedGravelGoldOreCompleted = false;
-     private static boolean spongeMetalsCompleted = false;
-     private static boolean cobblestoneAnvilCompleted = false;
-     private static boolean metalChunksCompleted = false;
-+    private static boolean rawBlanksCompleted = false;
+diff --git a/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java b/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java
+index b05c6c92af89b781a9bf923b8db7d5d139b51c07..144c6986146eab01552f21862616f13ac9f56b81 100644
+--- a/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java
++++ b/src/main/java/com/example/examplemod/network/CobblestoneAnvilHammerPacket.java
+@@ -88,51 +88,65 @@ public class CobblestoneAnvilHammerPacket {
+         boolean dropSlag = false;
  
+         if (metalStack.getItem() instanceof SpongeMetalItem) {
+             if (SpongeMetalItem.getState(metalStack) == SpongeMetalItem.STATE_COLD) {
+                 return false;
+             }
  
-     public static boolean isPlanksCompleted() {
-         return planksCompleted;
+             Item resultItem = getChunkForSponge(metalStack.getItem());
+             if (resultItem == null) {
+                 return false;
+             }
+ 
+             resultStack = new ItemStack(resultItem);
+             MetalChunkItem.setTemperature(resultStack, MetalChunkItem.TEMP_COLD);
+             MetalChunkItem.setState(resultStack, rollState(random));
+             dropSlag = true;
+         } else if (metalStack.getItem() instanceof MetalChunkItem) {
+             if (MetalChunkItem.getTemperature(metalStack) != MetalChunkItem.TEMP_HOT) {
+                 return false;
+             }
+ 
+             Item resultItem = getBlankForChunk(metalStack.getItem());
+             if (resultItem == null) {
+                 return false;
+             }
+-            resultStack = new ItemStack(resultItem);
++            int state = MetalChunkItem.getState(metalStack);
++            int outputCount;
++            switch (state) {
++                case MetalChunkItem.STATE_GOOD:
++                    outputCount = 3;
++                    break;
++                case MetalChunkItem.STATE_BAD:
++                    outputCount = 1;
++                    break;
++                case MetalChunkItem.STATE_MEDIUM:
++                default:
++                    outputCount = 2;
++                    break;
++            }
++            resultStack = new ItemStack(resultItem, outputCount);
+         } else {
+             return false;
+         }
+ 
+         inventory.setStackInSlot(CobblestoneAnvilTileEntity.OUTPUT_SLOT, resultStack);
+ 
+         applyFatigue(player);
+ 
+         metalStack.shrink(1);
+         inventory.setStackInSlot(CobblestoneAnvilTileEntity.METAL_SLOT, metalStack);
+ 
+         if (dropSlag) {
+             dropSlag(anvil, random, player.level);
+         }
+ 
+         // Отнимаем 5 прочности у молота за один полный крафт
+         if (toolStack.hurt(5, random, player)) {
+             toolStack.shrink(1);
+         }
+         inventory.setStackInSlot(CobblestoneAnvilTileEntity.TOOL_SLOT, toolStack);
+ 
+         return true;
      }
  
-     public static void setPlanksCompleted(boolean value) {
-         planksCompleted = value;
-     }
- 
- 
-     public static boolean isSlabsCompleted() {
-         return slabsCompleted;
-     }
- 
-     public static void setSlabsCompleted(boolean value) {
-         slabsCompleted = value;
-     }
- 
-     public static boolean isCobbleSlabsCompleted() {
-         return cobbleSlabsCompleted;
-     }
- 
-     public static void setCobbleSlabsCompleted(boolean value) {
-         cobbleSlabsCompleted = value;
-@@ -306,50 +307,58 @@ public class QuestManager {
- 
-     public static boolean isSpongeMetalsCompleted() {
-         return spongeMetalsCompleted;
-     }
- 
-     public static void setSpongeMetalsCompleted(boolean value) {
-         spongeMetalsCompleted = value;
-     }
- 
-     public static boolean isCobblestoneAnvilCompleted() {
-         return cobblestoneAnvilCompleted;
-     }
- 
-     public static void setCobblestoneAnvilCompleted(boolean value) {
-         cobblestoneAnvilCompleted = value;
-     }
- 
-     public static boolean isMetalChunksCompleted() {
-         return metalChunksCompleted;
-     }
- 
-     public static void setMetalChunksCompleted(boolean value) {
-         metalChunksCompleted = value;
-     }
- 
-+    public static boolean isRawBlanksCompleted() {
-+        return rawBlanksCompleted;
-+    }
-+
-+    public static void setRawBlanksCompleted(boolean value) {
-+        rawBlanksCompleted = value;
-+    }
-+
-     public static boolean isAncientWorldCompleted() {
-         return planksCompleted
-                 && slabsCompleted
-                 && cobbleSlabsCompleted
-                 && hewnStonesCompleted
-                 && bigBonesCompleted
-                 && sharpenedBoneCompleted
-                 && stoneToolsCompleted
-                 && boneToolsCompleted
-                 && combsCompleted
-                 && flaxFibersCompleted
-                 && branchCompleted
-                 && brushwoodCompleted
-                 && startSmithingCompleted
-                 && initialFaunaCompleted
-                 && startHammersCompleted
-                 && ironClusterCompleted
-                 && pureIronOreCompleted
-                 && firepitCompleted
-                 && pyriteCompleted
-                 && pyriteFlintCompleted
-                 && roughKnivesCompleted
-                 && scrapedLeatherCompleted
-                 && calcinedIronOreCompleted
-                 && clayPotCompleted
-@@ -370,27 +379,28 @@ public class QuestManager {
-         branchCompleted = false;
-         brushwoodCompleted = false;
-         startSmithingCompleted = false;
-         initialFaunaCompleted = false;
-         startHammersCompleted = false;
-         ironClusterCompleted = false;
-         pureIronOreCompleted = false;
-         firepitCompleted = false;
-         pyriteCompleted = false;
-         pyriteFlintCompleted = false;
-         roughKnivesCompleted = false;
-         scrapedLeatherCompleted = false;
-         calcinedIronOreCompleted = false;
-         calcinedGoldOreCompleted = false;
-         calcinedTinOreCompleted = false;
-         brickKilnCompleted = false;
-         clayPotCompleted = false;
-         clayCupCompleted = false;
-         unrefinedTinOreCompleted = false;
-         unrefinedGoldOreCompleted = false;
-         cleanedGravelTinOreCompleted = false;
-         cleanedGravelGoldOreCompleted = false;
-         spongeMetalsCompleted = false;
-         boneTongsCompleted = false;
-         metalChunksCompleted = false;
-+        rawBlanksCompleted = false;
-     }
- }
+     private static void applyFatigue(ServerPlayerEntity player) {

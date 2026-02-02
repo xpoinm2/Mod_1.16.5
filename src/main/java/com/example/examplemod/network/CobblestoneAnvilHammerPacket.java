@@ -110,7 +110,21 @@ public class CobblestoneAnvilHammerPacket {
             if (resultItem == null) {
                 return false;
             }
-            resultStack = new ItemStack(resultItem);
+            int state = MetalChunkItem.getState(metalStack);
+            int outputCount;
+            switch (state) {
+                case MetalChunkItem.STATE_GOOD:
+                    outputCount = 3;
+                    break;
+                case MetalChunkItem.STATE_BAD:
+                    outputCount = 1;
+                    break;
+                case MetalChunkItem.STATE_MEDIUM:
+                default:
+                    outputCount = 2;
+                    break;
+            }
+            resultStack = new ItemStack(resultItem, outputCount);
         } else {
             return false;
         }
