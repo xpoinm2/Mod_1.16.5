@@ -24,6 +24,19 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
     private static final int TONGS_BG_WIDTH = EnhancedDualContainer.TONGS_GUI_WIDTH;
     private static final int TONGS_BG_HEIGHT = EnhancedDualContainer.TONGS_GUI_HEIGHT;
     private static final int TONGS_BG_OFFSET_Y = EnhancedDualContainer.TONGS_GUI_OFFSET_Y;
+    private static final int PROGRESS_FRAME_COUNT = 16;
+    private static final int PROGRESS_FRAME_SIZE = 16;
+    private static final int FUEL_SLOT_LEFT_X = 136;
+    private static final int FUEL_SLOT_COUNT = 2;
+    private static final int SLOT_SPACING = 18;
+    private static final ResourceLocation[] PROGRESS_FRAMES = new ResourceLocation[PROGRESS_FRAME_COUNT];
+
+    static {
+        for (int i = 0; i < PROGRESS_FRAME_COUNT; i++) {
+            PROGRESS_FRAMES[i] = new ResourceLocation("examplemod",
+                    String.format(java.util.Locale.ROOT, "textures/gui/firepit_progress/frame_%02d.png", i + 1));
+        }
+    }
 
     public EnhancedDualScreen(EnhancedDualContainer container, PlayerInventory inv, ITextComponent title) {
         super(container, inv, new StringTextComponent("Двойной интерфейс"));
@@ -78,14 +91,7 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
                  176, 12 - fireHeight, 14, fireHeight);
         }
 
-        // Пример: рендеринг прогресса плавки
-        int progressWidth = getSmeltProgress();
-        if (progressWidth > 0) {
-            blit(matrixStack,
-                 leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X + 79,
-                 topPos + 34,
-                 176, 0, progressWidth, 16);
-        }
+        renderProcessingAnimation(matrixStack);
 
         renderHeatBar(matrixStack);
     }
@@ -145,20 +151,43 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
         return 0;
     }
 
-    private int getSmeltProgress() {
+    private void renderProcessingAnimation(MatrixStack matrixStack) {
+        float progress = getProcessingProgress();
+        if (progress <= 0.0F) {
+            return;
+        }
+
+        int frameIndex = MathHelper.clamp((int) (progress * PROGRESS_FRAME_COUNT), 0, PROGRESS_FRAME_COUNT - 1);
+        ResourceLocation frameTexture = PROGRESS_FRAMES[frameIndex];
+        this.minecraft.getTextureManager().bind(frameTexture);
+        int fuelSlotsWidth = FUEL_SLOT_COUNT * SLOT_SPACING;
+        int progressCenterOffset = FUEL_SLOT_LEFT_X + fuelSlotsWidth / 2;
+        int progressX = leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X + progressCenterOffset - PROGRESS_FRAME_SIZE / 2;
+        int progressY = topPos + 6;
+        AbstractGui.blit(matrixStack, progressX, progressY, 0, 0, PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE,
+                PROGRESS_FRAME_SIZE, PROGRESS_FRAME_SIZE);
+    }
+
+    private float getProcessingProgress() {
         if (menu.getMainContainer() instanceof com.example.examplemod.container.FirepitContainer) {
-            return ((com.example.examplemod.container.FirepitContainer) menu.getMainContainer()).getProcessingScaled(24);
+            return ((com.example.examplemod.container.FirepitContainer) menu.getMainContainer()).getProcessingProgress();
         }
         if (menu.getMainContainer() instanceof com.example.examplemod.container.PechugaContainer) {
-            return ((com.example.examplemod.container.PechugaContainer) menu.getMainContainer()).getProcessingScaled(24);
+            return ((com.example.examplemod.container.PechugaContainer) menu.getMainContainer()).getProcessingProgress();
         }
-        return 0;
+        return 0.0F;
     }
 
     @Override
     protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
         // Заголовки для обоих GUI
-        this.font.draw(matrixStack, "Костяные щипцы", 12, 6, 4210752);
+        float scale = 1.0F / 3.0F;
+        int tongsLabelX = 6;
+        int tongsLabelY = TONGS_BG_OFFSET_Y - 6;
+        matrixStack.pushPose();
+        matrixStack.scale(scale, scale, 1.0F);
+        this.font.draw(matrixStack, "Костяные щипцы", tongsLabelX / scale, tongsLabelY / scale, 0xFFFFFF);
+        matrixStack.popPose();
 
         // Заголовок основного контейнера
         String mainTitle = "Кострище";
@@ -166,10 +195,7 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
             mainTitle = "Кирпичная печь";
         }
         this.font.draw(matrixStack, mainTitle,
-                      EnhancedDualContainer.MAIN_GUI_OFFSET_X + 8, 6, 4210752);
-
-        // Подсказки
-        this.font.draw(matrixStack, "Shift+клик для быстрого перемещения", 8, MAIN_GUI_HEIGHT - 10, 11184810);
+                      EnhancedDualContainer.MAIN_GUI_OFFSET_X + 8, 6, 0xFFFFFF);
     }
 
     private ResourceLocation getMainTexture() {
