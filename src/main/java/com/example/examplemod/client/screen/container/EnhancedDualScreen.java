@@ -40,13 +40,7 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
 
         // Рисуем фон щипцов слева
         this.minecraft.getTextureManager().bind(TONGS_TEXTURE);
-        matrixStack.pushPose();
-        matrixStack.translate(leftPos, topPos + TONGS_BG_OFFSET_Y, 0);
-        matrixStack.scale(EnhancedDualContainer.TONGS_GUI_SCALE, EnhancedDualContainer.TONGS_GUI_SCALE, 1F);
-        blit(matrixStack, 0, 0, 0, 0,
-             EnhancedDualContainer.TONGS_BASE_GUI_WIDTH,
-             EnhancedDualContainer.TONGS_BASE_GUI_HEIGHT);
-        matrixStack.popPose();
+        blit(matrixStack, leftPos, topPos + TONGS_BG_OFFSET_Y, 0, 0, TONGS_BG_WIDTH, TONGS_BG_HEIGHT);
 
         // Рисуем фон основного контейнера справа
         this.minecraft.getTextureManager().bind(getMainTexture());

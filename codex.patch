@@ -1,10 +1,8 @@
 diff --git a/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java b/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
-index 2734bf4212324eae6dd3a0e99263cd61455ecf24..b4033b87eb7c01671fa93c741c80603854ebc680 100644
+index b4033b87eb7c01671fa93c741c80603854ebc680..9aeaceea8b640f726b492ff271328ed82a10363d 100644
 --- a/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
 +++ b/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
-@@ -3,103 +3,106 @@ package com.example.examplemod.container;
- import com.example.examplemod.ModContainers;
- import com.example.examplemod.item.BoneTongsCapabilityProvider;
+@@ -5,104 +5,101 @@ import com.example.examplemod.item.BoneTongsCapabilityProvider;
  import net.minecraft.entity.player.PlayerEntity;
  import net.minecraft.entity.player.PlayerInventory;
  import net.minecraft.inventory.container.ClickType;
@@ -28,22 +26,16 @@ index 2734bf4212324eae6dd3a0e99263cd61455ecf24..b4033b87eb7c01671fa93c741c806038
      private final int tongsSlotCount;
  
      // Константы для позиционирования
--    public static final int MAIN_GUI_OFFSET_X = 150; // Сдвиг основного GUI вправо
-+    public static final int MAIN_GUI_OFFSET_X = BoneTongsContainer.GUI_WIDTH + 10; // Сдвиг основного GUI вправо
+     public static final int MAIN_GUI_OFFSET_X = BoneTongsContainer.GUI_WIDTH + 10; // Сдвиг основного GUI вправо
      public static final int MAIN_GUI_OFFSET_Y = 0;
--    public static final int TONGS_GUI_WIDTH = 140;
--    public static final int TONGS_GUI_HEIGHT = 140;
--    public static final int TONGS_GUI_OFFSET_Y = 13;
--    public static final int TONGS_GUI_X = 61; // Позиция слотов щипцов по X
--    public static final int TONGS_GUI_Y = 65; // Позиция первого слота щипцов по Y
-+    public static final int TONGS_BASE_GUI_WIDTH = BoneTongsContainer.BASE_GUI_WIDTH;
-+    public static final int TONGS_BASE_GUI_HEIGHT = BoneTongsContainer.BASE_GUI_HEIGHT;
-+    public static final float TONGS_GUI_SCALE = BoneTongsContainer.GUI_SCALE;
-+    public static final int TONGS_GUI_WIDTH = BoneTongsContainer.GUI_WIDTH;
-+    public static final int TONGS_GUI_HEIGHT = BoneTongsContainer.GUI_HEIGHT;
-+    public static final int TONGS_GUI_OFFSET_Y = 0;
-+    public static final int TONGS_GUI_X = BoneTongsContainer.SLOT_X; // Позиция слотов щипцов по X
-+    public static final int TONGS_GUI_Y = BoneTongsContainer.SLOT_Y; // Позиция первого слота щипцов по Y
+-    public static final int TONGS_BASE_GUI_WIDTH = BoneTongsContainer.BASE_GUI_WIDTH;
+-    public static final int TONGS_BASE_GUI_HEIGHT = BoneTongsContainer.BASE_GUI_HEIGHT;
+-    public static final float TONGS_GUI_SCALE = BoneTongsContainer.GUI_SCALE;
+     public static final int TONGS_GUI_WIDTH = BoneTongsContainer.GUI_WIDTH;
+     public static final int TONGS_GUI_HEIGHT = BoneTongsContainer.GUI_HEIGHT;
+     public static final int TONGS_GUI_OFFSET_Y = 0;
+     public static final int TONGS_GUI_X = BoneTongsContainer.SLOT_X; // Позиция слотов щипцов по X
+     public static final int TONGS_GUI_Y = BoneTongsContainer.SLOT_Y; // Позиция первого слота щипцов по Y
  
      public EnhancedDualContainer(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
          super(ModContainers.ENHANCED_DUAL_CONTAINER.get(), windowId);
@@ -89,8 +81,8 @@ index 2734bf4212324eae6dd3a0e99263cd61455ecf24..b4033b87eb7c01671fa93c741c806038
          // Добавляем слоты щипцов слева
          this.tongsSlotCount = tongsHandler.getSlots();
          for (int i = 0; i < tongsHandler.getSlots(); i++) {
--            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * 18));
-+            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * BoneTongsContainer.SLOT_SPACING_SCALED));
+-            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * BoneTongsContainer.SLOT_SPACING_SCALED));
++            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X + i * BoneTongsContainer.SLOT_SPACING, TONGS_GUI_Y));
          }
  
          // Копируем слоты основного контейнера со сдвигом

@@ -16,17 +16,17 @@ public class BoneTongsScreen extends ContainerScreen<BoneTongsContainer> {
         super(container, inv, title);
         this.imageWidth = BoneTongsContainer.GUI_WIDTH;
         this.imageHeight = BoneTongsContainer.GUI_HEIGHT;
+        this.titleLabelX = 8;
+        this.titleLabelY = 6;
+        this.inventoryLabelX = 8;
+        this.inventoryLabelY = BoneTongsContainer.PLAYER_INV_Y - 12;
     }
 
     @Override
     protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1F, 1F, 1F, 1F);
         this.minecraft.getTextureManager().bind(TEXTURE);
-        matrixStack.pushPose();
-        matrixStack.translate(leftPos, topPos, 0);
-        matrixStack.scale(BoneTongsContainer.GUI_SCALE, BoneTongsContainer.GUI_SCALE, 1F);
-        blit(matrixStack, 0, 0, 0, 0, BoneTongsContainer.BASE_GUI_WIDTH, BoneTongsContainer.BASE_GUI_HEIGHT);
-        matrixStack.popPose();
+        blit(matrixStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
@@ -34,5 +34,11 @@ public class BoneTongsScreen extends ContainerScreen<BoneTongsContainer> {
         renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         renderTooltip(matrixStack, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+        this.font.draw(matrixStack, this.title, this.titleLabelX, this.titleLabelY, 0xFF0000);
+        this.font.draw(matrixStack, this.inventory.getDisplayName(), this.inventoryLabelX, this.inventoryLabelY, 0xFF0000);
     }
 }
