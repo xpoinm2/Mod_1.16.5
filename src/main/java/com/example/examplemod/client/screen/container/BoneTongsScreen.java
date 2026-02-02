@@ -14,8 +14,8 @@ public class BoneTongsScreen extends ContainerScreen<BoneTongsContainer> {
 
     public BoneTongsScreen(BoneTongsContainer container, PlayerInventory inv, ITextComponent title) {
         super(container, inv, title);
-        this.imageWidth = 70;
-        this.imageHeight = 80;
+        this.imageWidth = 140;
+        this.imageHeight = 140;
     }
 
     @Override

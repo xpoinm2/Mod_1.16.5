@@ -26,8 +26,8 @@ public class BoneTongsContainer extends Container {
         this.itemHandler = boneStack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
                 .orElseGet(() -> new BoneTongsCapabilityProvider(boneStack).getHandler());
 
-        addSlot(new SlotItemHandler(itemHandler, 0, 30, 18));
-        addSlot(new SlotItemHandler(itemHandler, 1, 30, 38));
+        addSlot(new SlotItemHandler(itemHandler, 0, 61, 52));
+        addSlot(new SlotItemHandler(itemHandler, 1, 61, 70));
     }
 
     @Override

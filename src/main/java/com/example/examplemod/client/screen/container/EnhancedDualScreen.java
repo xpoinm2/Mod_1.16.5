@@ -18,10 +18,15 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
             new ResourceLocation("examplemod", "textures/gui/pechuga.png");        
     private static final ResourceLocation TONGS_TEXTURE =
             new ResourceLocation(ExampleMod.MODID, "textures/gui/bone_tongs.png");
+    private static final int MAIN_GUI_WIDTH = 176;
+    private static final int MAIN_GUI_HEIGHT = 166;
+    private static final int TONGS_BG_WIDTH = EnhancedDualContainer.TONGS_GUI_WIDTH;
+    private static final int TONGS_BG_HEIGHT = EnhancedDualContainer.TONGS_GUI_HEIGHT;
+    private static final int TONGS_BG_OFFSET_Y = EnhancedDualContainer.TONGS_GUI_OFFSET_Y;
 
     public EnhancedDualScreen(EnhancedDualContainer container, PlayerInventory inv, ITextComponent title) {
         super(container, inv, new StringTextComponent("Двойной интерфейс"));
-        this.imageWidth = 256; // 176 (firepit) + 80 (tongs + spacing)
+        this.imageWidth = EnhancedDualContainer.MAIN_GUI_OFFSET_X + MAIN_GUI_WIDTH;
         this.imageHeight = 188;
     }
 
@@ -31,11 +36,11 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
 
         // Рисуем фон щипцов слева
         this.minecraft.getTextureManager().bind(TONGS_TEXTURE);
-        blit(matrixStack, leftPos, topPos + 8, 0, 0, 70, 80);
+        blit(matrixStack, leftPos, topPos + TONGS_BG_OFFSET_Y, 0, 0, TONGS_BG_WIDTH, TONGS_BG_HEIGHT);
 
         // Рисуем фон основного контейнера справа
         this.minecraft.getTextureManager().bind(getMainTexture());
-        blit(matrixStack, leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X, topPos, 0, 0, 176, 166);
+        blit(matrixStack, leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X, topPos, 0, 0, MAIN_GUI_WIDTH, MAIN_GUI_HEIGHT);
     }
 
     @Override
@@ -128,14 +133,15 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
     }
 
     private boolean isHoveringOverTongs(int mouseX, int mouseY) {
-        return mouseX >= leftPos && mouseX <= leftPos + 70 &&
-               mouseY >= topPos + 8 && mouseY <= topPos + 88;
+        return mouseX >= leftPos && mouseX <= leftPos + TONGS_BG_WIDTH &&
+               mouseY >= topPos + TONGS_BG_OFFSET_Y &&
+               mouseY <= topPos + TONGS_BG_OFFSET_Y + TONGS_BG_HEIGHT;
     }
 
     private boolean isHoveringOverMainGui(int mouseX, int mouseY) {
         return mouseX >= leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X &&
-               mouseX <= leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X + 176 &&
-               mouseY >= topPos && mouseY <= topPos + 166;
+               mouseX <= leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X + MAIN_GUI_WIDTH &&
+               mouseY >= topPos && mouseY <= topPos + MAIN_GUI_HEIGHT;
     }
 
     private ResourceLocation getMainTexture() {

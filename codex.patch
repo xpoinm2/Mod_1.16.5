@@ -1,26 +1,66 @@
-diff --git a/src/main/resources/assets/examplemod/models/block/pechuga_core.json b/src/main/resources/assets/examplemod/models/block/pechuga_core.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..2d626afebc89fee38ed4107b5afe74a90baaf4e7
---- /dev/null
-+++ b/src/main/resources/assets/examplemod/models/block/pechuga_core.json
-@@ -0,0 +1,20 @@
-+{
-+  "parent": "block/block",
-+  "textures": {
-+    "texture": "examplemod:block/pechuga_core"
-+  },
-+  "elements": [
-+    {
-+      "from": [0, 0, 0],
-+      "to": [16, 8, 16],
-+      "faces": {
-+        "north": { "texture": "#texture" },
-+        "east": { "texture": "#texture" },
-+        "south": { "texture": "#texture" },
-+        "west": { "texture": "#texture" },
-+        "up": { "texture": "#texture" },
-+        "down": { "texture": "#texture" }
-+      }
-+    }
-+  ]
-+}
+diff --git a/src/main/java/com/example/examplemod/item/BoneTongsItem.java b/src/main/java/com/example/examplemod/item/BoneTongsItem.java
+index de17f995a2a56368c551ec73b17f9f9f3032c1a2..196d433cb7fb555d4c26a4a3fd2be8a78765f033 100644
+--- a/src/main/java/com/example/examplemod/item/BoneTongsItem.java
++++ b/src/main/java/com/example/examplemod/item/BoneTongsItem.java
+@@ -112,56 +112,57 @@ public class BoneTongsItem extends Item {
+         // Но сначала проверяем, можем ли открыть enhanced dual GUI
+         if (tryOpenEnhancedDualForBrick(world, pos, player, tongs)) {
+             return ActionResultType.SUCCESS;
+         }
+ 
+         // Fallback на обычный обработчик
+         if (com.example.examplemod.server.PechugaStructureHandler.tryOpenGui(world, pos, player)) {
+             return ActionResultType.SUCCESS;
+         }
+         return ActionResultType.PASS;
+     }
+ 
+     private boolean tryOpenEnhancedDualForBrick(World world, BlockPos pos, ServerPlayerEntity player, ItemStack tongs) {
+         BlockPos pechugaMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedPechugaMaster(world, pos);
+         if (pechugaMaster == null) {
+             return false;
+         }
+         if (!(world.getBlockEntity(pechugaMaster) instanceof PechugaTileEntity)) {
+             return false;
+         }
+         openEnhancedDualGUI(player, pechugaMaster, tongs, false);
+         return true;
+     }
+ 
+     public static void openEnhancedDualGUI(ServerPlayerEntity player, BlockPos corePos, ItemStack tongs, boolean isFirepit) {
++        boolean inOffhand = player.getOffhandItem() == tongs;
+         NetworkHooks.openGui(player,
+                 new SimpleNamedContainerProvider(
+                         (windowId, playerInventory, playerEntity) -> {
+                             // Создаем enhanced dual контейнер
+                             // Передаем данные: isFirepit, tongs, и данные для основного контейнера
+-                            return createEnhancedDualContainer(windowId, playerInventory, corePos, tongs, isFirepit);
++                            return createEnhancedDualContainer(windowId, playerInventory, corePos, isFirepit, inOffhand);
+                         },
+                         new TranslationTextComponent(isFirepit ? "container.examplemod.firepit" : "container.examplemod.pechuga")),
+                 buffer -> {
+                     // Пишем данные для контейнера
+                     buffer.writeBoolean(isFirepit);
+-                    buffer.writeItem(tongs);
++                    buffer.writeBoolean(inOffhand);
+                     buffer.writeBlockPos(corePos);
+                 });
+     }
+ 
+     private static EnhancedDualContainer createEnhancedDualContainer(int windowId, PlayerInventory playerInventory,
+-                                                            BlockPos corePos, ItemStack tongs, boolean isFirepit) {
++                                                            BlockPos corePos, boolean isFirepit, boolean inOffhand) {
+         // Создаем PacketBuffer с необходимыми данными
+         io.netty.buffer.ByteBuf buffer = io.netty.buffer.Unpooled.buffer();
+         net.minecraft.network.PacketBuffer packetBuffer = new net.minecraft.network.PacketBuffer(buffer);
+ 
+         packetBuffer.writeBoolean(isFirepit);
+-        packetBuffer.writeItem(tongs);
++        packetBuffer.writeBoolean(inOffhand);
+         packetBuffer.writeBlockPos(corePos);
+ 
+         // Создаем контейнер напрямую с правильными данными
+         EnhancedDualContainer container = new EnhancedDualContainer(windowId, playerInventory, packetBuffer);
+         return container;
+     }
+ }

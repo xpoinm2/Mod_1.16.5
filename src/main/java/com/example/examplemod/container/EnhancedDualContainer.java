@@ -25,18 +25,24 @@ public class EnhancedDualContainer extends Container {
     private final int tongsSlotCount;
 
     // Константы для позиционирования
-    public static final int MAIN_GUI_OFFSET_X = 80; // Сдвиг основного GUI вправо
+    public static final int MAIN_GUI_OFFSET_X = 150; // Сдвиг основного GUI вправо
     public static final int MAIN_GUI_OFFSET_Y = 0;
-    public static final int TONGS_GUI_X = 30; // Позиция GUI щипцов
-    public static final int TONGS_GUI_Y = 26;
+    public static final int TONGS_GUI_WIDTH = 140;
+    public static final int TONGS_GUI_HEIGHT = 140;
+    public static final int TONGS_GUI_OFFSET_Y = 13;
+    public static final int TONGS_GUI_X = 61; // Позиция слотов щипцов по X
+    public static final int TONGS_GUI_Y = 65; // Позиция первого слота щипцов по Y
 
     public EnhancedDualContainer(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
         super(ModContainers.ENHANCED_DUAL_CONTAINER.get(), windowId);
 
         // Читаем данные
         boolean isFirepit = data.readBoolean();
-        ItemStack tongsStack = data.readItem();
+        boolean inOffhand = data.readBoolean();
         BlockPos blockPos = data.readBlockPos();
+        ItemStack tongsStack = inOffhand
+                ? playerInventory.player.getOffhandItem()
+                : playerInventory.player.getMainHandItem();
 
         // Получаем FirepitTileEntity из мира
         com.example.examplemod.tileentity.FirepitTileEntity firepitTile = null;

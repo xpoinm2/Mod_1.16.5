@@ -134,30 +134,31 @@ public class BoneTongsItem extends Item {
     }
 
     public static void openEnhancedDualGUI(ServerPlayerEntity player, BlockPos corePos, ItemStack tongs, boolean isFirepit) {
+        boolean inOffhand = player.getOffhandItem() == tongs;
         NetworkHooks.openGui(player,
                 new SimpleNamedContainerProvider(
                         (windowId, playerInventory, playerEntity) -> {
                             // Создаем enhanced dual контейнер
                             // Передаем данные: isFirepit, tongs, и данные для основного контейнера
-                            return createEnhancedDualContainer(windowId, playerInventory, corePos, tongs, isFirepit);
+                            return createEnhancedDualContainer(windowId, playerInventory, corePos, isFirepit, inOffhand);
                         },
                         new TranslationTextComponent(isFirepit ? "container.examplemod.firepit" : "container.examplemod.pechuga")),
                 buffer -> {
                     // Пишем данные для контейнера
                     buffer.writeBoolean(isFirepit);
-                    buffer.writeItem(tongs);
+                    buffer.writeBoolean(inOffhand);
                     buffer.writeBlockPos(corePos);
                 });
     }
 
     private static EnhancedDualContainer createEnhancedDualContainer(int windowId, PlayerInventory playerInventory,
-                                                            BlockPos corePos, ItemStack tongs, boolean isFirepit) {
+                                                            BlockPos corePos, boolean isFirepit, boolean inOffhand) {
         // Создаем PacketBuffer с необходимыми данными
         io.netty.buffer.ByteBuf buffer = io.netty.buffer.Unpooled.buffer();
         net.minecraft.network.PacketBuffer packetBuffer = new net.minecraft.network.PacketBuffer(buffer);
 
         packetBuffer.writeBoolean(isFirepit);
-        packetBuffer.writeItem(tongs);
+        packetBuffer.writeBoolean(inOffhand);
         packetBuffer.writeBlockPos(corePos);
 
         // Создаем контейнер напрямую с правильными данными
