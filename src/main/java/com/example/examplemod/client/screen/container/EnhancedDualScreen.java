@@ -1,6 +1,5 @@
 package com.example.examplemod.client.screen.container;
 
-import com.example.examplemod.ExampleMod;
 import com.example.examplemod.container.EnhancedDualContainer;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import com.example.examplemod.tileentity.PechugaTileEntity;
@@ -20,8 +19,6 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
             new ResourceLocation("examplemod", "textures/gui/firepit.png");
     private static final ResourceLocation PECHUGA_TEXTURE =
             new ResourceLocation("examplemod", "textures/gui/pechuga.png");        
-    private static final ResourceLocation TONGS_TEXTURE =
-            new ResourceLocation(ExampleMod.MODID, "textures/gui/bone_tongs.png");
     private static final int MAIN_GUI_WIDTH = 176;
     private static final int MAIN_GUI_HEIGHT = 166;
     private static final int TONGS_BG_WIDTH = EnhancedDualContainer.TONGS_GUI_WIDTH;
@@ -31,16 +28,20 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
     public EnhancedDualScreen(EnhancedDualContainer container, PlayerInventory inv, ITextComponent title) {
         super(container, inv, new StringTextComponent("Двойной интерфейс"));
         this.imageWidth = EnhancedDualContainer.MAIN_GUI_OFFSET_X + MAIN_GUI_WIDTH;
-        this.imageHeight = 188;
+        this.imageHeight = MAIN_GUI_HEIGHT;
     }
 
     @Override
     protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1F, 1F, 1F, 1F);
 
-        // Рисуем фон щипцов слева
-        this.minecraft.getTextureManager().bind(TONGS_TEXTURE);
-        blit(matrixStack, leftPos, topPos + TONGS_BG_OFFSET_Y, 0, 0, TONGS_BG_WIDTH, TONGS_BG_HEIGHT);
+        // Рисуем компактный фон щипцов слева
+        int tongsLeft = leftPos;
+        int tongsTop = topPos + TONGS_BG_OFFSET_Y;
+        AbstractGui.fill(matrixStack, tongsLeft, tongsTop,
+                tongsLeft + TONGS_BG_WIDTH, tongsTop + TONGS_BG_HEIGHT, 0xFF2C2C2C);
+        AbstractGui.fill(matrixStack, tongsLeft + 1, tongsTop + 1,
+                tongsLeft + TONGS_BG_WIDTH - 1, tongsTop + TONGS_BG_HEIGHT - 1, 0xFF3A3A3A);
 
         // Рисуем фон основного контейнера справа
         this.minecraft.getTextureManager().bind(getMainTexture());
@@ -168,31 +169,7 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
                       EnhancedDualContainer.MAIN_GUI_OFFSET_X + 8, 6, 4210752);
 
         // Подсказки
-        this.font.draw(matrixStack, "Shift+клик для быстрого перемещения", 8, 175, 11184810);
-    }
-
-    @Override
-    protected void renderTooltip(MatrixStack matrixStack, int mouseX, int mouseY) {
-        super.renderTooltip(matrixStack, mouseX, mouseY);
-
-        // Дополнительные подсказки
-        if (isHoveringOverTongs(mouseX, mouseY)) {
-            renderTooltip(matrixStack, new StringTextComponent("Слоты костяных щипцов"), mouseX, mouseY);
-        } else if (isHoveringOverMainGui(mouseX, mouseY)) {
-            renderTooltip(matrixStack, new StringTextComponent("Слоты основного контейнера"), mouseX, mouseY);
-        }
-    }
-
-    private boolean isHoveringOverTongs(int mouseX, int mouseY) {
-        return mouseX >= leftPos && mouseX <= leftPos + TONGS_BG_WIDTH &&
-               mouseY >= topPos + TONGS_BG_OFFSET_Y &&
-               mouseY <= topPos + TONGS_BG_OFFSET_Y + TONGS_BG_HEIGHT;
-    }
-
-    private boolean isHoveringOverMainGui(int mouseX, int mouseY) {
-        return mouseX >= leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X &&
-               mouseX <= leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X + MAIN_GUI_WIDTH &&
-               mouseY >= topPos && mouseY <= topPos + MAIN_GUI_HEIGHT;
+        this.font.draw(matrixStack, "Shift+клик для быстрого перемещения", 8, MAIN_GUI_HEIGHT - 10, 11184810);
     }
 
     private ResourceLocation getMainTexture() {
