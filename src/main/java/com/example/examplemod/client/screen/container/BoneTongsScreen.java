@@ -14,15 +14,19 @@ public class BoneTongsScreen extends ContainerScreen<BoneTongsContainer> {
 
     public BoneTongsScreen(BoneTongsContainer container, PlayerInventory inv, ITextComponent title) {
         super(container, inv, title);
-        this.imageWidth = 140;
-        this.imageHeight = 140;
+        this.imageWidth = BoneTongsContainer.GUI_WIDTH;
+        this.imageHeight = BoneTongsContainer.GUI_HEIGHT;
     }
 
     @Override
     protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1F, 1F, 1F, 1F);
         this.minecraft.getTextureManager().bind(TEXTURE);
-        blit(matrixStack, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+        matrixStack.pushPose();
+        matrixStack.translate(leftPos, topPos, 0);
+        matrixStack.scale(BoneTongsContainer.GUI_SCALE, BoneTongsContainer.GUI_SCALE, 1F);
+        blit(matrixStack, 0, 0, 0, 0, BoneTongsContainer.BASE_GUI_WIDTH, BoneTongsContainer.BASE_GUI_HEIGHT);
+        matrixStack.popPose();
     }
 
     @Override

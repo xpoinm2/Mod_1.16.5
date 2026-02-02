@@ -1,66 +1,118 @@
-diff --git a/src/main/java/com/example/examplemod/item/BoneTongsItem.java b/src/main/java/com/example/examplemod/item/BoneTongsItem.java
-index de17f995a2a56368c551ec73b17f9f9f3032c1a2..196d433cb7fb555d4c26a4a3fd2be8a78765f033 100644
---- a/src/main/java/com/example/examplemod/item/BoneTongsItem.java
-+++ b/src/main/java/com/example/examplemod/item/BoneTongsItem.java
-@@ -112,56 +112,57 @@ public class BoneTongsItem extends Item {
-         // Но сначала проверяем, можем ли открыть enhanced dual GUI
-         if (tryOpenEnhancedDualForBrick(world, pos, player, tongs)) {
-             return ActionResultType.SUCCESS;
+diff --git a/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java b/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
+index 2734bf4212324eae6dd3a0e99263cd61455ecf24..b4033b87eb7c01671fa93c741c80603854ebc680 100644
+--- a/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
++++ b/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
+@@ -3,103 +3,106 @@ package com.example.examplemod.container;
+ import com.example.examplemod.ModContainers;
+ import com.example.examplemod.item.BoneTongsCapabilityProvider;
+ import net.minecraft.entity.player.PlayerEntity;
+ import net.minecraft.entity.player.PlayerInventory;
+ import net.minecraft.inventory.container.ClickType;
+ import net.minecraft.inventory.container.Container;
+ import net.minecraft.inventory.container.Slot;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.network.PacketBuffer;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraftforge.items.CapabilityItemHandler;
+ import net.minecraftforge.items.IItemHandler;
+ import net.minecraftforge.items.SlotItemHandler;
+ 
+ import javax.annotation.Nonnull;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+ public class EnhancedDualContainer extends Container {
+     private final Container mainContainer; // Основной контейнер (печь/кострище)
+     private final IItemHandler tongsHandler;
+     private final List<Slot> originalMainSlots = new ArrayList<>();
+     private final int tongsSlotCount;
+ 
+     // Константы для позиционирования
+-    public static final int MAIN_GUI_OFFSET_X = 150; // Сдвиг основного GUI вправо
++    public static final int MAIN_GUI_OFFSET_X = BoneTongsContainer.GUI_WIDTH + 10; // Сдвиг основного GUI вправо
+     public static final int MAIN_GUI_OFFSET_Y = 0;
+-    public static final int TONGS_GUI_WIDTH = 140;
+-    public static final int TONGS_GUI_HEIGHT = 140;
+-    public static final int TONGS_GUI_OFFSET_Y = 13;
+-    public static final int TONGS_GUI_X = 61; // Позиция слотов щипцов по X
+-    public static final int TONGS_GUI_Y = 65; // Позиция первого слота щипцов по Y
++    public static final int TONGS_BASE_GUI_WIDTH = BoneTongsContainer.BASE_GUI_WIDTH;
++    public static final int TONGS_BASE_GUI_HEIGHT = BoneTongsContainer.BASE_GUI_HEIGHT;
++    public static final float TONGS_GUI_SCALE = BoneTongsContainer.GUI_SCALE;
++    public static final int TONGS_GUI_WIDTH = BoneTongsContainer.GUI_WIDTH;
++    public static final int TONGS_GUI_HEIGHT = BoneTongsContainer.GUI_HEIGHT;
++    public static final int TONGS_GUI_OFFSET_Y = 0;
++    public static final int TONGS_GUI_X = BoneTongsContainer.SLOT_X; // Позиция слотов щипцов по X
++    public static final int TONGS_GUI_Y = BoneTongsContainer.SLOT_Y; // Позиция первого слота щипцов по Y
+ 
+     public EnhancedDualContainer(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
+         super(ModContainers.ENHANCED_DUAL_CONTAINER.get(), windowId);
+ 
+         // Читаем данные
+         boolean isFirepit = data.readBoolean();
+         boolean inOffhand = data.readBoolean();
+         BlockPos blockPos = data.readBlockPos();
+         ItemStack tongsStack = inOffhand
+                 ? playerInventory.player.getOffhandItem()
+                 : playerInventory.player.getMainHandItem();
+ 
+         // Получаем FirepitTileEntity из мира
+         com.example.examplemod.tileentity.FirepitTileEntity firepitTile = null;
+         com.example.examplemod.tileentity.PechugaTileEntity pechugaTile = null;
+         net.minecraft.world.World world = playerInventory.player.level;
+         if (world != null) {
+             net.minecraft.tileentity.TileEntity tileEntity = world.getBlockEntity(blockPos);
+             if (tileEntity instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
+                 firepitTile = (com.example.examplemod.tileentity.FirepitTileEntity) tileEntity;
+             } else if (tileEntity instanceof com.example.examplemod.tileentity.PechugaTileEntity) {
+                 pechugaTile = (com.example.examplemod.tileentity.PechugaTileEntity) tileEntity;
+             }
          }
  
-         // Fallback на обычный обработчик
-         if (com.example.examplemod.server.PechugaStructureHandler.tryOpenGui(world, pos, player)) {
-             return ActionResultType.SUCCESS;
+         // Получаем обработчик щипцов
+         tongsHandler = tongsStack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+                 .orElseGet(() -> new BoneTongsCapabilityProvider(tongsStack).getHandler());
+ 
+         // Создаем основной контейнер
+         if (isFirepit) {
+             if (firepitTile == null) {
+                 throw new IllegalStateException("Firepit tile entity not found at " + blockPos);
+             }
+             mainContainer = new com.example.examplemod.container.FirepitContainer(windowId + 1, playerInventory, firepitTile, false);
+         } else {
+             if (pechugaTile == null) {
+                 throw new IllegalStateException("Pechuga tile entity not found at " + blockPos);
+             }
+             mainContainer = new com.example.examplemod.container.PechugaContainer(windowId + 1, playerInventory, pechugaTile, false);
          }
-         return ActionResultType.PASS;
-     }
  
-     private boolean tryOpenEnhancedDualForBrick(World world, BlockPos pos, ServerPlayerEntity player, ItemStack tongs) {
-         BlockPos pechugaMaster = com.example.examplemod.server.PechugaStructureHandler.findActivatedPechugaMaster(world, pos);
-         if (pechugaMaster == null) {
-             return false;
+         // Добавляем слоты щипцов слева
+         this.tongsSlotCount = tongsHandler.getSlots();
+         for (int i = 0; i < tongsHandler.getSlots(); i++) {
+-            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * 18));
++            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * BoneTongsContainer.SLOT_SPACING_SCALED));
          }
-         if (!(world.getBlockEntity(pechugaMaster) instanceof PechugaTileEntity)) {
-             return false;
+ 
+         // Копируем слоты основного контейнера со сдвигом
+         if (mainContainer != null) {
+             for (Slot slot : mainContainer.slots) {
+                 originalMainSlots.add(slot);
+                 // Сдвигаем слоты основного контейнера вправо
+                 Slot newSlot = createShiftedSlot(slot, MAIN_GUI_OFFSET_X, MAIN_GUI_OFFSET_Y);
+                 addSlot(newSlot);
+             }
          }
-         openEnhancedDualGUI(player, pechugaMaster, tongs, false);
-         return true;
      }
  
-     public static void openEnhancedDualGUI(ServerPlayerEntity player, BlockPos corePos, ItemStack tongs, boolean isFirepit) {
-+        boolean inOffhand = player.getOffhandItem() == tongs;
-         NetworkHooks.openGui(player,
-                 new SimpleNamedContainerProvider(
-                         (windowId, playerInventory, playerEntity) -> {
-                             // Создаем enhanced dual контейнер
-                             // Передаем данные: isFirepit, tongs, и данные для основного контейнера
--                            return createEnhancedDualContainer(windowId, playerInventory, corePos, tongs, isFirepit);
-+                            return createEnhancedDualContainer(windowId, playerInventory, corePos, isFirepit, inOffhand);
-                         },
-                         new TranslationTextComponent(isFirepit ? "container.examplemod.firepit" : "container.examplemod.pechuga")),
-                 buffer -> {
-                     // Пишем данные для контейнера
-                     buffer.writeBoolean(isFirepit);
--                    buffer.writeItem(tongs);
-+                    buffer.writeBoolean(inOffhand);
-                     buffer.writeBlockPos(corePos);
-                 });
-     }
- 
-     private static EnhancedDualContainer createEnhancedDualContainer(int windowId, PlayerInventory playerInventory,
--                                                            BlockPos corePos, ItemStack tongs, boolean isFirepit) {
-+                                                            BlockPos corePos, boolean isFirepit, boolean inOffhand) {
-         // Создаем PacketBuffer с необходимыми данными
-         io.netty.buffer.ByteBuf buffer = io.netty.buffer.Unpooled.buffer();
-         net.minecraft.network.PacketBuffer packetBuffer = new net.minecraft.network.PacketBuffer(buffer);
- 
-         packetBuffer.writeBoolean(isFirepit);
--        packetBuffer.writeItem(tongs);
-+        packetBuffer.writeBoolean(inOffhand);
-         packetBuffer.writeBlockPos(corePos);
- 
-         // Создаем контейнер напрямую с правильными данными
-         EnhancedDualContainer container = new EnhancedDualContainer(windowId, playerInventory, packetBuffer);
-         return container;
-     }
- }
+     private Slot createShiftedSlot(Slot originalSlot, int offsetX, int offsetY) {
+         // Создаем новый слот со сдвигом, копируя свойства оригинального
+         if (originalSlot instanceof net.minecraftforge.items.SlotItemHandler) {
+             // Для SlotItemHandler создаем новый с правильными координатами
+             net.minecraftforge.items.SlotItemHandler originalHandlerSlot = (net.minecraftforge.items.SlotItemHandler) originalSlot;
+             return new net.minecraftforge.items.SlotItemHandler(originalHandlerSlot.getItemHandler(),
+                                                               originalHandlerSlot.getSlotIndex(),
+                                                               originalSlot.x + offsetX,
+                                                               originalSlot.y + offsetY);
+         } else {
+             // Для обычных слотов - получаем inventory через reflection или создаем новый слот
+             // Пока что просто создадим базовый слот

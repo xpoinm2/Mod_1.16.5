@@ -15,6 +15,17 @@ import javax.annotation.Nonnull;
 
 public class BoneTongsContainer extends Container {
     public static final int TONGS_SLOT_COUNT = 2;
+    public static final int BASE_GUI_WIDTH = 140;
+    public static final int BASE_GUI_HEIGHT = 140;
+    public static final int BASE_SLOT_X = 61;
+    public static final int BASE_SLOT_Y = 52;
+    public static final int SLOT_SPACING = 18;
+    public static final int GUI_HEIGHT = 166;
+    public static final float GUI_SCALE = (float) GUI_HEIGHT / BASE_GUI_HEIGHT;
+    public static final int GUI_WIDTH = Math.round(BASE_GUI_WIDTH * GUI_SCALE);
+    public static final int SLOT_X = Math.round(BASE_SLOT_X * GUI_SCALE);
+    public static final int SLOT_Y = Math.round(BASE_SLOT_Y * GUI_SCALE);
+    public static final int SLOT_SPACING_SCALED = Math.round(SLOT_SPACING * GUI_SCALE);
     private final IItemHandler itemHandler;
 
     public BoneTongsContainer(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
@@ -26,8 +37,8 @@ public class BoneTongsContainer extends Container {
         this.itemHandler = boneStack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
                 .orElseGet(() -> new BoneTongsCapabilityProvider(boneStack).getHandler());
 
-        addSlot(new SlotItemHandler(itemHandler, 0, 61, 52));
-        addSlot(new SlotItemHandler(itemHandler, 1, 61, 70));
+        addSlot(new SlotItemHandler(itemHandler, 0, SLOT_X, SLOT_Y));
+        addSlot(new SlotItemHandler(itemHandler, 1, SLOT_X, SLOT_Y + SLOT_SPACING_SCALED));
     }
 
     @Override

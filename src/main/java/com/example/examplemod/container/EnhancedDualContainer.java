@@ -25,13 +25,16 @@ public class EnhancedDualContainer extends Container {
     private final int tongsSlotCount;
 
     // Константы для позиционирования
-    public static final int MAIN_GUI_OFFSET_X = 150; // Сдвиг основного GUI вправо
+    public static final int MAIN_GUI_OFFSET_X = BoneTongsContainer.GUI_WIDTH + 10; // Сдвиг основного GUI вправо
     public static final int MAIN_GUI_OFFSET_Y = 0;
-    public static final int TONGS_GUI_WIDTH = 140;
-    public static final int TONGS_GUI_HEIGHT = 140;
-    public static final int TONGS_GUI_OFFSET_Y = 13;
-    public static final int TONGS_GUI_X = 61; // Позиция слотов щипцов по X
-    public static final int TONGS_GUI_Y = 65; // Позиция первого слота щипцов по Y
+    public static final int TONGS_BASE_GUI_WIDTH = BoneTongsContainer.BASE_GUI_WIDTH;
+    public static final int TONGS_BASE_GUI_HEIGHT = BoneTongsContainer.BASE_GUI_HEIGHT;
+    public static final float TONGS_GUI_SCALE = BoneTongsContainer.GUI_SCALE;
+    public static final int TONGS_GUI_WIDTH = BoneTongsContainer.GUI_WIDTH;
+    public static final int TONGS_GUI_HEIGHT = BoneTongsContainer.GUI_HEIGHT;
+    public static final int TONGS_GUI_OFFSET_Y = 0;
+    public static final int TONGS_GUI_X = BoneTongsContainer.SLOT_X; // Позиция слотов щипцов по X
+    public static final int TONGS_GUI_Y = BoneTongsContainer.SLOT_Y; // Позиция первого слота щипцов по Y
 
     public EnhancedDualContainer(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
         super(ModContainers.ENHANCED_DUAL_CONTAINER.get(), windowId);
@@ -77,7 +80,7 @@ public class EnhancedDualContainer extends Container {
         // Добавляем слоты щипцов слева
         this.tongsSlotCount = tongsHandler.getSlots();
         for (int i = 0; i < tongsHandler.getSlots(); i++) {
-            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * 18));
+            addSlot(new SlotItemHandler(tongsHandler, i, TONGS_GUI_X, TONGS_GUI_Y + i * BoneTongsContainer.SLOT_SPACING_SCALED));
         }
 
         // Копируем слоты основного контейнера со сдвигом

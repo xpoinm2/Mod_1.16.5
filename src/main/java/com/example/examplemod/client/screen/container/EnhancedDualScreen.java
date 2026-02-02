@@ -2,11 +2,15 @@ package com.example.examplemod.client.screen.container;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.container.EnhancedDualContainer;
+import com.example.examplemod.tileentity.FirepitTileEntity;
+import com.example.examplemod.tileentity.PechugaTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -36,7 +40,13 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
 
         // Рисуем фон щипцов слева
         this.minecraft.getTextureManager().bind(TONGS_TEXTURE);
-        blit(matrixStack, leftPos, topPos + TONGS_BG_OFFSET_Y, 0, 0, TONGS_BG_WIDTH, TONGS_BG_HEIGHT);
+        matrixStack.pushPose();
+        matrixStack.translate(leftPos, topPos + TONGS_BG_OFFSET_Y, 0);
+        matrixStack.scale(EnhancedDualContainer.TONGS_GUI_SCALE, EnhancedDualContainer.TONGS_GUI_SCALE, 1F);
+        blit(matrixStack, 0, 0, 0, 0,
+             EnhancedDualContainer.TONGS_BASE_GUI_WIDTH,
+             EnhancedDualContainer.TONGS_BASE_GUI_HEIGHT);
+        matrixStack.popPose();
 
         // Рисуем фон основного контейнера справа
         this.minecraft.getTextureManager().bind(getMainTexture());
@@ -81,6 +91,8 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
                  topPos + 34,
                  176, 0, progressWidth, 16);
         }
+
+        renderHeatBar(matrixStack);
     }
 
     private int getFireProgress() {
@@ -89,6 +101,51 @@ public class EnhancedDualScreen extends ContainerScreen<EnhancedDualContainer> {
         }
         if (menu.getMainContainer() instanceof com.example.examplemod.container.PechugaContainer) {
             return ((com.example.examplemod.container.PechugaContainer) menu.getMainContainer()).getHeatScaled(12);
+        }
+        return 0;
+    }
+
+    private void renderHeatBar(MatrixStack matrixStack) {
+        int barWidth = 6;
+        int barTop = topPos + 8;
+        int inventoryTop = topPos + (MAIN_GUI_HEIGHT - 94) + 10;
+        int barBottom = inventoryTop - 2;
+        int barHeight = barBottom - barTop;
+        int heatBarHeight = getHeatProgress(barHeight);
+        int barX = leftPos + EnhancedDualContainer.MAIN_GUI_OFFSET_X + MAIN_GUI_WIDTH - barWidth - 4;
+
+        AbstractGui.fill(matrixStack, barX - 1, barTop - 1, barX + barWidth + 1, barBottom + 1, 0xFF1A1A1A);
+        AbstractGui.fill(matrixStack, barX, barTop, barX + barWidth, barBottom, 0xFF3C3C3C);
+        if (heatBarHeight > 0) {
+            int filledTop = barBottom - heatBarHeight;
+            AbstractGui.fill(matrixStack, barX, filledTop, barX + barWidth, barBottom, 0xFFCC2A2A);
+        }
+
+        int thresholdHeight = getHeatThresholdHeight(barHeight);
+        if (thresholdHeight > 0) {
+            int thresholdY = barBottom - thresholdHeight;
+            AbstractGui.fill(matrixStack, barX - 1, thresholdY, barX + barWidth + 1, thresholdY + 1, 0xFF757575);
+        }
+    }
+
+    private int getHeatProgress(int barHeight) {
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.FirepitContainer) {
+            return ((com.example.examplemod.container.FirepitContainer) menu.getMainContainer()).getHeatScaled(barHeight);
+        }
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.PechugaContainer) {
+            return ((com.example.examplemod.container.PechugaContainer) menu.getMainContainer()).getHeatScaled(barHeight);
+        }
+        return 0;
+    }
+
+    private int getHeatThresholdHeight(int barHeight) {
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.FirepitContainer) {
+            return MathHelper.ceil(
+                    (double) FirepitTileEntity.MIN_HEAT_FOR_SMELTING * barHeight / FirepitTileEntity.MAX_HEAT);
+        }
+        if (menu.getMainContainer() instanceof com.example.examplemod.container.PechugaContainer) {
+            return MathHelper.ceil(
+                    (double) PechugaTileEntity.MIN_HEAT_FOR_SMELTING * barHeight / PechugaTileEntity.MAX_HEAT);
         }
         return 0;
     }
