@@ -11,19 +11,19 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class MetalChunksQuestScreen extends AbstractQuestScreen {
+public class RawBlanksQuestScreen extends AbstractQuestScreen {
 
-    public MetalChunksQuestScreen(Screen parent) {
-        super(parent, "Куски металлов");
+    public RawBlanksQuestScreen(Screen parent) {
+        super(parent, "Сырые заготовки");
     }
 
     @Override
     protected int renderDescription(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                     int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth,
-                "Губку дробили не чтобы “сломать”,", 0xFFFFFF00);
+                "Горячие куски металла можно вытянуть в сырые заготовки.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "а чтобы дать металлу шанс стать металлом...", 0xFFFFFF00);
+                "Это зачаток будущего слитка и основа для ковки.", 0xFFFFFF00);
         return y;
     }
 
@@ -31,20 +31,20 @@ public class MetalChunksQuestScreen extends AbstractQuestScreen {
     protected int renderGoals(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                               int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth,
-                "Скрафтить 8 кусков олова, золота или железа", 0xFFFFFF00);
+                "Скрафтить 8 сырых заготовок олова, золота или железа", 0xFFFFFF00);
         y += 6;
         int iconX = x;
-        ItemStack ironStack = new ItemStack(ModItems.IRON_CHUNK.get());
+        ItemStack ironStack = new ItemStack(ModItems.RAW_IRON_BLANK.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, ironStack, iconX, y, mouseX, mouseY)) {
             hoveredStack = ironStack;
         }
         iconX += 22;
-        ItemStack tinStack = new ItemStack(ModItems.TIN_CHUNK.get());
+        ItemStack tinStack = new ItemStack(ModItems.RAW_TIN_BLANK.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, tinStack, iconX, y, mouseX, mouseY)) {
             hoveredStack = tinStack;
         }
         iconX += 22;
-        ItemStack goldStack = new ItemStack(ModItems.GOLD_CHUNK.get());
+        ItemStack goldStack = new ItemStack(ModItems.RAW_GOLD_BLANK.get());
         if (GuiUtil.renderItemWithTooltip(this, ms, goldStack, iconX, y, mouseX, mouseY)) {
             hoveredStack = goldStack;
         }
@@ -56,19 +56,17 @@ public class MetalChunksQuestScreen extends AbstractQuestScreen {
     protected int renderInstructions(ScrollArea area, MatrixStack ms, int x, int y, int innerWidth,
                                      int mouseX, int mouseY, float partialTicks) {
         y = drawParagraph(ms, x, y, innerWidth,
-                "Сделайте булыжниковую наковальню: ПКМ", 0xFFFFFF00);
+                "Нагрейте куски металла в кострище или кирпичной печи,", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "молотом по блоку булыжника и выберите", 0xFFFFFF00);
+                "пока они станут горячими. Берите щипцами — горячо!", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "в диалоге пункт \"Наковальня\".", 0xFFFFFF00);
+                "Положите горячий кусок в левый слот булыжниковой", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "Поместите губчатый металл в левый слот,", 0xFFFFFF00);
+                "наковальни, молот — в инструментальный слот.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "молот в слот инструмента и нажимайте", 0xFFFFFF00);
+                "Нажимайте кнопку молота, пока не получите заготовку.", 0xFFFFFF00);
         y = drawParagraph(ms, x, y, innerWidth,
-                "кнопку молота, пока не получите кусок.", 0xFFFFFF00);
-        y = drawParagraph(ms, x, y, innerWidth,
-                "Накуйте 8 кусков одного типа.", 0xFFFFFF00);
+                "Сделайте 8 заготовок одного типа.", 0xFFFFFF00);
         return y;
     }
 
@@ -77,24 +75,23 @@ public class MetalChunksQuestScreen extends AbstractQuestScreen {
         if (this.minecraft == null || this.minecraft.player == null) {
             return false;
         }
-        return this.minecraft.player.inventory.countItem(ModItems.IRON_CHUNK.get()) >= 8
-                || this.minecraft.player.inventory.countItem(ModItems.TIN_CHUNK.get()) >= 8
-                || this.minecraft.player.inventory.countItem(ModItems.GOLD_CHUNK.get()) >= 8;
+        return this.minecraft.player.inventory.countItem(ModItems.RAW_IRON_BLANK.get()) >= 8
+                || this.minecraft.player.inventory.countItem(ModItems.RAW_TIN_BLANK.get()) >= 8
+                || this.minecraft.player.inventory.countItem(ModItems.RAW_GOLD_BLANK.get()) >= 8;
     }
 
     @Override
     protected boolean isQuestUnlocked() {
-        return QuestManager.isSpongeMetalsCompleted()
-                && QuestManager.isCobblestoneAnvilCompleted();
-    }
-
-    @Override
-    protected boolean isQuestCompleted() {
         return QuestManager.isMetalChunksCompleted();
     }
 
     @Override
+    protected boolean isQuestCompleted() {
+        return QuestManager.isRawBlanksCompleted();
+    }
+
+    @Override
     protected void markCompleted() {
-        QuestManager.setMetalChunksCompleted(true);
+        QuestManager.setRawBlanksCompleted(true);
     }
 }

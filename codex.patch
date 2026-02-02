@@ -1,62 +1,144 @@
-diff --git a/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java b/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
-index ff1e206b88f8fdb98d048e9ed8d6044032fa2012..af25e30520a9f8f8800c702c01e0a2f4a0314ab9 100644
---- a/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
-+++ b/src/main/java/com/example/examplemod/container/EnhancedDualContainer.java
-@@ -3,54 +3,54 @@ package com.example.examplemod.container;
- import com.example.examplemod.ModContainers;
- import com.example.examplemod.item.BoneTongsCapabilityProvider;
- import net.minecraft.entity.player.PlayerEntity;
- import net.minecraft.entity.player.PlayerInventory;
- import net.minecraft.inventory.container.ClickType;
- import net.minecraft.inventory.container.Container;
- import net.minecraft.inventory.container.Slot;
- import net.minecraft.item.ItemStack;
- import net.minecraft.network.PacketBuffer;
- import net.minecraft.util.math.BlockPos;
- import net.minecraftforge.items.CapabilityItemHandler;
- import net.minecraftforge.items.IItemHandler;
- import net.minecraftforge.items.SlotItemHandler;
+diff --git a/src/main/java/com/example/examplemod/quest/QuestManager.java b/src/main/java/com/example/examplemod/quest/QuestManager.java
+index 1286f4e8e32dd0264b1c0ab6f383161358e914b3..88c85a6f3469073df46b3d3ee85ddbde79e2c6fe 100644
+--- a/src/main/java/com/example/examplemod/quest/QuestManager.java
++++ b/src/main/java/com/example/examplemod/quest/QuestManager.java
+@@ -15,50 +15,51 @@ public class QuestManager {
+     private static boolean branchCompleted = false;
+     private static boolean brushwoodCompleted = false;
+     private static boolean startSmithingCompleted = false;
+     private static boolean initialFaunaCompleted = false;
+     private static boolean startHammersCompleted = false;
+     private static boolean ironClusterCompleted = false;
+     private static boolean pureIronOreCompleted = false;
+     private static boolean firepitCompleted = false;
+     private static boolean pyriteCompleted = false;
+     private static boolean pyriteFlintCompleted = false;
+     private static boolean roughKnivesCompleted = false;
+     private static boolean scrapedLeatherCompleted = false;
+     private static boolean calcinedIronOreCompleted = false;
+     private static boolean calcinedGoldOreCompleted = false;
+     private static boolean calcinedTinOreCompleted = false;
+     private static boolean brickKilnCompleted = false;
+     private static boolean clayPotCompleted = false;
+     private static boolean clayCupCompleted = false;
+     private static boolean unrefinedTinOreCompleted = false;
+     private static boolean unrefinedGoldOreCompleted = false;
+     private static boolean cleanedGravelTinOreCompleted = false;
+     private static boolean cleanedGravelGoldOreCompleted = false;
+     private static boolean spongeMetalsCompleted = false;
+     private static boolean cobblestoneAnvilCompleted = false;
+     private static boolean metalChunksCompleted = false;
++    private static boolean rawBlanksCompleted = false;
  
- import javax.annotation.Nonnull;
- import java.util.ArrayList;
- import java.util.List;
  
- public class EnhancedDualContainer extends Container {
-     private final Container mainContainer; // Основной контейнер (печь/кострище)
-     private final IItemHandler tongsHandler;
-     private final List<Slot> originalMainSlots = new ArrayList<>();
-     private final int tongsSlotCount;
+     public static boolean isPlanksCompleted() {
+         return planksCompleted;
+     }
  
-     // Константы для позиционирования мини-GUI щипцов
--    public static final int TONGS_GUI_WIDTH = 54;
--    public static final int TONGS_GUI_HEIGHT = 40;
-+    public static final int TONGS_GUI_WIDTH = 48;
-+    public static final int TONGS_GUI_HEIGHT = 30;
-     public static final int TONGS_GUI_OFFSET_Y = 12;
--    public static final int TONGS_GUI_X = 8; // Позиция слотов щипцов по X
-+    public static final int TONGS_GUI_X = 6; // Позиция слотов щипцов по X
-     public static final int TONGS_GUI_Y = 18; // Позиция первого слота щипцов по Y
-     public static final int MAIN_GUI_OFFSET_X = TONGS_GUI_WIDTH + 10; // Сдвиг основного GUI вправо
-     public static final int MAIN_GUI_OFFSET_Y = 0;
+     public static void setPlanksCompleted(boolean value) {
+         planksCompleted = value;
+     }
  
-     public EnhancedDualContainer(int windowId, PlayerInventory playerInventory, PacketBuffer data) {
-         super(ModContainers.ENHANCED_DUAL_CONTAINER.get(), windowId);
  
-         // Читаем данные
-         boolean isFirepit = data.readBoolean();
-         boolean inOffhand = data.readBoolean();
-         BlockPos blockPos = data.readBlockPos();
-         ItemStack tongsStack = inOffhand
-                 ? playerInventory.player.getOffhandItem()
-                 : playerInventory.player.getMainHandItem();
+     public static boolean isSlabsCompleted() {
+         return slabsCompleted;
+     }
  
-         // Получаем FirepitTileEntity из мира
-         com.example.examplemod.tileentity.FirepitTileEntity firepitTile = null;
-         com.example.examplemod.tileentity.PechugaTileEntity pechugaTile = null;
-         net.minecraft.world.World world = playerInventory.player.level;
-         if (world != null) {
-             net.minecraft.tileentity.TileEntity tileEntity = world.getBlockEntity(blockPos);
-             if (tileEntity instanceof com.example.examplemod.tileentity.FirepitTileEntity) {
-                 firepitTile = (com.example.examplemod.tileentity.FirepitTileEntity) tileEntity;
-             } else if (tileEntity instanceof com.example.examplemod.tileentity.PechugaTileEntity) {
-                 pechugaTile = (com.example.examplemod.tileentity.PechugaTileEntity) tileEntity;
+     public static void setSlabsCompleted(boolean value) {
+         slabsCompleted = value;
+     }
+ 
+     public static boolean isCobbleSlabsCompleted() {
+         return cobbleSlabsCompleted;
+     }
+ 
+     public static void setCobbleSlabsCompleted(boolean value) {
+         cobbleSlabsCompleted = value;
+@@ -306,50 +307,58 @@ public class QuestManager {
+ 
+     public static boolean isSpongeMetalsCompleted() {
+         return spongeMetalsCompleted;
+     }
+ 
+     public static void setSpongeMetalsCompleted(boolean value) {
+         spongeMetalsCompleted = value;
+     }
+ 
+     public static boolean isCobblestoneAnvilCompleted() {
+         return cobblestoneAnvilCompleted;
+     }
+ 
+     public static void setCobblestoneAnvilCompleted(boolean value) {
+         cobblestoneAnvilCompleted = value;
+     }
+ 
+     public static boolean isMetalChunksCompleted() {
+         return metalChunksCompleted;
+     }
+ 
+     public static void setMetalChunksCompleted(boolean value) {
+         metalChunksCompleted = value;
+     }
+ 
++    public static boolean isRawBlanksCompleted() {
++        return rawBlanksCompleted;
++    }
++
++    public static void setRawBlanksCompleted(boolean value) {
++        rawBlanksCompleted = value;
++    }
++
+     public static boolean isAncientWorldCompleted() {
+         return planksCompleted
+                 && slabsCompleted
+                 && cobbleSlabsCompleted
+                 && hewnStonesCompleted
+                 && bigBonesCompleted
+                 && sharpenedBoneCompleted
+                 && stoneToolsCompleted
+                 && boneToolsCompleted
+                 && combsCompleted
+                 && flaxFibersCompleted
+                 && branchCompleted
+                 && brushwoodCompleted
+                 && startSmithingCompleted
+                 && initialFaunaCompleted
+                 && startHammersCompleted
+                 && ironClusterCompleted
+                 && pureIronOreCompleted
+                 && firepitCompleted
+                 && pyriteCompleted
+                 && pyriteFlintCompleted
+                 && roughKnivesCompleted
+                 && scrapedLeatherCompleted
+                 && calcinedIronOreCompleted
+                 && clayPotCompleted
+@@ -370,27 +379,28 @@ public class QuestManager {
+         branchCompleted = false;
+         brushwoodCompleted = false;
+         startSmithingCompleted = false;
+         initialFaunaCompleted = false;
+         startHammersCompleted = false;
+         ironClusterCompleted = false;
+         pureIronOreCompleted = false;
+         firepitCompleted = false;
+         pyriteCompleted = false;
+         pyriteFlintCompleted = false;
+         roughKnivesCompleted = false;
+         scrapedLeatherCompleted = false;
+         calcinedIronOreCompleted = false;
+         calcinedGoldOreCompleted = false;
+         calcinedTinOreCompleted = false;
+         brickKilnCompleted = false;
+         clayPotCompleted = false;
+         clayCupCompleted = false;
+         unrefinedTinOreCompleted = false;
+         unrefinedGoldOreCompleted = false;
+         cleanedGravelTinOreCompleted = false;
+         cleanedGravelGoldOreCompleted = false;
+         spongeMetalsCompleted = false;
+         boneTongsCompleted = false;
+         metalChunksCompleted = false;
++        rawBlanksCompleted = false;
+     }
+ }

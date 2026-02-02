@@ -252,6 +252,9 @@ public class ProgressMetallurgyScreen extends Screen {
                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
                         new StringTextComponent("Нужно для открытия: ")
                                 .append(new StringTextComponent("Губчатые металлы")
+                                        .withStyle(TextFormatting.GOLD))
+                                .append(new StringTextComponent(", "))
+                                .append(new StringTextComponent("Булыжниковая наковальня")
                                         .withStyle(TextFormatting.GOLD))));
         QuestNode metalChunksNode = registerNode(this.metalChunksButton, baseX + spacingX * 3, baseY);
         addConnection(spongeMetalsNode, metalChunksNode, this::getMetalChunksState);
@@ -380,7 +383,8 @@ public class ProgressMetallurgyScreen extends Screen {
     }
 
     private QuestState getMetalChunksState() {
-        if (!QuestManager.isSpongeMetalsCompleted()) {
+        if (!QuestManager.isSpongeMetalsCompleted()
+                || !QuestManager.isCobblestoneAnvilCompleted()) {
             return QuestState.LOCKED;
         }
         return QuestManager.isMetalChunksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
