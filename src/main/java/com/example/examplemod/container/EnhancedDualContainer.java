@@ -25,10 +25,10 @@ public class EnhancedDualContainer extends Container {
     private final int tongsSlotCount;
 
     // Константы для позиционирования мини-GUI щипцов
-    public static final int TONGS_GUI_WIDTH = 54;
-    public static final int TONGS_GUI_HEIGHT = 40;
+    public static final int TONGS_GUI_WIDTH = 48;
+    public static final int TONGS_GUI_HEIGHT = 30;
     public static final int TONGS_GUI_OFFSET_Y = 12;
-    public static final int TONGS_GUI_X = 8; // Позиция слотов щипцов по X
+    public static final int TONGS_GUI_X = 6; // Позиция слотов щипцов по X
     public static final int TONGS_GUI_Y = 18; // Позиция первого слота щипцов по Y
     public static final int MAIN_GUI_OFFSET_X = TONGS_GUI_WIDTH + 10; // Сдвиг основного GUI вправо
     public static final int MAIN_GUI_OFFSET_Y = 0;

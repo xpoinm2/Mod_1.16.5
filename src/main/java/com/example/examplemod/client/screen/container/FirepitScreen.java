@@ -106,13 +106,17 @@ public class FirepitScreen extends ContainerScreen<FirepitContainer> {
         this.font.draw(matrixStack, this.title, this.titleLabelX, this.titleLabelY, 0xFF0000);
         // Draw the player inventory label in red
         this.font.draw(matrixStack, this.inventory.getDisplayName(), this.inventoryLabelX, this.inventoryLabelY, 0xFF0000);
-        
+
         if (this.menu.hasTongsSlots()) {
             ITextComponent tongsLabel = new TranslationTextComponent("container.examplemod.bone_tongs");
+            float scale = 1.75F;
+            matrixStack.pushPose();
+            matrixStack.scale(scale, scale, 1.0F);
             this.font.draw(matrixStack, tongsLabel,
-                    FirepitContainer.TONGS_SLOT_X + 2,
-                    FirepitContainer.TONGS_SLOT_Y - 10,
+                    (FirepitContainer.TONGS_SLOT_X + 2) / scale,
+                    (FirepitContainer.TONGS_SLOT_Y - 10) / scale,
                     0xFF7A7A7A);
+            matrixStack.popPose();
         }
     }
 }

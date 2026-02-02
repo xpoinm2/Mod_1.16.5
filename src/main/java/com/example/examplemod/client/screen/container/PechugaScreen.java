@@ -101,10 +101,14 @@ public class PechugaScreen extends ContainerScreen<PechugaContainer> {
         
         if (this.menu.hasTongsSlots()) {
             ITextComponent tongsLabel = new TranslationTextComponent("container.examplemod.bone_tongs");
+            float scale = 1.75F;
+            matrixStack.pushPose();
+            matrixStack.scale(scale, scale, 1.0F);
             this.font.draw(matrixStack, tongsLabel,
-                    PechugaContainer.TONGS_SLOT_X + 2,
-                    PechugaContainer.TONGS_SLOT_Y - 10,
+                    (PechugaContainer.TONGS_SLOT_X + 2) / scale,
+                    (PechugaContainer.TONGS_SLOT_Y - 10) / scale,
                     0xFF7A7A7A);
+            matrixStack.popPose();
         }
     }
 }
