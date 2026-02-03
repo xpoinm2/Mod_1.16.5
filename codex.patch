@@ -1,57 +1,110 @@
-diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-index 9026e878bd8d949474b3296990d4a7c5ef45e02a..fcd10096652658ae71c2f304e566b4a123def3c0 100644
---- a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-+++ b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-@@ -108,51 +108,51 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
-     private int rollHurricaneDuration(Random random) {
-         return random.nextInt((MAX_HURRICANE_DURATION - MIN_HURRICANE_DURATION) + 1) + MIN_HURRICANE_DURATION;
+diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
+index 61e8a098fa0e898fa6250db8a9c400192fb6c758..9ee3c2584ec009b110f75737e503156885415d60 100644
+--- a/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
++++ b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
+@@ -7,50 +7,51 @@ import com.example.examplemod.network.SyncAllStatsPacket;
+ import com.example.examplemod.server.mechanics.IMechanicModule;
+ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+ import net.minecraft.entity.player.ServerPlayerEntity;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.ChunkPos;
+ import net.minecraft.world.World;
+ import net.minecraft.world.biome.Biome;
+ import net.minecraft.world.server.ServerWorld;
+ import net.minecraftforge.fml.network.PacketDistributor;
+ 
+ import java.util.Map;
+ import java.util.Random;
+ 
+ /**
+  * Скрытая характеристика: скорость ветра (0..30 м/с).
+  * Базовый ветер обновляется раз в N минут, затем учитываются шум, биом, высота и погода.
+  */
+ public final class WindMechanic implements IMechanicModule {
+     private static final int MAX_WIND = 30;
+     private static final int MIN_WIND = 0;
+     private static final int MIN_STRONG_WIND = 15;
+     private static final int TICKS_PER_MINUTE = 1200;
+     private static final double CLEAR_NOISE_SCALE = 2.0;
+     private static final double STORM_NOISE_SCALE = 3.5;
+     private static final double HURRICANE_NOISE_SCALE = 5.0;
++    private static final int HURRICANE_TARGET_WIND = 20;
+     private static final int HIGH_ALTITUDE_Y = 90;
+     private static final int HURRICANE_BASE_WIND_THRESHOLD = 12;
+ 
+     private final Map<World, WindState> worldStates = new Object2ObjectOpenHashMap<>();
+ 
+     @Override
+     public String id() {
+         return "wind";
      }
  
-     public static boolean isHurricaneActive(ServerWorld world) {
-         return HURRICANE_STATES.containsKey(world);
+     @Override
+     public int playerIntervalTicks() {
+         return Config.WIND_PLAYER_UPDATE_TICKS.get();
      }
  
-     private int destroyTreesNearPlayers(ServerWorld world, int remainingBreaks) {
-         List<ServerPlayerEntity> players = world.getServer().getPlayerList().getPlayers();
-         if (players.isEmpty()) {
-             return 0;
+     @Override
+     public void onPlayerTick(ServerPlayerEntity player) {
+         if (player.connection == null || player.hasDisconnected()) {
+             return;
+         }
+         if (!(player.level instanceof ServerWorld)) {
+             return;
+         }
+         ServerWorld world = (ServerWorld) player.level;
+         WindState state = getOrUpdateBaseWind(world);
+@@ -60,50 +61,53 @@ public final class WindMechanic implements IMechanicModule {
+                 stats.setWindSpeed(windSpeed);
+                 ModNetworkHandler.CHANNEL.send(
+                         PacketDistributor.PLAYER.with(() -> player),
+                         new SyncAllStatsPacket(stats)
+                 );
+             }
+         });
+     }
+ 
+     private WindState getOrUpdateBaseWind(ServerWorld world) {
+         WindState state = worldStates.computeIfAbsent(world, w -> new WindState());
+         int tick = world.getServer().getTickCount();
+         if (tick >= state.nextBaseUpdateTick) {
+             state.baseWind = rollBaseWind(world);
+             int intervalTicks = Math.max(1, Config.WIND_BASE_UPDATE_MINUTES.get()) * TICKS_PER_MINUTE;
+             state.nextBaseUpdateTick = tick + intervalTicks;
+         }
+         return state;
+     }
+ 
+     private int calculateWindForPlayer(ServerPlayerEntity player, ServerWorld world, WindState state) {
+         BlockPos pos = player.blockPosition();
+         ChunkPos chunkPos = new ChunkPos(pos);
+         double noise = perChunkNoise(world, chunkPos.x, chunkPos.z);
+         WeatherType weatherType = resolveWeatherType(world, pos, state);
++        if (weatherType == WeatherType.HURRICANE) {
++            return HURRICANE_TARGET_WIND;
++        }
+         double noiseScale = resolveNoiseScale(weatherType);
+         double wind = state.baseWind + noise * noiseScale;
+ 
+         wind *= biomeMultiplier(world.getBiome(pos));
+         wind *= heightMultiplier(pos.getY());
+         wind *= weatherMultiplier(weatherType);
+ 
+         if (!world.isDay()) {
+             wind *= 0.9;
          }
  
-         int destroyed = 0;
-         for (ServerPlayerEntity player : players) {
-             if (destroyed >= remainingBreaks) {
-                 break;
-             }
-             BlockPos origin = player.blockPosition();
- 
-             for (int attempt = 0; attempt < TREE_SCAN_ATTEMPTS; attempt++) {
-                 int x = origin.getX() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
-                 int z = origin.getZ() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
-                 int topY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
--                int minY = Math.max(world.getMinBuildHeight(), topY - TREE_SCAN_DEPTH);
-+                int minY = Math.max(0, topY - TREE_SCAN_DEPTH);
- 
-                 BlockPos.Mutable pos = new BlockPos.Mutable(x, topY, z);
-                 for (int y = topY; y >= minY; y--) {
-                     pos.set(x, y, z);
-                     if (world.getBlockState(pos).is(BlockTags.LOGS)) {
-                         if (destroyTreeAt(world, pos.immutable())) {
-                             destroyed++;
-                         }
-                         attempt = TREE_SCAN_ATTEMPTS;
-                         break;
-                     }
-                 }
-             }
-         }
- 
-         return destroyed;
+         int rounded = (int) Math.round(wind);
+         int minimum = minimumWindForConditions(world, pos, weatherType);
+         return clampWind(Math.max(minimum, rounded));
      }
  
-     private boolean destroyTreeAt(ServerWorld world, BlockPos start) {
-         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
-         ObjectOpenHashSet<BlockPos> visited = new ObjectOpenHashSet<>();
-         queue.add(start);
-         visited.add(start);
- 
-         int destroyed = 0;
+     private int rollBaseWind(ServerWorld world) {
+         Random rand = new Random(world.getSeed() ^ world.getGameTime());
+         int min = 3;
+         int max = 9;
+         if (world.isRaining()) {
+             min = 6;
+             max = 14;
+         }
+         if (world.isThundering()) {

@@ -29,6 +29,7 @@ public final class WindMechanic implements IMechanicModule {
     private static final double CLEAR_NOISE_SCALE = 2.0;
     private static final double STORM_NOISE_SCALE = 3.5;
     private static final double HURRICANE_NOISE_SCALE = 5.0;
+    private static final int HURRICANE_TARGET_WIND = 20;
     private static final int HIGH_ALTITUDE_Y = 90;
     private static final int HURRICANE_BASE_WIND_THRESHOLD = 12;
 
@@ -82,6 +83,9 @@ public final class WindMechanic implements IMechanicModule {
         ChunkPos chunkPos = new ChunkPos(pos);
         double noise = perChunkNoise(world, chunkPos.x, chunkPos.z);
         WeatherType weatherType = resolveWeatherType(world, pos, state);
+        if (weatherType == WeatherType.HURRICANE) {
+            return HURRICANE_TARGET_WIND;
+        }
         double noiseScale = resolveNoiseScale(weatherType);
         double wind = state.baseWind + noise * noiseScale;
 
