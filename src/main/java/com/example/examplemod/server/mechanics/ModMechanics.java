@@ -75,7 +75,8 @@ public final class ModMechanics {
         register(new DayNightCycleMechanic());
         register(new HotOreDamageMechanic());
         register(new WindMechanic());
-        registeredCount += 4;
+        register(new HurricaneWeatherMechanic());
+        registeredCount += 5;
 
         // === Команды (основные) ===
         register(new StatsCommandsMechanic());
@@ -240,4 +241,3 @@ public final class ModMechanics {
         return initialized;
     }
 }
-
