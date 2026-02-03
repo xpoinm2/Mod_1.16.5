@@ -130,7 +130,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
                 int x = origin.getX() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
                 int z = origin.getZ() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
                 int topY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
-                int minY = Math.max(world.getMinBuildHeight(), topY - TREE_SCAN_DEPTH);
+                int minY = Math.max(0, topY - TREE_SCAN_DEPTH);
 
                 BlockPos.Mutable pos = new BlockPos.Mutable(x, topY, z);
                 for (int y = topY; y >= minY; y--) {
