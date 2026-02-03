@@ -38,6 +38,9 @@ public class HiddenValuesScreen extends Screen {
             this.setFocused(passwordField);
             this.addButton(new FramedButton(x0 + 15, y0 + 70, 120, 20, "OK", 0xFFFFFF00, 0xFFFF0000,
                     b -> checkPassword()));
+        } else {
+            this.addButton(new FramedButton(x0 + 15, y0 + 110, 120, 20, "О ветре", 0xFFFFFF00, 0xFFFF0000,
+                    b -> this.minecraft.setScreen(new WindInfoScreen(this))));
         }
         super.init();
     }

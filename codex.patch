@@ -1,60 +1,88 @@
-diff --git a/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java b/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java
-index bca595b73f93dd3094ad2790b192e0e1ef7edff7..0119dd30dede48b1c731e7fae0a04bd6fdc520f3 100644
---- a/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java
-+++ b/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java
-@@ -125,50 +125,55 @@ public class HiddenValuesScreen extends Screen {
-         fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
-         drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
- 
-         if (!unlocked) {
-             passwordField.render(ms, mouseX, mouseY, pt);
-         } else {
-             long time = this.minecraft.level.getDayTime();
-             long dayTime = time % 24000L;
-             int hour = (int) ((dayTime / 1000L + 6) % 24);
-             int minute = (int) ((dayTime % 1000L) * 60L / 1000L);
-             String text = String.format("Игровое время: %02d:%02d", hour, minute);
-             this.font.draw(ms, text, x0 + 10, y0 + 40, 0xFFFFFF);
- 
- 
-             PlayerEntity player = this.minecraft.player;
-             int temp = getAmbientTemperature(player);
-             String tempText = String.format("Температура: %d C", temp);
-             this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
- 
-             if (player != null) {
-                 player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
-                     String windText = String.format("Скорость ветра: %d м/с", stats.getWindSpeed());
-                     this.font.draw(ms, windText, x0 + 10, y0 + 70, 0xFFFFFF);
-                 });
- 
-+                this.font.draw(ms, "Ветер: база, шум чанка,", x0 + 10, y0 + 100, 0xAAAAAA);
-+                this.font.draw(ms, "биом, высота, погода", x0 + 10, y0 + 110, 0xAAAAAA);
-+                this.font.draw(ms, "и время суток.", x0 + 10, y0 + 120, 0xAAAAAA);
-+                this.font.draw(ms, "Итог 0-30 м/с, округл.", x0 + 10, y0 + 130, 0xAAAAAA);
+diff --git a/src/main/java/com/example/examplemod/client/screen/main/WindInfoScreen.java b/src/main/java/com/example/examplemod/client/screen/main/WindInfoScreen.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..552e8d37420729dc8803552b234249affe2bf62e
+--- /dev/null
++++ b/src/main/java/com/example/examplemod/client/screen/main/WindInfoScreen.java
+@@ -0,0 +1,82 @@
++package com.example.examplemod.client.screen.main;
 +
-                 Biome biome = player.level.getBiome(player.blockPosition());
-                 String biomeName = biome.getRegistryName() != null
-                         ? biome.getRegistryName().getPath()
-                         : "unknown";
-                 String biomeText = String.format("Биом: %s", biomeName);
-                 this.font.draw(ms, biomeText, x0 + 10, y0 + 85, 0xFFFFFF);
-             }
-         }
- 
-         super.render(ms, mouseX, mouseY, pt);
-     }
- 
-     @Override
-     public boolean isPauseScreen() {
-         return false;
-     }
- 
-     @Override
-     public void onClose() {
-         if (this.minecraft != null && this.minecraft.player != null && this.minecraft.level != null && parent != null) {
-             this.minecraft.setScreen(parent);
-         } else {
-             super.onClose();
-         }
-     }
++import com.example.examplemod.client.FramedButton;
++import com.mojang.blaze3d.matrix.MatrixStack;
++import net.minecraft.client.gui.screen.Screen;
++import net.minecraft.util.text.StringTextComponent;
++import net.minecraftforge.api.distmarker.Dist;
++import net.minecraftforge.api.distmarker.OnlyIn;
++
++@OnlyIn(Dist.CLIENT)
++public class WindInfoScreen extends Screen {
++    private final Screen parent;
++
++    public WindInfoScreen(Screen parent) {
++        super(new StringTextComponent("О ветре"));
++        this.parent = parent;
++    }
++
++    @Override
++    protected void init() {
++        int panelWidth = Math.max(220, this.width / 2);
++        int panelHeight = Math.max(150, this.height / 2);
++        int x0 = (this.width - panelWidth) / 2;
++        int y0 = (this.height - panelHeight) / 2;
++
++        this.addButton(new FramedButton(x0 + 10, y0 + 10, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
++                b -> this.minecraft.setScreen(parent)));
++        super.init();
++    }
++
++    @Override
++    public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
++        this.renderBackground(ms);
++        int panelWidth = Math.max(220, this.width / 2);
++        int panelHeight = Math.max(150, this.height / 2);
++        int x0 = (this.width - panelWidth) / 2;
++        int y0 = (this.height - panelHeight) / 2;
++
++        fill(ms, x0 - 1, y0 - 1, x0 + panelWidth + 1, y0 + panelHeight + 1, 0xFF00FF00);
++        fill(ms, x0, y0, x0 + panelWidth, y0 + panelHeight, 0xFF000000);
++        drawCenteredString(ms, this.font, this.title, x0 + panelWidth / 2, y0 + 14, 0xFF00FFFF);
++
++        int textX = x0 + 10;
++        int textY = y0 + 40;
++        int line = 12;
++        int color = 0xFFFFFF;
++
++        this.font.draw(ms, "Скорость ветра = базовый ветер", textX, textY, color);
++        textY += line;
++        this.font.draw(ms, "+ шум чанка * коэффициент погоды.", textX, textY, color);
++        textY += line + 4;
++
++        this.font.draw(ms, "Далее умножается на множители:", textX, textY, color);
++        textY += line;
++        this.font.draw(ms, "- биом (горы сильнее, лес слабее)", textX, textY, color);
++        textY += line;
++        this.font.draw(ms, "- высота (после Y=64 рост до +25%)", textX, textY, color);
++        textY += line;
++        this.font.draw(ms, "- погода (гроза > дождь > ясно)", textX, textY, color);
++        textY += line;
++        this.font.draw(ms, "- ночь (небольшое снижение)", textX, textY, color);
++        textY += line + 4;
++
++        this.font.draw(ms, "Итог округляется и ограничен 0-30 м/с.", textX, textY, color);
++
++        super.render(ms, mouseX, mouseY, pt);
++    }
++
++    @Override
++    public boolean isPauseScreen() {
++        return false;
++    }
++
++    @Override
++    public void onClose() {
++        if (this.minecraft != null && this.minecraft.player != null && this.minecraft.level != null && parent != null) {
++            this.minecraft.setScreen(parent);
++        } else {
++            super.onClose();
++        }
++    }
++}
