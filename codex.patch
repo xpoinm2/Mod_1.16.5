@@ -1,88 +1,248 @@
-diff --git a/src/main/java/com/example/examplemod/client/screen/main/WindInfoScreen.java b/src/main/java/com/example/examplemod/client/screen/main/WindInfoScreen.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..552e8d37420729dc8803552b234249affe2bf62e
---- /dev/null
-+++ b/src/main/java/com/example/examplemod/client/screen/main/WindInfoScreen.java
-@@ -0,0 +1,82 @@
-+package com.example.examplemod.client.screen.main;
-+
-+import com.example.examplemod.client.FramedButton;
-+import com.mojang.blaze3d.matrix.MatrixStack;
-+import net.minecraft.client.gui.screen.Screen;
-+import net.minecraft.util.text.StringTextComponent;
-+import net.minecraftforge.api.distmarker.Dist;
-+import net.minecraftforge.api.distmarker.OnlyIn;
-+
-+@OnlyIn(Dist.CLIENT)
-+public class WindInfoScreen extends Screen {
-+    private final Screen parent;
-+
-+    public WindInfoScreen(Screen parent) {
-+        super(new StringTextComponent("О ветре"));
-+        this.parent = parent;
+diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
+index 2103e0dbea20b776fb7e467fc6dd08e4c791bdb9..b38eb8a61713169ad89283534be6cbc0772aa059 100644
+--- a/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
++++ b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
+@@ -2,166 +2,231 @@ package com.example.examplemod.server.mechanics.modules;
+ 
+ import com.example.examplemod.Config;
+ import com.example.examplemod.capability.PlayerStatsProvider;
+ import com.example.examplemod.network.ModNetworkHandler;
+ import com.example.examplemod.network.SyncAllStatsPacket;
+ import com.example.examplemod.server.mechanics.IMechanicModule;
+ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+ import net.minecraft.entity.player.ServerPlayerEntity;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.ChunkPos;
+ import net.minecraft.world.World;
+ import net.minecraft.world.biome.Biome;
+ import net.minecraft.world.server.ServerWorld;
+ import net.minecraftforge.fml.network.PacketDistributor;
+ 
+ import java.util.Map;
+ import java.util.Random;
+ 
+ /**
+  * Скрытая характеристика: скорость ветра (0..30 м/с).
+  * Базовый ветер обновляется раз в N минут, затем учитываются шум, биом, высота и погода.
+  */
+ public final class WindMechanic implements IMechanicModule {
+     private static final int MAX_WIND = 30;
+     private static final int MIN_WIND = 0;
++    private static final int MIN_STRONG_WIND = 15;
+     private static final int TICKS_PER_MINUTE = 1200;
+     private static final double CLEAR_NOISE_SCALE = 2.0;
+     private static final double STORM_NOISE_SCALE = 3.5;
++    private static final double HURRICANE_NOISE_SCALE = 5.0;
++    private static final int HIGH_ALTITUDE_Y = 90;
++    private static final int HURRICANE_BASE_WIND_THRESHOLD = 12;
+ 
+     private final Map<World, WindState> worldStates = new Object2ObjectOpenHashMap<>();
+ 
+     @Override
+     public String id() {
+         return "wind";
+     }
+ 
+     @Override
+     public int playerIntervalTicks() {
+         return Config.WIND_PLAYER_UPDATE_TICKS.get();
+     }
+ 
+     @Override
+     public void onPlayerTick(ServerPlayerEntity player) {
+         if (player.connection == null || player.hasDisconnected()) {
+             return;
+         }
+         if (!(player.level instanceof ServerWorld)) {
+             return;
+         }
+         ServerWorld world = (ServerWorld) player.level;
+         WindState state = getOrUpdateBaseWind(world);
+         int windSpeed = calculateWindForPlayer(player, world, state);
+         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+             if (stats.getWindSpeed() != windSpeed) {
+                 stats.setWindSpeed(windSpeed);
+                 ModNetworkHandler.CHANNEL.send(
+                         PacketDistributor.PLAYER.with(() -> player),
+                         new SyncAllStatsPacket(stats)
+                 );
+             }
+         });
+     }
+ 
+     private WindState getOrUpdateBaseWind(ServerWorld world) {
+         WindState state = worldStates.computeIfAbsent(world, w -> new WindState());
+         int tick = world.getServer().getTickCount();
+         if (tick >= state.nextBaseUpdateTick) {
+             state.baseWind = rollBaseWind(world);
+             int intervalTicks = Math.max(1, Config.WIND_BASE_UPDATE_MINUTES.get()) * TICKS_PER_MINUTE;
+             state.nextBaseUpdateTick = tick + intervalTicks;
+         }
+         return state;
+     }
+ 
+     private int calculateWindForPlayer(ServerPlayerEntity player, ServerWorld world, WindState state) {
+         BlockPos pos = player.blockPosition();
+         ChunkPos chunkPos = new ChunkPos(pos);
+         double noise = perChunkNoise(world, chunkPos.x, chunkPos.z);
+-        double noiseScale = (world.isThundering() || world.isRaining()) ? STORM_NOISE_SCALE : CLEAR_NOISE_SCALE;
++        WeatherType weatherType = resolveWeatherType(world, pos, state);
++        double noiseScale = resolveNoiseScale(weatherType);
+         double wind = state.baseWind + noise * noiseScale;
+ 
+         wind *= biomeMultiplier(world.getBiome(pos));
+         wind *= heightMultiplier(pos.getY());
+-        wind *= weatherMultiplier(world, pos);
++        wind *= weatherMultiplier(weatherType);
+ 
+         if (!world.isDay()) {
+             wind *= 0.9;
+         }
+ 
+         int rounded = (int) Math.round(wind);
+-        return clampWind(rounded);
++        int minimum = minimumWindForConditions(world, pos, weatherType);
++        return clampWind(Math.max(minimum, rounded));
+     }
+ 
+     private int rollBaseWind(ServerWorld world) {
+         Random rand = new Random(world.getSeed() ^ world.getGameTime());
+         int min = 3;
+         int max = 9;
+         if (world.isRaining()) {
+             min = 6;
+             max = 14;
+         }
+         if (world.isThundering()) {
+             min = 10;
+             max = 18;
+         }
+         int base = rand.nextInt((max - min) + 1) + min;
+         if (world.isThundering()) {
+             base += rand.nextInt(5);
+         }
+         return clampWind(base);
+     }
+ 
+-    private double weatherMultiplier(ServerWorld world, BlockPos pos) {
+-        if (world.isThundering()) {
+-            return 1.35;
+-        }
+-        if (world.isRainingAt(pos)) {
+-            return 1.15;
++    private double weatherMultiplier(WeatherType type) {
++        switch (type) {
++            case HURRICANE:
++                return 1.7;
++            case THUNDER:
++                return 1.35;
++            case RAIN:
++                return 1.15;
++            default:
++                return 0.9;
+         }
+-        return 0.9;
+     }
+ 
+     private double biomeMultiplier(Biome biome) {
+         Biome.Category category = biome.getBiomeCategory();
+         switch (category) {
+             case EXTREME_HILLS:
+-                return 1.25;
+-            case FOREST:
++                return 1.4;
+             case TAIGA:
++                return 1.2;
++            case FOREST:
+             case JUNGLE:
+                 return 0.8;
+             case PLAINS:
+             case OCEAN:
+             case BEACH:
+             case RIVER:
+                 return 1.1;
+             default:
+                 return 1.0;
+         }
+     }
+ 
+     private double heightMultiplier(int y) {
+         double delta = Math.max(0, y - 64);
+         double bonus = Math.min(0.25, delta / 128.0 * 0.25);
+         return 1.0 + bonus;
+     }
+ 
++    private WeatherType resolveWeatherType(ServerWorld world, BlockPos pos, WindState state) {
++        if (isHurricane(world, pos, state)) {
++            return WeatherType.HURRICANE;
++        }
++        if (world.isThundering()) {
++            return WeatherType.THUNDER;
++        }
++        if (world.isRainingAt(pos)) {
++            return WeatherType.RAIN;
++        }
++        return WeatherType.CLEAR;
 +    }
 +
-+    @Override
-+    protected void init() {
-+        int panelWidth = Math.max(220, this.width / 2);
-+        int panelHeight = Math.max(150, this.height / 2);
-+        int x0 = (this.width - panelWidth) / 2;
-+        int y0 = (this.height - panelHeight) / 2;
-+
-+        this.addButton(new FramedButton(x0 + 10, y0 + 10, 20, 20, "<", 0xFFFFFF00, 0xFFFFFFFF,
-+                b -> this.minecraft.setScreen(parent)));
-+        super.init();
++    private boolean isHurricane(ServerWorld world, BlockPos pos, WindState state) {
++        return world.isThundering()
++                && world.isRainingAt(pos)
++                && state.baseWind >= HURRICANE_BASE_WIND_THRESHOLD;
 +    }
 +
-+    @Override
-+    public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
-+        this.renderBackground(ms);
-+        int panelWidth = Math.max(220, this.width / 2);
-+        int panelHeight = Math.max(150, this.height / 2);
-+        int x0 = (this.width - panelWidth) / 2;
-+        int y0 = (this.height - panelHeight) / 2;
-+
-+        fill(ms, x0 - 1, y0 - 1, x0 + panelWidth + 1, y0 + panelHeight + 1, 0xFF00FF00);
-+        fill(ms, x0, y0, x0 + panelWidth, y0 + panelHeight, 0xFF000000);
-+        drawCenteredString(ms, this.font, this.title, x0 + panelWidth / 2, y0 + 14, 0xFF00FFFF);
-+
-+        int textX = x0 + 10;
-+        int textY = y0 + 40;
-+        int line = 12;
-+        int color = 0xFFFFFF;
-+
-+        this.font.draw(ms, "Скорость ветра = базовый ветер", textX, textY, color);
-+        textY += line;
-+        this.font.draw(ms, "+ шум чанка * коэффициент погоды.", textX, textY, color);
-+        textY += line + 4;
-+
-+        this.font.draw(ms, "Далее умножается на множители:", textX, textY, color);
-+        textY += line;
-+        this.font.draw(ms, "- биом (горы сильнее, лес слабее)", textX, textY, color);
-+        textY += line;
-+        this.font.draw(ms, "- высота (после Y=64 рост до +25%)", textX, textY, color);
-+        textY += line;
-+        this.font.draw(ms, "- погода (гроза > дождь > ясно)", textX, textY, color);
-+        textY += line;
-+        this.font.draw(ms, "- ночь (небольшое снижение)", textX, textY, color);
-+        textY += line + 4;
-+
-+        this.font.draw(ms, "Итог округляется и ограничен 0-30 м/с.", textX, textY, color);
-+
-+        super.render(ms, mouseX, mouseY, pt);
-+    }
-+
-+    @Override
-+    public boolean isPauseScreen() {
-+        return false;
-+    }
-+
-+    @Override
-+    public void onClose() {
-+        if (this.minecraft != null && this.minecraft.player != null && this.minecraft.level != null && parent != null) {
-+            this.minecraft.setScreen(parent);
-+        } else {
-+            super.onClose();
++    private double resolveNoiseScale(WeatherType type) {
++        switch (type) {
++            case HURRICANE:
++                return HURRICANE_NOISE_SCALE;
++            case THUNDER:
++            case RAIN:
++                return STORM_NOISE_SCALE;
++            default:
++                return CLEAR_NOISE_SCALE;
 +        }
 +    }
-+}
++
++    private int minimumWindForConditions(ServerWorld world, BlockPos pos, WeatherType weatherType) {
++        int minimum = 0;
++        if (weatherType == WeatherType.HURRICANE
++                || weatherType == WeatherType.THUNDER
++                || weatherType == WeatherType.RAIN) {
++            minimum = MIN_STRONG_WIND;
++        }
++        Biome.Category category = world.getBiome(pos).getBiomeCategory();
++        if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
++            minimum = Math.max(minimum, MIN_STRONG_WIND);
++        }
++        if (pos.getY() >= HIGH_ALTITUDE_Y) {
++            minimum = Math.max(minimum, MIN_STRONG_WIND);
++        }
++        return minimum;
++    }
++
+     private double perChunkNoise(ServerWorld world, int chunkX, int chunkZ) {
+         long seed = world.getSeed();
+         long hash = seed ^ (chunkX * 341873128712L) ^ (chunkZ * 132897987541L);
+         hash = (hash ^ (hash >>> 33)) * 0xff51afd7ed558ccdL;
+         hash = (hash ^ (hash >>> 33)) * 0xc4ceb9fe1a85ec53L;
+         hash = hash ^ (hash >>> 33);
+         double normalized = (hash & 0xFFFF) / (double) 0xFFFF;
+         return normalized * 2.0 - 1.0;
+     }
+ 
+     private int clampWind(int v) {
+         return Math.max(MIN_WIND, Math.min(MAX_WIND, v));
+     }
+ 
+     private static class WindState {
+         private int baseWind = 5;
+         private int nextBaseUpdateTick = 0;
+     }
++
++    private enum WeatherType {
++        CLEAR,
++        RAIN,
++        THUNDER,
++        HURRICANE
++    }
+ }

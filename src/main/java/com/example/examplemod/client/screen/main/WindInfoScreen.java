@@ -52,13 +52,18 @@ public class WindInfoScreen extends Screen {
 
         this.font.draw(ms, "Далее умножается на множители:", textX, textY, color);
         textY += line;
-        this.font.draw(ms, "- биом (горы сильнее, лес слабее)", textX, textY, color);
+        this.font.draw(ms, "- биом (горы/тайга сильнее, лес слабее)", textX, textY, color);
         textY += line;
         this.font.draw(ms, "- высота (после Y=64 рост до +25%)", textX, textY, color);
         textY += line;
-        this.font.draw(ms, "- погода (гроза > дождь > ясно)", textX, textY, color);
+        this.font.draw(ms, "- погода (ураган > гроза > дождь > ясно)", textX, textY, color);
         textY += line;
         this.font.draw(ms, "- ночь (небольшое снижение)", textX, textY, color);
+        textY += line + 4;
+
+        this.font.draw(ms, "В грозу/дождь, в горах/тайге и", textX, textY, color);
+        textY += line;
+        this.font.draw(ms, "на высоте ветер не ниже 15 м/с.", textX, textY, color);
         textY += line + 4;
 
         this.font.draw(ms, "Итог округляется и ограничен 0-30 м/с.", textX, textY, color);

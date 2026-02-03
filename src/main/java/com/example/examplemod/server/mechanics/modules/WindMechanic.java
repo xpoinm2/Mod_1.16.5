@@ -24,9 +24,13 @@ import java.util.Random;
 public final class WindMechanic implements IMechanicModule {
     private static final int MAX_WIND = 30;
     private static final int MIN_WIND = 0;
+    private static final int MIN_STRONG_WIND = 15;
     private static final int TICKS_PER_MINUTE = 1200;
     private static final double CLEAR_NOISE_SCALE = 2.0;
     private static final double STORM_NOISE_SCALE = 3.5;
+    private static final double HURRICANE_NOISE_SCALE = 5.0;
+    private static final int HIGH_ALTITUDE_Y = 90;
+    private static final int HURRICANE_BASE_WIND_THRESHOLD = 12;
 
     private final Map<World, WindState> worldStates = new Object2ObjectOpenHashMap<>();
 
@@ -77,19 +81,21 @@ public final class WindMechanic implements IMechanicModule {
         BlockPos pos = player.blockPosition();
         ChunkPos chunkPos = new ChunkPos(pos);
         double noise = perChunkNoise(world, chunkPos.x, chunkPos.z);
-        double noiseScale = (world.isThundering() || world.isRaining()) ? STORM_NOISE_SCALE : CLEAR_NOISE_SCALE;
+        WeatherType weatherType = resolveWeatherType(world, pos, state);
+        double noiseScale = resolveNoiseScale(weatherType);
         double wind = state.baseWind + noise * noiseScale;
 
         wind *= biomeMultiplier(world.getBiome(pos));
         wind *= heightMultiplier(pos.getY());
-        wind *= weatherMultiplier(world, pos);
+        wind *= weatherMultiplier(weatherType);
 
         if (!world.isDay()) {
             wind *= 0.9;
         }
 
         int rounded = (int) Math.round(wind);
-        return clampWind(rounded);
+        int minimum = minimumWindForConditions(world, pos, weatherType);
+        return clampWind(Math.max(minimum, rounded));
     }
 
     private int rollBaseWind(ServerWorld world) {
@@ -111,23 +117,27 @@ public final class WindMechanic implements IMechanicModule {
         return clampWind(base);
     }
 
-    private double weatherMultiplier(ServerWorld world, BlockPos pos) {
-        if (world.isThundering()) {
-            return 1.35;
+    private double weatherMultiplier(WeatherType type) {
+        switch (type) {
+            case HURRICANE:
+                return 1.7;
+            case THUNDER:
+                return 1.35;
+            case RAIN:
+                return 1.15;
+            default:
+                return 0.9;
         }
-        if (world.isRainingAt(pos)) {
-            return 1.15;
-        }
-        return 0.9;
     }
 
     private double biomeMultiplier(Biome biome) {
         Biome.Category category = biome.getBiomeCategory();
         switch (category) {
             case EXTREME_HILLS:
-                return 1.25;
-            case FOREST:
+                return 1.4;
             case TAIGA:
+                return 1.2;
+            case FOREST:
             case JUNGLE:
                 return 0.8;
             case PLAINS:
@@ -144,6 +154,54 @@ public final class WindMechanic implements IMechanicModule {
         double delta = Math.max(0, y - 64);
         double bonus = Math.min(0.25, delta / 128.0 * 0.25);
         return 1.0 + bonus;
+    }
+
+    private WeatherType resolveWeatherType(ServerWorld world, BlockPos pos, WindState state) {
+        if (isHurricane(world, pos, state)) {
+            return WeatherType.HURRICANE;
+        }
+        if (world.isThundering()) {
+            return WeatherType.THUNDER;
+        }
+        if (world.isRainingAt(pos)) {
+            return WeatherType.RAIN;
+        }
+        return WeatherType.CLEAR;
+    }
+
+    private boolean isHurricane(ServerWorld world, BlockPos pos, WindState state) {
+        return world.isThundering()
+                && world.isRainingAt(pos)
+                && state.baseWind >= HURRICANE_BASE_WIND_THRESHOLD;
+    }
+
+    private double resolveNoiseScale(WeatherType type) {
+        switch (type) {
+            case HURRICANE:
+                return HURRICANE_NOISE_SCALE;
+            case THUNDER:
+            case RAIN:
+                return STORM_NOISE_SCALE;
+            default:
+                return CLEAR_NOISE_SCALE;
+        }
+    }
+
+    private int minimumWindForConditions(ServerWorld world, BlockPos pos, WeatherType weatherType) {
+        int minimum = 0;
+        if (weatherType == WeatherType.HURRICANE
+                || weatherType == WeatherType.THUNDER
+                || weatherType == WeatherType.RAIN) {
+            minimum = MIN_STRONG_WIND;
+        }
+        Biome.Category category = world.getBiome(pos).getBiomeCategory();
+        if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
+            minimum = Math.max(minimum, MIN_STRONG_WIND);
+        }
+        if (pos.getY() >= HIGH_ALTITUDE_Y) {
+            minimum = Math.max(minimum, MIN_STRONG_WIND);
+        }
+        return minimum;
     }
 
     private double perChunkNoise(ServerWorld world, int chunkX, int chunkZ) {
@@ -163,5 +221,12 @@ public final class WindMechanic implements IMechanicModule {
     private static class WindState {
         private int baseWind = 5;
         private int nextBaseUpdateTick = 0;
+    }
+
+    private enum WeatherType {
+        CLEAR,
+        RAIN,
+        THUNDER,
+        HURRICANE
     }
 }
