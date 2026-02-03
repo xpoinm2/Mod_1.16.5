@@ -1,5 +1,7 @@
 package com.example.examplemod;
 
+import com.example.examplemod.item.HotRoastedOreItem;
+import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,25 +33,52 @@ public final class CommonModEvents {
 
         PlayerEntity player = event.player;
 
-        // Проверяем все предметы в инвентаре на горячие губчатые металлы и горячие руды
-        // Это обеспечит урон даже когда предмет перетаскивается курсором
+        // Проверяем горячие предметы в курсоре и инвентаре,
+        // чтобы урон шёл даже при перетаскивании.
+        if (applyHotItemDamage(player, player.containerMenu.getCarried())) {
+            return;
+        }
+
         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
             ItemStack stack = player.inventory.getItem(i);
-            if (!stack.isEmpty()) {
-                if (stack.getItem() instanceof SpongeMetalItem) {
-                    int state = SpongeMetalItem.getState(stack);
-                    if (state == SpongeMetalItem.STATE_HOT) {
-                        player.hurt(DamageSource.HOT_FLOOR, 1.0F);
-                        break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
-                    }
-                } else if (stack.getItem() instanceof RoastedOreItem) {
-                    int state = RoastedOreItem.getState(stack);
-                    if (state == RoastedOreItem.STATE_HOT) {
-                        player.hurt(DamageSource.ON_FIRE, 2.0F);
-                        break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
-                    }
-                }
+            if (applyHotItemDamage(player, stack)) {
+                break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
             }
         }
+    }
+
+    private static boolean applyHotItemDamage(PlayerEntity player, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        if (stack.getItem() instanceof SpongeMetalItem) {
+            if (SpongeMetalItem.getState(stack) == SpongeMetalItem.STATE_HOT) {
+                player.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                return true;
+            }
+            return false;
+        }
+        if (stack.getItem() instanceof RoastedOreItem) {
+            if (RoastedOreItem.getState(stack) == RoastedOreItem.STATE_HOT) {
+                player.hurt(DamageSource.ON_FIRE, 2.0F);
+                return true;
+            }
+            return false;
+        }
+        if (stack.getItem() instanceof HotRoastedOreItem) {
+            if (HotRoastedOreItem.getState(stack) == HotRoastedOreItem.STATE_HOT) {
+                player.hurt(DamageSource.ON_FIRE, 2.0F);
+                return true;
+            }
+            return false;
+        }
+        if (stack.getItem() instanceof MetalChunkItem) {
+            if (MetalChunkItem.getTemperature(stack) == MetalChunkItem.TEMP_HOT) {
+                player.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

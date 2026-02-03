@@ -1,213 +1,54 @@
-diff --git a/src/main/java/com/example/examplemod/client/screen/progress/ProgressProductionScreen.java b/src/main/java/com/example/examplemod/client/screen/progress/ProgressProductionScreen.java
-index b47581f946e6c39141ae44216a065e5a067c4951..086ac75d8c5b569881f92750dbbd4fd9ea9ce5b8 100644
---- a/src/main/java/com/example/examplemod/client/screen/progress/ProgressProductionScreen.java
-+++ b/src/main/java/com/example/examplemod/client/screen/progress/ProgressProductionScreen.java
-@@ -26,51 +26,50 @@ import java.util.function.Supplier;
+diff --git a/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java b/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java
+index 68f9c017a2753d0f647257699d786a7eba0cf8d6..5cead3b5e3d30bcd9f9fdaadc2c7867735db6ead 100644
+--- a/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java
++++ b/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java
+@@ -45,45 +45,47 @@ public class SystemInfoScreen extends Screen {
+         float ty = (y0 + 30) * inv;
+         float lh = (this.font.lineHeight + 2) * inv;
  
- @OnlyIn(Dist.CLIENT)
- public class ProgressProductionScreen extends Screen {
-     private static final int PANEL_MARGIN = 10;
-     private static final int MAP_PADDING = 15;
+         this.font.draw(ms, "Каждый игровой час: +2 жажды и усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "15 минут плавания: +5 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "10 секунд без движения: -10 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "100м бега: +5 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "20 прыжков: +3 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Атака существа: +1 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Бутылка воды: -20 жажды", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Сырая/варёная рыба: +15 жажды", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Кнопка 'Попить': -2 жажды", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Кнопка 'Перемешать': +3 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Заточка камня: +5 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
++        this.font.draw(ms, "Крафт заготовок: +2 усталости", tx, ty, 0xFFFFFF);
++        ty += lh;
+         this.font.draw(ms, "Ломание блоков руками: +1 усталости за 5 блоков", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Отдых сидя 10 сек: -15 усталости", tx, ty, 0xFFFFFF);
+         ty += lh;
+         this.font.draw(ms, "Полный сон: усталость = 0", tx, ty, 0xFFFFFF);
  
-     private final Screen parent;
+         ms.popPose();
  
-     private final List<QuestNode> nodes = new ArrayList<>();
-     private final List<QuestConnection> connections = new ArrayList<>();
- 
-     private ItemIconButton planksButton;
-     private ItemIconButton slabsButton;
-     private ItemIconButton cobbleSlabButton;
-     private ItemIconButton stoneToolsButton;
-     private ItemIconButton boneToolsButton;
-     private ItemIconButton combButton;
-     private ItemIconButton startHammersButton;
-     private ItemIconButton roughKnivesButton;
-     private ItemIconButton scrapedLeatherButton;
-     private ItemIconButton clayPotButton;
-     private ItemIconButton clayCupButton;
-     private ItemIconButton boneTongsButton;
-     private ItemIconButton brickKilnButton;
-     private ItemIconButton cobblestoneAnvilButton;
--    private ItemIconButton rawBlanksButton;
- 
- 
-     private int offsetX;
-     private int offsetY;
-     private boolean panning;
-     private int mapLeft;
-     private int mapTop;
-     private int mapRight;
-     private int mapBottom;
- 
-     private enum QuestState {
-         LOCKED,
-         AVAILABLE,
-         COMPLETED
-     }
- 
-     private static class QuestNode {
-         final ItemIconButton button;
-         final int baseX;
-         final int baseY;
- 
-         QuestNode(ItemIconButton button, int baseX, int baseY) {
-             this.button = button;
-             this.baseX = baseX;
-             this.baseY = baseY;
-@@ -288,99 +287,86 @@ public class ProgressProductionScreen extends Screen {
-         int baseY = 130;
-         int spacingX = 110;
- 
-         this.brickKilnButton = new ItemIconButton(baseX, baseY,
-                 new ItemStack(ModItems.BRICK_BLOCK_WITH_LINING.get()),
-                 b -> this.minecraft.setScreen(new BrickKilnQuestScreen(this)),
-                 () -> Arrays.asList(
-                         new StringTextComponent("Кирпичная печь")
-                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                         new StringTextComponent("Требуется: ")
-                                 .append(new StringTextComponent("Пройти древний мир")
-                                         .withStyle(TextFormatting.GOLD))));
-         registerNode(this.brickKilnButton, baseX + spacingX, baseY);
- 
-         this.cobblestoneAnvilButton = new ItemIconButton(baseX + spacingX * 2, baseY,
-                 new ItemStack(ModBlocks.COBBLESTONE_ANVIL.get()),
-                 b -> this.minecraft.setScreen(new CobblestoneAnvilQuestScreen(this)),
-                 () -> Arrays.asList(
-                         new StringTextComponent("Булыжниковая наковальня")
-                                 .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
-                         new StringTextComponent("Требуется: ")
-                                 .append(new StringTextComponent("Пройти древний мир")
-                                         .withStyle(TextFormatting.GOLD))));
-         registerNode(this.cobblestoneAnvilButton, baseX + spacingX * 2, baseY);
- 
--        this.rawBlanksButton = new ItemIconButton(baseX + spacingX * 3, baseY,
--                new ItemStack(ModItems.RAW_IRON_BLANK.get()),
--                b -> this.minecraft.setScreen(new RawBlanksQuestScreen(this)),
--                () -> Arrays.asList(
--                        new StringTextComponent("Сырые заготовки")
--                                .withStyle(TextFormatting.BLUE, TextFormatting.UNDERLINE),
--                        new StringTextComponent("Требуется: ")
--                                .append(new StringTextComponent("Куски металлов")
--                                        .withStyle(TextFormatting.GOLD))));
--        registerNode(this.rawBlanksButton, baseX + spacingX * 3, baseY);
+         super.render(ms, mouseX, mouseY, pt);
      }
  
      @Override
-     public boolean isPauseScreen() {
-         return true;
-     }
- 
-     @Override
-         public void render(MatrixStack ms, int mouseX, int mouseY, float partialTicks) {
-             this.renderBackground(ms);
-             updateMapBounds();
-             GuiUtil.drawPanel(ms, PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
-             drawCenteredString(ms, this.font, this.title, this.width / 2, 30, 0xFF00FFFF);
- 
-             updateNodePositions();
- 
-         if (parent instanceof ProgressEraScreen) {
-             this.planksButton.setBorderColor(colorForState(getPlanksState()));
-             this.slabsButton.setBorderColor(colorForState(getSlabsState()));
-             this.cobbleSlabButton.setBorderColor(colorForState(getCobbleSlabState()));
-             this.stoneToolsButton.setBorderColor(colorForState(getStoneToolsState()));
-             this.boneToolsButton.setBorderColor(colorForState(getBoneToolsState()));
-             this.combButton.setBorderColor(colorForState(getCombState()));
-             this.startHammersButton.setBorderColor(colorForState(getStartHammersState()));
-             this.roughKnivesButton.setBorderColor(colorForState(getRoughKnivesState()));
-             this.scrapedLeatherButton.setBorderColor(colorForState(getScrapedLeatherState()));
-             this.clayPotButton.setBorderColor(colorForState(getClayPotState()));
-             this.clayCupButton.setBorderColor(colorForState(getClayCupState()));
-             this.boneTongsButton.setBorderColor(colorForState(getBoneTongsState()));
-         } else if (parent instanceof AncientMetallurgyEraScreen) {
-             if (this.brickKilnButton != null) {
-                 this.brickKilnButton.setBorderColor(colorForState(getBrickKilnState()));
-             }
-             if (this.cobblestoneAnvilButton != null) {
-                 this.cobblestoneAnvilButton.setBorderColor(colorForState(getCobblestoneAnvilState()));
-             }
--            if (this.rawBlanksButton != null) {
--                this.rawBlanksButton.setBorderColor(colorForState(getRawBlanksState()));
--            }
+     public void onClose() {
+         if (this.minecraft != null && this.minecraft.player != null && this.minecraft.level != null && parent != null) {
+             this.minecraft.setScreen(parent);
+         } else {
+             super.onClose();
          }
- 
-             // Clip content within panel bounds
-             enableScissor(PANEL_MARGIN, PANEL_MARGIN, this.width - PANEL_MARGIN * 2, this.height - PANEL_MARGIN * 2);
- 
-             renderConnections(ms);
- 
-             super.render(ms, mouseX, mouseY, partialTicks);
- 
-             disableScissor();
-         }
- 
-         @Override
-         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-             if (button == 1 && isInMap(mouseX, mouseY)) {
-                 panning = true;
-                 return true;
-             }
-             return super.mouseClicked(mouseX, mouseY, button);
-         }
- 
-         @Override
-         public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-             if (panning && button == 1) {
-                 offsetX += (int) Math.round(dragX);
-@@ -493,56 +479,50 @@ private QuestState getBoneToolsState() {
      }
-     return QuestManager.isBoneToolsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
- }
- 
-     private QuestState getBoneTongsState() {
-         if (!QuestManager.isAncientWorldCompleted()) {
-             return QuestState.LOCKED;
-         }
-         return QuestManager.isBoneTongsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-     }
- 
-     private QuestState getBrickKilnState() {
-         if (!QuestManager.isAncientWorldCompleted()) {
-             return QuestState.LOCKED;
-         }
-         return QuestManager.isBrickKilnCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-     }
- 
-     private QuestState getCobblestoneAnvilState() {
-         if (!QuestManager.isAncientWorldCompleted()) {
-             return QuestState.LOCKED;
-         }
-         return QuestManager.isCobblestoneAnvilCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
-     }
- 
--    private QuestState getRawBlanksState() {
--        if (!QuestManager.isMetalChunksCompleted()) {
--            return QuestState.LOCKED;
--        }
--        return QuestManager.isRawBlanksCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
--    }
- 
- private QuestState getCombState() {
-     boolean unlocked = QuestManager.isBigBonesCompleted()
-             && QuestManager.isHewnStonesCompleted()
-             && QuestManager.isBranchCompleted();
-     if (!unlocked) {
-         return QuestState.LOCKED;
-     }
-     return QuestManager.isCombsCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
- }
- 
- private QuestState getStartHammersState() {
-     boolean unlocked = QuestManager.isStartSmithingCompleted()
-             && QuestManager.isBoneToolsCompleted()
-             && QuestManager.isStoneToolsCompleted();
-     if (!unlocked) {
-         return QuestState.LOCKED;
-     }
-     return QuestManager.isStartHammersCompleted() ? QuestState.COMPLETED : QuestState.AVAILABLE;
- }
- 
- private QuestState getRoughKnivesState() {
-     boolean unlocked = QuestManager.isStoneToolsCompleted() || QuestManager.isBoneToolsCompleted();
-     if (!unlocked) {
-         return QuestState.LOCKED;
+-}
+\ No newline at end of file
++}

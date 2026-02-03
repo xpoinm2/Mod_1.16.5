@@ -67,6 +67,8 @@ public class SystemInfoScreen extends Screen {
         ty += lh;
         this.font.draw(ms, "Заточка камня: +5 усталости", tx, ty, 0xFFFFFF);
         ty += lh;
+        this.font.draw(ms, "Крафт заготовок: +2 усталости", tx, ty, 0xFFFFFF);
+        ty += lh;
         this.font.draw(ms, "Ломание блоков руками: +1 усталости за 5 блоков", tx, ty, 0xFFFFFF);
         ty += lh;
         this.font.draw(ms, "Отдых сидя 10 сек: -15 усталости", tx, ty, 0xFFFFFF);
