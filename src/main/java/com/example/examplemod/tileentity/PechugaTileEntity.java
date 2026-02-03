@@ -24,6 +24,7 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.LockableTileEntity;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.tags.ItemTags;
@@ -49,6 +50,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
     public static final int COOLING_INTERVAL_TICKS = 200;
     public static final int COOLING_AMOUNT = 4;
     public static final int HIGH_ALTITUDE_Y = 100;
+    public static final int WET_WARNING_INTERVAL_TICKS = 100;
     private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SLOT_COUNT + 1, ItemStack.EMPTY);
 
     private final int[] slotCookTimes = new int[GRID_SLOT_COUNT];
@@ -59,6 +61,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
     private int cookProgress;
     private int cookProgressTotal = COOK_TIME_TOTAL;
     private int coolingTicks;
+    private long lastWetWarningTick = -WET_WARNING_INTERVAL_TICKS;
 
     private final IIntArray dataAccess = new IIntArray() {
         @Override
@@ -154,14 +157,19 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
             changed = true;
         }
 
-        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
+        boolean isWet = isRainingOnBlock();
+        if (isWet && hasInput) {
+            warnWetPlayers();
+        }
+
+        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput && !isWet) {
             if (processCookingCycle()) {
                 changed = true;
             }
         } else {
             if (!hasInput) {
                 resetCookingProgress();
-            } else {
+            } else if (heat < MIN_HEAT_FOR_SMELTING) {
                 for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
                     if (slotCookTimes[i] != 0) {
                         slotCookTimes[i] = 0;
@@ -242,6 +250,25 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
             return true;
         }
         return level instanceof ServerWorld && HurricaneWeatherMechanic.isHurricaneActive((ServerWorld) level);
+    }
+
+    private boolean isRainingOnBlock() {
+        return level != null && level.isRainingAt(worldPosition.above());
+    }
+
+    private void warnWetPlayers() {
+        if (!(level instanceof ServerWorld)) {
+            return;
+        }
+        long gameTime = level.getGameTime();
+        if (gameTime - lastWetWarningTick < WET_WARNING_INTERVAL_TICKS) {
+            return;
+        }
+        lastWetWarningTick = gameTime;
+        AxisAlignedBB area = new AxisAlignedBB(worldPosition).inflate(6.0D);
+        for (PlayerEntity player : level.getEntitiesOfClass(PlayerEntity.class, area)) {
+            player.displayClientMessage(new StringTextComponent("Кирпичная печь промокла!"), true);
+        }
     }
 
     public boolean isMultiblockIntact() {

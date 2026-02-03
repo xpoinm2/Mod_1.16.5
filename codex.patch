@@ -1,110 +1,229 @@
-diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
-index 61e8a098fa0e898fa6250db8a9c400192fb6c758..9ee3c2584ec009b110f75737e503156885415d60 100644
---- a/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
-+++ b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
-@@ -7,50 +7,51 @@ import com.example.examplemod.network.SyncAllStatsPacket;
- import com.example.examplemod.server.mechanics.IMechanicModule;
- import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
- import net.minecraft.entity.player.ServerPlayerEntity;
+diff --git a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
+index 492213f5ef0f81d6f0be05111c4dc1dd066184a7..636bae676bc838e6e6d235997dfd02829ce38043 100644
+--- a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
++++ b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
+@@ -2,85 +2,88 @@ package com.example.examplemod.tileentity;
+ 
+ import com.example.examplemod.ModBlocks;
+ import com.example.examplemod.ModItems;
+ import com.example.examplemod.ModTileEntities;
+ import com.example.examplemod.container.PechugaContainer;
+ import com.example.examplemod.item.MetalChunkItem;
+ import com.example.examplemod.item.RoastedOreItem;
+ import com.example.examplemod.item.SpongeMetalItem;
+ import com.example.examplemod.server.mechanics.modules.HurricaneWeatherMechanic;
+ import net.minecraft.block.BlockState;
+ import net.minecraft.entity.player.PlayerEntity;
+ import net.minecraft.entity.player.PlayerInventory;
  import net.minecraft.util.math.BlockPos;
- import net.minecraft.util.math.ChunkPos;
- import net.minecraft.world.World;
+ import net.minecraft.inventory.ItemStackHelper;
+ import net.minecraft.inventory.container.Container;
+ import net.minecraft.item.Item;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.item.Items;
+ import net.minecraft.nbt.CompoundNBT;
+ import net.minecraft.network.NetworkManager;
+ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+ import net.minecraft.tileentity.ITickableTileEntity;
+ import net.minecraft.tileentity.LockableTileEntity;
+ import net.minecraft.util.IIntArray;
+ import net.minecraft.util.NonNullList;
++import net.minecraft.util.math.AxisAlignedBB;
+ import net.minecraft.util.text.ITextComponent;
+ import net.minecraft.util.text.StringTextComponent;
+ import net.minecraft.tags.ItemTags;
  import net.minecraft.world.biome.Biome;
  import net.minecraft.world.server.ServerWorld;
- import net.minecraftforge.fml.network.PacketDistributor;
  
- import java.util.Map;
- import java.util.Random;
+ import javax.annotation.Nullable;
  
- /**
-  * Скрытая характеристика: скорость ветра (0..30 м/с).
-  * Базовый ветер обновляется раз в N минут, затем учитываются шум, биом, высота и погода.
-  */
- public final class WindMechanic implements IMechanicModule {
-     private static final int MAX_WIND = 30;
-     private static final int MIN_WIND = 0;
-     private static final int MIN_STRONG_WIND = 15;
-     private static final int TICKS_PER_MINUTE = 1200;
-     private static final double CLEAR_NOISE_SCALE = 2.0;
-     private static final double STORM_NOISE_SCALE = 3.5;
-     private static final double HURRICANE_NOISE_SCALE = 5.0;
-+    private static final int HURRICANE_TARGET_WIND = 20;
-     private static final int HIGH_ALTITUDE_Y = 90;
-     private static final int HURRICANE_BASE_WIND_THRESHOLD = 12;
+ public class PechugaTileEntity extends LockableTileEntity implements ITickableTileEntity {
+     // Используем те же константы, что и у кострища
+     public static final int COOK_TIME_TOTAL = 400;
+     public static final int CLAY_OVERCOOK_TIME = 300;
+     public static final int DRIED_BRICK_FIRE_TIME = 800;
+     public static final int FIRED_BRICK_OVERCOOK_TIME = 400;
+     public static final int SPONGE_COOK_TIME = 600; // 30 seconds for roasted ore to turn into sponge
+     public static final int CHARCOAL_COOK_TIME = 200; // 10 seconds, vanilla-like charcoal cook time
+     public static final int GRID_SLOT_COUNT = 12;
+     public static final int FUEL_SLOT = GRID_SLOT_COUNT;
+     public static final int MAX_HEAT = 100;
+     public static final int SPECIFIC_HEAT_PER_HEAT_UNIT = 80;
+     public static final int CONSUMPTION_INTERVAL_TICKS = 40;
+     public static final int MIN_HEAT_FOR_SMELTING = 80;
+     public static final int COOLING_INTERVAL_TICKS = 200;
+     public static final int COOLING_AMOUNT = 4;
+     public static final int HIGH_ALTITUDE_Y = 100;
++    public static final int WET_WARNING_INTERVAL_TICKS = 100;
+     private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SLOT_COUNT + 1, ItemStack.EMPTY);
  
-     private final Map<World, WindState> worldStates = new Object2ObjectOpenHashMap<>();
+     private final int[] slotCookTimes = new int[GRID_SLOT_COUNT];
+     private final int[] slotCookingStages = new int[GRID_SLOT_COUNT];
  
-     @Override
-     public String id() {
-         return "wind";
-     }
+     private int heat;
+     private int heatingTicks;
+     private int cookProgress;
+     private int cookProgressTotal = COOK_TIME_TOTAL;
+     private int coolingTicks;
++    private long lastWetWarningTick = -WET_WARNING_INTERVAL_TICKS;
  
-     @Override
-     public int playerIntervalTicks() {
-         return Config.WIND_PLAYER_UPDATE_TICKS.get();
-     }
- 
-     @Override
-     public void onPlayerTick(ServerPlayerEntity player) {
-         if (player.connection == null || player.hasDisconnected()) {
-             return;
-         }
-         if (!(player.level instanceof ServerWorld)) {
-             return;
-         }
-         ServerWorld world = (ServerWorld) player.level;
-         WindState state = getOrUpdateBaseWind(world);
-@@ -60,50 +61,53 @@ public final class WindMechanic implements IMechanicModule {
-                 stats.setWindSpeed(windSpeed);
-                 ModNetworkHandler.CHANNEL.send(
-                         PacketDistributor.PLAYER.with(() -> player),
-                         new SyncAllStatsPacket(stats)
-                 );
+     private final IIntArray dataAccess = new IIntArray() {
+         @Override
+         public int get(int index) {
+             switch (index) {
+                 case 0: return heat;
+                 case 1: return heatingTicks;
+                 case 2: return cookProgress;
+                 case 3: return cookProgressTotal;
+                 default: return 0;
              }
-         });
-     }
- 
-     private WindState getOrUpdateBaseWind(ServerWorld world) {
-         WindState state = worldStates.computeIfAbsent(world, w -> new WindState());
-         int tick = world.getServer().getTickCount();
-         if (tick >= state.nextBaseUpdateTick) {
-             state.baseWind = rollBaseWind(world);
-             int intervalTicks = Math.max(1, Config.WIND_BASE_UPDATE_MINUTES.get()) * TICKS_PER_MINUTE;
-             state.nextBaseUpdateTick = tick + intervalTicks;
          }
-         return state;
-     }
  
-     private int calculateWindForPlayer(ServerPlayerEntity player, ServerWorld world, WindState state) {
-         BlockPos pos = player.blockPosition();
-         ChunkPos chunkPos = new ChunkPos(pos);
-         double noise = perChunkNoise(world, chunkPos.x, chunkPos.z);
-         WeatherType weatherType = resolveWeatherType(world, pos, state);
-+        if (weatherType == WeatherType.HURRICANE) {
-+            return HURRICANE_TARGET_WIND;
+         @Override
+         public void set(int index, int value) {
+             switch (index) {
+                 case 0: heat = Math.max(0, Math.min(MAX_HEAT, value)); break;
+                 case 1: heatingTicks = Math.max(0, Math.min(getHeatingIntervalTicks(), value)); break;
+                 case 2: cookProgress = value; break;
+                 case 3: cookProgressTotal = Math.max(1, value); break;
+             }
+         }
+ 
+         @Override
+         public int getCount() { return 4; }
+@@ -132,58 +135,63 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
+ 
+         if (heat < MAX_HEAT && specificHeat > 0) {
+             if (heatingTicks < heatingInterval) {
+                 heatingTicks++;
+             }
+             if (heatingTicks >= heatingInterval) {
+                 heatingTicks = 0;
+                 ItemStack containerItem = fuelStack.getContainerItem();
+                 fuelStack.shrink(1);
+                 if (fuelStack.isEmpty()) {
+                     items.set(FUEL_SLOT, containerItem);
+                 }
+                 int heatGain = Math.max(1, specificHeat / SPECIFIC_HEAT_PER_HEAT_UNIT);
+                 int newHeat = Math.min(MAX_HEAT, heat + heatGain);
+                 if (newHeat != heat) {
+                     heat = newHeat;
+                     changed = true;
+                 }
+                 changed = true;
+             }
+         } else if (heatingTicks != 0) {
+             heatingTicks = 0;
+             changed = true;
+         }
+ 
+-        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
++        boolean isWet = isRainingOnBlock();
++        if (isWet && hasInput) {
++            warnWetPlayers();
 +        }
-         double noiseScale = resolveNoiseScale(weatherType);
-         double wind = state.baseWind + noise * noiseScale;
- 
-         wind *= biomeMultiplier(world.getBiome(pos));
-         wind *= heightMultiplier(pos.getY());
-         wind *= weatherMultiplier(weatherType);
- 
-         if (!world.isDay()) {
-             wind *= 0.9;
++
++        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput && !isWet) {
+             if (processCookingCycle()) {
+                 changed = true;
+             }
+         } else {
+             if (!hasInput) {
+                 resetCookingProgress();
+-            } else {
++            } else if (heat < MIN_HEAT_FOR_SMELTING) {
+                 for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+                     if (slotCookTimes[i] != 0) {
+                         slotCookTimes[i] = 0;
+                         if (!isOreItem(items.get(i))) {
+                             // Keep stage for clay items and bricks
+                         } else {
+                             slotCookingStages[i] = 0;
+                         }
+                     }
+                 }
+             }
          }
  
-         int rounded = (int) Math.round(wind);
-         int minimum = minimumWindForConditions(world, pos, weatherType);
-         return clampWind(Math.max(minimum, rounded));
+         updateCookProgress();
+ 
+         if (changed) {
+             setChanged();
+             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+         }
      }
  
-     private int rollBaseWind(ServerWorld world) {
-         Random rand = new Random(world.getSeed() ^ world.getGameTime());
-         int min = 3;
-         int max = 9;
-         if (world.isRaining()) {
-             min = 6;
-             max = 14;
+     private boolean hasSmeltableInput() {
+         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+             if (isSmeltable(items.get(i))) {
+                 return true;
+@@ -222,50 +230,69 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
+                 slotCookTimes[i] = 0;
+                 slotCookingStages[i] = 0;
+             }
          }
-         if (world.isThundering()) {
+         return changed;
+     }
+ 
+     private int getCookSpeedMultiplier() {
+         return shouldDoubleCookSpeed() ? 2 : 1;
+     }
+ 
+     private boolean shouldDoubleCookSpeed() {
+         if (level == null) {
+             return false;
+         }
+         if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
+             return true;
+         }
+         Biome.Category category = level.getBiome(worldPosition).getBiomeCategory();
+         if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
+             return true;
+         }
+         return level instanceof ServerWorld && HurricaneWeatherMechanic.isHurricaneActive((ServerWorld) level);
+     }
+ 
++    private boolean isRainingOnBlock() {
++        return level != null && level.isRainingAt(worldPosition.above());
++    }
++
++    private void warnWetPlayers() {
++        if (!(level instanceof ServerWorld)) {
++            return;
++        }
++        long gameTime = level.getGameTime();
++        if (gameTime - lastWetWarningTick < WET_WARNING_INTERVAL_TICKS) {
++            return;
++        }
++        lastWetWarningTick = gameTime;
++        AxisAlignedBB area = new AxisAlignedBB(worldPosition).inflate(6.0D);
++        for (PlayerEntity player : level.getEntitiesOfClass(PlayerEntity.class, area)) {
++            player.displayClientMessage(new StringTextComponent("Кирпичная печь промокла!"), true);
++        }
++    }
++
+     public boolean isMultiblockIntact() {
+         if (level == null) {
+             return false;
+         }
+ 
+         // Master блок находится на позиции кострища (2,0,2) относительно начала структуры
+         // Начало структуры = worldPosition.offset(-2, 0, -2)
+         BlockPos structureStart = worldPosition.offset(-2, 0, -2);
+ 
+         // Проверяем ядро 4x4 в центре на y=0
+         BlockPos coreStart = structureStart.offset(1, 0, 1);
+         for (int x = 0; x < 4; x++) {
+             for (int z = 0; z < 4; z++) {
+                 BlockPos corePos = coreStart.offset(x, 0, z);
+                 BlockState state = level.getBlockState(corePos);
+                 if (state.getBlock() != ModBlocks.PECHUGA_CORE_BLOCK.get()) {
+                     return false;
+                 }
+                 if (state.getValue(ModBlocks.PechugaCoreBlock.X) != x ||
+                     state.getValue(ModBlocks.PechugaCoreBlock.Z) != z) {
+                     return false;
+                 }
+             }
+         }
+ 
