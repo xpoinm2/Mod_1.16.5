@@ -1,6 +1,8 @@
 package com.example.examplemod.client.screen.main;
 
 import com.example.examplemod.client.FramedButton;
+import com.example.examplemod.capability.IPlayerStats;
+import com.example.examplemod.capability.PlayerStatsProvider;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -149,6 +151,12 @@ public class HiddenValuesScreen extends Screen {
                         : "unknown";
                 String biomeText = String.format("Биом: %s", biomeName);
                 this.font.draw(ms, biomeText, x0 + 10, y0 + 70, 0xFFFFFF);
+
+                player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP)
+                        .ifPresent((IPlayerStats stats) -> {
+                            String windText = String.format("Ветер: %d м/с", stats.getWindSpeed());
+                            this.font.draw(ms, windText, x0 + 10, y0 + 85, 0xFFFFFF);
+                        });
             }
         }
 

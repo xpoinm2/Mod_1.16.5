@@ -99,7 +99,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         ServerWorld world = source.getLevel();
         Random random = world.getRandom();
         int duration = rollHurricaneDuration(random);
-        world.setWeatherParameters(0, duration, false, true);
+        world.setWeatherParameters(0, duration, true, true);
         HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
         return 1;

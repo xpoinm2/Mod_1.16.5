@@ -1,229 +1,57 @@
-diff --git a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-index 492213f5ef0f81d6f0be05111c4dc1dd066184a7..636bae676bc838e6e6d235997dfd02829ce38043 100644
---- a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-+++ b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-@@ -2,85 +2,88 @@ package com.example.examplemod.tileentity;
- 
- import com.example.examplemod.ModBlocks;
- import com.example.examplemod.ModItems;
- import com.example.examplemod.ModTileEntities;
- import com.example.examplemod.container.PechugaContainer;
- import com.example.examplemod.item.MetalChunkItem;
- import com.example.examplemod.item.RoastedOreItem;
- import com.example.examplemod.item.SpongeMetalItem;
- import com.example.examplemod.server.mechanics.modules.HurricaneWeatherMechanic;
- import net.minecraft.block.BlockState;
- import net.minecraft.entity.player.PlayerEntity;
- import net.minecraft.entity.player.PlayerInventory;
- import net.minecraft.util.math.BlockPos;
- import net.minecraft.inventory.ItemStackHelper;
- import net.minecraft.inventory.container.Container;
- import net.minecraft.item.Item;
- import net.minecraft.item.ItemStack;
- import net.minecraft.item.Items;
- import net.minecraft.nbt.CompoundNBT;
- import net.minecraft.network.NetworkManager;
- import net.minecraft.network.play.server.SUpdateTileEntityPacket;
- import net.minecraft.tileentity.ITickableTileEntity;
- import net.minecraft.tileentity.LockableTileEntity;
- import net.minecraft.util.IIntArray;
- import net.minecraft.util.NonNullList;
-+import net.minecraft.util.math.AxisAlignedBB;
- import net.minecraft.util.text.ITextComponent;
- import net.minecraft.util.text.StringTextComponent;
- import net.minecraft.tags.ItemTags;
- import net.minecraft.world.biome.Biome;
- import net.minecraft.world.server.ServerWorld;
- 
- import javax.annotation.Nullable;
- 
- public class PechugaTileEntity extends LockableTileEntity implements ITickableTileEntity {
-     // Используем те же константы, что и у кострища
-     public static final int COOK_TIME_TOTAL = 400;
-     public static final int CLAY_OVERCOOK_TIME = 300;
-     public static final int DRIED_BRICK_FIRE_TIME = 800;
-     public static final int FIRED_BRICK_OVERCOOK_TIME = 400;
-     public static final int SPONGE_COOK_TIME = 600; // 30 seconds for roasted ore to turn into sponge
-     public static final int CHARCOAL_COOK_TIME = 200; // 10 seconds, vanilla-like charcoal cook time
-     public static final int GRID_SLOT_COUNT = 12;
-     public static final int FUEL_SLOT = GRID_SLOT_COUNT;
-     public static final int MAX_HEAT = 100;
-     public static final int SPECIFIC_HEAT_PER_HEAT_UNIT = 80;
-     public static final int CONSUMPTION_INTERVAL_TICKS = 40;
-     public static final int MIN_HEAT_FOR_SMELTING = 80;
-     public static final int COOLING_INTERVAL_TICKS = 200;
-     public static final int COOLING_AMOUNT = 4;
-     public static final int HIGH_ALTITUDE_Y = 100;
-+    public static final int WET_WARNING_INTERVAL_TICKS = 100;
-     private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SLOT_COUNT + 1, ItemStack.EMPTY);
- 
-     private final int[] slotCookTimes = new int[GRID_SLOT_COUNT];
-     private final int[] slotCookingStages = new int[GRID_SLOT_COUNT];
- 
-     private int heat;
-     private int heatingTicks;
-     private int cookProgress;
-     private int cookProgressTotal = COOK_TIME_TOTAL;
-     private int coolingTicks;
-+    private long lastWetWarningTick = -WET_WARNING_INTERVAL_TICKS;
- 
-     private final IIntArray dataAccess = new IIntArray() {
-         @Override
-         public int get(int index) {
-             switch (index) {
-                 case 0: return heat;
-                 case 1: return heatingTicks;
-                 case 2: return cookProgress;
-                 case 3: return cookProgressTotal;
-                 default: return 0;
-             }
+diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
+index 9603568c456c4b3ee01246b79db08d8cd06fa981..fcd10096652658ae71c2f304e566b4a123def3c0 100644
+--- a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
++++ b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
+@@ -77,51 +77,51 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
+             return;
          }
  
-         @Override
-         public void set(int index, int value) {
-             switch (index) {
-                 case 0: heat = Math.max(0, Math.min(MAX_HEAT, value)); break;
-                 case 1: heatingTicks = Math.max(0, Math.min(getHeatingIntervalTicks(), value)); break;
-                 case 2: cookProgress = value; break;
-                 case 3: cookProgressTotal = Math.max(1, value); break;
-             }
+         long tick = world.getGameTime();
+         if (tick >= state.endTick) {
+             HURRICANE_STATES.remove(world);
+             return;
          }
  
-         @Override
-         public int getCount() { return 4; }
-@@ -132,58 +135,63 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
- 
-         if (heat < MAX_HEAT && specificHeat > 0) {
-             if (heatingTicks < heatingInterval) {
-                 heatingTicks++;
-             }
-             if (heatingTicks >= heatingInterval) {
-                 heatingTicks = 0;
-                 ItemStack containerItem = fuelStack.getContainerItem();
-                 fuelStack.shrink(1);
-                 if (fuelStack.isEmpty()) {
-                     items.set(FUEL_SLOT, containerItem);
-                 }
-                 int heatGain = Math.max(1, specificHeat / SPECIFIC_HEAT_PER_HEAT_UNIT);
-                 int newHeat = Math.min(MAX_HEAT, heat + heatGain);
-                 if (newHeat != heat) {
-                     heat = newHeat;
-                     changed = true;
-                 }
-                 changed = true;
-             }
-         } else if (heatingTicks != 0) {
-             heatingTicks = 0;
-             changed = true;
+         if (state.breaksRemaining <= 0 || tick < state.nextBreakTick) {
+             return;
          }
  
--        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
-+        boolean isWet = isRainingOnBlock();
-+        if (isWet && hasInput) {
-+            warnWetPlayers();
-+        }
-+
-+        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput && !isWet) {
-             if (processCookingCycle()) {
-                 changed = true;
-             }
-         } else {
-             if (!hasInput) {
-                 resetCookingProgress();
--            } else {
-+            } else if (heat < MIN_HEAT_FOR_SMELTING) {
-                 for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
-                     if (slotCookTimes[i] != 0) {
-                         slotCookTimes[i] = 0;
-                         if (!isOreItem(items.get(i))) {
-                             // Keep stage for clay items and bricks
-                         } else {
-                             slotCookingStages[i] = 0;
-                         }
-                     }
-                 }
-             }
+         int destroyed = destroyTreesNearPlayers(world, state.breaksRemaining);
+         if (destroyed > 0) {
+             state.breaksRemaining -= destroyed;
          }
- 
-         updateCookProgress();
- 
-         if (changed) {
-             setChanged();
-             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-         }
+         state.scheduleNextBreak(tick);
      }
  
-     private boolean hasSmeltableInput() {
-         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
-             if (isSmeltable(items.get(i))) {
-                 return true;
-@@ -222,50 +230,69 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
-                 slotCookTimes[i] = 0;
-                 slotCookingStages[i] = 0;
+     private int startHurricane(CommandContext<CommandSource> context) {
+         CommandSource source = context.getSource();
+         ServerWorld world = source.getLevel();
+         Random random = world.getRandom();
+         int duration = rollHurricaneDuration(random);
+-        world.setWeatherParameters(0, duration, false, true);
++        world.setWeatherParameters(0, duration, true, true);
+         HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
+         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
+         return 1;
+     }
+ 
+     private int rollHurricaneDuration(Random random) {
+         return random.nextInt((MAX_HURRICANE_DURATION - MIN_HURRICANE_DURATION) + 1) + MIN_HURRICANE_DURATION;
+     }
+ 
+     public static boolean isHurricaneActive(ServerWorld world) {
+         return HURRICANE_STATES.containsKey(world);
+     }
+ 
+     private int destroyTreesNearPlayers(ServerWorld world, int remainingBreaks) {
+         List<ServerPlayerEntity> players = world.getServer().getPlayerList().getPlayers();
+         if (players.isEmpty()) {
+             return 0;
+         }
+ 
+         int destroyed = 0;
+         for (ServerPlayerEntity player : players) {
+             if (destroyed >= remainingBreaks) {
+                 break;
              }
-         }
-         return changed;
-     }
- 
-     private int getCookSpeedMultiplier() {
-         return shouldDoubleCookSpeed() ? 2 : 1;
-     }
- 
-     private boolean shouldDoubleCookSpeed() {
-         if (level == null) {
-             return false;
-         }
-         if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
-             return true;
-         }
-         Biome.Category category = level.getBiome(worldPosition).getBiomeCategory();
-         if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
-             return true;
-         }
-         return level instanceof ServerWorld && HurricaneWeatherMechanic.isHurricaneActive((ServerWorld) level);
-     }
- 
-+    private boolean isRainingOnBlock() {
-+        return level != null && level.isRainingAt(worldPosition.above());
-+    }
-+
-+    private void warnWetPlayers() {
-+        if (!(level instanceof ServerWorld)) {
-+            return;
-+        }
-+        long gameTime = level.getGameTime();
-+        if (gameTime - lastWetWarningTick < WET_WARNING_INTERVAL_TICKS) {
-+            return;
-+        }
-+        lastWetWarningTick = gameTime;
-+        AxisAlignedBB area = new AxisAlignedBB(worldPosition).inflate(6.0D);
-+        for (PlayerEntity player : level.getEntitiesOfClass(PlayerEntity.class, area)) {
-+            player.displayClientMessage(new StringTextComponent("Кирпичная печь промокла!"), true);
-+        }
-+    }
-+
-     public boolean isMultiblockIntact() {
-         if (level == null) {
-             return false;
-         }
- 
-         // Master блок находится на позиции кострища (2,0,2) относительно начала структуры
-         // Начало структуры = worldPosition.offset(-2, 0, -2)
-         BlockPos structureStart = worldPosition.offset(-2, 0, -2);
- 
-         // Проверяем ядро 4x4 в центре на y=0
-         BlockPos coreStart = structureStart.offset(1, 0, 1);
-         for (int x = 0; x < 4; x++) {
-             for (int z = 0; z < 4; z++) {
-                 BlockPos corePos = coreStart.offset(x, 0, z);
-                 BlockState state = level.getBlockState(corePos);
-                 if (state.getBlock() != ModBlocks.PECHUGA_CORE_BLOCK.get()) {
-                     return false;
-                 }
-                 if (state.getValue(ModBlocks.PechugaCoreBlock.X) != x ||
-                     state.getValue(ModBlocks.PechugaCoreBlock.Z) != z) {
-                     return false;
-                 }
-             }
-         }
- 
+             BlockPos origin = player.blockPosition();
