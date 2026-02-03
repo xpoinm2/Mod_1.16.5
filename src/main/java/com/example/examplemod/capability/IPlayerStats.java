@@ -16,4 +16,6 @@ public interface IPlayerStats {
     void setHypothermia(int v);
     int  getBlood();
     void setBlood(int v);
+    int getWindSpeed();
+    void setWindSpeed(int v);
 }

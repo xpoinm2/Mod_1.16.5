@@ -23,6 +23,8 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_TEMPERATURE_MECHANICS;
     public static final ForgeConfigSpec.BooleanValue ENABLE_DISEASE_MECHANICS;
     public static final ForgeConfigSpec.BooleanValue ENABLE_DEBUG_COMMANDS;
+    public static final ForgeConfigSpec.IntValue WIND_BASE_UPDATE_MINUTES;
+    public static final ForgeConfigSpec.IntValue WIND_PLAYER_UPDATE_TICKS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -73,6 +75,19 @@ public class Config {
         ENABLE_DEBUG_COMMANDS = builder
                 .comment("Отладочные команды: биом телепорт, пирамида, и т.д. Рекомендуется отключить на публичных серверах.")
                 .define("enable_debug_commands", true);
+
+        builder.pop();
+
+        builder.comment("Ветер")
+                .push("wind");
+
+        WIND_BASE_UPDATE_MINUTES = builder
+                .comment("Как часто пересчитывать базовый ветер (в минутах).")
+                .defineInRange("base_update_minutes", 5, 1, 60);
+
+        WIND_PLAYER_UPDATE_TICKS = builder
+                .comment("Как часто пересчитывать ветер для игрока (в тиках).")
+                .defineInRange("player_update_ticks", 100, 20, 1200);
 
         builder.pop();
 

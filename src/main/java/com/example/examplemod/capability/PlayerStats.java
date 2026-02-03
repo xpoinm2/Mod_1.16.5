@@ -11,6 +11,7 @@ public class PlayerStats implements IPlayerStats {
     private int cold    = 0;
     private int hypothermia = 0;
     private int blood   = 100;
+    private int windSpeed = 0;
 
     public PlayerStats() {
         // Берём дефолты из конфига, чтобы стартовые значения были едины во всех механиках/GUI.
@@ -37,4 +38,10 @@ public class PlayerStats implements IPlayerStats {
     @Override public void setHypothermia(int v) { this.hypothermia = v; }
     @Override public int  getBlood()         { return blood; }
     @Override public void setBlood(int v)    { this.blood = v; }
+    @Override public int getWindSpeed() { return windSpeed; }
+    @Override public void setWindSpeed(int v) { this.windSpeed = clampWind(v); }
+
+    private static int clampWind(int v) {
+        return Math.max(0, Math.min(30, v));
+    }
 }

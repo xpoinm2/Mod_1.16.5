@@ -1,255 +1,173 @@
-diff --git a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-index d0ea269c0580007c01d63a7d3d7ed771b9c21445..1231a3ea0e7cc2e7feeb0494edf9937ad7dcf096 100644
---- a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-+++ b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-@@ -50,51 +50,51 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
-     private final int[] slotCookTimes = new int[GRID_SLOT_COUNT];
-     private final int[] slotCookingStages = new int[GRID_SLOT_COUNT];
- 
-     private int heat;
-     private int heatingTicks;
-     private int cookProgress;
-     private int cookProgressTotal = COOK_TIME_TOTAL;
-     private int coolingTicks;
- 
-     private final IIntArray dataAccess = new IIntArray() {
-         @Override
-         public int get(int index) {
-             switch (index) {
-                 case 0: return heat;
-                 case 1: return heatingTicks;
-                 case 2: return cookProgress;
-                 case 3: return cookProgressTotal;
-                 default: return 0;
-             }
-         }
- 
-         @Override
-         public void set(int index, int value) {
-             switch (index) {
-                 case 0: heat = Math.max(0, Math.min(MAX_HEAT, value)); break;
--                case 1: heatingTicks = Math.max(0, Math.min(CONSUMPTION_INTERVAL_TICKS, value)); break;
-+                case 1: heatingTicks = Math.max(0, Math.min(getHeatingIntervalTicks(), value)); break;
-                 case 2: cookProgress = value; break;
-                 case 3: cookProgressTotal = Math.max(1, value); break;
-             }
-         }
- 
-         @Override
-         public int getCount() { return 4; }
-     };
- 
-     public PechugaTileEntity() {
-         super(ModTileEntities.PECHUGA.get());
-     }
- 
-     @Override
-     public void tick() {
-         if (level == null || level.isClientSide) {
-             return;
-         }
- 
-         // Check if the multiblock structure is still intact
-         if (!isMultiblockIntact()) {
-             if (heat > 0) {
-                 heat = 0;
-                 heatingTicks = 0;
-                 coolingTicks = 0;
-@@ -102,56 +102,57 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
-                 setChanged();
-                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-             }
-             return;
-         }
- 
-         boolean changed = false;
- 
-         if (heat > 0) {
-             coolingTicks++;
-             if (coolingTicks >= COOLING_INTERVAL_TICKS) {
-                 coolingTicks = 0;
-                 int newHeat = Math.max(0, heat - COOLING_AMOUNT);
-                 if (newHeat != heat) {
-                     heat = newHeat;
-                     changed = true;
-                 }
-             }
-         } else if (coolingTicks != 0) {
-             coolingTicks = 0;
-         }
- 
-         ItemStack fuelStack = items.get(FUEL_SLOT);
-         boolean hasInput = hasSmeltableInput();
-         int specificHeat = getSpecificHeat(fuelStack);
-+        int heatingInterval = getHeatingIntervalTicks();
- 
-         if (heat < MAX_HEAT && specificHeat > 0) {
--            if (heatingTicks < CONSUMPTION_INTERVAL_TICKS) {
-+            if (heatingTicks < heatingInterval) {
-                 heatingTicks++;
-             }
--            if (heatingTicks >= CONSUMPTION_INTERVAL_TICKS) {
-+            if (heatingTicks >= heatingInterval) {
-                 heatingTicks = 0;
-                 ItemStack containerItem = fuelStack.getContainerItem();
-                 fuelStack.shrink(1);
-                 if (fuelStack.isEmpty()) {
-                     items.set(FUEL_SLOT, containerItem);
-                 }
-                 int heatGain = Math.max(1, specificHeat / SPECIFIC_HEAT_PER_HEAT_UNIT);
-                 int newHeat = Math.min(MAX_HEAT, heat + heatGain);
-                 if (newHeat != heat) {
-                     heat = newHeat;
-                     changed = true;
-                 }
-                 changed = true;
-             }
-         } else if (heatingTicks != 0) {
-             heatingTicks = 0;
-             changed = true;
-         }
- 
-         if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
-             if (processCookingCycle()) {
-                 changed = true;
-             }
-         } else {
-             if (!hasInput) {
-@@ -660,51 +661,51 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
-                 (double) worldPosition.getY() + 0.5D,
-                 (double) worldPosition.getZ() + 0.5D) <= 64.0D;
-     }
- 
-     @Override
-     public void clearContent() {
-         for (int i = 0; i < items.size(); ++i) {
-             items.set(i, ItemStack.EMPTY);
-         }
-         resetCookingProgress();
-         heat = 0;
-         heatingTicks = 0;
-         coolingTicks = 0;
-         setChanged();
-     }
- 
-     @Override
-     public void load(BlockState state, CompoundNBT nbt) {
-         super.load(state, nbt);
-         for (int i = 0; i < items.size(); ++i) {
-             items.set(i, ItemStack.EMPTY);
-         }
-         ItemStackHelper.loadAllItems(nbt, items);
-         enforceInputStackLimits();
-         heat = Math.max(0, Math.min(MAX_HEAT, nbt.getInt("Heat")));
--        heatingTicks = Math.max(0, Math.min(CONSUMPTION_INTERVAL_TICKS, nbt.getInt("HeatingTicks")));
-+        heatingTicks = Math.max(0, Math.min(getHeatingIntervalTicks(), nbt.getInt("HeatingTicks")));
-         coolingTicks = Math.max(0, Math.min(COOLING_INTERVAL_TICKS, nbt.getInt("CoolingTicks")));
-         int[] savedCookTimes = nbt.getIntArray("SlotCookTimes");
-         if (savedCookTimes.length == GRID_SLOT_COUNT) {
-             System.arraycopy(savedCookTimes, 0, slotCookTimes, 0, GRID_SLOT_COUNT);
-         } else {
-             for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
-                 slotCookTimes[i] = 0;
-             }
-         }
-         int[] savedCookingStages = nbt.getIntArray("SlotCookingStages");
-         if (savedCookingStages.length == GRID_SLOT_COUNT) {
-             System.arraycopy(savedCookingStages, 0, slotCookingStages, 0, GRID_SLOT_COUNT);
-         } else {
-             for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
-                 slotCookingStages[i] = 0;
-             }
-         }
-         cookProgress = nbt.contains("CookProgress") ? nbt.getInt("CookProgress") : 0;
-         cookProgressTotal = nbt.contains("CookProgressTotal")
-                 ? Math.max(1, nbt.getInt("CookProgressTotal"))
-                 : COOK_TIME_TOTAL;
-         updateCookProgress();
-     }
- 
-     @Override
-@@ -739,26 +740,84 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
- 
-     @Nullable
-     @Override
-     public Container createMenu(int id, PlayerInventory playerInventory) {
-         return new com.example.examplemod.container.PechugaContainer(id, playerInventory, this);
-     }
- 
-     private int getSpecificHeat(ItemStack stack) {
-         if (stack.isEmpty()) {
-             return 0;
-         }
-         if (stack.getItem() == Items.COAL || stack.getItem() == Items.CHARCOAL) {
-             return 1600;
-         }
-         if (stack.getItem().is(ItemTags.PLANKS)) {
-             return 160;
-         }
-         if (stack.getItem().is(ItemTags.LOGS)) {
-             return 320;
-         }
-         if (stack.getItem() == Items.STICK) {
-             return 80;
-         }
-         return 0;
-     }
+diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..2103e0dbea20b776fb7e467fc6dd08e4c791bdb9
+--- /dev/null
++++ b/src/main/java/com/example/examplemod/server/mechanics/modules/WindMechanic.java
+@@ -0,0 +1,167 @@
++package com.example.examplemod.server.mechanics.modules;
 +
-+    private int getHeatingIntervalTicks() {
-+        return isColdBiome() ? CONSUMPTION_INTERVAL_TICKS * 2 : CONSUMPTION_INTERVAL_TICKS;
++import com.example.examplemod.Config;
++import com.example.examplemod.capability.PlayerStatsProvider;
++import com.example.examplemod.network.ModNetworkHandler;
++import com.example.examplemod.network.SyncAllStatsPacket;
++import com.example.examplemod.server.mechanics.IMechanicModule;
++import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
++import net.minecraft.entity.player.ServerPlayerEntity;
++import net.minecraft.util.math.BlockPos;
++import net.minecraft.util.math.ChunkPos;
++import net.minecraft.world.World;
++import net.minecraft.world.biome.Biome;
++import net.minecraft.world.server.ServerWorld;
++import net.minecraftforge.fml.network.PacketDistributor;
++
++import java.util.Map;
++import java.util.Random;
++
++/**
++ * Скрытая характеристика: скорость ветра (0..30 м/с).
++ * Базовый ветер обновляется раз в N минут, затем учитываются шум, биом, высота и погода.
++ */
++public final class WindMechanic implements IMechanicModule {
++    private static final int MAX_WIND = 30;
++    private static final int MIN_WIND = 0;
++    private static final int TICKS_PER_MINUTE = 1200;
++    private static final double CLEAR_NOISE_SCALE = 2.0;
++    private static final double STORM_NOISE_SCALE = 3.5;
++
++    private final Map<World, WindState> worldStates = new Object2ObjectOpenHashMap<>();
++
++    @Override
++    public String id() {
++        return "wind";
 +    }
 +
-+    private boolean isColdBiome() {
-+        if (level == null) {
-+            return false;
++    @Override
++    public int playerIntervalTicks() {
++        return Config.WIND_PLAYER_UPDATE_TICKS.get();
++    }
++
++    @Override
++    public void onPlayerTick(ServerPlayerEntity player) {
++        if (player.connection == null || player.hasDisconnected()) {
++            return;
 +        }
-+        return getBiomeTemperature(level, worldPosition) < 1;
++        if (!(player.level instanceof ServerWorld)) {
++            return;
++        }
++        ServerWorld world = (ServerWorld) player.level;
++        WindState state = getOrUpdateBaseWind(world);
++        int windSpeed = calculateWindForPlayer(player, world, state);
++        player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
++            if (stats.getWindSpeed() != windSpeed) {
++                stats.setWindSpeed(windSpeed);
++                ModNetworkHandler.CHANNEL.send(
++                        PacketDistributor.PLAYER.with(() -> player),
++                        new SyncAllStatsPacket(stats)
++                );
++            }
++        });
 +    }
 +
-+    /**
-+     * Получает температуру биома в указанной позиции.
-+     * Использует ту же логику, что и BiomeTemperatureCache для игроков.
-+     */
-+    private int getBiomeTemperature(net.minecraft.world.World world, BlockPos pos) {
-+        if (world.dimension() == net.minecraft.world.World.NETHER) return 666;
-+        if (world.dimension() == net.minecraft.world.World.END) return -666;
++    private WindState getOrUpdateBaseWind(ServerWorld world) {
++        WindState state = worldStates.computeIfAbsent(world, w -> new WindState());
++        int tick = world.getServer().getTickCount();
++        if (tick >= state.nextBaseUpdateTick) {
++            state.baseWind = rollBaseWind(world);
++            int intervalTicks = Math.max(1, Config.WIND_BASE_UPDATE_MINUTES.get()) * TICKS_PER_MINUTE;
++            state.nextBaseUpdateTick = tick + intervalTicks;
++        }
++        return state;
++    }
 +
-+        net.minecraft.world.biome.Biome biome = world.getBiome(pos);
-+        net.minecraft.world.biome.Biome.Category cat = biome.getBiomeCategory();
++    private int calculateWindForPlayer(ServerPlayerEntity player, ServerWorld world, WindState state) {
++        BlockPos pos = player.blockPosition();
++        ChunkPos chunkPos = new ChunkPos(pos);
++        double noise = perChunkNoise(world, chunkPos.x, chunkPos.z);
++        double noiseScale = (world.isThundering() || world.isRaining()) ? STORM_NOISE_SCALE : CLEAR_NOISE_SCALE;
++        double wind = state.baseWind + noise * noiseScale;
 +
-+        switch (cat) {
-+            case PLAINS:
-+                return 23;
-+            case DESERT:
-+            case MESA:
-+                return 37;
-+            case SAVANNA:
-+                return 30;
-+            case FOREST:
-+                return 17;
-+            case JUNGLE:
-+                return 30;
-+            case SWAMP:
-+                return -13;
-+            case TAIGA:
-+                return -25;
++        wind *= biomeMultiplier(world.getBiome(pos));
++        wind *= heightMultiplier(pos.getY());
++        wind *= weatherMultiplier(world, pos);
++
++        if (!world.isDay()) {
++            wind *= 0.9;
++        }
++
++        int rounded = (int) Math.round(wind);
++        return clampWind(rounded);
++    }
++
++    private int rollBaseWind(ServerWorld world) {
++        Random rand = new Random(world.getSeed() ^ world.getGameTime());
++        int min = 3;
++        int max = 9;
++        if (world.isRaining()) {
++            min = 6;
++            max = 14;
++        }
++        if (world.isThundering()) {
++            min = 10;
++            max = 18;
++        }
++        int base = rand.nextInt((max - min) + 1) + min;
++        if (world.isThundering()) {
++            base += rand.nextInt(5);
++        }
++        return clampWind(base);
++    }
++
++    private double weatherMultiplier(ServerWorld world, BlockPos pos) {
++        if (world.isThundering()) {
++            return 1.35;
++        }
++        if (world.isRainingAt(pos)) {
++            return 1.15;
++        }
++        return 0.9;
++    }
++
++    private double biomeMultiplier(Biome biome) {
++        Biome.Category category = biome.getBiomeCategory();
++        switch (category) {
 +            case EXTREME_HILLS:
-+                return -10;
-+            case ICY:
-+                return -40;
++                return 1.25;
++            case FOREST:
++            case TAIGA:
++            case JUNGLE:
++                return 0.8;
++            case PLAINS:
++            case OCEAN:
 +            case BEACH:
 +            case RIVER:
-+                return 10;
-+            case OCEAN:
-+                return 6;
-+            case MUSHROOM:
-+                return 0;
-+            case NETHER:
-+                return 666;
-+            case THEEND:
-+                return -666;
++                return 1.1;
 +            default:
-+                return 0;
++                return 1.0;
 +        }
 +    }
- }
++
++    private double heightMultiplier(int y) {
++        double delta = Math.max(0, y - 64);
++        double bonus = Math.min(0.25, delta / 128.0 * 0.25);
++        return 1.0 + bonus;
++    }
++
++    private double perChunkNoise(ServerWorld world, int chunkX, int chunkZ) {
++        long seed = world.getSeed();
++        long hash = seed ^ (chunkX * 341873128712L) ^ (chunkZ * 132897987541L);
++        hash = (hash ^ (hash >>> 33)) * 0xff51afd7ed558ccdL;
++        hash = (hash ^ (hash >>> 33)) * 0xc4ceb9fe1a85ec53L;
++        hash = hash ^ (hash >>> 33);
++        double normalized = (hash & 0xFFFF) / (double) 0xFFFF;
++        return normalized * 2.0 - 1.0;
++    }
++
++    private int clampWind(int v) {
++        return Math.max(MIN_WIND, Math.min(MAX_WIND, v));
++    }
++
++    private static class WindState {
++        private int baseWind = 5;
++        private int nextBaseUpdateTick = 0;
++    }
++}

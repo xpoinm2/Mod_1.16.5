@@ -49,6 +49,7 @@ public class CapabilityHandler {
                     newStats.setVirus(oldStats.getVirus());
                     newStats.setHypothermia(oldStats.getHypothermia());
                     newStats.setBlood(oldStats.getBlood());
+                    newStats.setWindSpeed(oldStats.getWindSpeed());
                 })
         );
     }

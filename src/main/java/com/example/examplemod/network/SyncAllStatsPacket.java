@@ -20,6 +20,7 @@ public class SyncAllStatsPacket {
     private final int virus;
     private final int poison;
     private final int blood;
+    private final int windSpeed;
 
     /**
      * Создаёт пакет из capability
@@ -32,13 +33,14 @@ public class SyncAllStatsPacket {
         this.virus = stats.getVirus();
         this.poison = stats.getPoison();
         this.blood = stats.getBlood();
+        this.windSpeed = stats.getWindSpeed();
     }
 
     /**
      * Создаёт пакет вручную (для тестирования или специфичных случаев)
      */
     public SyncAllStatsPacket(int thirst, int fatigue, int cold, int hypothermia,
-                              int virus, int poison, int blood) {
+                              int virus, int poison, int blood, int windSpeed) {
         this.thirst = thirst;
         this.fatigue = fatigue;
         this.cold = cold;
@@ -46,6 +48,7 @@ public class SyncAllStatsPacket {
         this.virus = virus;
         this.poison = poison;
         this.blood = blood;
+        this.windSpeed = windSpeed;
     }
 
     public static void encode(SyncAllStatsPacket pkt, PacketBuffer buf) {
@@ -56,6 +59,7 @@ public class SyncAllStatsPacket {
         buf.writeInt(pkt.virus);
         buf.writeInt(pkt.poison);
         buf.writeInt(pkt.blood);
+        buf.writeInt(pkt.windSpeed);
     }
 
     public static SyncAllStatsPacket decode(PacketBuffer buf) {
@@ -66,7 +70,8 @@ public class SyncAllStatsPacket {
                 buf.readInt(), // hypothermia
                 buf.readInt(), // virus
                 buf.readInt(), // poison
-                buf.readInt()  // blood
+                buf.readInt(), // blood
+                buf.readInt()  // windSpeed
         );
     }
 
@@ -84,6 +89,7 @@ public class SyncAllStatsPacket {
                         stats.setVirus(pkt.virus);
                         stats.setPoison(pkt.poison);
                         stats.setBlood(pkt.blood);
+                        stats.setWindSpeed(pkt.windSpeed);
                     });
         });
         ctx.get().setPacketHandled(true);
@@ -97,5 +103,5 @@ public class SyncAllStatsPacket {
     public int getVirus() { return virus; }
     public int getPoison() { return poison; }
     public int getBlood() { return blood; }
+    public int getWindSpeed() { return windSpeed; }
 }
-
