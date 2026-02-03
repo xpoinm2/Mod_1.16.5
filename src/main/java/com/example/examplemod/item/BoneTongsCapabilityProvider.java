@@ -13,6 +13,7 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Random;
 
 public class BoneTongsCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
     public static final String INVENTORY_TAG = "BoneTongsInventory";
@@ -49,6 +50,7 @@ public class BoneTongsCapabilityProvider implements ICapabilitySerializable<Comp
 
     private static class BoneTongsItemHandler extends ItemStackHandler {
         private final ItemStack parentStack;
+        private final Random random = new Random();
 
         private BoneTongsItemHandler(ItemStack stack) {
             super(2);
@@ -64,6 +66,47 @@ public class BoneTongsCapabilityProvider implements ICapabilitySerializable<Comp
             super.onContentsChanged(slot);
             CompoundNBT tag = parentStack.getOrCreateTag();
             tag.put(INVENTORY_TAG, serializeNBT());
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (stack.isEmpty()) {
+                return super.insertItem(slot, stack, simulate);
+            }
+            boolean isHot = isHotItem(stack);
+            ItemStack remaining = super.insertItem(slot, stack, simulate);
+            if (!simulate && isHot && remaining.getCount() != stack.getCount()) {
+                damageTongs();
+            }
+            return remaining;
+        }
+
+        private boolean isHotItem(ItemStack stack) {
+            if (stack.isEmpty()) {
+                return false;
+            }
+            if (stack.getItem() instanceof RoastedOreItem) {
+                return RoastedOreItem.getState(stack) == RoastedOreItem.STATE_HOT;
+            }
+            if (stack.getItem() instanceof HotRoastedOreItem) {
+                return HotRoastedOreItem.getState(stack) == HotRoastedOreItem.STATE_HOT;
+            }
+            if (stack.getItem() instanceof SpongeMetalItem) {
+                return SpongeMetalItem.getState(stack) == SpongeMetalItem.STATE_HOT;
+            }
+            if (stack.getItem() instanceof MetalChunkItem) {
+                return MetalChunkItem.getTemperature(stack) == MetalChunkItem.TEMP_HOT;
+            }
+            return false;
+        }
+
+        private void damageTongs() {
+            if (parentStack.isEmpty() || !parentStack.isDamageableItem()) {
+                return;
+            }
+            if (parentStack.hurt(1, random, null)) {
+                parentStack.shrink(1);
+            }
         }
 
         @Override

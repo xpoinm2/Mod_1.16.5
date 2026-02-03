@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 
 public class BoneTongsItem extends Item {
     public BoneTongsItem(Properties properties) {
-        super(properties.durability(20));
+        super(properties.durability(30));
     }
 
     @Nullable

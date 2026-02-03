@@ -1,57 +1,57 @@
-diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
-index ee051d2427e012bf9d180c728e8c4637d32cf299..37aa5c3a894b0b6f26126f70ffeb068dd19cabeb 100644
---- a/src/main/java/com/example/examplemod/CommonModEvents.java
-+++ b/src/main/java/com/example/examplemod/CommonModEvents.java
-@@ -13,51 +13,51 @@ import net.minecraftforge.fml.common.Mod;
- import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+diff --git a/src/main/java/com/example/examplemod/item/BoneTongsItem.java b/src/main/java/com/example/examplemod/item/BoneTongsItem.java
+index 196d433cb7fb555d4c26a4a3fd2be8a78765f033..41a8d1ac224d499b12122de4d8a56e79c985de04 100644
+--- a/src/main/java/com/example/examplemod/item/BoneTongsItem.java
++++ b/src/main/java/com/example/examplemod/item/BoneTongsItem.java
+@@ -5,51 +5,51 @@ import com.example.examplemod.ModContainers;
+ import com.example.examplemod.container.BoneTongsContainer;
+ import com.example.examplemod.container.EnhancedDualContainer;
+ import com.example.examplemod.tileentity.PechugaTileEntity;
+ import net.minecraft.block.BlockState;
+ import net.minecraft.entity.player.PlayerEntity;
+ import net.minecraft.entity.player.PlayerInventory;
+ import net.minecraft.entity.player.ServerPlayerEntity;
+ import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+ import net.minecraft.item.Item;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.item.ItemUseContext;
+ import net.minecraft.nbt.CompoundNBT;
+ import net.minecraft.util.ActionResult;
+ import net.minecraft.util.ActionResultType;
+ import net.minecraft.util.Hand;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.text.TranslationTextComponent;
+ import net.minecraft.world.World;
+ import net.minecraftforge.common.capabilities.ICapabilityProvider;
+ import net.minecraftforge.fml.network.NetworkHooks;
  
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class CommonModEvents {
-     private CommonModEvents() {
+ import javax.annotation.Nullable;
+ 
+ public class BoneTongsItem extends Item {
+     public BoneTongsItem(Properties properties) {
+-        super(properties.durability(20));
++        super(properties.durability(30));
      }
  
-     @SubscribeEvent
-     public static void commonSetup(FMLCommonSetupEvent event) {
-         // Временно убрали регистрацию генерации мира для диагностики
-         event.enqueueWork(() -> {
-             // WorldGenRegistry.register();
-             // ModBiomes.setupBiomes();
-         });
+     @Nullable
+     @Override
+     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+         return new BoneTongsCapabilityProvider(stack);
      }
  
-     @SubscribeEvent
-     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) return;
-         if (event.player.level.isClientSide) return;
- 
-         PlayerEntity player = event.player;
- 
-         // Проверяем горячие предметы в курсоре и инвентаре,
-         // чтобы урон шёл даже при перетаскивании.
--        if (applyHotItemDamage(player, player.containerMenu.getCarried())) {
-+        if (applyHotItemDamage(player, player.inventory.getCarried())) {
-             return;
+     @Override
+     public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+         ItemStack held = player.getItemInHand(hand);
+         if (!world.isClientSide && player instanceof ServerPlayerEntity) {
+             NetworkHooks.openGui((ServerPlayerEntity) player,
+                     new SimpleNamedContainerProvider(
+                             (windowId, playerInventory, playerEntity) -> new BoneTongsContainer(windowId, playerInventory, held),
+                             new TranslationTextComponent("container.examplemod.bone_tongs")),
+                     buffer -> buffer.writeItem(held));
          }
- 
-         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-             ItemStack stack = player.inventory.getItem(i);
-             if (applyHotItemDamage(player, stack)) {
-                 break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
-             }
-         }
+         return ActionResult.success(held);
      }
  
-     private static boolean applyHotItemDamage(PlayerEntity player, ItemStack stack) {
-         if (stack.isEmpty()) {
-             return false;
-         }
-         if (stack.getItem() instanceof SpongeMetalItem) {
-             if (SpongeMetalItem.getState(stack) == SpongeMetalItem.STATE_HOT) {
-                 player.hurt(DamageSource.HOT_FLOOR, 1.0F);
-                 return true;
-             }
-             return false;
-         }
-         if (stack.getItem() instanceof RoastedOreItem) {
-             if (RoastedOreItem.getState(stack) == RoastedOreItem.STATE_HOT) {
-                 player.hurt(DamageSource.ON_FIRE, 2.0F);
+     @Override
+     public ActionResultType useOn(ItemUseContext context) {
+         World world = context.getLevel();
+         if (world.isClientSide) {
