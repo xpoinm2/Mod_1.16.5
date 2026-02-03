@@ -1,49 +1,8 @@
 diff --git a/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java b/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java
-index 12cca3af507b207491a0600e043f6a40c728bdb5..bca595b73f93dd3094ad2790b192e0e1ef7edff7 100644
+index bca595b73f93dd3094ad2790b192e0e1ef7edff7..0119dd30dede48b1c731e7fae0a04bd6fdc520f3 100644
 --- a/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java
 +++ b/src/main/java/com/example/examplemod/client/screen/main/HiddenValuesScreen.java
-@@ -1,27 +1,29 @@
- package com.example.examplemod.client.screen.main;
- 
-+import com.example.examplemod.capability.IPlayerStats;
-+import com.example.examplemod.capability.PlayerStatsProvider;
- import com.example.examplemod.client.FramedButton;
- import com.mojang.blaze3d.matrix.MatrixStack;
- import net.minecraft.client.gui.screen.Screen;
- import net.minecraft.client.gui.widget.TextFieldWidget;
- import net.minecraft.util.text.StringTextComponent;
- import net.minecraft.entity.player.PlayerEntity;
- import net.minecraft.world.World;
- import net.minecraft.world.biome.Biome;
- import net.minecraftforge.api.distmarker.Dist;
- import net.minecraftforge.api.distmarker.OnlyIn;
- 
- @OnlyIn(Dist.CLIENT)
- public class HiddenValuesScreen extends Screen {
-     private static final int WIDTH = 150;
-     private static final int HEIGHT = 150;
-     private final Screen parent;
-     private TextFieldWidget passwordField;
-     private boolean unlocked = false;
- 
-     public HiddenValuesScreen(Screen parent) {
-         super(new StringTextComponent("Скрытые значения"));
-         this.parent = parent;
-     }
- 
-     @Override
-@@ -112,57 +114,62 @@ public class HiddenValuesScreen extends Screen {
-             default:
-                 return 0;
-         }
-     }
- 
-     @Override
-     public void render(MatrixStack ms, int mouseX, int mouseY, float pt) {
-         this.renderBackground(ms);
-         int x0 = 5;
-         int y0 = 5;
-         fill(ms, x0 - 1, y0 - 1, x0 + WIDTH + 1, y0 + HEIGHT + 1, 0xFF00FF00);
+@@ -125,50 +125,55 @@ public class HiddenValuesScreen extends Screen {
          fill(ms, x0, y0, x0 + WIDTH, y0 + HEIGHT, 0xFF000000);
          drawCenteredString(ms, this.font, this.title, x0 + WIDTH / 2, y0 + 10, 0xFF00FFFF);
  
@@ -58,31 +17,30 @@ index 12cca3af507b207491a0600e043f6a40c728bdb5..bca595b73f93dd3094ad2790b192e0e1
              this.font.draw(ms, text, x0 + 10, y0 + 40, 0xFFFFFF);
  
  
--        PlayerEntity player = this.minecraft.player;
--        int temp = getAmbientTemperature(player);
--        String tempText = String.format("Температура: %d C", temp);
--        this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
-+            PlayerEntity player = this.minecraft.player;
-+            int temp = getAmbientTemperature(player);
-+            String tempText = String.format("Температура: %d C", temp);
-+            this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
+             PlayerEntity player = this.minecraft.player;
+             int temp = getAmbientTemperature(player);
+             String tempText = String.format("Температура: %d C", temp);
+             this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
  
              if (player != null) {
-+                player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
-+                    String windText = String.format("Скорость ветра: %d м/с", stats.getWindSpeed());
-+                    this.font.draw(ms, windText, x0 + 10, y0 + 70, 0xFFFFFF);
-+                });
+                 player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
+                     String windText = String.format("Скорость ветра: %d м/с", stats.getWindSpeed());
+                     this.font.draw(ms, windText, x0 + 10, y0 + 70, 0xFFFFFF);
+                 });
+ 
++                this.font.draw(ms, "Ветер: база, шум чанка,", x0 + 10, y0 + 100, 0xAAAAAA);
++                this.font.draw(ms, "биом, высота, погода", x0 + 10, y0 + 110, 0xAAAAAA);
++                this.font.draw(ms, "и время суток.", x0 + 10, y0 + 120, 0xAAAAAA);
++                this.font.draw(ms, "Итог 0-30 м/с, округл.", x0 + 10, y0 + 130, 0xAAAAAA);
 +
                  Biome biome = player.level.getBiome(player.blockPosition());
                  String biomeName = biome.getRegistryName() != null
                          ? biome.getRegistryName().getPath()
                          : "unknown";
                  String biomeText = String.format("Биом: %s", biomeName);
--                this.font.draw(ms, biomeText, x0 + 10, y0 + 70, 0xFFFFFF);
-+                this.font.draw(ms, biomeText, x0 + 10, y0 + 85, 0xFFFFFF);
+                 this.font.draw(ms, biomeText, x0 + 10, y0 + 85, 0xFFFFFF);
              }
--    }
-+        }
+         }
  
          super.render(ms, mouseX, mouseY, pt);
      }
@@ -100,6 +58,3 @@ index 12cca3af507b207491a0600e043f6a40c728bdb5..bca595b73f93dd3094ad2790b192e0e1
              super.onClose();
          }
      }
--}
-\ No newline at end of file
-+}

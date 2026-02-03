@@ -147,6 +147,11 @@ public class HiddenValuesScreen extends Screen {
                     this.font.draw(ms, windText, x0 + 10, y0 + 70, 0xFFFFFF);
                 });
 
+                this.font.draw(ms, "Ветер: база, шум чанка,", x0 + 10, y0 + 100, 0xAAAAAA);
+                this.font.draw(ms, "биом, высота, погода", x0 + 10, y0 + 110, 0xAAAAAA);
+                this.font.draw(ms, "и время суток.", x0 + 10, y0 + 120, 0xAAAAAA);
+                this.font.draw(ms, "Итог 0-30 м/с, округл.", x0 + 10, y0 + 130, 0xAAAAAA);
+
                 Biome biome = player.level.getBiome(player.blockPosition());
                 String biomeName = biome.getRegistryName() != null
                         ? biome.getRegistryName().getPath()
