@@ -13,6 +13,7 @@ import com.example.examplemod.network.CobblestoneAnvilHammerPacket;
 import com.example.examplemod.network.CobblestoneAnvilProgressPacket;
 import com.example.examplemod.network.CompleteCobblestoneAnvilQuestPacket;
 import com.example.examplemod.network.HarvestGrassPacket;
+import com.example.examplemod.network.HurricaneStatePacket;
 import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import com.example.examplemod.network.OpenCobblestoneDialogPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
@@ -140,6 +141,13 @@ public class ModNetworkHandler {
                 CobblestoneAnvilHammerPacket::encode,
                 CobblestoneAnvilHammerPacket::decode,
                 CobblestoneAnvilHammerPacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                HurricaneStatePacket.class,
+                HurricaneStatePacket::encode,
+                HurricaneStatePacket::decode,
+                HurricaneStatePacket::handle
         );
     }
 }

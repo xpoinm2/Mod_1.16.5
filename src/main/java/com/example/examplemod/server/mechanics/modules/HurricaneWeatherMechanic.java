@@ -1,6 +1,8 @@
 package com.example.examplemod.server.mechanics.modules;
 
 import com.example.examplemod.server.mechanics.IMechanicModule;
+import com.example.examplemod.network.HurricaneStatePacket;
+import com.example.examplemod.network.ModNetworkHandler;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -79,6 +81,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
 
         long tick = world.getGameTime();
         if (tick >= state.endTick) {
+            sendHurricaneState(world, false);
             HURRICANE_STATES.remove(world);
             return;
         }
@@ -99,8 +102,9 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         ServerWorld world = source.getLevel();
         Random random = world.getRandom();
         int duration = rollHurricaneDuration(random);
-        world.setWeatherParameters(0, duration, false, true);
+        world.setWeatherParameters(0, duration, false, false);
         HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
+        sendHurricaneState(world, true);
         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
         return 1;
     }
@@ -111,6 +115,13 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
 
     public static boolean isHurricaneActive(ServerWorld world) {
         return HURRICANE_STATES.containsKey(world);
+    }
+
+    @Override
+    public void onPlayerLogin(ServerPlayerEntity player) {
+        if (isHurricaneActive(player.getLevel())) {
+            sendHurricaneState(player, true);
+        }
     }
 
     private int destroyTreesNearPlayers(ServerWorld world, int remainingBreaks) {
@@ -212,5 +223,15 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             long interval = Math.max(1, remainingTicks / breaksRemaining);
             nextBreakTick = currentTick + interval;
         }
+    }
+
+    private void sendHurricaneState(ServerWorld world, boolean active) {
+        for (ServerPlayerEntity player : world.getPlayers(player -> true)) {
+            sendHurricaneState(player, active);
+        }
+    }
+
+    private void sendHurricaneState(ServerPlayerEntity player, boolean active) {
+        ModNetworkHandler.CHANNEL.sendTo(new HurricaneStatePacket(active), player.connection.connection, net.minecraftforge.fml.network.NetworkDirection.PLAY_TO_CLIENT);
     }
 }
