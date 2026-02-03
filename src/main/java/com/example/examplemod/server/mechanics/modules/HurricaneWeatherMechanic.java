@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Random;
 
 public final class HurricaneWeatherMechanic implements IMechanicModule {
-    private static final int MIN_TREES_PER_HURRICANE = 1;
+    private static final int MIN_TREES_PER_HURRICANE = 5;
     private static final int MAX_TREES_PER_HURRICANE = 10;
     private static final int MIN_HURRICANE_DURATION = 3600;
     private static final int MAX_HURRICANE_DURATION = 15600;

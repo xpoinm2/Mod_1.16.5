@@ -1,57 +1,57 @@
 diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-index fcd10096652658ae71c2f304e566b4a123def3c0..9603568c456c4b3ee01246b79db08d8cd06fa981 100644
+index fcd10096652658ae71c2f304e566b4a123def3c0..c7d6478d4acc6dfc1cbae41fb5b11a9ced9d3d2b 100644
 --- a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
 +++ b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-@@ -77,51 +77,51 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
-             return;
-         }
+@@ -1,51 +1,51 @@
+ package com.example.examplemod.server.mechanics.modules;
  
-         long tick = world.getGameTime();
-         if (tick >= state.endTick) {
-             HURRICANE_STATES.remove(world);
-             return;
-         }
+ import com.example.examplemod.server.mechanics.IMechanicModule;
+ import com.mojang.brigadier.context.CommandContext;
+ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+ import net.minecraft.block.BlockState;
+ import net.minecraft.command.CommandSource;
+ import net.minecraft.command.Commands;
+ import net.minecraft.entity.player.ServerPlayerEntity;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.Direction;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.text.StringTextComponent;
+ import net.minecraft.world.gen.Heightmap;
+ import net.minecraft.world.server.ServerWorld;
+ import net.minecraftforge.event.RegisterCommandsEvent;
+ import net.minecraftforge.event.TickEvent;
  
-         if (state.breaksRemaining <= 0 || tick < state.nextBreakTick) {
-             return;
-         }
+ import java.util.ArrayDeque;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Random;
  
-         int destroyed = destroyTreesNearPlayers(world, state.breaksRemaining);
-         if (destroyed > 0) {
-             state.breaksRemaining -= destroyed;
-         }
-         state.scheduleNextBreak(tick);
+ public final class HurricaneWeatherMechanic implements IMechanicModule {
+-    private static final int MIN_TREES_PER_HURRICANE = 1;
++    private static final int MIN_TREES_PER_HURRICANE = 5;
+     private static final int MAX_TREES_PER_HURRICANE = 10;
+     private static final int MIN_HURRICANE_DURATION = 3600;
+     private static final int MAX_HURRICANE_DURATION = 15600;
+     private static final int CHUNK_RADIUS = 6;
+     private static final int BLOCK_RADIUS = CHUNK_RADIUS * 16;
+     private static final int TREE_SCAN_ATTEMPTS = 20;
+     private static final int TREE_SCAN_DEPTH = 40;
+     private static final int MAX_TREE_BLOCKS = 512;
+     private static final int TREE_RADIUS_XZ = 8;
+     private static final int TREE_RADIUS_Y = 12;
+ 
+     private static final Map<ServerWorld, HurricaneState> HURRICANE_STATES = new Object2ObjectOpenHashMap<>();
+ 
+     @Override
+     public String id() {
+         return "hurricane_weather";
      }
  
-     private int startHurricane(CommandContext<CommandSource> context) {
-         CommandSource source = context.getSource();
-         ServerWorld world = source.getLevel();
-         Random random = world.getRandom();
-         int duration = rollHurricaneDuration(random);
--        world.setWeatherParameters(0, duration, true, true);
-+        world.setWeatherParameters(0, duration, false, true);
-         HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
-         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
-         return 1;
+     @Override
+     public boolean enableRegisterCommands() {
+         return true;
      }
  
-     private int rollHurricaneDuration(Random random) {
-         return random.nextInt((MAX_HURRICANE_DURATION - MIN_HURRICANE_DURATION) + 1) + MIN_HURRICANE_DURATION;
-     }
- 
-     public static boolean isHurricaneActive(ServerWorld world) {
-         return HURRICANE_STATES.containsKey(world);
-     }
- 
-     private int destroyTreesNearPlayers(ServerWorld world, int remainingBreaks) {
-         List<ServerPlayerEntity> players = world.getServer().getPlayerList().getPlayers();
-         if (players.isEmpty()) {
-             return 0;
-         }
- 
-         int destroyed = 0;
-         for (ServerPlayerEntity player : players) {
-             if (destroyed >= remainingBreaks) {
-                 break;
-             }
-             BlockPos origin = player.blockPosition();
+     @Override
+     public boolean enableWorldTick() {
