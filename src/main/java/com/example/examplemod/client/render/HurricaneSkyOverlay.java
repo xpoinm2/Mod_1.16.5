@@ -29,6 +29,10 @@ public final class HurricaneSkyOverlay {
 
     @SubscribeEvent
     public static void onPreRenderGameOverlay(RenderGameOverlayEvent.Pre event) {
+        if (HurricaneSkyEffects.isCustomSkyActive()) {
+            return;
+        }
+
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
             return;
         }

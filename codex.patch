@@ -1,94 +1,114 @@
-diff --git a/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java b/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java
-index 089599457c08aa7afee2f5db74ea75686246f8de..65f3d4301765be6e7cf5e7977019a8c026dfd0f7 100644
---- a/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java
-+++ b/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java
-@@ -1,77 +1,79 @@
- package com.example.examplemod.client.render;
- 
- import com.example.examplemod.ExampleMod;
- import com.example.examplemod.client.HurricaneClientState;
- import com.mojang.blaze3d.matrix.MatrixStack;
- import com.mojang.blaze3d.systems.RenderSystem;
- import net.minecraft.client.Minecraft;
- import net.minecraft.client.renderer.BufferBuilder;
- import net.minecraft.client.renderer.Tessellator;
- import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
- import net.minecraft.util.math.vector.Matrix4f;
- import net.minecraftforge.api.distmarker.Dist;
- import net.minecraftforge.client.event.RenderGameOverlayEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
- import org.lwjgl.opengl.GL11;
- 
- /**
-- * Darkens the sky view during custom hurricane weather (no rain).
-+ * Darkens only the upper sky region during custom hurricane weather (no rain).
-  */
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
- public final class HurricaneSkyOverlay {
--    private static final float OVERLAY_STRENGTH = 0.35f;
-+    private static final float SKY_TOP_ALPHA = 0.65f;
-+    private static final float SKY_BOTTOM_ALPHA = 0.0f;
-+    private static final float SKY_DARKEN_HEIGHT_RATIO = 0.65f;
- 
-     private HurricaneSkyOverlay() {
-     }
- 
-     @SubscribeEvent
-     public static void onPreRenderGameOverlay(RenderGameOverlayEvent.Pre event) {
-         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
-             return;
-         }
- 
-         if (!HurricaneClientState.isActive()) {
-             return;
-         }
- 
-         Minecraft minecraft = Minecraft.getInstance();
-         if (minecraft.level == null) {
-             return;
-         }
- 
-         MatrixStack matrixStack = event.getMatrixStack();
- 
-         RenderSystem.disableDepthTest();
-         RenderSystem.disableAlphaTest();
-         RenderSystem.enableBlend();
-         RenderSystem.defaultBlendFunc();
-         RenderSystem.disableTexture();
- 
-         Tessellator tessellator = Tessellator.getInstance();
-         BufferBuilder buffer = tessellator.getBuilder();
-         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
- 
-         int width = minecraft.getWindow().getGuiScaledWidth();
-         int height = minecraft.getWindow().getGuiScaledHeight();
-         Matrix4f matrix = matrixStack.last().pose();
- 
--        float red = 0.45f;
--        float green = 0.45f;
--        float blue = 0.5f;
--        float alpha = OVERLAY_STRENGTH;
-+        float red = 0.08f;
-+        float green = 0.1f;
-+        float blue = 0.15f;
-+        float horizonY = height * SKY_DARKEN_HEIGHT_RATIO;
- 
--        buffer.vertex(matrix, 0.0f, height, -90.0f).color(red, green, blue, alpha).endVertex();
--        buffer.vertex(matrix, width, height, -90.0f).color(red, green, blue, alpha).endVertex();
--        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, alpha).endVertex();
--        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, alpha).endVertex();
-+        buffer.vertex(matrix, 0.0f, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
-+        buffer.vertex(matrix, width, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
-+        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
-+        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
- 
-         tessellator.end();
- 
-         RenderSystem.enableTexture();
-         RenderSystem.defaultBlendFunc();
-         RenderSystem.disableBlend();
-         RenderSystem.enableAlphaTest();
-         RenderSystem.enableDepthTest();
-     }
- }
+diff --git a/src/main/java/com/example/examplemod/client/render/HurricaneSkyRenderer.java b/src/main/java/com/example/examplemod/client/render/HurricaneSkyRenderer.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d55a00be35f52e2ae1d0a5f3f709e568590ac0ab
+--- /dev/null
++++ b/src/main/java/com/example/examplemod/client/render/HurricaneSkyRenderer.java
+@@ -0,0 +1,108 @@
++package com.example.examplemod.client.render;
++
++import com.example.examplemod.ExampleMod;
++import com.mojang.blaze3d.matrix.MatrixStack;
++import com.mojang.blaze3d.systems.RenderSystem;
++import net.minecraft.client.Minecraft;
++import net.minecraft.client.renderer.BufferBuilder;
++import net.minecraft.client.renderer.Tessellator;
++import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
++import net.minecraft.client.world.ClientWorld;
++import net.minecraft.util.ResourceLocation;
++import net.minecraft.util.math.vector.Matrix4f;
++import net.minecraftforge.client.ISkyRenderHandler;
++import org.lwjgl.opengl.GL11;
++
++public final class HurricaneSkyRenderer implements ISkyRenderHandler {
++    /**
++     * Place textures under:
++     * assets/examplemod/textures/environment/hurricane_skybox_*.png
++     */
++    private static final ResourceLocation SKYBOX_TOP = new ResourceLocation(ExampleMod.MODID,
++            "textures/environment/hurricane_skybox_top.png");
++    private static final ResourceLocation SKYBOX_BOTTOM = new ResourceLocation(ExampleMod.MODID,
++            "textures/environment/hurricane_skybox_bottom.png");
++    private static final ResourceLocation SKYBOX_NORTH = new ResourceLocation(ExampleMod.MODID,
++            "textures/environment/hurricane_skybox_back.png");
++    private static final ResourceLocation SKYBOX_SOUTH = new ResourceLocation(ExampleMod.MODID,
++            "textures/environment/hurricane_skybox_front.png");
++    private static final ResourceLocation SKYBOX_EAST = new ResourceLocation(ExampleMod.MODID,
++            "textures/environment/hurricane_skybox_right.png");
++    private static final ResourceLocation SKYBOX_WEST = new ResourceLocation(ExampleMod.MODID,
++            "textures/environment/hurricane_skybox_left.png");
++
++    private static final ResourceLocation[] SKYBOX_FACES = {
++            SKYBOX_TOP,
++            SKYBOX_BOTTOM,
++            SKYBOX_NORTH,
++            SKYBOX_SOUTH,
++            SKYBOX_EAST,
++            SKYBOX_WEST
++    };
++
++    @Override
++    public void render(int ticks, float partialTicks, MatrixStack matrixStack, ClientWorld world, Minecraft mc) {
++        RenderSystem.disableDepthTest();
++        RenderSystem.depthMask(false);
++        RenderSystem.enableBlend();
++        RenderSystem.defaultBlendFunc();
++        RenderSystem.disableCull();
++        RenderSystem.enableTexture();
++
++        Tessellator tessellator = Tessellator.getInstance();
++        BufferBuilder buffer = tessellator.getBuilder();
++
++        float size = 200.0F;
++        for (int i = 0; i < SKYBOX_FACES.length; i++) {
++            mc.getTextureManager().bind(SKYBOX_FACES[i]);
++            Matrix4f matrix4f = matrixStack.last().pose();
++            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
++
++            switch (i) {
++                case 0: // Top
++                    buffer.vertex(matrix4f, -size, size, -size).uv(0.0F, 0.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, size, size).uv(0.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, size, size).uv(1.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, size, -size).uv(1.0F, 0.0F).endVertex();
++                    break;
++                case 1: // Bottom
++                    buffer.vertex(matrix4f, -size, -size, size).uv(0.0F, 0.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, -size, -size).uv(0.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, -size, -size).uv(1.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, -size, size).uv(1.0F, 0.0F).endVertex();
++                    break;
++                case 2: // North (-Z)
++                    buffer.vertex(matrix4f, -size, -size, -size).uv(0.0F, 0.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, size, -size).uv(0.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, size, -size).uv(1.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, -size, -size).uv(1.0F, 0.0F).endVertex();
++                    break;
++                case 3: // South (+Z)
++                    buffer.vertex(matrix4f, size, -size, size).uv(0.0F, 0.0F).endVertex();
++                    buffer.vertex(matrix4f, size, size, size).uv(0.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, size, size).uv(1.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, -size, size).uv(1.0F, 0.0F).endVertex();
++                    break;
++                case 4: // East (+X)
++                    buffer.vertex(matrix4f, size, -size, -size).uv(0.0F, 0.0F).endVertex();
++                    buffer.vertex(matrix4f, size, size, -size).uv(0.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, size, size).uv(1.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, size, -size, size).uv(1.0F, 0.0F).endVertex();
++                    break;
++                case 5: // West (-X)
++                default:
++                    buffer.vertex(matrix4f, -size, -size, size).uv(0.0F, 0.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, size, size).uv(0.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, size, -size).uv(1.0F, 1.0F).endVertex();
++                    buffer.vertex(matrix4f, -size, -size, -size).uv(1.0F, 0.0F).endVertex();
++                    break;
++            }
++            tessellator.end();
++        }
++
++        RenderSystem.enableCull();
++        RenderSystem.disableBlend();
++        RenderSystem.depthMask(true);
++        RenderSystem.enableDepthTest();
++    }
++}
