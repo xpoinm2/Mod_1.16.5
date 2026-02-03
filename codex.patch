@@ -1,5 +1,5 @@
 diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-index 9603568c456c4b3ee01246b79db08d8cd06fa981..fcd10096652658ae71c2f304e566b4a123def3c0 100644
+index fcd10096652658ae71c2f304e566b4a123def3c0..9603568c456c4b3ee01246b79db08d8cd06fa981 100644
 --- a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
 +++ b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
 @@ -77,51 +77,51 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
@@ -28,8 +28,8 @@ index 9603568c456c4b3ee01246b79db08d8cd06fa981..fcd10096652658ae71c2f304e566b4a1
          ServerWorld world = source.getLevel();
          Random random = world.getRandom();
          int duration = rollHurricaneDuration(random);
--        world.setWeatherParameters(0, duration, false, true);
-+        world.setWeatherParameters(0, duration, true, true);
+-        world.setWeatherParameters(0, duration, true, true);
++        world.setWeatherParameters(0, duration, false, true);
          HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
          source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
          return 1;
