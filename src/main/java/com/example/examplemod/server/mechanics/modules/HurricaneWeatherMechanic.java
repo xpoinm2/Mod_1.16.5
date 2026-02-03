@@ -57,10 +57,13 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
     @Override
     public void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
-                Commands.literal("weather")
+                Commands.literal("hurricane")
                         .requires(source -> source.hasPermission(2))
-                        .then(Commands.literal("hurricane")
+                        .executes(this::startHurricane)
+                        .then(Commands.literal("start")
                                 .executes(this::startHurricane))
+                        .then(Commands.literal("stop")
+                                .executes(this::stopHurricane))
         );
     }
 
@@ -74,15 +77,26 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         }
 
         ServerWorld world = (ServerWorld) event.world;
+        HurricaneWeatherData data = HurricaneWeatherData.get(world);
         HurricaneState state = HURRICANE_STATES.get(world);
         if (state == null) {
-            return;
+            if (data.isActive()) {
+                long tick = world.getGameTime();
+                if (tick >= data.getEndTick()) {
+                    data.clear();
+                    return;
+                }
+                state = HurricaneState.fromData(data);
+                HURRICANE_STATES.put(world, state);
+                sendHurricaneState(world, true);
+            } else {
+                return;
+            }
         }
 
         long tick = world.getGameTime();
         if (tick >= state.endTick) {
-            sendHurricaneState(world, false);
-            HURRICANE_STATES.remove(world);
+            clearHurricane(world, data);
             return;
         }
 
@@ -95,17 +109,33 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             state.breaksRemaining -= destroyed;
         }
         state.scheduleNextBreak(tick);
+        data.updateProgress(state.breaksRemaining, state.nextBreakTick);
     }
 
     private int startHurricane(CommandContext<CommandSource> context) {
         CommandSource source = context.getSource();
         ServerWorld world = source.getLevel();
+        HurricaneWeatherData data = HurricaneWeatherData.get(world);
         Random random = world.getRandom();
         int duration = rollHurricaneDuration(random);
-        world.setWeatherParameters(0, duration, false, false);
-        HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
+        HurricaneState state = new HurricaneState(world.getGameTime(), duration, random);
+        HURRICANE_STATES.put(world, state);
+        data.start(state.endTick, state.totalBreaks, state.breaksRemaining, state.nextBreakTick);
         sendHurricaneState(world, true);
         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
+        return 1;
+    }
+
+    private int stopHurricane(CommandContext<CommandSource> context) {
+        CommandSource source = context.getSource();
+        ServerWorld world = source.getLevel();
+        HurricaneWeatherData data = HurricaneWeatherData.get(world);
+        if (!HURRICANE_STATES.containsKey(world) && !data.isActive()) {
+            source.sendFailure(new StringTextComponent("No active hurricane to stop."));
+            return 0;
+        }
+        clearHurricane(world, data);
+        source.sendSuccess(new StringTextComponent("Hurricane stopped."), true);
         return 1;
     }
 
@@ -119,7 +149,8 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
 
     @Override
     public void onPlayerLogin(ServerPlayerEntity player) {
-        if (isHurricaneActive(player.getLevel())) {
+        ServerWorld world = player.getLevel();
+        if (isHurricaneActive(world) || HurricaneWeatherData.get(world).isActive()) {
             sendHurricaneState(player, true);
         }
     }
@@ -214,6 +245,18 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             scheduleNextBreak(startTick);
         }
 
+        private HurricaneState(long endTick, int totalBreaks, int breaksRemaining, long nextBreakTick) {
+            this.endTick = endTick;
+            this.totalBreaks = totalBreaks;
+            this.breaksRemaining = breaksRemaining;
+            this.nextBreakTick = nextBreakTick;
+        }
+
+        private static HurricaneState fromData(HurricaneWeatherData data) {
+            return new HurricaneState(data.getEndTick(), data.getTotalBreaks(), data.getBreaksRemaining(),
+                    data.getNextBreakTick());
+        }
+
         private void scheduleNextBreak(long currentTick) {
             if (breaksRemaining <= 0) {
                 nextBreakTick = endTick;
@@ -233,5 +276,11 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
 
     private void sendHurricaneState(ServerPlayerEntity player, boolean active) {
         ModNetworkHandler.CHANNEL.sendTo(new HurricaneStatePacket(active), player.connection.connection, net.minecraftforge.fml.network.NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    private void clearHurricane(ServerWorld world, HurricaneWeatherData data) {
+        sendHurricaneState(world, false);
+        HURRICANE_STATES.remove(world);
+        data.clear();
     }
 }
