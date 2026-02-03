@@ -16,11 +16,13 @@ import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
 /**
- * Darkens the sky view during custom hurricane weather (no rain).
+ * Darkens only the upper sky region during custom hurricane weather (no rain).
  */
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public final class HurricaneSkyOverlay {
-    private static final float OVERLAY_STRENGTH = 0.35f;
+    private static final float SKY_TOP_ALPHA = 0.65f;
+    private static final float SKY_BOTTOM_ALPHA = 0.0f;
+    private static final float SKY_DARKEN_HEIGHT_RATIO = 0.65f;
 
     private HurricaneSkyOverlay() {
     }
@@ -56,15 +58,15 @@ public final class HurricaneSkyOverlay {
         int height = minecraft.getWindow().getGuiScaledHeight();
         Matrix4f matrix = matrixStack.last().pose();
 
-        float red = 0.45f;
-        float green = 0.45f;
-        float blue = 0.5f;
-        float alpha = OVERLAY_STRENGTH;
+        float red = 0.08f;
+        float green = 0.1f;
+        float blue = 0.15f;
+        float horizonY = height * SKY_DARKEN_HEIGHT_RATIO;
 
-        buffer.vertex(matrix, 0.0f, height, -90.0f).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, width, height, -90.0f).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, alpha).endVertex();
-        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(matrix, 0.0f, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
+        buffer.vertex(matrix, width, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
+        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
+        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
 
         tessellator.end();
 

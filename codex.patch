@@ -1,167 +1,94 @@
-diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-index 318d7927cf19109ff519b46b16bf90378988dd21..a1318291e7a474c6c4ee398bf8918fc214e0eadf 100644
---- a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-+++ b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
-@@ -1,28 +1,30 @@
- package com.example.examplemod.server.mechanics.modules;
+diff --git a/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java b/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java
+index 089599457c08aa7afee2f5db74ea75686246f8de..65f3d4301765be6e7cf5e7977019a8c026dfd0f7 100644
+--- a/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java
++++ b/src/main/java/com/example/examplemod/client/render/HurricaneSkyOverlay.java
+@@ -1,77 +1,79 @@
+ package com.example.examplemod.client.render;
  
- import com.example.examplemod.server.mechanics.IMechanicModule;
-+import com.example.examplemod.network.HurricaneStatePacket;
-+import com.example.examplemod.network.ModNetworkHandler;
- import com.mojang.brigadier.context.CommandContext;
- import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
- import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
- import net.minecraft.block.BlockState;
- import net.minecraft.command.CommandSource;
- import net.minecraft.command.Commands;
- import net.minecraft.entity.player.ServerPlayerEntity;
- import net.minecraft.tags.BlockTags;
- import net.minecraft.util.Direction;
- import net.minecraft.util.math.BlockPos;
- import net.minecraft.util.text.StringTextComponent;
- import net.minecraft.world.gen.Heightmap;
- import net.minecraft.world.server.ServerWorld;
- import net.minecraftforge.event.RegisterCommandsEvent;
- import net.minecraftforge.event.TickEvent;
+ import com.example.examplemod.ExampleMod;
+ import com.example.examplemod.client.HurricaneClientState;
+ import com.mojang.blaze3d.matrix.MatrixStack;
+ import com.mojang.blaze3d.systems.RenderSystem;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.renderer.BufferBuilder;
+ import net.minecraft.client.renderer.Tessellator;
+ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+ import net.minecraft.util.math.vector.Matrix4f;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.client.event.RenderGameOverlayEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
+ import org.lwjgl.opengl.GL11;
  
- import java.util.ArrayDeque;
- import java.util.List;
- import java.util.Map;
- import java.util.Random;
+ /**
+- * Darkens the sky view during custom hurricane weather (no rain).
++ * Darkens only the upper sky region during custom hurricane weather (no rain).
+  */
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+ public final class HurricaneSkyOverlay {
+-    private static final float OVERLAY_STRENGTH = 0.35f;
++    private static final float SKY_TOP_ALPHA = 0.65f;
++    private static final float SKY_BOTTOM_ALPHA = 0.0f;
++    private static final float SKY_DARKEN_HEIGHT_RATIO = 0.65f;
  
- public final class HurricaneWeatherMechanic implements IMechanicModule {
-     private static final int MIN_TREES_PER_HURRICANE = 5;
-     private static final int MAX_TREES_PER_HURRICANE = 10;
-     private static final int MIN_HURRICANE_DURATION = 3600;
-@@ -57,84 +59,93 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
-         event.getDispatcher().register(
-                 Commands.literal("weather")
-                         .requires(source -> source.hasPermission(2))
-                         .then(Commands.literal("hurricane")
-                                 .executes(this::startHurricane))
-         );
+     private HurricaneSkyOverlay() {
      }
  
-     @Override
-     public void onWorldTick(TickEvent.WorldTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) {
-             return;
-         }
-         if (!(event.world instanceof ServerWorld)) {
+     @SubscribeEvent
+     public static void onPreRenderGameOverlay(RenderGameOverlayEvent.Pre event) {
+         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
              return;
          }
  
-         ServerWorld world = (ServerWorld) event.world;
-         HurricaneState state = HURRICANE_STATES.get(world);
-         if (state == null) {
+         if (!HurricaneClientState.isActive()) {
              return;
          }
  
-         long tick = world.getGameTime();
-         if (tick >= state.endTick) {
-+            sendHurricaneState(world, false);
-             HURRICANE_STATES.remove(world);
+         Minecraft minecraft = Minecraft.getInstance();
+         if (minecraft.level == null) {
              return;
          }
  
-         if (state.breaksRemaining <= 0 || tick < state.nextBreakTick) {
-             return;
-         }
+         MatrixStack matrixStack = event.getMatrixStack();
  
-         int destroyed = destroyTreesNearPlayers(world, state.breaksRemaining);
-         if (destroyed > 0) {
-             state.breaksRemaining -= destroyed;
-         }
-         state.scheduleNextBreak(tick);
+         RenderSystem.disableDepthTest();
+         RenderSystem.disableAlphaTest();
+         RenderSystem.enableBlend();
+         RenderSystem.defaultBlendFunc();
+         RenderSystem.disableTexture();
+ 
+         Tessellator tessellator = Tessellator.getInstance();
+         BufferBuilder buffer = tessellator.getBuilder();
+         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+ 
+         int width = minecraft.getWindow().getGuiScaledWidth();
+         int height = minecraft.getWindow().getGuiScaledHeight();
+         Matrix4f matrix = matrixStack.last().pose();
+ 
+-        float red = 0.45f;
+-        float green = 0.45f;
+-        float blue = 0.5f;
+-        float alpha = OVERLAY_STRENGTH;
++        float red = 0.08f;
++        float green = 0.1f;
++        float blue = 0.15f;
++        float horizonY = height * SKY_DARKEN_HEIGHT_RATIO;
+ 
+-        buffer.vertex(matrix, 0.0f, height, -90.0f).color(red, green, blue, alpha).endVertex();
+-        buffer.vertex(matrix, width, height, -90.0f).color(red, green, blue, alpha).endVertex();
+-        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, alpha).endVertex();
+-        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, alpha).endVertex();
++        buffer.vertex(matrix, 0.0f, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
++        buffer.vertex(matrix, width, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
++        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
++        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
+ 
+         tessellator.end();
+ 
+         RenderSystem.enableTexture();
+         RenderSystem.defaultBlendFunc();
+         RenderSystem.disableBlend();
+         RenderSystem.enableAlphaTest();
+         RenderSystem.enableDepthTest();
      }
- 
-     private int startHurricane(CommandContext<CommandSource> context) {
-         CommandSource source = context.getSource();
-         ServerWorld world = source.getLevel();
-         Random random = world.getRandom();
-         int duration = rollHurricaneDuration(random);
--        world.setWeatherParameters(0, duration, false, true);
-+        world.setWeatherParameters(0, duration, false, false);
-         HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
-+        sendHurricaneState(world, true);
-         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
-         return 1;
-     }
- 
-     private int rollHurricaneDuration(Random random) {
-         return random.nextInt((MAX_HURRICANE_DURATION - MIN_HURRICANE_DURATION) + 1) + MIN_HURRICANE_DURATION;
-     }
- 
-     public static boolean isHurricaneActive(ServerWorld world) {
-         return HURRICANE_STATES.containsKey(world);
-     }
- 
-+    @Override
-+    public void onPlayerLogin(ServerPlayerEntity player) {
-+        if (isHurricaneActive(player.getLevel())) {
-+            sendHurricaneState(player, true);
-+        }
-+    }
-+
-     private int destroyTreesNearPlayers(ServerWorld world, int remainingBreaks) {
-         List<ServerPlayerEntity> players = world.getServer().getPlayerList().getPlayers();
-         if (players.isEmpty()) {
-             return 0;
-         }
- 
-         int destroyed = 0;
-         for (ServerPlayerEntity player : players) {
-             if (destroyed >= remainingBreaks) {
-                 break;
-             }
-             BlockPos origin = player.blockPosition();
- 
-             for (int attempt = 0; attempt < TREE_SCAN_ATTEMPTS; attempt++) {
-                 int x = origin.getX() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
-                 int z = origin.getZ() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
-                 int topY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
-                 int minY = Math.max(0, topY - TREE_SCAN_DEPTH);
- 
-                 BlockPos.Mutable pos = new BlockPos.Mutable(x, topY, z);
-                 for (int y = topY; y >= minY; y--) {
-                     pos.set(x, y, z);
-                     if (world.getBlockState(pos).is(BlockTags.LOGS)) {
-                         if (destroyTreeAt(world, pos.immutable())) {
-                             destroyed++;
-@@ -191,26 +202,36 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
- 
-     private static class HurricaneState {
-         private final long endTick;
-         private final int totalBreaks;
-         private int breaksRemaining;
-         private long nextBreakTick;
- 
-         private HurricaneState(long startTick, int duration, Random random) {
-             this.endTick = startTick + duration;
-             this.totalBreaks = random.nextInt((MAX_TREES_PER_HURRICANE - MIN_TREES_PER_HURRICANE) + 1)
-                     + MIN_TREES_PER_HURRICANE;
-             this.breaksRemaining = totalBreaks;
-             scheduleNextBreak(startTick);
-         }
- 
-         private void scheduleNextBreak(long currentTick) {
-             if (breaksRemaining <= 0) {
-                 nextBreakTick = endTick;
-                 return;
-             }
-             long remainingTicks = Math.max(1, endTick - currentTick);
-             long interval = Math.max(1, remainingTicks / breaksRemaining);
-             nextBreakTick = currentTick + interval;
-         }
-     }
-+
-+    private void sendHurricaneState(ServerWorld world, boolean active) {
-+        for (ServerPlayerEntity player : world.getPlayers(player -> true)) {
-+            sendHurricaneState(player, active);
-+        }
-+    }
-+
-+    private void sendHurricaneState(ServerPlayerEntity player, boolean active) {
-+        ModNetworkHandler.CHANNEL.sendTo(new HurricaneStatePacket(active), player.connection.connection, net.minecraftforge.fml.network.NetworkDirection.PLAY_TO_CLIENT);
-+    }
  }
