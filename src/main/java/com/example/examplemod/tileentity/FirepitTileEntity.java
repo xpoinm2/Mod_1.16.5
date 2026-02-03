@@ -7,6 +7,7 @@ import com.example.examplemod.container.FirepitContainer;
 import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
+import com.example.examplemod.server.mechanics.modules.HurricaneWeatherMechanic;
 import com.example.examplemod.server.PechugaStructureHandler;
 import com.example.examplemod.item.HotRoastedOreItem;
 import net.minecraft.block.Block;
@@ -29,6 +30,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 
@@ -47,6 +50,7 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
     public static final int MIN_HEAT_FOR_SMELTING = 80;
     public static final int COOLING_INTERVAL_TICKS = 200;
     public static final int COOLING_AMOUNT = 4;
+    public static final int HIGH_ALTITUDE_Y = 100;
     private final NonNullList<ItemStack> items = NonNullList.withSize(GRID_SLOT_COUNT + 1, ItemStack.EMPTY);
 
     private final int[] slotCookTimes = new int[GRID_SLOT_COUNT];
@@ -215,10 +219,11 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
 
     private boolean processCookingCycle() {
         boolean changed = false;
+        int speedMultiplier = getCookSpeedMultiplier();
         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
             ItemStack stack = items.get(i);
             if (isSmeltable(stack)) {
-                slotCookTimes[i]++;
+                slotCookTimes[i] += speedMultiplier;
                 int requiredTime = getRequiredCookTime(stack, slotCookingStages[i]);
                 if (slotCookTimes[i] >= requiredTime) {
                     ItemStack result = getCookingResult(stack, slotCookingStages[i]);
@@ -251,6 +256,24 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             }
         }
         return changed;
+    }
+
+    private int getCookSpeedMultiplier() {
+        return shouldDoubleCookSpeed() ? 2 : 1;
+    }
+
+    private boolean shouldDoubleCookSpeed() {
+        if (level == null) {
+            return false;
+        }
+        if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
+            return true;
+        }
+        Biome.Category category = level.getBiome(worldPosition).getBiomeCategory();
+        if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
+            return true;
+        }
+        return level instanceof ServerWorld && HurricaneWeatherMechanic.isHurricaneActive((ServerWorld) level);
     }
 
     public boolean isMultiblockIntact() {
