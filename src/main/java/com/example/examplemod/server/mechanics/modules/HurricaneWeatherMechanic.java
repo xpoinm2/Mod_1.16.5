@@ -35,7 +35,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
     private static final int TREE_RADIUS_XZ = 8;
     private static final int TREE_RADIUS_Y = 12;
 
-    private final Map<ServerWorld, HurricaneState> hurricaneStates = new Object2ObjectOpenHashMap<>();
+    private static final Map<ServerWorld, HurricaneState> HURRICANE_STATES = new Object2ObjectOpenHashMap<>();
 
     @Override
     public String id() {
@@ -72,14 +72,14 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         }
 
         ServerWorld world = (ServerWorld) event.world;
-        HurricaneState state = hurricaneStates.get(world);
+        HurricaneState state = HURRICANE_STATES.get(world);
         if (state == null) {
             return;
         }
 
         long tick = world.getGameTime();
-        if (tick >= state.endTick || !world.isThundering()) {
-            hurricaneStates.remove(world);
+        if (tick >= state.endTick) {
+            HURRICANE_STATES.remove(world);
             return;
         }
 
@@ -87,9 +87,9 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             return;
         }
 
-        boolean destroyed = destroyRandomTree(world);
-        if (destroyed) {
-            state.breaksRemaining--;
+        int destroyed = destroyTreesNearPlayers(world, state.breaksRemaining);
+        if (destroyed > 0) {
+            state.breaksRemaining -= destroyed;
         }
         state.scheduleNextBreak(tick);
     }
@@ -100,7 +100,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         Random random = world.getRandom();
         int duration = rollHurricaneDuration(random);
         world.setWeatherParameters(0, duration, true, true);
-        hurricaneStates.put(world, new HurricaneState(world.getGameTime(), duration, random));
+        HURRICANE_STATES.put(world, new HurricaneState(world.getGameTime(), duration, random));
         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
         return 1;
     }
@@ -109,31 +109,44 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         return random.nextInt((MAX_HURRICANE_DURATION - MIN_HURRICANE_DURATION) + 1) + MIN_HURRICANE_DURATION;
     }
 
-    private boolean destroyRandomTree(ServerWorld world) {
+    public static boolean isHurricaneActive(ServerWorld world) {
+        return HURRICANE_STATES.containsKey(world);
+    }
+
+    private int destroyTreesNearPlayers(ServerWorld world, int remainingBreaks) {
         List<ServerPlayerEntity> players = world.getServer().getPlayerList().getPlayers();
         if (players.isEmpty()) {
-            return false;
+            return 0;
         }
 
-        ServerPlayerEntity player = players.get(world.random.nextInt(players.size()));
-        BlockPos origin = player.blockPosition();
+        int destroyed = 0;
+        for (ServerPlayerEntity player : players) {
+            if (destroyed >= remainingBreaks) {
+                break;
+            }
+            BlockPos origin = player.blockPosition();
 
-        for (int attempt = 0; attempt < TREE_SCAN_ATTEMPTS; attempt++) {
-            int x = origin.getX() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
-            int z = origin.getZ() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
-            int topY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
-            int minY = Math.max(world.getMinBuildHeight(), topY - TREE_SCAN_DEPTH);
+            for (int attempt = 0; attempt < TREE_SCAN_ATTEMPTS; attempt++) {
+                int x = origin.getX() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
+                int z = origin.getZ() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
+                int topY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
+                int minY = Math.max(world.getMinBuildHeight(), topY - TREE_SCAN_DEPTH);
 
-            BlockPos.Mutable pos = new BlockPos.Mutable(x, topY, z);
-            for (int y = topY; y >= minY; y--) {
-                pos.set(x, y, z);
-                if (world.getBlockState(pos).is(BlockTags.LOGS)) {
-                    return destroyTreeAt(world, pos.immutable());
+                BlockPos.Mutable pos = new BlockPos.Mutable(x, topY, z);
+                for (int y = topY; y >= minY; y--) {
+                    pos.set(x, y, z);
+                    if (world.getBlockState(pos).is(BlockTags.LOGS)) {
+                        if (destroyTreeAt(world, pos.immutable())) {
+                            destroyed++;
+                        }
+                        attempt = TREE_SCAN_ATTEMPTS;
+                        break;
+                    }
                 }
             }
         }
 
-        return false;
+        return destroyed;
     }
 
     private boolean destroyTreeAt(ServerWorld world, BlockPos start) {

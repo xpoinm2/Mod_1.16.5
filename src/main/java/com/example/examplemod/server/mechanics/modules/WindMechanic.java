@@ -170,6 +170,9 @@ public final class WindMechanic implements IMechanicModule {
     }
 
     private boolean isHurricane(ServerWorld world, BlockPos pos, WindState state) {
+        if (HurricaneWeatherMechanic.isHurricaneActive(world)) {
+            return true;
+        }
         return world.isThundering()
                 && world.isRainingAt(pos)
                 && state.baseWind >= HURRICANE_BASE_WIND_THRESHOLD;
