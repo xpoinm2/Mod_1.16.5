@@ -72,7 +72,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         public void set(int index, int value) {
             switch (index) {
                 case 0: heat = Math.max(0, Math.min(MAX_HEAT, value)); break;
-                case 1: heatingTicks = Math.max(0, Math.min(CONSUMPTION_INTERVAL_TICKS, value)); break;
+                case 1: heatingTicks = Math.max(0, Math.min(getHeatingIntervalTicks(), value)); break;
                 case 2: cookProgress = value; break;
                 case 3: cookProgressTotal = Math.max(1, value); break;
             }
@@ -124,12 +124,13 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         ItemStack fuelStack = items.get(FUEL_SLOT);
         boolean hasInput = hasSmeltableInput();
         int specificHeat = getSpecificHeat(fuelStack);
+        int heatingInterval = getHeatingIntervalTicks();
 
         if (heat < MAX_HEAT && specificHeat > 0) {
-            if (heatingTicks < CONSUMPTION_INTERVAL_TICKS) {
+            if (heatingTicks < heatingInterval) {
                 heatingTicks++;
             }
-            if (heatingTicks >= CONSUMPTION_INTERVAL_TICKS) {
+            if (heatingTicks >= heatingInterval) {
                 heatingTicks = 0;
                 ItemStack containerItem = fuelStack.getContainerItem();
                 fuelStack.shrink(1);
@@ -682,7 +683,7 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         ItemStackHelper.loadAllItems(nbt, items);
         enforceInputStackLimits();
         heat = Math.max(0, Math.min(MAX_HEAT, nbt.getInt("Heat")));
-        heatingTicks = Math.max(0, Math.min(CONSUMPTION_INTERVAL_TICKS, nbt.getInt("HeatingTicks")));
+        heatingTicks = Math.max(0, Math.min(getHeatingIntervalTicks(), nbt.getInt("HeatingTicks")));
         coolingTicks = Math.max(0, Math.min(COOLING_INTERVAL_TICKS, nbt.getInt("CoolingTicks")));
         int[] savedCookTimes = nbt.getIntArray("SlotCookTimes");
         if (savedCookTimes.length == GRID_SLOT_COUNT) {
@@ -760,5 +761,63 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
             return 80;
         }
         return 0;
+    }
+
+    private int getHeatingIntervalTicks() {
+        return isColdBiome() ? CONSUMPTION_INTERVAL_TICKS * 2 : CONSUMPTION_INTERVAL_TICKS;
+    }
+
+    private boolean isColdBiome() {
+        if (level == null) {
+            return false;
+        }
+        return getBiomeTemperature(level, worldPosition) < 1;
+    }
+
+    /**
+     * Получает температуру биома в указанной позиции.
+     * Использует ту же логику, что и BiomeTemperatureCache для игроков.
+     */
+    private int getBiomeTemperature(net.minecraft.world.World world, BlockPos pos) {
+        if (world.dimension() == net.minecraft.world.World.NETHER) return 666;
+        if (world.dimension() == net.minecraft.world.World.END) return -666;
+
+        net.minecraft.world.biome.Biome biome = world.getBiome(pos);
+        net.minecraft.world.biome.Biome.Category cat = biome.getBiomeCategory();
+
+        switch (cat) {
+            case PLAINS:
+                return 23;
+            case DESERT:
+            case MESA:
+                return 37;
+            case SAVANNA:
+                return 30;
+            case FOREST:
+                return 17;
+            case JUNGLE:
+                return 30;
+            case SWAMP:
+                return -13;
+            case TAIGA:
+                return -25;
+            case EXTREME_HILLS:
+                return -10;
+            case ICY:
+                return -40;
+            case BEACH:
+            case RIVER:
+                return 10;
+            case OCEAN:
+                return 6;
+            case MUSHROOM:
+                return 0;
+            case NETHER:
+                return 666;
+            case THEEND:
+                return -666;
+            default:
+                return 0;
+        }
     }
 }
