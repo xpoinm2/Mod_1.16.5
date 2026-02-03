@@ -35,7 +35,7 @@ public final class CommonModEvents {
 
         // Проверяем горячие предметы в курсоре и инвентаре,
         // чтобы урон шёл даже при перетаскивании.
-        if (applyHotItemDamage(player, player.containerMenu.getCarried())) {
+        if (applyHotItemDamage(player, player.inventory.getCarried())) {
             return;
         }
 

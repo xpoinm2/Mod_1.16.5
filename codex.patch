@@ -1,54 +1,57 @@
-diff --git a/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java b/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java
-index 68f9c017a2753d0f647257699d786a7eba0cf8d6..5cead3b5e3d30bcd9f9fdaadc2c7867735db6ead 100644
---- a/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java
-+++ b/src/main/java/com/example/examplemod/client/screen/main/SystemInfoScreen.java
-@@ -45,45 +45,47 @@ public class SystemInfoScreen extends Screen {
-         float ty = (y0 + 30) * inv;
-         float lh = (this.font.lineHeight + 2) * inv;
+diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
+index ee051d2427e012bf9d180c728e8c4637d32cf299..37aa5c3a894b0b6f26126f70ffeb068dd19cabeb 100644
+--- a/src/main/java/com/example/examplemod/CommonModEvents.java
++++ b/src/main/java/com/example/examplemod/CommonModEvents.java
+@@ -13,51 +13,51 @@ import net.minecraftforge.fml.common.Mod;
+ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
  
-         this.font.draw(ms, "Каждый игровой час: +2 жажды и усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "15 минут плавания: +5 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "10 секунд без движения: -10 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "100м бега: +5 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "20 прыжков: +3 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Атака существа: +1 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Бутылка воды: -20 жажды", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Сырая/варёная рыба: +15 жажды", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Кнопка 'Попить': -2 жажды", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Кнопка 'Перемешать': +3 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Заточка камня: +5 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-+        this.font.draw(ms, "Крафт заготовок: +2 усталости", tx, ty, 0xFFFFFF);
-+        ty += lh;
-         this.font.draw(ms, "Ломание блоков руками: +1 усталости за 5 блоков", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Отдых сидя 10 сек: -15 усталости", tx, ty, 0xFFFFFF);
-         ty += lh;
-         this.font.draw(ms, "Полный сон: усталость = 0", tx, ty, 0xFFFFFF);
- 
-         ms.popPose();
- 
-         super.render(ms, mouseX, mouseY, pt);
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class CommonModEvents {
+     private CommonModEvents() {
      }
  
-     @Override
-     public void onClose() {
-         if (this.minecraft != null && this.minecraft.player != null && this.minecraft.level != null && parent != null) {
-             this.minecraft.setScreen(parent);
-         } else {
-             super.onClose();
+     @SubscribeEvent
+     public static void commonSetup(FMLCommonSetupEvent event) {
+         // Временно убрали регистрацию генерации мира для диагностики
+         event.enqueueWork(() -> {
+             // WorldGenRegistry.register();
+             // ModBiomes.setupBiomes();
+         });
+     }
+ 
+     @SubscribeEvent
+     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) return;
+         if (event.player.level.isClientSide) return;
+ 
+         PlayerEntity player = event.player;
+ 
+         // Проверяем горячие предметы в курсоре и инвентаре,
+         // чтобы урон шёл даже при перетаскивании.
+-        if (applyHotItemDamage(player, player.containerMenu.getCarried())) {
++        if (applyHotItemDamage(player, player.inventory.getCarried())) {
+             return;
+         }
+ 
+         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+             ItemStack stack = player.inventory.getItem(i);
+             if (applyHotItemDamage(player, stack)) {
+                 break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
+             }
          }
      }
--}
-\ No newline at end of file
-+}
+ 
+     private static boolean applyHotItemDamage(PlayerEntity player, ItemStack stack) {
+         if (stack.isEmpty()) {
+             return false;
+         }
+         if (stack.getItem() instanceof SpongeMetalItem) {
+             if (SpongeMetalItem.getState(stack) == SpongeMetalItem.STATE_HOT) {
+                 player.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                 return true;
+             }
+             return false;
+         }
+         if (stack.getItem() instanceof RoastedOreItem) {
+             if (RoastedOreItem.getState(stack) == RoastedOreItem.STATE_HOT) {
+                 player.hurt(DamageSource.ON_FIRE, 2.0F);
