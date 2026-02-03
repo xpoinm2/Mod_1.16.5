@@ -1,5 +1,7 @@
 package com.example.examplemod.client.screen.main;
 
+import com.example.examplemod.capability.IPlayerStats;
+import com.example.examplemod.capability.PlayerStatsProvider;
 import com.example.examplemod.client.FramedButton;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
@@ -134,20 +136,25 @@ public class HiddenValuesScreen extends Screen {
             this.font.draw(ms, text, x0 + 10, y0 + 40, 0xFFFFFF);
 
 
-        PlayerEntity player = this.minecraft.player;
-        int temp = getAmbientTemperature(player);
-        String tempText = String.format("Температура: %d C", temp);
-        this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
+            PlayerEntity player = this.minecraft.player;
+            int temp = getAmbientTemperature(player);
+            String tempText = String.format("Температура: %d C", temp);
+            this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
 
             if (player != null) {
+                player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent((IPlayerStats stats) -> {
+                    String windText = String.format("Скорость ветра: %d м/с", stats.getWindSpeed());
+                    this.font.draw(ms, windText, x0 + 10, y0 + 70, 0xFFFFFF);
+                });
+
                 Biome biome = player.level.getBiome(player.blockPosition());
                 String biomeName = biome.getRegistryName() != null
                         ? biome.getRegistryName().getPath()
                         : "unknown";
                 String biomeText = String.format("Биом: %s", biomeName);
-                this.font.draw(ms, biomeText, x0 + 10, y0 + 70, 0xFFFFFF);
+                this.font.draw(ms, biomeText, x0 + 10, y0 + 85, 0xFFFFFF);
             }
-    }
+        }
 
         super.render(ms, mouseX, mouseY, pt);
     }
