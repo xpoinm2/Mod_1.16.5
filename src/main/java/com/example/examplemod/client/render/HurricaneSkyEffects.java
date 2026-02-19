@@ -5,7 +5,6 @@ import com.example.examplemod.client.HurricaneClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.world.DimensionRenderInfo;
-import net.minecraftforge.client.ICloudRenderHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ISkyRenderHandler;
 import net.minecraftforge.event.TickEvent;
@@ -15,11 +14,9 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class HurricaneSkyEffects {
     private static final ISkyRenderHandler HURRICANE_SKY = new HurricaneSkyRenderer();
-    private static final ICloudRenderHandler HURRICANE_CLOUDS = new HurricaneCloudRenderer();
 
     private static DimensionRenderInfo activeEffects;
     private static ISkyRenderHandler originalSky;
-    private static ICloudRenderHandler originalClouds;
     private static boolean customSkyActive;
 
     private HurricaneSkyEffects() {
@@ -31,10 +28,6 @@ public final class HurricaneSkyEffects {
 
     static ISkyRenderHandler getOriginalSkyHandler() {
         return originalSky;
-    }
-
-    static ICloudRenderHandler getOriginalCloudHandler() {
-        return originalClouds;
     }
 
     @SubscribeEvent
@@ -66,7 +59,6 @@ public final class HurricaneSkyEffects {
 
         storeOriginalHandlers(effects);
         effects.setSkyRenderHandler(HURRICANE_SKY);
-        effects.setCloudRenderHandler(HURRICANE_CLOUDS);
         activeEffects = effects;
         customSkyActive = true;
     }
@@ -78,7 +70,6 @@ public final class HurricaneSkyEffects {
 
         if (effects == activeEffects) {
             effects.setSkyRenderHandler(originalSky);
-            effects.setCloudRenderHandler(originalClouds);
         }
         clearHandlers();
     }
@@ -89,13 +80,11 @@ public final class HurricaneSkyEffects {
         }
 
         originalSky = effects.getSkyRenderHandler();
-        originalClouds = effects.getCloudRenderHandler();
     }
 
     private static void clearHandlers() {
         activeEffects = null;
         originalSky = null;
-        originalClouds = null;
         customSkyActive = false;
     }
 }
