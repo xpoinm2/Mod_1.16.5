@@ -2,9 +2,11 @@ package com.example.examplemod.client.render;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.client.HurricaneClientState;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraftforge.client.ICloudRenderHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ISkyRenderHandler;
 import net.minecraftforge.event.TickEvent;
@@ -14,9 +16,27 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class HurricaneSkyEffects {
     private static final ISkyRenderHandler HURRICANE_SKY = new HurricaneSkyRenderer();
+    private static final ICloudRenderHandler HURRICANE_CLOUDS = (ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ) -> {
+        ICloudRenderHandler originalCloudHandler = HurricaneSkyEffects.getOriginalCloudHandler();
+        if (originalCloudHandler == null) {
+            return;
+        }
+
+        float cloudAlpha = 1.0F - HurricaneClientState.getIntensity();
+        if (cloudAlpha <= 0.0F) {
+            return;
+        }
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, cloudAlpha);
+        originalCloudHandler.render(ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    };
 
     private static DimensionRenderInfo activeEffects;
     private static ISkyRenderHandler originalSky;
+    private static ICloudRenderHandler originalClouds;
     private static boolean customSkyActive;
 
     private HurricaneSkyEffects() {
@@ -24,6 +44,14 @@ public final class HurricaneSkyEffects {
 
     public static boolean isCustomSkyActive() {
         return customSkyActive;
+    }
+
+    static ISkyRenderHandler getOriginalSkyHandler() {
+        return originalSky;
+    }
+
+    static ICloudRenderHandler getOriginalCloudHandler() {
+        return originalClouds;
     }
 
     @SubscribeEvent
@@ -55,6 +83,7 @@ public final class HurricaneSkyEffects {
 
         storeOriginalHandlers(effects);
         effects.setSkyRenderHandler(HURRICANE_SKY);
+        effects.setCloudRenderHandler(HURRICANE_CLOUDS);
         activeEffects = effects;
         customSkyActive = true;
     }
@@ -66,6 +95,7 @@ public final class HurricaneSkyEffects {
 
         if (effects == activeEffects) {
             effects.setSkyRenderHandler(originalSky);
+            effects.setCloudRenderHandler(originalClouds);
         }
         clearHandlers();
     }
@@ -76,11 +106,13 @@ public final class HurricaneSkyEffects {
         }
 
         originalSky = effects.getSkyRenderHandler();
+        originalClouds = effects.getCloudRenderHandler();
     }
 
     private static void clearHandlers() {
         activeEffects = null;
         originalSky = null;
+        originalClouds = null;
         customSkyActive = false;
     }
 }

@@ -48,11 +48,21 @@ public final class HurricaneSkyRenderer implements ISkyRenderHandler {
             return;
         }
 
+        ISkyRenderHandler originalSkyHandler = HurricaneSkyEffects.getOriginalSkyHandler();
+        if (originalSkyHandler != null) {
+            originalSkyHandler.render(ticks, partialTicks, matrixStack, world, mc);
+        }
+
+        float texturedSkyAlpha = intensity * intensity;
+        if (texturedSkyAlpha <= 0.0F) {
+            return;
+        }
+
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, intensity);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, texturedSkyAlpha);
         RenderSystem.disableCull();
         RenderSystem.enableTexture();
 
@@ -112,5 +122,21 @@ public final class HurricaneSkyRenderer implements ISkyRenderHandler {
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
+    }
+
+    private static float smoothStepRange(float value, float start, float end) {
+        if (end <= start) {
+            return value >= end ? 1.0F : 0.0F;
+        }
+        float t = clamp((value - start) / (end - start));
+        return t * t * (3.0F - 2.0F * t);
+    }
+
+    private static float lerp(float start, float end, float delta) {
+        return start + (end - start) * delta;
+    }
+
+    private static float clamp(float value) {
+        return Math.max(0.0F, Math.min(1.0F, value));
     }
 }
