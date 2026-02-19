@@ -1,6 +1,7 @@
 package com.example.examplemod.client.render;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.client.HurricaneClientState;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -42,10 +43,16 @@ public final class HurricaneSkyRenderer implements ISkyRenderHandler {
 
     @Override
     public void render(int ticks, float partialTicks, MatrixStack matrixStack, ClientWorld world, Minecraft mc) {
+        float intensity = HurricaneClientState.getIntensity();
+        if (intensity <= 0.0F) {
+            return;
+        }
+
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, intensity);
         RenderSystem.disableCull();
         RenderSystem.enableTexture();
 
@@ -100,6 +107,7 @@ public final class HurricaneSkyRenderer implements ISkyRenderHandler {
             tessellator.end();
         }
 
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);

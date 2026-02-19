@@ -33,6 +33,7 @@ public final class HurricaneSkyEffects {
         }
 
         Minecraft minecraft = Minecraft.getInstance();
+        HurricaneClientState.tickFade();
         ClientWorld world = minecraft.level;
         if (world == null) {
             clearHandlers();
@@ -40,7 +41,7 @@ public final class HurricaneSkyEffects {
         }
 
         DimensionRenderInfo effects = world.effects();
-        if (HurricaneClientState.isActive()) {
+        if (HurricaneClientState.shouldRenderEffects()) {
             applyHandlers(effects);
         } else {
             restoreHandlers(effects);

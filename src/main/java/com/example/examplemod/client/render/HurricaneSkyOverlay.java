@@ -37,7 +37,8 @@ public final class HurricaneSkyOverlay {
             return;
         }
 
-        if (!HurricaneClientState.isActive()) {
+        float intensity = HurricaneClientState.getIntensity();
+        if (intensity <= 0.0F) {
             return;
         }
 
@@ -67,10 +68,13 @@ public final class HurricaneSkyOverlay {
         float blue = 0.15f;
         float horizonY = height * SKY_DARKEN_HEIGHT_RATIO;
 
-        buffer.vertex(matrix, 0.0f, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
-        buffer.vertex(matrix, width, horizonY, -90.0f).color(red, green, blue, SKY_BOTTOM_ALPHA).endVertex();
-        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
-        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, SKY_TOP_ALPHA).endVertex();
+        float topAlpha = SKY_TOP_ALPHA * intensity;
+        float bottomAlpha = SKY_BOTTOM_ALPHA * intensity;
+
+        buffer.vertex(matrix, 0.0f, horizonY, -90.0f).color(red, green, blue, bottomAlpha).endVertex();
+        buffer.vertex(matrix, width, horizonY, -90.0f).color(red, green, blue, bottomAlpha).endVertex();
+        buffer.vertex(matrix, width, 0.0f, -90.0f).color(red, green, blue, topAlpha).endVertex();
+        buffer.vertex(matrix, 0.0f, 0.0f, -90.0f).color(red, green, blue, topAlpha).endVertex();
 
         tessellator.end();
 
