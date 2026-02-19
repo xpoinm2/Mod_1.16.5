@@ -12,12 +12,14 @@ public final class HurricaneWeatherData extends WorldSavedData {
     private static final String KEY_TOTAL_BREAKS = "TotalBreaks";
     private static final String KEY_BREAKS_REMAINING = "BreaksRemaining";
     private static final String KEY_NEXT_BREAK_TICK = "NextBreakTick";
+    private static final String KEY_ENABLED = "Enabled";
 
     private boolean active;
     private long endTick;
     private int totalBreaks;
     private int breaksRemaining;
     private long nextBreakTick;
+    private boolean enabled = true;
 
     public HurricaneWeatherData() {
         super(DATA_NAME);
@@ -45,6 +47,18 @@ public final class HurricaneWeatherData extends WorldSavedData {
 
     public long getNextBreakTick() {
         return nextBreakTick;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        if (this.enabled == enabled) {
+            return;
+        }
+        this.enabled = enabled;
+        setDirty();
     }
 
     public void start(long endTick, int totalBreaks, int breaksRemaining, long nextBreakTick) {
@@ -84,6 +98,7 @@ public final class HurricaneWeatherData extends WorldSavedData {
         totalBreaks = nbt.getInt(KEY_TOTAL_BREAKS);
         breaksRemaining = nbt.getInt(KEY_BREAKS_REMAINING);
         nextBreakTick = nbt.getLong(KEY_NEXT_BREAK_TICK);
+        enabled = !nbt.contains(KEY_ENABLED) || nbt.getBoolean(KEY_ENABLED);
     }
 
     @Override
@@ -93,6 +108,7 @@ public final class HurricaneWeatherData extends WorldSavedData {
         compound.putInt(KEY_TOTAL_BREAKS, totalBreaks);
         compound.putInt(KEY_BREAKS_REMAINING, breaksRemaining);
         compound.putLong(KEY_NEXT_BREAK_TICK, nextBreakTick);
+        compound.putBoolean(KEY_ENABLED, enabled);
         return compound;
     }
 }

@@ -62,6 +62,14 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
                         .executes(this::startHurricane)
                         .then(Commands.literal("start")
                                 .executes(this::startHurricane))
+                        .then(Commands.literal("on")
+                                .executes(this::enableHurricaneWeather))
+                        .then(Commands.literal("enable")
+                                .executes(this::enableHurricaneWeather))
+                        .then(Commands.literal("off")
+                                .executes(this::disableHurricaneWeather))
+                        .then(Commands.literal("disable")
+                                .executes(this::disableHurricaneWeather))
                         .then(Commands.literal("stop")
                                 .executes(this::stopHurricane))
         );
@@ -78,6 +86,13 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
 
         ServerWorld world = (ServerWorld) event.world;
         HurricaneWeatherData data = HurricaneWeatherData.get(world);
+        if (!data.isEnabled()) {
+            if (data.isActive() || HURRICANE_STATES.containsKey(world)) {
+                clearHurricane(world, data);
+            }
+            return;
+        }
+
         HurricaneState state = HURRICANE_STATES.get(world);
         if (state == null) {
             if (data.isActive()) {
@@ -100,6 +115,8 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             return;
         }
 
+        clearVanillaWeather(world);
+
         if (state.breaksRemaining <= 0 || tick < state.nextBreakTick) {
             return;
         }
@@ -116,13 +133,43 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         CommandSource source = context.getSource();
         ServerWorld world = source.getLevel();
         HurricaneWeatherData data = HurricaneWeatherData.get(world);
+        if (!data.isEnabled()) {
+            source.sendFailure(new StringTextComponent("Hurricane weather from mod is disabled. Use /hurricane on."));
+            return 0;
+        }
         Random random = world.getRandom();
         int duration = rollHurricaneDuration(random);
         HurricaneState state = new HurricaneState(world.getGameTime(), duration, random);
         HURRICANE_STATES.put(world, state);
         data.start(state.endTick, state.totalBreaks, state.breaksRemaining, state.nextBreakTick);
+        clearVanillaWeather(world);
         sendHurricaneState(world, true);
         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
+        return 1;
+    }
+
+    private int enableHurricaneWeather(CommandContext<CommandSource> context) {
+        CommandSource source = context.getSource();
+        ServerWorld world = source.getLevel();
+        HurricaneWeatherData data = HurricaneWeatherData.get(world);
+        if (data.isEnabled()) {
+            source.sendSuccess(new StringTextComponent("Hurricane weather from mod is already enabled."), false);
+            return 1;
+        }
+        data.setEnabled(true);
+        source.sendSuccess(new StringTextComponent("Hurricane weather from mod enabled."), true);
+        return 1;
+    }
+
+    private int disableHurricaneWeather(CommandContext<CommandSource> context) {
+        CommandSource source = context.getSource();
+        ServerWorld world = source.getLevel();
+        HurricaneWeatherData data = HurricaneWeatherData.get(world);
+        data.setEnabled(false);
+        if (data.isActive() || HURRICANE_STATES.containsKey(world)) {
+            clearHurricane(world, data);
+        }
+        source.sendSuccess(new StringTextComponent("Hurricane weather from mod disabled."), true);
         return 1;
     }
 
@@ -282,5 +329,9 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         sendHurricaneState(world, false);
         HURRICANE_STATES.remove(world);
         data.clear();
+    }
+
+    private void clearVanillaWeather(ServerWorld world) {
+        world.setWeatherParameters(6000, 0, false, false);
     }
 }
