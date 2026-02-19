@@ -3,6 +3,7 @@ package com.example.examplemod.client.screen.main;
 import com.example.examplemod.client.FramedButton;
 import com.example.examplemod.capability.IPlayerStats;
 import com.example.examplemod.capability.PlayerStatsProvider;
+import com.example.examplemod.util.TimeOfDayUtil;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -132,17 +133,20 @@ public class HiddenValuesScreen extends Screen {
             passwordField.render(ms, mouseX, mouseY, pt);
         } else {
             long time = this.minecraft.level.getDayTime();
-            long dayTime = time % 24000L;
-            int hour = (int) ((dayTime / 1000L + 6) % 24);
-            int minute = (int) ((dayTime % 1000L) * 60L / 1000L);
+            int hour = TimeOfDayUtil.getHour24(time);
+            int minute = TimeOfDayUtil.getMinute(time);
             String text = String.format("Игровое время: %02d:%02d", hour, minute);
             this.font.draw(ms, text, x0 + 10, y0 + 40, 0xFFFFFF);
 
+            String firstLightText = TimeOfDayUtil.isFirstLightTick(time)
+                    ? "ПЕРВЫЙ СВЕТ: СЕЙЧАС"
+                    : "Первый свет: 04:12";
+            this.font.draw(ms, firstLightText, x0 + 10, y0 + 48, 0xFFFFAA00);
 
             PlayerEntity player = this.minecraft.player;
             int temp = getAmbientTemperature(player);
             String tempText = String.format("Температура: %d C", temp);
-            this.font.draw(ms, tempText, x0 + 10, y0 + 55, 0xFFFFFF);
+            this.font.draw(ms, tempText, x0 + 10, y0 + 62, 0xFFFFFF);
 
             if (player != null) {
                 Biome biome = player.level.getBiome(player.blockPosition());
@@ -150,12 +154,12 @@ public class HiddenValuesScreen extends Screen {
                         ? biome.getRegistryName().getPath()
                         : "unknown";
                 String biomeText = String.format("Биом: %s", biomeName);
-                this.font.draw(ms, biomeText, x0 + 10, y0 + 70, 0xFFFFFF);
+                this.font.draw(ms, biomeText, x0 + 10, y0 + 77, 0xFFFFFF);
 
                 player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP)
                         .ifPresent((IPlayerStats stats) -> {
                             String windText = String.format("Ветер: %d м/с", stats.getWindSpeed());
-                            this.font.draw(ms, windText, x0 + 10, y0 + 85, 0xFFFFFF);
+                            this.font.draw(ms, windText, x0 + 10, y0 + 92, 0xFFFFFF);
                         });
             }
         }
