@@ -1,75 +1,70 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/render/HurricaneSkyRenderer.java b/src/main/java/com/example/examplemod/client/render/HurricaneSkyRenderer.java
-index 6ca7bf739220b4d9619fb27d52b0bdb431481b06..40a13228e12eb083e10677e17bccc8f5f95fdcca 100644
---- a/src/main/java/com/example/examplemod/client/render/HurricaneSkyRenderer.java
-+++ b/src/main/java/com/example/examplemod/client/render/HurricaneSkyRenderer.java
-@@ -26,55 +26,65 @@ public final class HurricaneSkyRenderer implements ISkyRenderHandler {
-     private static final ResourceLocation SKYBOX_NORTH = new ResourceLocation(ExampleMod.MODID,
-             "textures/environment/hurricane_skybox_back.png");
-     private static final ResourceLocation SKYBOX_SOUTH = new ResourceLocation(ExampleMod.MODID,
-             "textures/environment/hurricane_skybox_front.png");
-     private static final ResourceLocation SKYBOX_EAST = new ResourceLocation(ExampleMod.MODID,
-             "textures/environment/hurricane_skybox_right.png");
-     private static final ResourceLocation SKYBOX_WEST = new ResourceLocation(ExampleMod.MODID,
-             "textures/environment/hurricane_skybox_left.png");
+diff --git a/src/main/java/com/example/examplemod/client/render/HurricaneSkyEffects.java b/src/main/java/com/example/examplemod/client/render/HurricaneSkyEffects.java
+index 47a2b3e5306cbb128ad7ed7ccb06c108af15d927..27d340868c486a0abf9281f3b96229ab67de5c8d 100644
+--- a/src/main/java/com/example/examplemod/client/render/HurricaneSkyEffects.java
++++ b/src/main/java/com/example/examplemod/client/render/HurricaneSkyEffects.java
+@@ -1,60 +1,43 @@
+ package com.example.examplemod.client.render;
  
-     private static final ResourceLocation[] SKYBOX_FACES = {
-             SKYBOX_TOP,
-             SKYBOX_BOTTOM,
-             SKYBOX_NORTH,
-             SKYBOX_SOUTH,
-             SKYBOX_EAST,
-             SKYBOX_WEST
-     };
+ import com.example.examplemod.ExampleMod;
+ import com.example.examplemod.client.HurricaneClientState;
+-import com.mojang.blaze3d.systems.RenderSystem;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.world.ClientWorld;
+ import net.minecraft.client.world.DimensionRenderInfo;
+ import net.minecraftforge.client.ICloudRenderHandler;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.client.ISkyRenderHandler;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
  
-     @Override
-     public void render(int ticks, float partialTicks, MatrixStack matrixStack, ClientWorld world, Minecraft mc) {
-         float intensity = HurricaneClientState.getIntensity();
-         if (intensity <= 0.0F) {
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class HurricaneSkyEffects {
+     private static final ISkyRenderHandler HURRICANE_SKY = new HurricaneSkyRenderer();
+-    private static final ICloudRenderHandler HURRICANE_CLOUDS = (ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ) -> {
+-        ICloudRenderHandler originalCloudHandler = HurricaneSkyEffects.getOriginalCloudHandler();
+-        if (originalCloudHandler == null) {
+-            return;
+-        }
+-
+-        float cloudAlpha = 1.0F - HurricaneClientState.getIntensity();
+-        if (cloudAlpha <= 0.0F) {
+-            return;
+-        }
+-
+-        RenderSystem.enableBlend();
+-        RenderSystem.defaultBlendFunc();
+-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, cloudAlpha);
+-        originalCloudHandler.render(ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ);
+-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+-    };
++    private static final ICloudRenderHandler HURRICANE_CLOUDS = new HurricaneCloudRenderer();
+ 
+     private static DimensionRenderInfo activeEffects;
+     private static ISkyRenderHandler originalSky;
+     private static ICloudRenderHandler originalClouds;
+     private static boolean customSkyActive;
+ 
+     private HurricaneSkyEffects() {
+     }
+ 
+     public static boolean isCustomSkyActive() {
+         return customSkyActive;
+     }
+ 
+     static ISkyRenderHandler getOriginalSkyHandler() {
+         return originalSky;
+     }
+ 
+     static ICloudRenderHandler getOriginalCloudHandler() {
+         return originalClouds;
+     }
+ 
+     @SubscribeEvent
+     public static void onClientTick(TickEvent.ClientTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) {
              return;
-         }
- 
-+        ISkyRenderHandler originalSkyHandler = HurricaneSkyEffects.getOriginalSkyHandler();
-+        if (originalSkyHandler != null) {
-+            originalSkyHandler.render(ticks, partialTicks, matrixStack, world, mc);
-+        }
-+
-+        float texturedSkyAlpha = intensity * intensity;
-+        if (texturedSkyAlpha <= 0.0F) {
-+            return;
-+        }
-+
-         RenderSystem.disableDepthTest();
-         RenderSystem.depthMask(false);
-         RenderSystem.enableBlend();
-         RenderSystem.defaultBlendFunc();
--        RenderSystem.color4f(1.0F, 1.0F, 1.0F, intensity);
-+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, texturedSkyAlpha);
-         RenderSystem.disableCull();
-         RenderSystem.enableTexture();
- 
-         Tessellator tessellator = Tessellator.getInstance();
-         BufferBuilder buffer = tessellator.getBuilder();
- 
-         float size = 200.0F;
-         for (int i = 0; i < SKYBOX_FACES.length; i++) {
-             mc.getTextureManager().bind(SKYBOX_FACES[i]);
-             Matrix4f matrix4f = matrixStack.last().pose();
-             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
- 
-             switch (i) {
-                 case 0: // Top
-                     buffer.vertex(matrix4f, -size, size, -size).uv(0.0F, 0.0F).endVertex();
-                     buffer.vertex(matrix4f, -size, size, size).uv(0.0F, 1.0F).endVertex();
-                     buffer.vertex(matrix4f, size, size, size).uv(1.0F, 1.0F).endVertex();
-                     buffer.vertex(matrix4f, size, size, -size).uv(1.0F, 0.0F).endVertex();
-                     break;
-                 case 1: // Bottom
-                     buffer.vertex(matrix4f, -size, -size, size).uv(0.0F, 0.0F).endVertex();
-                     buffer.vertex(matrix4f, -size, -size, -size).uv(0.0F, 1.0F).endVertex();
-                     buffer.vertex(matrix4f, size, -size, -size).uv(1.0F, 1.0F).endVertex();
-                     buffer.vertex(matrix4f, size, -size, size).uv(1.0F, 0.0F).endVertex();
-                     break;
  
 EOF
 )

@@ -1,6 +1,7 @@
 package com.example.examplemod.client.render;
 
 import com.example.examplemod.ExampleMod;
+import com.example.examplemod.client.HurricaneClientState;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -32,7 +33,10 @@ public final class HurricaneCloudRenderer implements ICloudRenderHandler {
             return;
         }
 
-        float cloudAlpha = 0.85F;
+        float cloudAlpha = 0.85F * (1.0F - HurricaneClientState.getIntensity());
+        if (cloudAlpha <= 0.0F) {
+            return;
+        }
         float cloudColor = 0.65F;
         float scroll = (ticks + partialTicks) * CLOUD_SCROLL_SPEED;
 

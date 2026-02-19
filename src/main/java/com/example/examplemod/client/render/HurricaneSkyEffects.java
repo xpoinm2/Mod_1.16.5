@@ -2,7 +2,6 @@ package com.example.examplemod.client.render;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.client.HurricaneClientState;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.client.world.DimensionRenderInfo;
@@ -16,23 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class HurricaneSkyEffects {
     private static final ISkyRenderHandler HURRICANE_SKY = new HurricaneSkyRenderer();
-    private static final ICloudRenderHandler HURRICANE_CLOUDS = (ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ) -> {
-        ICloudRenderHandler originalCloudHandler = HurricaneSkyEffects.getOriginalCloudHandler();
-        if (originalCloudHandler == null) {
-            return;
-        }
-
-        float cloudAlpha = 1.0F - HurricaneClientState.getIntensity();
-        if (cloudAlpha <= 0.0F) {
-            return;
-        }
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, cloudAlpha);
-        originalCloudHandler.render(ticks, partialTicks, matrixStack, level, mc, cameraX, cameraY, cameraZ);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-    };
+    private static final ICloudRenderHandler HURRICANE_CLOUDS = new HurricaneCloudRenderer();
 
     private static DimensionRenderInfo activeEffects;
     private static ISkyRenderHandler originalSky;
