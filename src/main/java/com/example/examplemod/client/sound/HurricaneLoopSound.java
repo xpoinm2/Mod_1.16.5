@@ -22,6 +22,17 @@ public class HurricaneLoopSound extends TickableSound {
     }
 
     @Override
+    public boolean canStartSilent() {
+        // Ураган плавно «вкатывается» через intensity (0 -> 1), поэтому первый тик часто имеет
+        // нулевую громкость. Без этого флага SoundEngine может вообще не запустить звук.
+        return true;
+    }
+
+    public void stopLoop() {
+        stop();
+    }
+
+    @Override
     public void tick() {
         if (minecraft.player == null || minecraft.level == null) {
             stop();

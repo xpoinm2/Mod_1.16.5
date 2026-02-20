@@ -24,7 +24,7 @@ public final class HurricaneSoundController {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null || minecraft.player == null) {
             if (activeSound != null) {
-                activeSound.stop();
+                activeSound.stopLoop();
             }
             activeSound = null;
             return;
@@ -33,7 +33,7 @@ public final class HurricaneSoundController {
         boolean shouldPlay = HurricaneClientState.isActive() || HurricaneClientState.getIntensity() > 0.0F;
         if (!shouldPlay) {
             if (activeSound != null) {
-                activeSound.stop();
+                activeSound.stopLoop();
             }
             activeSound = null;
             return;
