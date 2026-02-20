@@ -21,6 +21,10 @@ public class HurricaneLoopSound extends TickableSound {
         this.pitch = 1.0F;
     }
 
+    public void stopLoop() {
+        stop();
+    }
+
     @Override
     public void tick() {
         if (minecraft.player == null || minecraft.level == null) {

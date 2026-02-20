@@ -1,10 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-index c193c504032c7bbc5a0ad92f6d6946150d03482e..8781e9ddef89bde5d826e483f63b75b505e497e9 100644
+index 8781e9ddef89bde5d826e483f63b75b505e497e9..735301c699471c5980252e84c6b0f9fbb9238a48 100644
 --- a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
 +++ b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-@@ -1,41 +1,47 @@
- package com.example.examplemod.client.sound;
+@@ -2,46 +2,46 @@ package com.example.examplemod.client.sound;
  
  import com.example.examplemod.ExampleMod;
  import com.example.examplemod.client.HurricaneClientState;
@@ -29,18 +28,20 @@ index c193c504032c7bbc5a0ad92f6d6946150d03482e..8781e9ddef89bde5d826e483f63b75b5
  
          Minecraft minecraft = Minecraft.getInstance();
          if (minecraft.level == null || minecraft.player == null) {
-+            if (activeSound != null) {
-+                activeSound.stop();
-+            }
+             if (activeSound != null) {
+-                activeSound.stop();
++                activeSound.stopLoop();
+             }
              activeSound = null;
              return;
          }
  
          boolean shouldPlay = HurricaneClientState.isActive() || HurricaneClientState.getIntensity() > 0.0F;
          if (!shouldPlay) {
-+            if (activeSound != null) {
-+                activeSound.stop();
-+            }
+             if (activeSound != null) {
+-                activeSound.stop();
++                activeSound.stopLoop();
+             }
              activeSound = null;
              return;
          }
