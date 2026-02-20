@@ -2,6 +2,7 @@ package com.example.examplemod.client.sound;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.client.HurricaneClientState;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.SoundCategory;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class HurricaneSoundController {
     private static int rainSoundTime;
+    private static HurricaneLoopSound hurricaneLoopSound;
 
     private HurricaneSoundController() {
     }
@@ -29,16 +31,37 @@ public final class HurricaneSoundController {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null || minecraft.player == null) {
             rainSoundTime = 0;
+            stopLoop(minecraft);
             return;
         }
 
         boolean shouldPlay = HurricaneClientState.isActive() || HurricaneClientState.getIntensity() > 0.0F;
         if (!shouldPlay) {
             rainSoundTime = 0;
+            stopLoop(minecraft);
             return;
         }
 
+        ensureLoop(minecraft);
+
         playVanillaLikeRainSound(minecraft, minecraft.player, HurricaneClientState.getIntensity());
+    }
+
+    private static void ensureLoop(Minecraft minecraft) {
+        SoundHandler soundHandler = minecraft.getSoundManager();
+        if (hurricaneLoopSound != null && soundHandler.isActive(hurricaneLoopSound)) {
+            return;
+        }
+        hurricaneLoopSound = new HurricaneLoopSound(minecraft);
+        soundHandler.play(hurricaneLoopSound);
+    }
+
+    private static void stopLoop(Minecraft minecraft) {
+        if (hurricaneLoopSound == null) {
+            return;
+        }
+        minecraft.getSoundManager().stop(hurricaneLoopSound);
+        hurricaneLoopSound = null;
     }
 
     private static void playVanillaLikeRainSound(Minecraft minecraft, ClientPlayerEntity player, float intensity) {
@@ -56,11 +79,6 @@ public final class HurricaneSoundController {
 
         samplePos.set(playerX + offsetX, playerY, playerZ + offsetZ);
         samplePos.setY(minecraft.level.getHeightmapPos(net.minecraft.world.gen.Heightmap.Type.MOTION_BLOCKING, samplePos).getY());
-
-        if (!minecraft.level.isRainingAt(samplePos)) {
-            rainSoundTime = 20;
-            return;
-        }
 
         float clampedIntensity = MathHelper.clamp(intensity, 0.2F, 1.0F);
         float volume = Math.min(1.0F, 0.25F + clampedIntensity * 0.75F);
