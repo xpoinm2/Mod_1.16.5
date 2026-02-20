@@ -1,61 +1,97 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-index 9d81fc09d4fad277875491e5a05cedb795e089c1..301182bf90f525622ef3e85c28df129d68dca217 100644
---- a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-+++ b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-@@ -1,46 +1,52 @@
+diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
+index 735301c699471c5980252e84c6b0f9fbb9238a48..58f43066d718695e22a5ec38ee3d1bb6529bb592 100644
+--- a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
++++ b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
+@@ -1,47 +1,78 @@
  package com.example.examplemod.client.sound;
  
- import com.example.examplemod.ModSounds;
+ import com.example.examplemod.ExampleMod;
  import com.example.examplemod.client.HurricaneClientState;
  import net.minecraft.client.Minecraft;
- import net.minecraft.client.audio.TickableSound;
- import net.minecraft.util.SoundCategory;
++import net.minecraft.client.entity.player.ClientPlayerEntity;
++import net.minecraft.util.SoundCategory;
++import net.minecraft.util.SoundEvents;
++import net.minecraft.util.math.BlockPos;
++import net.minecraft.util.math.MathHelper;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
  
- public class HurricaneLoopSound extends TickableSound {
-     private static final float MAX_VOLUME = 0.9F;
-+    private static final float MIN_ACTIVE_VOLUME = 0.2F;
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class HurricaneSoundController {
+-    private static HurricaneLoopSound activeSound;
++    private static int rainSoundTime;
  
-     private final Minecraft minecraft;
- 
-     public HurricaneLoopSound(Minecraft minecraft) {
--        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.WEATHER);
-+        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.MASTER);
-         this.minecraft = minecraft;
-         this.looping = true;
-         this.delay = 0;
-         this.relative = true;
-+        this.attenuation = AttenuationType.NONE;
-         this.volume = 0.0F;
-         this.pitch = 1.0F;
+     private HurricaneSoundController() {
      }
  
-     public void stopLoop() {
-         stop();
-     }
- 
-     @Override
-     public void tick() {
-         if (minecraft.player == null || minecraft.level == null) {
-             stop();
+     @SubscribeEvent
+     public static void onClientTick(TickEvent.ClientTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) {
              return;
          }
  
-         this.x = 0.0F;
-         this.y = 0.0F;
-         this.z = 0.0F;
- 
-         float intensity = HurricaneClientState.getIntensity();
--        this.volume = Math.max(0.0F, Math.min(MAX_VOLUME, intensity * MAX_VOLUME));
-+        float targetVolume = Math.max(0.0F, Math.min(MAX_VOLUME, intensity * MAX_VOLUME));
-+        if (HurricaneClientState.isActive()) {
-+            targetVolume = Math.max(MIN_ACTIVE_VOLUME, targetVolume);
-+        }
-+        this.volume = targetVolume;
- 
-         if (!HurricaneClientState.isActive() && intensity <= 0.0F) {
-             stop();
+         Minecraft minecraft = Minecraft.getInstance();
+         if (minecraft.level == null || minecraft.player == null) {
+-            if (activeSound != null) {
+-                activeSound.stopLoop();
+-            }
+-            activeSound = null;
++            rainSoundTime = 0;
+             return;
          }
+ 
+         boolean shouldPlay = HurricaneClientState.isActive() || HurricaneClientState.getIntensity() > 0.0F;
+         if (!shouldPlay) {
+-            if (activeSound != null) {
+-                activeSound.stopLoop();
+-            }
+-            activeSound = null;
++            rainSoundTime = 0;
+             return;
+         }
+ 
+-        if (activeSound == null || activeSound.isStopped()) {
+-            activeSound = new HurricaneLoopSound(minecraft);
+-            minecraft.getSoundManager().play(activeSound);
++        playVanillaLikeRainSound(minecraft, minecraft.player, HurricaneClientState.getIntensity());
++    }
++
++    private static void playVanillaLikeRainSound(Minecraft minecraft, ClientPlayerEntity player, float intensity) {
++        rainSoundTime--;
++        if (rainSoundTime > 0) {
++            return;
+         }
++
++        BlockPos.Mutable samplePos = new BlockPos.Mutable();
++        int playerX = MathHelper.floor(player.getX());
++        int playerY = MathHelper.floor(player.getY());
++        int playerZ = MathHelper.floor(player.getZ());
++        int offsetX = minecraft.level.random.nextInt(21) - 10;
++        int offsetZ = minecraft.level.random.nextInt(21) - 10;
++
++        samplePos.set(playerX + offsetX, playerY, playerZ + offsetZ);
++        samplePos.setY(minecraft.level.getHeightmapPos(net.minecraft.world.gen.Heightmap.Type.MOTION_BLOCKING, samplePos).getY());
++
++        if (!minecraft.level.isRainingAt(samplePos)) {
++            rainSoundTime = 20;
++            return;
++        }
++
++        float clampedIntensity = MathHelper.clamp(intensity, 0.2F, 1.0F);
++        float volume = Math.min(1.0F, 0.25F + clampedIntensity * 0.75F);
++        boolean abovePlayer = samplePos.getY() > playerY + 1;
++        if (abovePlayer) {
++            minecraft.level.playLocalSound(samplePos.getX(), samplePos.getY(), samplePos.getZ(),
++                    SoundEvents.WEATHER_RAIN_ABOVE, SoundCategory.WEATHER, volume, 1.0F, false);
++        } else {
++            minecraft.level.playLocalSound(samplePos.getX(), samplePos.getY(), samplePos.getZ(),
++                    SoundEvents.WEATHER_RAIN, SoundCategory.WEATHER, volume, 1.0F, false);
++        }
++
++        rainSoundTime = Math.max(2, (int) (8.0F / clampedIntensity));
      }
  }
  
