@@ -5,5 +5,13 @@
         "name": "examplemod:block/danilka_tap"
       }
     ]
+  },
+  "weather.hurricane_loop": {
+    "sounds": [
+      {
+        "name": "examplemod:weather/hurricane_loop",
+        "stream": true
+      }
+    ]
   }
 }

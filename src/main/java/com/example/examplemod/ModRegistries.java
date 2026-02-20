@@ -45,6 +45,7 @@ public class ModRegistries {
 
         // Специфические компоненты, которые имеют собственные DeferredRegister'ы/инициализацию
         ModCreativeTabs.register(modBus);
+        ModSounds.register();
         ModBiomes.register(modBus);
         ModFeatures.register(modBus);
         ModFluids.register(modBus);
