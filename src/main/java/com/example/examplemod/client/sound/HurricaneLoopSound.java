@@ -16,7 +16,7 @@ public class HurricaneLoopSound extends TickableSound {
         this.minecraft = minecraft;
         this.looping = true;
         this.delay = 0;
-        this.relative = false;
+        this.relative = true;
         this.volume = 0.0F;
         this.pitch = 1.0F;
     }
@@ -28,9 +28,9 @@ public class HurricaneLoopSound extends TickableSound {
             return;
         }
 
-        this.x = (float) minecraft.player.getX();
-        this.y = (float) minecraft.player.getY();
-        this.z = (float) minecraft.player.getZ();
+        this.x = 0.0F;
+        this.y = 0.0F;
+        this.z = 0.0F;
 
         float intensity = HurricaneClientState.getIntensity();
         this.volume = Math.max(0.0F, Math.min(MAX_VOLUME, intensity * MAX_VOLUME));
