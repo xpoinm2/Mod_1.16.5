@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-index 9d81fc09d4fad277875491e5a05cedb795e089c1..719d9a839d991eb3b1e8e355741e7b53ef8dd65c 100644
+index 9d81fc09d4fad277875491e5a05cedb795e089c1..301182bf90f525622ef3e85c28df129d68dca217 100644
 --- a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
 +++ b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-@@ -1,46 +1,53 @@
+@@ -1,46 +1,52 @@
  package com.example.examplemod.client.sound;
  
  import com.example.examplemod.ModSounds;
@@ -14,26 +14,22 @@ index 9d81fc09d4fad277875491e5a05cedb795e089c1..719d9a839d991eb3b1e8e355741e7b53
  
  public class HurricaneLoopSound extends TickableSound {
      private static final float MAX_VOLUME = 0.9F;
++    private static final float MIN_ACTIVE_VOLUME = 0.2F;
  
      private final Minecraft minecraft;
  
      public HurricaneLoopSound(Minecraft minecraft) {
-         super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.WEATHER);
+-        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.WEATHER);
++        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.MASTER);
          this.minecraft = minecraft;
          this.looping = true;
          this.delay = 0;
          this.relative = true;
++        this.attenuation = AttenuationType.NONE;
          this.volume = 0.0F;
          this.pitch = 1.0F;
      }
  
-+    @Override
-+    public boolean canStartSilent() {
-+        // Ураган плавно «вкатывается» через intensity (0 -> 1), поэтому первый тик часто имеет
-+        // нулевую громкость. Без этого флага SoundEngine может вообще не запустить звук.
-+        return true;
-+    }
-+
      public void stopLoop() {
          stop();
      }
@@ -50,7 +46,12 @@ index 9d81fc09d4fad277875491e5a05cedb795e089c1..719d9a839d991eb3b1e8e355741e7b53
          this.z = 0.0F;
  
          float intensity = HurricaneClientState.getIntensity();
-         this.volume = Math.max(0.0F, Math.min(MAX_VOLUME, intensity * MAX_VOLUME));
+-        this.volume = Math.max(0.0F, Math.min(MAX_VOLUME, intensity * MAX_VOLUME));
++        float targetVolume = Math.max(0.0F, Math.min(MAX_VOLUME, intensity * MAX_VOLUME));
++        if (HurricaneClientState.isActive()) {
++            targetVolume = Math.max(MIN_ACTIVE_VOLUME, targetVolume);
++        }
++        this.volume = targetVolume;
  
          if (!HurricaneClientState.isActive() && intensity <= 0.0F) {
              stop();
