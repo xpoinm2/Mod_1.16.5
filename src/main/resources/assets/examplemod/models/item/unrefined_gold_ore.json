@@ -1,9 +1,3 @@
 {
   "parent": "examplemod:block/unrefined_gold_ore"
 }
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "examplemod:item/unrefined_gold_ore"
-  }
-}
