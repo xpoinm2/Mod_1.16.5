@@ -8,6 +8,7 @@ import com.example.examplemod.block.ClayPotBlock;
 import com.example.examplemod.block.ClayShardsBlock;
 import com.example.examplemod.block.RawClayPotBlock;
 import com.example.examplemod.block.DirtyWaterBlock;
+import com.example.examplemod.block.UraganBlock;
 import com.example.examplemod.block.BaseSlabBlock;
 import com.example.examplemod.block.CobblestoneAnvilBlock;
 import net.minecraft.block.WallBlock;
@@ -68,6 +69,10 @@ public class ModBlocks {
     // Блок Данилка
     public static final RegistryObject<Block> DANILKA_BLOCK = ModRegistries.BLOCKS.register("danilka_block",
             DanilkaBlock::new);
+
+    // Блок Ураган (тест постоянного звука)
+    public static final RegistryObject<Block> URAGAN_BLOCK = ModRegistries.BLOCKS.register("uragan_block",
+            UraganBlock::new);
 
     // Куст малины
     public static final RegistryObject<Block> RASPBERRY_BUSH = ModRegistries.BLOCKS.register("raspberry_bush",
