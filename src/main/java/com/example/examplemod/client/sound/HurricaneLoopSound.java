@@ -23,8 +23,19 @@ public class HurricaneLoopSound extends TickableSound {
         this.delay = 0;
         this.relative = true;
         this.attenuation = AttenuationType.NONE;
-        this.volume = 0.0F;
+        // Важно: в 1.16.5 звук может не стартовать, если первая громкость равна 0.
+        // Это давало "тихий" баг, когда событие активируется, но луп фактически не
+        // запускается SoundManager'ом. Стартуем с минимальной слышимой громкости,
+        // а дальше tick() уже плавно ведёт уровень по intensity.
+        this.volume = MIN_ACTIVE_VOLUME;
         this.pitch = 1.0F;
+    }
+
+    @Override
+    public boolean canStartSilent() {
+        // Разрешаем безопасный старт даже при очень низкой громкости (например,
+        // когда интенсивность только начала расти после активации урагана).
+        return true;
     }
 
     public boolean canStart() {
