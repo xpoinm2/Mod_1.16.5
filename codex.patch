@@ -1,64 +1,18 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-index ead485218421a18adc9591ce1ef76bec68d3a479..7e1e843cb736de480660a12ea15e61799999c165 100644
---- a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-+++ b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-@@ -5,51 +5,54 @@ import com.example.examplemod.client.HurricaneClientState;
- import net.minecraft.client.Minecraft;
- import net.minecraftforge.api.distmarker.Dist;
- import net.minecraftforge.event.TickEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
- 
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class HurricaneSoundController {
-     private static HurricaneLoopSound loopSound;
- 
-     private HurricaneSoundController() {
-     }
- 
-     @SubscribeEvent
-     public static void onClientTick(TickEvent.ClientTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) {
-             return;
-         }
- 
-         Minecraft minecraft = Minecraft.getInstance();
-         if (minecraft.level == null || minecraft.player == null) {
-             stopLoop();
-             return;
-         }
- 
--        boolean shouldPlay = HurricaneClientState.isActive();
-+        // Держим луп запущенным не только во время активного урагана,
-+        // но и во время клиентского fade-out, чтобы затухание звука
-+        // было синхронно с плавным исчезновением визуальных эффектов.
-+        boolean shouldPlay = HurricaneClientState.shouldRenderEffects();
-         if (!shouldPlay) {
-             stopLoop();
-             return;
-         }
- 
-         ensureLoopIsPlaying(minecraft);
-     }
- 
-     private static void ensureLoopIsPlaying(Minecraft minecraft) {
-         if (loopSound != null && !loopSound.isStopped()) {
-             return;
-         }
- 
-         loopSound = new HurricaneLoopSound(minecraft);
-         if (!loopSound.canStart()) {
-             loopSound = null;
-             return;
-         }
-         minecraft.getSoundManager().play(loopSound);
-     }
- 
-     private static void stopLoop() {
-         if (loopSound == null) {
-             return;
-         }
+diff --git a/src/main/resources/assets/examplemod/particles/hurricane_wind.json b/src/main/resources/assets/examplemod/particles/hurricane_wind.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..d419ecf67018d576868c75d28a9bee4d4d9d985f
+--- /dev/null
++++ b/src/main/resources/assets/examplemod/particles/hurricane_wind.json
+@@ -0,0 +1,8 @@
++{
++  "textures": [
++    "examplemod:particle/hurricane_wind_0",
++    "examplemod:particle/hurricane_wind_1",
++    "examplemod:particle/hurricane_wind_2",
++    "examplemod:particle/hurricane_wind_3"
++  ]
++}
  
 EOF
 )

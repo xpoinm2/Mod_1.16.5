@@ -34,6 +34,9 @@ public class ModRegistries {
     public static final DeferredRegister<net.minecraft.potion.Effect> EFFECTS =
             DeferredRegister.create(ForgeRegistries.POTIONS, ExampleMod.MODID);
 
+    public static final DeferredRegister<net.minecraft.particles.ParticleType<?>> PARTICLES =
+            DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, ExampleMod.MODID);
+
 
     /**
      * Регистрирует все регистраторы в mod event bus
@@ -41,7 +44,7 @@ public class ModRegistries {
     public static void register(IEventBus modBus) {
         // Базовые DeferredRegister'ы мода (items/blocks/entities/containers/tile entities/sounds)
         RegistryHelper.registerAll(modBus,
-                ITEMS, BLOCKS, ENTITIES, CONTAINERS, TILE_ENTITIES, SOUND_EVENTS, EFFECTS);
+                ITEMS, BLOCKS, ENTITIES, CONTAINERS, TILE_ENTITIES, SOUND_EVENTS, EFFECTS, PARTICLES);
 
         // Специфические компоненты, которые имеют собственные DeferredRegister'ы/инициализацию
         ModCreativeTabs.register(modBus);
@@ -50,6 +53,7 @@ public class ModRegistries {
         ModFeatures.register(modBus);
         ModFluids.register(modBus);
         ModEffects.register(modBus);
+        ModParticles.register();
         Config.register(modBus);
     }
 }
