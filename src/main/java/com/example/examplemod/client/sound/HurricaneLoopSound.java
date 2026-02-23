@@ -25,7 +25,7 @@ public class HurricaneLoopSound extends TickableSound {
     }
 
     public boolean canStart() {
-        return !isStopped() && minecraft.player != null && minecraft.level != null;
+        return !isStopped() && minecraft.player != null && minecraft.level != null && HurricaneClientState.isActive();
     }
 
     public void stopLoop() {
@@ -43,15 +43,13 @@ public class HurricaneLoopSound extends TickableSound {
         this.y = 0.0F;
         this.z = 0.0F;
 
-        float intensity = HurricaneClientState.getIntensity();
-        float targetVolume = MathHelper.clamp(intensity * MAX_VOLUME, 0.0F, MAX_VOLUME);
-        if (HurricaneClientState.isActive()) {
-            targetVolume = Math.max(MIN_ACTIVE_VOLUME, targetVolume);
-        }
-        this.volume = targetVolume;
-
-        if (!HurricaneClientState.isActive() && intensity <= 0.0F) {
+        if (!HurricaneClientState.isActive()) {
             stop();
+            return;
         }
+
+        float intensity = HurricaneClientState.getIntensity();
+        float targetVolume = MathHelper.clamp(intensity * MAX_VOLUME, MIN_ACTIVE_VOLUME, MAX_VOLUME);
+        this.volume = targetVolume;
     }
 }

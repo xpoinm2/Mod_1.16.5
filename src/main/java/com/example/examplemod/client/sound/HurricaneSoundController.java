@@ -27,7 +27,7 @@ public final class HurricaneSoundController {
             return;
         }
 
-        boolean shouldPlay = HurricaneClientState.isActive() || HurricaneClientState.getIntensity() > 0.0F;
+        boolean shouldPlay = HurricaneClientState.isActive();
         if (!shouldPlay) {
             stopLoop();
             return;
