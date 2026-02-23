@@ -5,6 +5,7 @@ import com.example.examplemod.client.HurricaneClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.TickableSound;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.MathHelper;
 
 public class HurricaneLoopSound extends TickableSound {
     private static final float MAX_VOLUME = 0.9F;
@@ -13,7 +14,7 @@ public class HurricaneLoopSound extends TickableSound {
     private final Minecraft minecraft;
 
     public HurricaneLoopSound(Minecraft minecraft) {
-        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.MASTER);
+        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.WEATHER);
         this.minecraft = minecraft;
         this.looping = true;
         this.delay = 0;
@@ -21,6 +22,10 @@ public class HurricaneLoopSound extends TickableSound {
         this.attenuation = AttenuationType.NONE;
         this.volume = 0.0F;
         this.pitch = 1.0F;
+    }
+
+    public boolean canStart() {
+        return !isStopped() && minecraft.player != null && minecraft.level != null;
     }
 
     public void stopLoop() {
@@ -39,7 +44,7 @@ public class HurricaneLoopSound extends TickableSound {
         this.z = 0.0F;
 
         float intensity = HurricaneClientState.getIntensity();
-        float targetVolume = Math.max(0.0F, Math.min(MAX_VOLUME, intensity * MAX_VOLUME));
+        float targetVolume = MathHelper.clamp(intensity * MAX_VOLUME, 0.0F, MAX_VOLUME);
         if (HurricaneClientState.isActive()) {
             targetVolume = Math.max(MIN_ACTIVE_VOLUME, targetVolume);
         }
