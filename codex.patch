@@ -1,14 +1,14 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-index eb66122bd7a57a0ffb273fc84a94773c1982d577..f5d0d9001f84ed08bc3610aba8883040c8deca47 100644
+index f5d0d9001f84ed08bc3610aba8883040c8deca47..2da5da6ffa4f09ae8afc3c6c94dc91cc804a4776 100644
 --- a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
 +++ b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-@@ -1,66 +1,66 @@
+@@ -1,66 +1,67 @@
  package com.example.examplemod.client.render;
  
  import com.example.examplemod.ExampleMod;
  import com.example.examplemod.client.FogClientState;
--import com.mojang.blaze3d.systems.RenderSystem;
++import com.mojang.blaze3d.systems.RenderSystem;
  import net.minecraft.client.Minecraft;
  import net.minecraftforge.api.distmarker.Dist;
  import net.minecraftforge.client.event.EntityViewRenderEvent;
@@ -49,13 +49,14 @@ index eb66122bd7a57a0ffb273fc84a94773c1982d577..f5d0d9001f84ed08bc3610aba8883040
              fogNear = Math.max(0.0F, fogFar - 0.1F);
          }
  
--        RenderSystem.fogStart(fogNear);
--        RenderSystem.fogEnd(fogFar);
--        event.setCanceled(true);
-+        // RenderFogEvent is not cancelable in Forge 1.16.5; pushing values back to the event
-+        // lets Forge apply the fog distances safely without crashing.
-+        event.setNearPlaneDistance(fogNear);
-+        event.setFarPlaneDistance(fogFar);
+-        // RenderFogEvent is not cancelable in Forge 1.16.5; pushing values back to the event
+-        // lets Forge apply the fog distances safely without crashing.
+-        event.setNearPlaneDistance(fogNear);
+-        event.setFarPlaneDistance(fogFar);
++        // Forge 1.16.5 RenderFogEvent does not expose mutators for near/far planes,
++        // so we override the active fog distances directly for this render pass.
++        RenderSystem.fogStart(fogNear);
++        RenderSystem.fogEnd(fogFar);
      }
  
      @SubscribeEvent
