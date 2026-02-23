@@ -34,8 +34,8 @@ public final class FogRenderEffects {
         }
 
         float intensity = FogClientState.getIntensity();
-        float baseNear = event.getNearPlaneDistance();
-        float baseFar = event.getFarPlaneDistance();
+        float baseNear = event.getNearPlane();
+        float baseFar = event.getFarPlane();
 
         float fogNear = lerp(baseNear, 1.0F, intensity);
         float fogFar = lerp(baseFar, FOG_DISTANCE_BLOCKS, intensity);
@@ -43,8 +43,8 @@ public final class FogRenderEffects {
             fogNear = Math.max(0.0F, fogFar - 0.1F);
         }
 
-        event.setNearPlaneDistance(fogNear);
-        event.setFarPlaneDistance(fogFar);
+        event.setNearPlane(fogNear);
+        event.setFarPlane(fogFar);
         event.setCanceled(true);
     }
 
