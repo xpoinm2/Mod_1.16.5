@@ -9,8 +9,7 @@
   "weather.hurricane_loop": {
     "sounds": [
       {
-        "name": "examplemod:weather/hurricane_loop",
-        "stream": true
+        "name": "examplemod:weather/hurricane_loop"
       }
     ]
   }

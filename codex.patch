@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/resources/assets/examplemod/sounds.json b/src/main/resources/assets/examplemod/sounds.json
-index d28332ac52ae8fc4004db0c876e07c804681f5a7..13d29666a12379c882c421a6e3d665ab2323c8c6 100644
+index 13d29666a12379c882c421a6e3d665ab2323c8c6..d28332ac52ae8fc4004db0c876e07c804681f5a7 100644
 --- a/src/main/resources/assets/examplemod/sounds.json
 +++ b/src/main/resources/assets/examplemod/sounds.json
-@@ -1,16 +1,17 @@
+@@ -1,17 +1,16 @@
  {
    "block.danilka.tap": {
      "sounds": [
@@ -15,9 +15,9 @@ index d28332ac52ae8fc4004db0c876e07c804681f5a7..13d29666a12379c882c421a6e3d665ab
    "weather.hurricane_loop": {
      "sounds": [
        {
--        "name": "examplemod:weather/hurricane_loop"
-+        "name": "examplemod:weather/hurricane_loop",
-+        "stream": true
+-        "name": "examplemod:weather/hurricane_loop",
+-        "stream": true
++        "name": "examplemod:weather/hurricane_loop"
        }
      ]
    }
