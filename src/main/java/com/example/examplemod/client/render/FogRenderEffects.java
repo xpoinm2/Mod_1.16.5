@@ -2,7 +2,6 @@ package com.example.examplemod.client.render;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.client.FogClientState;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
@@ -43,9 +42,10 @@ public final class FogRenderEffects {
             fogNear = Math.max(0.0F, fogFar - 0.1F);
         }
 
-        RenderSystem.fogStart(fogNear);
-        RenderSystem.fogEnd(fogFar);
-        event.setCanceled(true);
+        // RenderFogEvent is not cancelable in Forge 1.16.5; pushing values back to the event
+        // lets Forge apply the fog distances safely without crashing.
+        event.setNearPlaneDistance(fogNear);
+        event.setFarPlaneDistance(fogFar);
     }
 
     @SubscribeEvent

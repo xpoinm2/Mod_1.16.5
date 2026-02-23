@@ -1,6 +1,6 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-index 68e52ace95c95a5b95e6f589241b8632288dd3f9..eb66122bd7a57a0ffb273fc84a94773c1982d577 100644
+index eb66122bd7a57a0ffb273fc84a94773c1982d577..f5d0d9001f84ed08bc3610aba8883040c8deca47 100644
 --- a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
 +++ b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
 @@ -1,66 +1,66 @@
@@ -8,7 +8,7 @@ index 68e52ace95c95a5b95e6f589241b8632288dd3f9..eb66122bd7a57a0ffb273fc84a94773c
  
  import com.example.examplemod.ExampleMod;
  import com.example.examplemod.client.FogClientState;
-+import com.mojang.blaze3d.systems.RenderSystem;
+-import com.mojang.blaze3d.systems.RenderSystem;
  import net.minecraft.client.Minecraft;
  import net.minecraftforge.api.distmarker.Dist;
  import net.minecraftforge.client.event.EntityViewRenderEvent;
@@ -41,21 +41,21 @@ index 68e52ace95c95a5b95e6f589241b8632288dd3f9..eb66122bd7a57a0ffb273fc84a94773c
          }
  
          float intensity = FogClientState.getIntensity();
--        float baseNear = event.getNearPlaneDistance();
          float baseFar = event.getFarPlaneDistance();
  
--        float fogNear = lerp(baseNear, 1.0F, intensity);
-+        float fogNear = lerp(0.0F, 1.0F, intensity);
+         float fogNear = lerp(0.0F, 1.0F, intensity);
          float fogFar = lerp(baseFar, FOG_DISTANCE_BLOCKS, intensity);
          if (fogFar <= fogNear) {
              fogNear = Math.max(0.0F, fogFar - 0.1F);
          }
  
--        event.setNearPlaneDistance(fogNear);
--        event.setFarPlaneDistance(fogFar);
-+        RenderSystem.fogStart(fogNear);
-+        RenderSystem.fogEnd(fogFar);
-         event.setCanceled(true);
+-        RenderSystem.fogStart(fogNear);
+-        RenderSystem.fogEnd(fogFar);
+-        event.setCanceled(true);
++        // RenderFogEvent is not cancelable in Forge 1.16.5; pushing values back to the event
++        // lets Forge apply the fog distances safely without crashing.
++        event.setNearPlaneDistance(fogNear);
++        event.setFarPlaneDistance(fogFar);
      }
  
      @SubscribeEvent
