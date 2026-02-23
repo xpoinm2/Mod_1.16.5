@@ -12,6 +12,8 @@ import net.minecraft.util.math.MathHelper;
 import java.util.Random;
 
 public class HurricaneWindParticle extends SpriteTexturedParticle {
+    private static final float DRAG = 0.96F;
+
     private final IAnimatedSprite sprites;
     private final float swirlAmplitude;
     private final float swirlSpeed;
@@ -33,7 +35,6 @@ public class HurricaneWindParticle extends SpriteTexturedParticle {
         this.lifetime = 14 + random.nextInt(10);
         this.gravity = 0.0F;
         this.hasPhysics = false;
-        this.friction = 0.96F;
 
         this.rCol = this.gCol = this.bCol = 1.0F;
         this.alpha = 0.1F + random.nextFloat() * 0.2F;
@@ -67,9 +68,9 @@ public class HurricaneWindParticle extends SpriteTexturedParticle {
         this.yd *= 0.98D;
 
         this.move(this.xd, this.yd, this.zd);
-        this.xd *= this.friction;
-        this.yd *= this.friction;
-        this.zd *= this.friction;
+        this.xd *= DRAG;
+        this.yd *= DRAG;
+        this.zd *= DRAG;
 
         this.setSpriteFromAge(this.sprites);
     }
