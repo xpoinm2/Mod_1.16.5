@@ -10,6 +10,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 import com.example.examplemod.network.ActivityPacket;
 import com.example.examplemod.network.ClayPotModePacket;
 import com.example.examplemod.network.CobblestoneAnvilHammerPacket;
+import com.example.examplemod.network.FogStatePacket;
 import com.example.examplemod.network.CobblestoneAnvilProgressPacket;
 import com.example.examplemod.network.CompleteCobblestoneAnvilQuestPacket;
 import com.example.examplemod.network.HarvestGrassPacket;
@@ -149,6 +150,13 @@ public class ModNetworkHandler {
                 HurricaneStatePacket::encode,
                 HurricaneStatePacket::decode,
                 HurricaneStatePacket::handle
+        );
+        CHANNEL.registerMessage(
+                nextId(),
+                FogStatePacket.class,
+                FogStatePacket::encode,
+                FogStatePacket::decode,
+                FogStatePacket::handle
         );
         CHANNEL.registerMessage(
                 nextId(),

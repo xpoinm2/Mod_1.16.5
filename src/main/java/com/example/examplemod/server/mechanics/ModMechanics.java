@@ -76,7 +76,8 @@ public final class ModMechanics {
         register(new HotOreDamageMechanic());
         register(new WindMechanic());
         register(new HurricaneWeatherMechanic());
-        registeredCount += 5;
+        register(new FogWeatherMechanic());
+        registeredCount += 6;
 
         // === Команды (основные) ===
         register(new StatsCommandsMechanic());
