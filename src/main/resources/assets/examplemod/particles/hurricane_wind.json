@@ -1,12 +1,12 @@
 {
   "textures": [
-    "examplemod:particle/hurricane_wind_0",
-    "examplemod:particle/hurricane_wind_1",
-    "examplemod:particle/hurricane_wind_2",
-    "examplemod:particle/hurricane_wind_3",
-    "examplemod:particle/hurricane_wind_4",
-    "examplemod:particle/hurricane_wind_5",
-    "examplemod:particle/hurricane_wind_6",
-    "examplemod:particle/hurricane_wind_7"
+    "examplemod:hurricane_wind_0",
+    "examplemod:hurricane_wind_1",
+    "examplemod:hurricane_wind_2",
+    "examplemod:hurricane_wind_3",
+    "examplemod:hurricane_wind_4",
+    "examplemod:hurricane_wind_5",
+    "examplemod:hurricane_wind_6",
+    "examplemod:hurricane_wind_7"
   ]
 }

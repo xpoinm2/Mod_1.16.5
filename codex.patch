@@ -1,20 +1,27 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/resources/assets/examplemod/particles/hurricane_wind.json b/src/main/resources/assets/examplemod/particles/hurricane_wind.json
-index d419ecf67018d576868c75d28a9bee4d4d9d985f..214b3d480ddd03a92569742f56f8213013697642 100644
+index 214b3d480ddd03a92569742f56f8213013697642..985441eee5b4332d3606f71beb441f7a37e83b97 100644
 --- a/src/main/resources/assets/examplemod/particles/hurricane_wind.json
 +++ b/src/main/resources/assets/examplemod/particles/hurricane_wind.json
-@@ -1,8 +1,12 @@
+@@ -1,12 +1,12 @@
  {
    "textures": [
-     "examplemod:particle/hurricane_wind_0",
-     "examplemod:particle/hurricane_wind_1",
-     "examplemod:particle/hurricane_wind_2",
--    "examplemod:particle/hurricane_wind_3"
-+    "examplemod:particle/hurricane_wind_3",
-+    "examplemod:particle/hurricane_wind_4",
-+    "examplemod:particle/hurricane_wind_5",
-+    "examplemod:particle/hurricane_wind_6",
-+    "examplemod:particle/hurricane_wind_7"
+-    "examplemod:particle/hurricane_wind_0",
+-    "examplemod:particle/hurricane_wind_1",
+-    "examplemod:particle/hurricane_wind_2",
+-    "examplemod:particle/hurricane_wind_3",
+-    "examplemod:particle/hurricane_wind_4",
+-    "examplemod:particle/hurricane_wind_5",
+-    "examplemod:particle/hurricane_wind_6",
+-    "examplemod:particle/hurricane_wind_7"
++    "examplemod:hurricane_wind_0",
++    "examplemod:hurricane_wind_1",
++    "examplemod:hurricane_wind_2",
++    "examplemod:hurricane_wind_3",
++    "examplemod:hurricane_wind_4",
++    "examplemod:hurricane_wind_5",
++    "examplemod:hurricane_wind_6",
++    "examplemod:hurricane_wind_7"
    ]
  }
  
