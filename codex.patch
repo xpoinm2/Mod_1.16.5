@@ -1,38 +1,26 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/block/UraganBlock.java b/src/main/java/com/example/examplemod/block/UraganBlock.java
-index 91063725c2da42efde7e18f5f771f49c55f1cf0c..87f128854ff4e7e14806c5a590e8e9f3ad2d4f70 100644
---- a/src/main/java/com/example/examplemod/block/UraganBlock.java
-+++ b/src/main/java/com/example/examplemod/block/UraganBlock.java
-@@ -1,11 +1,30 @@
- package com.example.examplemod.block;
- 
-+import com.example.examplemod.ModSounds;
- import net.minecraft.block.AbstractBlock;
- import net.minecraft.block.Block;
-+import net.minecraft.block.BlockState;
- import net.minecraft.block.Blocks;
-+import net.minecraft.entity.player.PlayerEntity;
-+import net.minecraft.util.ActionResultType;
-+import net.minecraft.util.Hand;
-+import net.minecraft.util.SoundCategory;
-+import net.minecraft.util.math.BlockPos;
-+import net.minecraft.util.math.BlockRayTraceResult;
-+import net.minecraft.world.World;
- 
- public class UraganBlock extends Block {
-     public UraganBlock() {
-         super(AbstractBlock.Properties.copy(Blocks.DIAMOND_BLOCK));
-     }
-+
-+    @Override
-+    public ActionResultType use(BlockState state, World world, BlockPos pos,
-+                                PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
-+        if (!world.isClientSide) {
-+            world.playSound(null, pos, ModSounds.HURRICANE_LOOP.get(),
-+                    SoundCategory.BLOCKS, 1.0F, 1.0F);
-+        }
-+        return ActionResultType.sidedSuccess(world.isClientSide);
-+    }
+diff --git a/src/main/resources/assets/examplemod/sounds.json b/src/main/resources/assets/examplemod/sounds.json
+index 13d29666a12379c882c421a6e3d665ab2323c8c6..d28332ac52ae8fc4004db0c876e07c804681f5a7 100644
+--- a/src/main/resources/assets/examplemod/sounds.json
++++ b/src/main/resources/assets/examplemod/sounds.json
+@@ -1,17 +1,16 @@
+ {
+   "block.danilka.tap": {
+     "sounds": [
+       {
+         "name": "examplemod:block/danilka_tap"
+       }
+     ]
+   },
+   "weather.hurricane_loop": {
+     "sounds": [
+       {
+-        "name": "examplemod:weather/hurricane_loop",
+-        "stream": true
++        "name": "examplemod:weather/hurricane_loop"
+       }
+     ]
+   }
  }
  
 EOF
