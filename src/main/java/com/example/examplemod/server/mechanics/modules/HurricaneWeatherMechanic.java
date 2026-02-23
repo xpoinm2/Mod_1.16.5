@@ -29,6 +29,8 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
     private static final int MAX_TREES_PER_HURRICANE = 10;
     private static final int MIN_HURRICANE_DURATION = 3600;
     private static final int MAX_HURRICANE_DURATION = 15600;
+    private static final int MIN_CLEAR_DURATION = 12000;
+    private static final int MAX_CLEAR_DURATION = 48000;
     private static final int CHUNK_RADIUS = 6;
     private static final int BLOCK_RADIUS = CHUNK_RADIUS * 16;
     private static final int TREE_SCAN_ATTEMPTS = 20;
@@ -88,7 +90,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         HurricaneWeatherData data = HurricaneWeatherData.get(world);
         if (!data.isEnabled()) {
             if (data.isActive() || HURRICANE_STATES.containsKey(world)) {
-                clearHurricane(world, data);
+                clearHurricane(world, data, false);
             }
             return;
         }
@@ -98,20 +100,21 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             if (data.isActive()) {
                 long tick = world.getGameTime();
                 if (tick >= data.getEndTick()) {
-                    data.clear();
+                    clearHurricane(world, data, true);
                     return;
                 }
                 state = HurricaneState.fromData(data);
                 HURRICANE_STATES.put(world, state);
                 sendHurricaneState(world, true);
             } else {
+                tryStartTimedHurricane(world, data);
                 return;
             }
         }
 
         long tick = world.getGameTime();
         if (tick >= state.endTick) {
-            clearHurricane(world, data);
+            clearHurricane(world, data, true);
             return;
         }
 
@@ -142,6 +145,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         HurricaneState state = new HurricaneState(world.getGameTime(), duration, random);
         HURRICANE_STATES.put(world, state);
         data.start(state.endTick, state.totalBreaks, state.breaksRemaining, state.nextBreakTick);
+        data.scheduleNextStart(0L);
         clearVanillaWeather(world);
         sendHurricaneState(world, true);
         source.sendSuccess(new StringTextComponent("Hurricane started for " + duration + " ticks."), true);
@@ -157,6 +161,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             return 1;
         }
         data.setEnabled(true);
+        ensureNextStartTick(world, data);
         source.sendSuccess(new StringTextComponent("Hurricane weather from mod enabled."), true);
         return 1;
     }
@@ -167,7 +172,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         HurricaneWeatherData data = HurricaneWeatherData.get(world);
         data.setEnabled(false);
         if (data.isActive() || HURRICANE_STATES.containsKey(world)) {
-            clearHurricane(world, data);
+            clearHurricane(world, data, false);
         }
         source.sendSuccess(new StringTextComponent("Hurricane weather from mod disabled."), true);
         return 1;
@@ -181,13 +186,17 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             source.sendFailure(new StringTextComponent("No active hurricane to stop."));
             return 0;
         }
-        clearHurricane(world, data);
+        clearHurricane(world, data, true);
         source.sendSuccess(new StringTextComponent("Hurricane stopped."), true);
         return 1;
     }
 
     private int rollHurricaneDuration(Random random) {
         return random.nextInt((MAX_HURRICANE_DURATION - MIN_HURRICANE_DURATION) + 1) + MIN_HURRICANE_DURATION;
+    }
+
+    private int rollClearDuration(Random random) {
+        return random.nextInt((MAX_CLEAR_DURATION - MIN_CLEAR_DURATION) + 1) + MIN_CLEAR_DURATION;
     }
 
     public static boolean isHurricaneActive(ServerWorld world) {
@@ -325,10 +334,35 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         ModNetworkHandler.CHANNEL.sendTo(new HurricaneStatePacket(active), player.connection.connection, net.minecraftforge.fml.network.NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    private void clearHurricane(ServerWorld world, HurricaneWeatherData data) {
+    private void clearHurricane(ServerWorld world, HurricaneWeatherData data, boolean scheduleNextStart) {
         sendHurricaneState(world, false);
         HURRICANE_STATES.remove(world);
         data.clear();
+        if (scheduleNextStart && data.isEnabled()) {
+            data.scheduleNextStart(world.getGameTime() + rollClearDuration(world.getRandom()));
+        }
+    }
+
+    private void tryStartTimedHurricane(ServerWorld world, HurricaneWeatherData data) {
+        ensureNextStartTick(world, data);
+        if (world.getGameTime() < data.getNextStartTick()) {
+            return;
+        }
+        Random random = world.getRandom();
+        int duration = rollHurricaneDuration(random);
+        HurricaneState state = new HurricaneState(world.getGameTime(), duration, random);
+        HURRICANE_STATES.put(world, state);
+        data.start(state.endTick, state.totalBreaks, state.breaksRemaining, state.nextBreakTick);
+        data.scheduleNextStart(0L);
+        clearVanillaWeather(world);
+        sendHurricaneState(world, true);
+    }
+
+    private void ensureNextStartTick(ServerWorld world, HurricaneWeatherData data) {
+        if (data.getNextStartTick() > 0L) {
+            return;
+        }
+        data.scheduleNextStart(world.getGameTime() + rollClearDuration(world.getRandom()));
     }
 
     private void clearVanillaWeather(ServerWorld world) {
