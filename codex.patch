@@ -1,61 +1,55 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-index ae0a009ef73f9e1e04ba83cd0b5a8c653699e25f..ead485218421a18adc9591ce1ef76bec68d3a479 100644
---- a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-+++ b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
-@@ -5,51 +5,51 @@ import com.example.examplemod.client.HurricaneClientState;
+diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
+index eba0d639390d06bad9ca42b2dac85f00f6fd1899..86eee4d473ac89ea44568b084d070e432393f2b7 100644
+--- a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
++++ b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
+@@ -1,42 +1,45 @@
+ package com.example.examplemod.client.sound;
+ 
+ import com.example.examplemod.ModSounds;
+ import com.example.examplemod.client.HurricaneClientState;
  import net.minecraft.client.Minecraft;
- import net.minecraftforge.api.distmarker.Dist;
- import net.minecraftforge.event.TickEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
+ import net.minecraft.client.audio.TickableSound;
+ import net.minecraft.util.SoundCategory;
+ import net.minecraft.util.math.MathHelper;
  
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class HurricaneSoundController {
-     private static HurricaneLoopSound loopSound;
+ public class HurricaneLoopSound extends TickableSound {
+     private static final float MAX_VOLUME = 0.9F;
+     private static final float MIN_ACTIVE_VOLUME = 0.2F;
  
-     private HurricaneSoundController() {
+     private final Minecraft minecraft;
+ 
+     public HurricaneLoopSound(Minecraft minecraft) {
+-        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.WEATHER);
++        // Используем BLOCKS, чтобы громкость урагана из команды контролировалась тем же ползунком,
++        // что и у звука блока урагана. Это убирает ситуацию, когда блок слышно, а командный
++        // ураган "тихий" из-за отдельной категории WEATHER.
++        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.BLOCKS);
+         this.minecraft = minecraft;
+         this.looping = true;
+         this.delay = 0;
+         this.relative = true;
+         this.attenuation = AttenuationType.NONE;
+         this.volume = 0.0F;
+         this.pitch = 1.0F;
      }
  
-     @SubscribeEvent
-     public static void onClientTick(TickEvent.ClientTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) {
-             return;
-         }
- 
-         Minecraft minecraft = Minecraft.getInstance();
-         if (minecraft.level == null || minecraft.player == null) {
-             stopLoop();
-             return;
-         }
- 
--        boolean shouldPlay = HurricaneClientState.isActive() || HurricaneClientState.getIntensity() > 0.0F;
-+        boolean shouldPlay = HurricaneClientState.isActive();
-         if (!shouldPlay) {
-             stopLoop();
-             return;
-         }
- 
-         ensureLoopIsPlaying(minecraft);
+     public boolean canStart() {
+         return !isStopped() && minecraft.player != null && minecraft.level != null && HurricaneClientState.isActive();
      }
  
-     private static void ensureLoopIsPlaying(Minecraft minecraft) {
-         if (loopSound != null && !loopSound.isStopped()) {
-             return;
-         }
- 
-         loopSound = new HurricaneLoopSound(minecraft);
-         if (!loopSound.canStart()) {
-             loopSound = null;
-             return;
-         }
-         minecraft.getSoundManager().play(loopSound);
+     public void stopLoop() {
+         stop();
      }
  
-     private static void stopLoop() {
-         if (loopSound == null) {
+     @Override
+     public void tick() {
+         if (minecraft.player == null || minecraft.level == null) {
+             stop();
              return;
          }
+ 
+         this.x = 0.0F;
  
 EOF
 )

@@ -14,7 +14,10 @@ public class HurricaneLoopSound extends TickableSound {
     private final Minecraft minecraft;
 
     public HurricaneLoopSound(Minecraft minecraft) {
-        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.WEATHER);
+        // Используем BLOCKS, чтобы громкость урагана из команды контролировалась тем же ползунком,
+        // что и у звука блока урагана. Это убирает ситуацию, когда блок слышно, а командный
+        // ураган "тихий" из-за отдельной категории WEATHER.
+        super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.BLOCKS);
         this.minecraft = minecraft;
         this.looping = true;
         this.delay = 0;
