@@ -1,6 +1,6 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-index 68e52ace95c95a5b95e6f589241b8632288dd3f9..48ad150368e6ff043f928598bebb558b26e452de 100644
+index 48ad150368e6ff043f928598bebb558b26e452de..68e52ace95c95a5b95e6f589241b8632288dd3f9 100644
 --- a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
 +++ b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
 @@ -12,55 +12,55 @@ import net.minecraftforge.fml.common.Mod;
@@ -29,10 +29,10 @@ index 68e52ace95c95a5b95e6f589241b8632288dd3f9..48ad150368e6ff043f928598bebb558b
          }
  
          float intensity = FogClientState.getIntensity();
--        float baseNear = event.getNearPlaneDistance();
--        float baseFar = event.getFarPlaneDistance();
-+        float baseNear = event.getNearPlane();
-+        float baseFar = event.getFarPlane();
+-        float baseNear = event.getNearPlane();
+-        float baseFar = event.getFarPlane();
++        float baseNear = event.getNearPlaneDistance();
++        float baseFar = event.getFarPlaneDistance();
  
          float fogNear = lerp(baseNear, 1.0F, intensity);
          float fogFar = lerp(baseFar, FOG_DISTANCE_BLOCKS, intensity);
@@ -40,10 +40,10 @@ index 68e52ace95c95a5b95e6f589241b8632288dd3f9..48ad150368e6ff043f928598bebb558b
              fogNear = Math.max(0.0F, fogFar - 0.1F);
          }
  
--        event.setNearPlaneDistance(fogNear);
--        event.setFarPlaneDistance(fogFar);
-+        event.setNearPlane(fogNear);
-+        event.setFarPlane(fogFar);
+-        event.setNearPlane(fogNear);
+-        event.setFarPlane(fogFar);
++        event.setNearPlaneDistance(fogNear);
++        event.setFarPlaneDistance(fogFar);
          event.setCanceled(true);
      }
  
