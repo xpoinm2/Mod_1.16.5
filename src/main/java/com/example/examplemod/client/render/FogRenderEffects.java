@@ -2,6 +2,7 @@ package com.example.examplemod.client.render;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.client.FogClientState;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
@@ -34,17 +35,16 @@ public final class FogRenderEffects {
         }
 
         float intensity = FogClientState.getIntensity();
-        float baseNear = event.getNearPlaneDistance();
         float baseFar = event.getFarPlaneDistance();
 
-        float fogNear = lerp(baseNear, 1.0F, intensity);
+        float fogNear = lerp(0.0F, 1.0F, intensity);
         float fogFar = lerp(baseFar, FOG_DISTANCE_BLOCKS, intensity);
         if (fogFar <= fogNear) {
             fogNear = Math.max(0.0F, fogFar - 0.1F);
         }
 
-        event.setNearPlaneDistance(fogNear);
-        event.setFarPlaneDistance(fogFar);
+        RenderSystem.fogStart(fogNear);
+        RenderSystem.fogEnd(fogFar);
         event.setCanceled(true);
     }
 

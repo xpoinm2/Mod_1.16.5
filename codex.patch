@@ -1,9 +1,21 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-index 48ad150368e6ff043f928598bebb558b26e452de..68e52ace95c95a5b95e6f589241b8632288dd3f9 100644
+index 68e52ace95c95a5b95e6f589241b8632288dd3f9..eb66122bd7a57a0ffb273fc84a94773c1982d577 100644
 --- a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
 +++ b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-@@ -12,55 +12,55 @@ import net.minecraftforge.fml.common.Mod;
+@@ -1,66 +1,66 @@
+ package com.example.examplemod.client.render;
+ 
+ import com.example.examplemod.ExampleMod;
+ import com.example.examplemod.client.FogClientState;
++import com.mojang.blaze3d.systems.RenderSystem;
+ import net.minecraft.client.Minecraft;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.client.event.EntityViewRenderEvent;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
+ 
  @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
  public final class FogRenderEffects {
      private static final float FOG_DISTANCE_BLOCKS = 10.0F;
@@ -29,21 +41,20 @@ index 48ad150368e6ff043f928598bebb558b26e452de..68e52ace95c95a5b95e6f589241b8632
          }
  
          float intensity = FogClientState.getIntensity();
--        float baseNear = event.getNearPlane();
--        float baseFar = event.getFarPlane();
-+        float baseNear = event.getNearPlaneDistance();
-+        float baseFar = event.getFarPlaneDistance();
+-        float baseNear = event.getNearPlaneDistance();
+         float baseFar = event.getFarPlaneDistance();
  
-         float fogNear = lerp(baseNear, 1.0F, intensity);
+-        float fogNear = lerp(baseNear, 1.0F, intensity);
++        float fogNear = lerp(0.0F, 1.0F, intensity);
          float fogFar = lerp(baseFar, FOG_DISTANCE_BLOCKS, intensity);
          if (fogFar <= fogNear) {
              fogNear = Math.max(0.0F, fogFar - 0.1F);
          }
  
--        event.setNearPlane(fogNear);
--        event.setFarPlane(fogFar);
-+        event.setNearPlaneDistance(fogNear);
-+        event.setFarPlaneDistance(fogFar);
+-        event.setNearPlaneDistance(fogNear);
+-        event.setFarPlaneDistance(fogFar);
++        RenderSystem.fogStart(fogNear);
++        RenderSystem.fogEnd(fogFar);
          event.setCanceled(true);
      }
  
