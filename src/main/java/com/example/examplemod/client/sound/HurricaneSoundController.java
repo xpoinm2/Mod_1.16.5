@@ -27,7 +27,10 @@ public final class HurricaneSoundController {
             return;
         }
 
-        boolean shouldPlay = HurricaneClientState.isActive();
+        // Держим луп запущенным не только во время активного урагана,
+        // но и во время клиентского fade-out, чтобы затухание звука
+        // было синхронно с плавным исчезновением визуальных эффектов.
+        boolean shouldPlay = HurricaneClientState.shouldRenderEffects();
         if (!shouldPlay) {
             stopLoop();
             return;

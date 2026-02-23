@@ -1,75 +1,64 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-index 86eee4d473ac89ea44568b084d070e432393f2b7..99034e5f0efe15fff0666c56be7779d4c3f6a73e 100644
---- a/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-+++ b/src/main/java/com/example/examplemod/client/sound/HurricaneLoopSound.java
-@@ -1,54 +1,65 @@
- package com.example.examplemod.client.sound;
- 
- import com.example.examplemod.ModSounds;
- import com.example.examplemod.client.HurricaneClientState;
+diff --git a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
+index ead485218421a18adc9591ce1ef76bec68d3a479..7e1e843cb736de480660a12ea15e61799999c165 100644
+--- a/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
++++ b/src/main/java/com/example/examplemod/client/sound/HurricaneSoundController.java
+@@ -5,51 +5,54 @@ import com.example.examplemod.client.HurricaneClientState;
  import net.minecraft.client.Minecraft;
- import net.minecraft.client.audio.TickableSound;
- import net.minecraft.util.SoundCategory;
- import net.minecraft.util.math.MathHelper;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
  
- public class HurricaneLoopSound extends TickableSound {
-     private static final float MAX_VOLUME = 0.9F;
-     private static final float MIN_ACTIVE_VOLUME = 0.2F;
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class HurricaneSoundController {
+     private static HurricaneLoopSound loopSound;
  
-     private final Minecraft minecraft;
- 
-     public HurricaneLoopSound(Minecraft minecraft) {
-         // Используем BLOCKS, чтобы громкость урагана из команды контролировалась тем же ползунком,
-         // что и у звука блока урагана. Это убирает ситуацию, когда блок слышно, а командный
-         // ураган "тихий" из-за отдельной категории WEATHER.
-         super(ModSounds.HURRICANE_LOOP.get(), SoundCategory.BLOCKS);
-         this.minecraft = minecraft;
-         this.looping = true;
-         this.delay = 0;
-         this.relative = true;
-         this.attenuation = AttenuationType.NONE;
--        this.volume = 0.0F;
-+        // Важно: в 1.16.5 звук может не стартовать, если первая громкость равна 0.
-+        // Это давало "тихий" баг, когда событие активируется, но луп фактически не
-+        // запускается SoundManager'ом. Стартуем с минимальной слышимой громкости,
-+        // а дальше tick() уже плавно ведёт уровень по intensity.
-+        this.volume = MIN_ACTIVE_VOLUME;
-         this.pitch = 1.0F;
+     private HurricaneSoundController() {
      }
  
-+    @Override
-+    public boolean canStartSilent() {
-+        // Разрешаем безопасный старт даже при очень низкой громкости (например,
-+        // когда интенсивность только начала расти после активации урагана).
-+        return true;
-+    }
-+
-     public boolean canStart() {
-         return !isStopped() && minecraft.player != null && minecraft.level != null && HurricaneClientState.isActive();
-     }
- 
-     public void stopLoop() {
-         stop();
-     }
- 
-     @Override
-     public void tick() {
-         if (minecraft.player == null || minecraft.level == null) {
-             stop();
+     @SubscribeEvent
+     public static void onClientTick(TickEvent.ClientTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) {
              return;
          }
  
-         this.x = 0.0F;
-         this.y = 0.0F;
-         this.z = 0.0F;
- 
-         if (!HurricaneClientState.isActive()) {
-             stop();
+         Minecraft minecraft = Minecraft.getInstance();
+         if (minecraft.level == null || minecraft.player == null) {
+             stopLoop();
              return;
          }
  
-         float intensity = HurricaneClientState.getIntensity();
+-        boolean shouldPlay = HurricaneClientState.isActive();
++        // Держим луп запущенным не только во время активного урагана,
++        // но и во время клиентского fade-out, чтобы затухание звука
++        // было синхронно с плавным исчезновением визуальных эффектов.
++        boolean shouldPlay = HurricaneClientState.shouldRenderEffects();
+         if (!shouldPlay) {
+             stopLoop();
+             return;
+         }
+ 
+         ensureLoopIsPlaying(minecraft);
+     }
+ 
+     private static void ensureLoopIsPlaying(Minecraft minecraft) {
+         if (loopSound != null && !loopSound.isStopped()) {
+             return;
+         }
+ 
+         loopSound = new HurricaneLoopSound(minecraft);
+         if (!loopSound.canStart()) {
+             loopSound = null;
+             return;
+         }
+         minecraft.getSoundManager().play(loopSound);
+     }
+ 
+     private static void stopLoop() {
+         if (loopSound == null) {
+             return;
+         }
  
 EOF
 )

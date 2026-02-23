@@ -10,6 +10,7 @@ import net.minecraft.util.math.MathHelper;
 public class HurricaneLoopSound extends TickableSound {
     private static final float MAX_VOLUME = 0.9F;
     private static final float MIN_ACTIVE_VOLUME = 0.2F;
+    private static final float STOP_VOLUME_THRESHOLD = 0.001F;
 
     private final Minecraft minecraft;
 
@@ -39,7 +40,10 @@ public class HurricaneLoopSound extends TickableSound {
     }
 
     public boolean canStart() {
-        return !isStopped() && minecraft.player != null && minecraft.level != null && HurricaneClientState.isActive();
+        return !isStopped()
+                && minecraft.player != null
+                && minecraft.level != null
+                && HurricaneClientState.shouldRenderEffects();
     }
 
     public void stopLoop() {
@@ -57,13 +61,27 @@ public class HurricaneLoopSound extends TickableSound {
         this.y = 0.0F;
         this.z = 0.0F;
 
-        if (!HurricaneClientState.isActive()) {
+        if (!HurricaneClientState.shouldRenderEffects()) {
             stop();
             return;
         }
 
         float intensity = HurricaneClientState.getIntensity();
-        float targetVolume = MathHelper.clamp(intensity * MAX_VOLUME, MIN_ACTIVE_VOLUME, MAX_VOLUME);
+        float targetVolume = MathHelper.clamp(intensity * MAX_VOLUME, 0.0F, MAX_VOLUME);
+
+        // Когда ураган уже выключен, но fade-out ещё идёт, позволяем громкости
+        // опускаться до нуля. Иначе минимальный порог «держит» звук и создаёт
+        // резкий обрыв вместо плавного затухания.
+        if (HurricaneClientState.isActive()) {
+            targetVolume = Math.max(targetVolume, MIN_ACTIVE_VOLUME);
+        }
+
+        if (!HurricaneClientState.isActive() && targetVolume <= STOP_VOLUME_THRESHOLD) {
+            this.volume = 0.0F;
+            stop();
+            return;
+        }
+
         this.volume = targetVolume;
     }
 }
