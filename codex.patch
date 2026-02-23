@@ -1,48 +1,27 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/network/PlayUraganClickSoundPacket.java b/src/main/java/com/example/examplemod/network/PlayUraganClickSoundPacket.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..d12ee5bac319c792eecb65803e64b0d91fbb173e
---- /dev/null
-+++ b/src/main/java/com/example/examplemod/network/PlayUraganClickSoundPacket.java
-@@ -0,0 +1,38 @@
-+package com.example.examplemod.network;
-+
-+import com.example.examplemod.ModSounds;
-+import net.minecraft.client.Minecraft;
-+import net.minecraft.client.audio.SimpleSound;
-+import net.minecraft.network.PacketBuffer;
-+import net.minecraftforge.api.distmarker.Dist;
-+import net.minecraftforge.fml.network.NetworkEvent;
-+
-+import java.util.function.Supplier;
-+
-+public class PlayUraganClickSoundPacket {
-+    public static void encode(PlayUraganClickSoundPacket pkt, PacketBuffer buf) {
-+    }
-+
-+    public static PlayUraganClickSoundPacket decode(PacketBuffer buf) {
-+        return new PlayUraganClickSoundPacket();
-+    }
-+
-+    public static void handle(PlayUraganClickSoundPacket pkt, Supplier<NetworkEvent.Context> ctx) {
-+        ctx.get().enqueueWork(() -> {
-+            if (ctx.get().getDirection().getReceptionSide().isClient()) {
-+                playOnClient();
-+            }
-+        });
-+        ctx.get().setPacketHandled(true);
-+    }
-+
-+    @net.minecraftforge.api.distmarker.OnlyIn(Dist.CLIENT)
-+    private static void playOnClient() {
-+        Minecraft minecraft = Minecraft.getInstance();
-+        if (minecraft.getSoundManager() == null) {
-+            return;
-+        }
-+
-+        minecraft.getSoundManager().play(SimpleSound.forUI(ModSounds.HURRICANE_LOOP.get(), 1.0F));
-+    }
-+}
+diff --git a/src/main/resources/assets/examplemod/sounds.json b/src/main/resources/assets/examplemod/sounds.json
+index d28332ac52ae8fc4004db0c876e07c804681f5a7..13d29666a12379c882c421a6e3d665ab2323c8c6 100644
+--- a/src/main/resources/assets/examplemod/sounds.json
++++ b/src/main/resources/assets/examplemod/sounds.json
+@@ -1,16 +1,17 @@
+ {
+   "block.danilka.tap": {
+     "sounds": [
+       {
+         "name": "examplemod:block/danilka_tap"
+       }
+     ]
+   },
+   "weather.hurricane_loop": {
+     "sounds": [
+       {
+-        "name": "examplemod:weather/hurricane_loop"
++        "name": "examplemod:weather/hurricane_loop",
++        "stream": true
+       }
+     ]
+   }
+ }
  
 EOF
 )
