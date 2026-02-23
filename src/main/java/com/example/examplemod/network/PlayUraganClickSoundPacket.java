@@ -33,6 +33,6 @@ public class PlayUraganClickSoundPacket {
             return;
         }
 
-        minecraft.getSoundManager().play(SimpleSound.forUI(ModSounds.HURRICANE_LOOP.get(), 1.0F));
+        minecraft.getSoundManager().play(SimpleSound.forUI(ModSounds.HURRICANE_LOOP.get(), 0.5F));
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 
 public class UraganBlockLoopSound extends TickableSound {
-    private static final float DEFAULT_VOLUME = 0.85F;
+    private static final float DEFAULT_VOLUME = 0.425F;
 
     private final Minecraft minecraft;
     private final BlockPos sourcePos;
