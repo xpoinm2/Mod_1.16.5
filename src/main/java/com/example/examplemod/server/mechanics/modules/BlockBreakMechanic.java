@@ -68,20 +68,32 @@ public class BlockBreakMechanic implements IMechanicModule {
 
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
+        World world = event.getWorld();
+        PlayerEntity player = event.getPlayer();
+        if (player == null) {
+            return;
+        }
+
+        if (event instanceof PlayerInteractEvent.LeftClickBlock) {
+            PlayerInteractEvent.LeftClickBlock leftClickEvent = (PlayerInteractEvent.LeftClickBlock) event;
+            BlockState state = world.getBlockState(leftClickEvent.getPos());
+            ItemStack held = player.getMainHandItem();
+
+            if (state.is(BlockTags.LOGS) && !isHoldingAxe(player) && !held.isEmpty()) {
+                leftClickEvent.setCanceled(true);
+            }
+            return;
+        }
+
+        if (world.isClientSide()) {
+            return;
+        }
+
         if (!(event instanceof PlayerInteractEvent.RightClickBlock)) {
             return;
         }
 
         PlayerInteractEvent.RightClickBlock rightClickEvent = (PlayerInteractEvent.RightClickBlock) event;
-        World world = rightClickEvent.getWorld();
-        if (world.isClientSide()) {
-            return;
-        }
-
-        PlayerEntity player = rightClickEvent.getPlayer();
-        if (player == null) {
-            return;
-        }
 
         BlockState state = world.getBlockState(rightClickEvent.getPos());
 
