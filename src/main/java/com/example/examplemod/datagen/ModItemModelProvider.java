@@ -68,6 +68,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         
         // Крафт материалы
         simpleItem(ModItems.SCRAPED_HIDE);
+        simpleItem(ModItems.FUR);
         simpleItem(ModItems.CLAY_MASS);
         simpleItem(ModItems.RAW_CLAY_CUP);
         simpleItem(ModItems.RAW_CLAY_BRICK);

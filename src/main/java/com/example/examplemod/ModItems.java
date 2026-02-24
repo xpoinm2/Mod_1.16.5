@@ -162,6 +162,10 @@ public class ModItems {
     public static final RegistryObject<Item> SCRAPED_HIDE = ModRegistries.ITEMS.register("scraped_hide",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Меха: швейное сырьё
+    public static final RegistryObject<Item> FUR = ModRegistries.ITEMS.register("fur",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Глиняная масса: сырьё для создания глиняных изделий
     public static final RegistryObject<Item> CLAY_MASS = ModRegistries.ITEMS.register("clay_mass",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));

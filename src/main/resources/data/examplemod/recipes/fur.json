@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SSS",
+    "B B",
+    "SFS"
+  ],
+  "key": {
+    "S": { "item": "examplemod:scraped_hide" },
+    "B": { "item": "examplemod:branch" },
+    "F": { "item": "examplemod:flax_fibers" }
+  },
+  "result": { "item": "examplemod:fur" }
+}

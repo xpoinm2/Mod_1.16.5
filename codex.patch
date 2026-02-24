@@ -1,175 +1,24 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-index 636bae676bc838e6e6d235997dfd02829ce38043..41bb14e41820345b12ed474ebb1e05082e267c17 100644
---- a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-+++ b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
-@@ -180,104 +180,161 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
-                         }
-                     }
-                 }
-             }
-         }
- 
-         updateCookProgress();
- 
-         if (changed) {
-             setChanged();
-             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-         }
-     }
- 
-     private boolean hasSmeltableInput() {
-         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
-             if (isSmeltable(items.get(i))) {
-                 return true;
-             }
-         }
-         return false;
-     }
- 
-     private boolean processCookingCycle() {
-         boolean changed = false;
--        int speedMultiplier = getCookSpeedMultiplier();
-+        float cookSpeedMultiplier = getCookSpeedMultiplier();
-         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
-             ItemStack stack = items.get(i);
-             if (isSmeltable(stack)) {
--                slotCookTimes[i] += speedMultiplier;
--                int requiredTime = getRequiredCookTime(stack, slotCookingStages[i]);
-+                slotCookTimes[i] += 1;
-+                int requiredTime = getAdjustedCookTime(getRequiredCookTime(stack, slotCookingStages[i]), cookSpeedMultiplier);
-                 if (slotCookTimes[i] >= requiredTime) {
-                     ItemStack result = getCookingResult(stack, slotCookingStages[i]);
-                     items.set(i, result);
-                     slotCookTimes[i] = 0;
- 
-                     if (isRawClayItem(stack) && slotCookingStages[i] == 0) {
-                         slotCookingStages[i] = 1;
-                         storeCookingStage(result, 1);
-                     } else if (isDriedBrick(stack) && slotCookingStages[i] == 0) {
-                         slotCookingStages[i] = 1;
-                         storeCookingStage(result, 1);
-                     } else {
-                         slotCookingStages[i] = 0;
-                         storeCookingStage(result, 0);
-                     }
- 
-                     changed = true;
-                 }
-             } else if (slotCookTimes[i] != 0) {
-                 slotCookTimes[i] = 0;
-                 slotCookingStages[i] = 0;
-             }
-         }
-         return changed;
-     }
- 
--    private int getCookSpeedMultiplier() {
--        return shouldDoubleCookSpeed() ? 2 : 1;
-+    private float getCookSpeedMultiplier() {
-+        float speed = shouldDoubleCookSpeed() ? 2.0F : 1.0F;
-+        if (getEstimatedWindSpeed() > 6) {
-+            speed *= 1.5F;
-+        }
-+        if (hasObstructionAboveCore()) {
-+            speed /= 1.5F;
-+        }
-+        return speed;
-+    }
-+
-+    private int getAdjustedCookTime(int baseCookTime, float speedMultiplier) {
-+        if (speedMultiplier <= 0.0F) {
-+            return Math.max(1, baseCookTime);
-+        }
-+        return Math.max(1, Math.round(baseCookTime / speedMultiplier));
-     }
- 
-     private boolean shouldDoubleCookSpeed() {
-         if (level == null) {
-             return false;
-         }
-         if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
-             return true;
-         }
-         Biome.Category category = level.getBiome(worldPosition).getBiomeCategory();
-         if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
-             return true;
-         }
-         return level instanceof ServerWorld && HurricaneWeatherMechanic.isHurricaneActive((ServerWorld) level);
-     }
- 
-     private boolean isRainingOnBlock() {
-         return level != null && level.isRainingAt(worldPosition.above());
-     }
- 
-+    private int getEstimatedWindSpeed() {
-+        if (!(level instanceof ServerWorld)) {
-+            return 0;
-+        }
-+
-+        ServerWorld serverWorld = (ServerWorld) level;
-+        int wind = 5;
-+        if (HurricaneWeatherMechanic.isHurricaneActive(serverWorld)) {
-+            wind = 20;
-+        } else if (serverWorld.isThundering() && serverWorld.isRainingAt(worldPosition.above())) {
-+            wind = 12;
-+        } else if (serverWorld.isRainingAt(worldPosition.above())) {
-+            wind = 8;
-+        }
-+
-+        Biome.Category category = serverWorld.getBiome(worldPosition).getBiomeCategory();
-+        if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
-+            wind += 2;
-+        }
-+        if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
-+            wind += 2;
-+        }
-+        return wind;
-+    }
-+
-+    private boolean hasObstructionAboveCore() {
-+        if (level == null) {
-+            return false;
-+        }
-+
-+        BlockPos coreStart = worldPosition.offset(-1, 0, -1);
-+        int checkY = worldPosition.getY() + 1;
-+        for (int x = 0; x < 4; x++) {
-+            for (int z = 0; z < 4; z++) {
-+                BlockPos pos = new BlockPos(coreStart.getX() + x, checkY, coreStart.getZ() + z);
-+                if (!level.isEmptyBlock(pos)) {
-+                    return true;
-+                }
-+            }
-+        }
-+        return false;
-+    }
-+
-     private void warnWetPlayers() {
-         if (!(level instanceof ServerWorld)) {
-             return;
-         }
-         long gameTime = level.getGameTime();
-         if (gameTime - lastWetWarningTick < WET_WARNING_INTERVAL_TICKS) {
-             return;
-         }
-         lastWetWarningTick = gameTime;
-         AxisAlignedBB area = new AxisAlignedBB(worldPosition).inflate(6.0D);
-         for (PlayerEntity player : level.getEntitiesOfClass(PlayerEntity.class, area)) {
-             player.displayClientMessage(new StringTextComponent("Кирпичная печь промокла!"), true);
-         }
-     }
- 
-     public boolean isMultiblockIntact() {
-         if (level == null) {
-             return false;
-         }
- 
-         // Master блок находится на позиции кострища (2,0,2) относительно начала структуры
-         // Начало структуры = worldPosition.offset(-2, 0, -2)
-         BlockPos structureStart = worldPosition.offset(-2, 0, -2);
- 
-         // Проверяем ядро 4x4 в центре на y=0
+diff --git a/src/main/resources/data/examplemod/recipes/fur.json b/src/main/resources/data/examplemod/recipes/fur.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..c60a9069784a7a0e4a005def0cf38dfdf6181cf3
+--- /dev/null
++++ b/src/main/resources/data/examplemod/recipes/fur.json
+@@ -0,0 +1,14 @@
++{
++  "type": "minecraft:crafting_shaped",
++  "pattern": [
++    "SSS",
++    "B B",
++    "SFS"
++  ],
++  "key": {
++    "S": { "item": "examplemod:scraped_hide" },
++    "B": { "item": "examplemod:branch" },
++    "F": { "item": "examplemod:flax_fibers" }
++  },
++  "result": { "item": "examplemod:fur" }
++}
  
 EOF
 )
