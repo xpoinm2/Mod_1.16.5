@@ -15,6 +15,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TieredItem;
+import net.minecraft.item.AxeItem;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -110,7 +111,7 @@ public class BlockBreakMechanic implements IMechanicModule {
 
         BlockState state = event.getState();
 
-        if (player.getMainHandItem().isEmpty() && state.is(BlockTags.LOGS)) {
+        if (state.is(BlockTags.LOGS) && !isHoldingAxe(player)) {
             event.setCanceled(true);
             return;
         }
@@ -260,6 +261,14 @@ public class BlockBreakMechanic implements IMechanicModule {
         }
         Item item = held.getItem();
         return item == ModItems.STONE_HAMMER.get() || item == ModItems.BONE_HAMMER.get();
+    }
+
+    private static boolean isHoldingAxe(PlayerEntity player) {
+        ItemStack held = player.getMainHandItem();
+        if (held.isEmpty()) {
+            return false;
+        }
+        return held.getItem() instanceof AxeItem;
     }
 
     private static void openCobblestoneDialog(ServerPlayerEntity player, BlockPos pos) {

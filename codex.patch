@@ -1,62 +1,144 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/capability/CapabilityHandler.java b/src/main/java/com/example/examplemod/capability/CapabilityHandler.java
-index 2adebc4ece5d8613aef6b9b9d07f9f9cffff5d53..56e0ca1adf04327d6070f83a9165d962c2c8a95e 100644
---- a/src/main/java/com/example/examplemod/capability/CapabilityHandler.java
-+++ b/src/main/java/com/example/examplemod/capability/CapabilityHandler.java
-@@ -14,51 +14,52 @@ import net.minecraftforge.fml.common.Mod;
+diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java
+index c07f7ef6c6aa97c6e95117c0f21d3f9d974a952c..239cc257eaba7b97485976048a418fed46be6ba8 100644
+--- a/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java
++++ b/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java
+@@ -1,42 +1,43 @@
+ package com.example.examplemod.server.mechanics.modules;
+ 
+ import com.example.examplemod.ModBlocks;
+ import com.example.examplemod.ModItems;
+ import com.example.examplemod.capability.PlayerStatsProvider;
+ import com.example.examplemod.network.ModNetworkHandler;
+ import com.example.examplemod.network.OpenCobblestoneDialogPacket;
+ import com.example.examplemod.network.SyncAllStatsPacket;
+ import com.example.examplemod.server.mechanics.IMechanicModule;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockState;
+ import net.minecraft.block.Blocks;
+ import net.minecraft.entity.player.PlayerEntity;
+ import net.minecraft.entity.player.ServerPlayerEntity;
+ import net.minecraft.item.Item;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.item.TieredItem;
++import net.minecraft.item.AxeItem;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.Hand;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.world.World;
+ import net.minecraftforge.event.world.BlockEvent;
+ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
  import net.minecraftforge.fml.network.PacketDistributor;
+ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
  
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public class CapabilityHandler {
-     private static final String FIRST_JOIN_INIT_TAG = "examplemod_first_join_initialized";
+ import java.util.Collections;
+ import java.util.HashSet;
+ import java.util.Set;
+ import java.util.UUID;
  
-     @SubscribeEvent
-     public static void onAttachCaps(AttachCapabilitiesEvent<Entity> ev) {
-         if (ev.getObject() instanceof PlayerEntity) {
-             ev.addCapability(
-                     new ResourceLocation(ExampleMod.MODID, "player_stats"),
-                     new PlayerStatsProvider()
-             );
+ public class BlockBreakMechanic implements IMechanicModule {
+     private static final int BLOCKS_PER_FATIGUE = 5;
+     // Оптимизация: прямая инициализация HashSet без промежуточного Arrays.asList()
+     private static final Set<Block> VANILLA_ORES;
+     static {
+         Set<Block> ores = new HashSet<>();
+         ores.add(Blocks.COAL_ORE);
+         ores.add(Blocks.IRON_ORE);
+         ores.add(Blocks.GOLD_ORE);
+         ores.add(Blocks.REDSTONE_ORE);
+         ores.add(Blocks.LAPIS_ORE);
+@@ -88,51 +89,51 @@ public class BlockBreakMechanic implements IMechanicModule {
+         if (state.getBlock() == Blocks.COBBLESTONE && isHoldingHammer(player)) {
+             event.setCanceled(true);
+             openCobblestoneDialog((ServerPlayerEntity) player, rightClickEvent.getPos());
          }
      }
  
-     @SubscribeEvent
-     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent ev) {
-         if (!(ev.getPlayer() instanceof ServerPlayerEntity)) return;
-         ServerPlayerEntity player = (ServerPlayerEntity) ev.getPlayer();
- 
-         if (!player.getPersistentData().getBoolean(FIRST_JOIN_INIT_TAG)) {
-             player.getPersistentData().putBoolean(FIRST_JOIN_INIT_TAG, true);
-             player.getFoodData().setFoodLevel(0);
-             player.getFoodData().setSaturation(0.0F);
--            player.getFoodData().setExhaustion(0.0F);
-+            // In 1.16.5 FoodStats exposes addExhaustion(...) but no direct setter,
-+            // so we only initialize food and saturation here.
-             player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-                 stats.setThirst(0);
-                 stats.setFatigue(0);
-             });
-         }
- 
-         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
-             // ОПТИМИЗАЦИЯ: один пакет вместо 5 отдельных (80% меньше трафика при логине)
-             ModNetworkHandler.CHANNEL.send(
-                     PacketDistributor.PLAYER.with(() -> player),
-                     new SyncAllStatsPacket(stats)
-             );
-         });
+     @Override
+     public void onPlayerLogout(ServerPlayerEntity player) {
+         bareHandBreaks.removeInt(player.getUUID());
      }
  
-     @SubscribeEvent
-     public static void onPlayerClone(PlayerEvent.Clone ev) {
-         ev.getOriginal().getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(oldStats ->
-                 ev.getPlayer().getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(newStats -> {
-                     newStats.setThirst(oldStats.getThirst());
-                     newStats.setFatigue(oldStats.getFatigue());
-                     newStats.setPoison(oldStats.getPoison());
-                     newStats.setVirus(oldStats.getVirus());
-                     newStats.setHypothermia(oldStats.getHypothermia());
-                     newStats.setBlood(oldStats.getBlood());
+     @Override
+     public void onBlockBreak(BlockEvent.BreakEvent event) {
+         World world = (World) event.getWorld();
+         if (world.isClientSide()) {
+             return;
+         }
+ 
+         PlayerEntity player = (PlayerEntity) event.getPlayer();
+         if (player == null) {
+             return;
+         }
+ 
+         BlockState state = event.getState();
+ 
+-        if (player.getMainHandItem().isEmpty() && state.is(BlockTags.LOGS)) {
++        if (state.is(BlockTags.LOGS) && !isHoldingAxe(player)) {
+             event.setCanceled(true);
+             return;
+         }
+ 
+         if (isOreBlock(state.getBlock()) && !canMineOre(player)) {
+             event.setCanceled(true);
+             return;
+         }
+ 
+         // Replace iron ore drop with impure iron ore block
+         if (state.getBlock() == Blocks.IRON_ORE) {
+             event.setCanceled(true);
+             world.destroyBlock(event.getPos(), false);
+             Block.popResource(world, event.getPos(), new ItemStack(ModBlocks.IMPURE_IRON_ORE.get()));
+             return;
+         }
+ 
+         // Replace gold ore drop with unrefined gold ore
+         if (state.getBlock() == Blocks.GOLD_ORE) {
+             event.setCanceled(true);
+             world.destroyBlock(event.getPos(), false);
+             Block.popResource(world, event.getPos(), new ItemStack(ModItems.UNREFINED_GOLD_ORE.get()));
+             return;
+         }
+ 
+@@ -240,30 +241,38 @@ public class BlockBreakMechanic implements IMechanicModule {
+     private static boolean canMineOre(PlayerEntity player) {
+         ItemStack held = player.getMainHandItem();
+         if (held.isEmpty()) {
+             return false;
+         }
+         Item item = held.getItem();
+         if (item == ModItems.STONE_HAMMER.get() || item == ModItems.BONE_HAMMER.get()) {
+             return true;
+         }
+         if (item instanceof TieredItem) {
+             TieredItem tiered = (TieredItem) item;
+             return tiered.getTier().getLevel() >= 1;
+         }
+         return false;
+     }
+ 
+     private static boolean isHoldingHammer(PlayerEntity player) {
+         ItemStack held = player.getMainHandItem();
+         if (held.isEmpty()) {
+             return false;
+         }
+         Item item = held.getItem();
+         return item == ModItems.STONE_HAMMER.get() || item == ModItems.BONE_HAMMER.get();
+     }
+ 
++    private static boolean isHoldingAxe(PlayerEntity player) {
++        ItemStack held = player.getMainHandItem();
++        if (held.isEmpty()) {
++            return false;
++        }
++        return held.getItem() instanceof AxeItem;
++    }
++
+     private static void openCobblestoneDialog(ServerPlayerEntity player, BlockPos pos) {
+         ModNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                 new OpenCobblestoneDialogPacket(pos));
+     }
+ }
  
 EOF
 )
