@@ -19,7 +19,6 @@ import com.example.examplemod.network.OpenBoneTongsItemPacket;
 import com.example.examplemod.network.OpenCobblestoneDialogPacket;
 import com.example.examplemod.network.OpenCraftingPacket;
 import com.example.examplemod.network.PlaceAnvilPacket;
-import com.example.examplemod.network.PlayUraganClickSoundPacket;
 import com.example.examplemod.network.SyncAllStatsPacket;
 import com.example.examplemod.network.WashProgressPacket;
 
@@ -157,13 +156,6 @@ public class ModNetworkHandler {
                 FogStatePacket::encode,
                 FogStatePacket::decode,
                 FogStatePacket::handle
-        );
-        CHANNEL.registerMessage(
-                nextId(),
-                PlayUraganClickSoundPacket.class,
-                PlayUraganClickSoundPacket::encode,
-                PlayUraganClickSoundPacket::decode,
-                PlayUraganClickSoundPacket::handle
         );
     }
 }

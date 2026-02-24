@@ -1,80 +1,29 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-index f5d0d9001f84ed08bc3610aba8883040c8deca47..2da5da6ffa4f09ae8afc3c6c94dc91cc804a4776 100644
---- a/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-+++ b/src/main/java/com/example/examplemod/client/render/FogRenderEffects.java
-@@ -1,66 +1,67 @@
- package com.example.examplemod.client.render;
- 
- import com.example.examplemod.ExampleMod;
- import com.example.examplemod.client.FogClientState;
-+import com.mojang.blaze3d.systems.RenderSystem;
- import net.minecraft.client.Minecraft;
- import net.minecraftforge.api.distmarker.Dist;
- import net.minecraftforge.client.event.EntityViewRenderEvent;
- import net.minecraftforge.event.TickEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
- 
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class FogRenderEffects {
-     private static final float FOG_DISTANCE_BLOCKS = 10.0F;
- 
-     private FogRenderEffects() {
-     }
- 
-     @SubscribeEvent
-     public static void onClientTick(TickEvent.ClientTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) {
-             return;
-         }
-         if (Minecraft.getInstance().isPaused()) {
-             return;
-         }
-         FogClientState.tickFade();
-     }
- 
-     @SubscribeEvent
-     public static void onFogRender(EntityViewRenderEvent.RenderFogEvent event) {
-         if (!FogClientState.shouldRenderFog()) {
-             return;
-         }
- 
-         float intensity = FogClientState.getIntensity();
-         float baseFar = event.getFarPlaneDistance();
- 
-         float fogNear = lerp(0.0F, 1.0F, intensity);
-         float fogFar = lerp(baseFar, FOG_DISTANCE_BLOCKS, intensity);
-         if (fogFar <= fogNear) {
-             fogNear = Math.max(0.0F, fogFar - 0.1F);
-         }
- 
--        // RenderFogEvent is not cancelable in Forge 1.16.5; pushing values back to the event
--        // lets Forge apply the fog distances safely without crashing.
--        event.setNearPlaneDistance(fogNear);
--        event.setFarPlaneDistance(fogFar);
-+        // Forge 1.16.5 RenderFogEvent does not expose mutators for near/far planes,
-+        // so we override the active fog distances directly for this render pass.
-+        RenderSystem.fogStart(fogNear);
-+        RenderSystem.fogEnd(fogFar);
-     }
- 
-     @SubscribeEvent
-     public static void onFogColors(EntityViewRenderEvent.FogColors event) {
-         if (!FogClientState.shouldRenderFog()) {
-             return;
-         }
- 
-         float intensity = FogClientState.getIntensity();
-         event.setRed(lerp(event.getRed(), 0.72F, intensity));
-         event.setGreen(lerp(event.getGreen(), 0.74F, intensity));
-         event.setBlue(lerp(event.getBlue(), 0.76F, intensity));
-     }
- 
-     private static float lerp(float from, float to, float alpha) {
-         return from + (to - from) * alpha;
-     }
- }
+diff --git a/src/main/resources/data/examplemod/loot_tables/blocks/uragan_block.json b/src/main/resources/data/examplemod/loot_tables/blocks/uragan_block.json
+deleted file mode 100644
+index 6a15daf93c59a118036aedbe20dc44a609a7f00b..0000000000000000000000000000000000000000
+--- a/src/main/resources/data/examplemod/loot_tables/blocks/uragan_block.json
++++ /dev/null
+@@ -1,19 +0,0 @@
+-{
+-  "type": "minecraft:block",
+-  "pools": [
+-    {
+-      "rolls": 1,
+-      "entries": [
+-        {
+-          "type": "minecraft:item",
+-          "name": "examplemod:uragan_block"
+-        }
+-      ],
+-      "conditions": [
+-        {
+-          "condition": "minecraft:survives_explosion"
+-        }
+-      ]
+-    }
+-  ]
+-}
  
 EOF
 )

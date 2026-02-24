@@ -57,8 +57,6 @@
   "item.examplemod.bone_sword": "Bone Sword",
   "block.examplemod.bone_block": "Bone Block",
   "item.examplemod.bone_block": "Bone Block",
-  "block.examplemod.danilka_block": "Danilka",
-  "item.examplemod.danilka_block": "Danilka",
   "item.examplemod.stone_hammer": "Stone Hammer",
   "item.examplemod.bone_hammer": "Bone Hammer",
   "item.examplemod.bone_tongs": "Bone Tongs",
@@ -191,7 +189,5 @@
   "tooltip.examplemod.roasted_ore.temperature": "Temperature: %s",
   "tooltip.examplemod.hot_ore.temperature": "Temperature: %s",
   "block.examplemod.cobblestone_anvil": "Cobblestone Anvil",
-  "item.examplemod.cobblestone_anvil": "Cobblestone Anvil",
-  "block.examplemod.uragan_block": "Hurricane Block",
-  "item.examplemod.uragan_block": "Hurricane Block"
+  "item.examplemod.cobblestone_anvil": "Cobblestone Anvil"
 }

@@ -67,7 +67,6 @@ public class ModLootTableProvider extends LootTableProvider {
          */
         private void registerSimpleBlocks() {
             dropsSelf(ModBlocks.BONE_BLOCK);
-            dropsSelf(ModBlocks.DANILKA_BLOCK);
             dropsSelf(ModBlocks.PARADISE_BLOCK);
             dropsSelf(ModBlocks.PARADISE_FENCE);
             dropsSelf(ModBlocks.PYRITE);

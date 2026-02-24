@@ -57,8 +57,6 @@
   "item.examplemod.bone_sword": "Костяной меч",
   "block.examplemod.bone_block": "Костяной блок",
   "item.examplemod.bone_block": "Костяной блок",
-  "block.examplemod.danilka_block": "Данилка",
-  "item.examplemod.danilka_block": "Данилка",
   "item.examplemod.stone_hammer": "Каменный молот",
   "item.examplemod.bone_hammer": "Костяной молот",
   "item.examplemod.bone_tongs": "Костяные щипцы",
@@ -189,7 +187,5 @@
   "tooltip.examplemod.roasted_ore.temperature": "Температура: %s",
   "tooltip.examplemod.hot_ore.temperature": "Температура: %s",
   "block.examplemod.cobblestone_anvil": "Булыжниковая наковальня",
-  "item.examplemod.cobblestone_anvil": "Булыжниковая наковальня",
-  "block.examplemod.uragan_block": "Блок урагана",
-  "item.examplemod.uragan_block": "Блок урагана"
+  "item.examplemod.cobblestone_anvil": "Булыжниковая наковальня"
 }

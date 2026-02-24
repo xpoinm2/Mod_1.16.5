@@ -129,7 +129,6 @@ public class ModItemModelProvider extends ItemModelProvider {
     private void registerBlockItems() {
         // Используем модель блока напрямую
         blockItem(ModItems.BONE_BLOCK, "bone_block");
-        blockItem(ModItems.DANILKA_BLOCK, "danilka_block");
         blockItem(ModItems.IMPURE_IRON_ORE, "impure_iron_ore");
         blockItem(ModItems.PARADISE_BLOCK, "paradise_block");
         blockItem(ModItems.PARADISE_FENCE, "paradise_fence");
