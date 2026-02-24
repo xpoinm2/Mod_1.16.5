@@ -3,9 +3,15 @@ package com.example.examplemod.item;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.UseAction;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -39,6 +45,44 @@ public class GrassBundleItem extends BlockItem {
     @Override
     public ActionResultType useOn(ItemUseContext context) {
         return ActionResultType.FAIL;
+    }
+
+    @Override
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (getState(stack) != GrassState.HEALING) {
+            return ActionResult.fail(stack);
+        }
+
+        player.startUsingItem(hand);
+        return ActionResult.consume(stack);
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, World world, LivingEntity entity) {
+        if (getState(stack) == GrassState.HEALING) {
+            entity.heal(2.0F);
+            entity.playSound(SoundEvents.GENERIC_EAT, 0.5F, 1.0F);
+            if (entity instanceof PlayerEntity) {
+                PlayerEntity player = (PlayerEntity) entity;
+                if (!player.abilities.instabuild) {
+                    stack.shrink(1);
+                }
+            } else {
+                stack.shrink(1);
+            }
+        }
+        return stack;
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack) {
+        return 32;
+    }
+
+    @Override
+    public UseAction getUseAnimation(ItemStack stack) {
+        return getState(stack) == GrassState.HEALING ? UseAction.EAT : UseAction.NONE;
     }
 
     @Override

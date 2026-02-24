@@ -15,6 +15,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CapabilityHandler {
+    private static final String FIRST_JOIN_INIT_TAG = "examplemod_first_join_initialized";
 
     @SubscribeEvent
     public static void onAttachCaps(AttachCapabilitiesEvent<Entity> ev) {
@@ -30,6 +31,18 @@ public class CapabilityHandler {
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent ev) {
         if (!(ev.getPlayer() instanceof ServerPlayerEntity)) return;
         ServerPlayerEntity player = (ServerPlayerEntity) ev.getPlayer();
+
+        if (!player.getPersistentData().getBoolean(FIRST_JOIN_INIT_TAG)) {
+            player.getPersistentData().putBoolean(FIRST_JOIN_INIT_TAG, true);
+            player.getFoodData().setFoodLevel(0);
+            player.getFoodData().setSaturation(0.0F);
+            player.getFoodData().setExhaustion(0.0F);
+            player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+                stats.setThirst(0);
+                stats.setFatigue(0);
+            });
+        }
+
         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
             // ОПТИМИЗАЦИЯ: один пакет вместо 5 отдельных (80% меньше трафика при логине)
             ModNetworkHandler.CHANNEL.send(
