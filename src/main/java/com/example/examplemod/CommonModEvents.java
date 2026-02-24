@@ -6,7 +6,9 @@ import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -44,6 +46,13 @@ public final class CommonModEvents {
             if (applyHotItemDamage(player, stack)) {
                 break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
+        if (event.getPlayer().getMainHandItem().isEmpty() && event.getState().is(BlockTags.LOGS)) {
+            event.setNewSpeed(0.0F);
         }
     }
 

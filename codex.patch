@@ -1,135 +1,92 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/item/GrassBundleItem.java b/src/main/java/com/example/examplemod/item/GrassBundleItem.java
-index d3bb81cbefa057e50f3e6ae3c9e89a8923d3f7c3..60e2397bcb96922af5748ff0340e1dcbb9bf7745 100644
---- a/src/main/java/com/example/examplemod/item/GrassBundleItem.java
-+++ b/src/main/java/com/example/examplemod/item/GrassBundleItem.java
-@@ -1,80 +1,124 @@
- package com.example.examplemod.item;
+diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
+index 37aa5c3a894b0b6f26126f70ffeb068dd19cabeb..5422217fc70f7d82fe85377f46b4a2f383640dc5 100644
+--- a/src/main/java/com/example/examplemod/CommonModEvents.java
++++ b/src/main/java/com/example/examplemod/CommonModEvents.java
+@@ -1,74 +1,83 @@
+ package com.example.examplemod;
  
- import net.minecraft.block.Block;
- import net.minecraft.item.BlockItem;
- import net.minecraft.client.util.ITooltipFlag;
-+import net.minecraft.entity.LivingEntity;
-+import net.minecraft.entity.player.PlayerEntity;
+ import com.example.examplemod.item.HotRoastedOreItem;
+ import com.example.examplemod.item.MetalChunkItem;
+ import com.example.examplemod.item.RoastedOreItem;
+ import com.example.examplemod.item.SpongeMetalItem;
+ import net.minecraft.entity.player.PlayerEntity;
  import net.minecraft.item.ItemStack;
- import net.minecraft.item.ItemUseContext;
-+import net.minecraft.item.UseAction;
-+import net.minecraft.util.ActionResult;
- import net.minecraft.util.ActionResultType;
-+import net.minecraft.util.Hand;
-+import net.minecraft.util.SoundEvents;
- import net.minecraft.util.text.ITextComponent;
- import net.minecraft.util.text.TranslationTextComponent;
- import net.minecraft.util.text.TextFormatting;
- import net.minecraft.world.World;
++import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.DamageSource;
++import net.minecraftforge.event.entity.player.PlayerEvent;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
+ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
  
- import javax.annotation.Nullable;
- import java.util.List;
- 
- public class GrassBundleItem extends BlockItem {
-     private static final String STATE_TAG = "GrassState";
- 
-     public GrassBundleItem(Block block, Properties properties) {
-         super(block, properties);
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class CommonModEvents {
+     private CommonModEvents() {
      }
  
-     public static ItemStack createWithState(GrassState state) {
-         ItemStack stack = new ItemStack(com.example.examplemod.ModItems.BUNCH_OF_GRASS.get());
-         setState(stack, state);
-         return stack;
+     @SubscribeEvent
+     public static void commonSetup(FMLCommonSetupEvent event) {
+         // Временно убрали регистрацию генерации мира для диагностики
+         event.enqueueWork(() -> {
+             // WorldGenRegistry.register();
+             // ModBiomes.setupBiomes();
+         });
      }
  
-     public static void setState(ItemStack stack, GrassState state) {
-         stack.getOrCreateTag().putString(STATE_TAG, state.getSerializedName());
-     }
+     @SubscribeEvent
+     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) return;
+         if (event.player.level.isClientSide) return;
  
-     public static GrassState getState(ItemStack stack) {
-         String id = stack.getOrCreateTag().getString(STATE_TAG);
-         return GrassState.byName(id);
-     }
+         PlayerEntity player = event.player;
  
-     @Override
-     public ActionResultType useOn(ItemUseContext context) {
-         return ActionResultType.FAIL;
-     }
- 
-+    @Override
-+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-+        ItemStack stack = player.getItemInHand(hand);
-+        if (getState(stack) != GrassState.HEALING) {
-+            return ActionResult.fail(stack);
-+        }
-+
-+        player.startUsingItem(hand);
-+        return ActionResult.consume(stack);
-+    }
-+
-+    @Override
-+    public ItemStack finishUsingItem(ItemStack stack, World world, LivingEntity entity) {
-+        if (getState(stack) == GrassState.HEALING) {
-+            entity.heal(2.0F);
-+            entity.playSound(SoundEvents.GENERIC_EAT, 0.5F, 1.0F);
-+            if (entity instanceof PlayerEntity) {
-+                PlayerEntity player = (PlayerEntity) entity;
-+                if (!player.abilities.instabuild) {
-+                    stack.shrink(1);
-+                }
-+            } else {
-+                stack.shrink(1);
-+            }
-+        }
-+        return stack;
-+    }
-+
-+    @Override
-+    public int getUseDuration(ItemStack stack) {
-+        return 32;
-+    }
-+
-+    @Override
-+    public UseAction getUseAnimation(ItemStack stack) {
-+        return getState(stack) == GrassState.HEALING ? UseAction.EAT : UseAction.NONE;
-+    }
-+
-     @Override
-     public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-         super.appendHoverText(stack, world, tooltip, flag);
-         GrassState state = getState(stack);
-         tooltip.add(new TranslationTextComponent(state.getTranslationKey()).withStyle(TextFormatting.GRAY));
-     }
- 
-     public enum GrassState {
-         HEALING("healing"),
-         DYE("dye"),
-         FERTILIZER("fertilizer"),
-         POISON("poison");
- 
-         private final String serializedName;
- 
-         GrassState(String serializedName) {
-             this.serializedName = serializedName;
+         // Проверяем горячие предметы в курсоре и инвентаре,
+         // чтобы урон шёл даже при перетаскивании.
+         if (applyHotItemDamage(player, player.inventory.getCarried())) {
+             return;
          }
  
-         public String getSerializedName() {
-             return serializedName;
-         }
- 
-         public String getTranslationKey() {
-             return "item.examplemod.bunch_of_grass.state." + serializedName;
-         }
- 
-         public static GrassState byName(String name) {
-             for (GrassState state : values()) {
-                 if (state.serializedName.equals(name)) {
-                     return state;
-                 }
+         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+             ItemStack stack = player.inventory.getItem(i);
+             if (applyHotItemDamage(player, stack)) {
+                 break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
              }
-             return HEALING;
          }
      }
--}
-\ No newline at end of file
-+}
+ 
++    @SubscribeEvent
++    public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
++        if (event.getPlayer().getMainHandItem().isEmpty() && event.getState().is(BlockTags.LOGS)) {
++            event.setNewSpeed(0.0F);
++        }
++    }
++
+     private static boolean applyHotItemDamage(PlayerEntity player, ItemStack stack) {
+         if (stack.isEmpty()) {
+             return false;
+         }
+         if (stack.getItem() instanceof SpongeMetalItem) {
+             if (SpongeMetalItem.getState(stack) == SpongeMetalItem.STATE_HOT) {
+                 player.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                 return true;
+             }
+             return false;
+         }
+         if (stack.getItem() instanceof RoastedOreItem) {
+             if (RoastedOreItem.getState(stack) == RoastedOreItem.STATE_HOT) {
+                 player.hurt(DamageSource.ON_FIRE, 2.0F);
+                 return true;
+             }
+             return false;
+         }
+         if (stack.getItem() instanceof HotRoastedOreItem) {
+             if (HotRoastedOreItem.getState(stack) == HotRoastedOreItem.STATE_HOT) {
+                 player.hurt(DamageSource.ON_FIRE, 2.0F);
+                 return true;
+             }
+             return false;
+         }
  
 EOF
 )
