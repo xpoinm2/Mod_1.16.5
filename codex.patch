@@ -1,92 +1,62 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
-index 37aa5c3a894b0b6f26126f70ffeb068dd19cabeb..5422217fc70f7d82fe85377f46b4a2f383640dc5 100644
---- a/src/main/java/com/example/examplemod/CommonModEvents.java
-+++ b/src/main/java/com/example/examplemod/CommonModEvents.java
-@@ -1,74 +1,83 @@
- package com.example.examplemod;
- 
- import com.example.examplemod.item.HotRoastedOreItem;
- import com.example.examplemod.item.MetalChunkItem;
- import com.example.examplemod.item.RoastedOreItem;
- import com.example.examplemod.item.SpongeMetalItem;
- import net.minecraft.entity.player.PlayerEntity;
- import net.minecraft.item.ItemStack;
-+import net.minecraft.tags.BlockTags;
- import net.minecraft.util.DamageSource;
-+import net.minecraftforge.event.entity.player.PlayerEvent;
- import net.minecraftforge.event.TickEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
- import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+diff --git a/src/main/java/com/example/examplemod/capability/CapabilityHandler.java b/src/main/java/com/example/examplemod/capability/CapabilityHandler.java
+index 2adebc4ece5d8613aef6b9b9d07f9f9cffff5d53..56e0ca1adf04327d6070f83a9165d962c2c8a95e 100644
+--- a/src/main/java/com/example/examplemod/capability/CapabilityHandler.java
++++ b/src/main/java/com/example/examplemod/capability/CapabilityHandler.java
+@@ -14,51 +14,52 @@ import net.minecraftforge.fml.common.Mod;
+ import net.minecraftforge.fml.network.PacketDistributor;
  
  @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class CommonModEvents {
-     private CommonModEvents() {
+ public class CapabilityHandler {
+     private static final String FIRST_JOIN_INIT_TAG = "examplemod_first_join_initialized";
+ 
+     @SubscribeEvent
+     public static void onAttachCaps(AttachCapabilitiesEvent<Entity> ev) {
+         if (ev.getObject() instanceof PlayerEntity) {
+             ev.addCapability(
+                     new ResourceLocation(ExampleMod.MODID, "player_stats"),
+                     new PlayerStatsProvider()
+             );
+         }
      }
  
      @SubscribeEvent
-     public static void commonSetup(FMLCommonSetupEvent event) {
-         // Временно убрали регистрацию генерации мира для диагностики
-         event.enqueueWork(() -> {
-             // WorldGenRegistry.register();
-             // ModBiomes.setupBiomes();
+     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent ev) {
+         if (!(ev.getPlayer() instanceof ServerPlayerEntity)) return;
+         ServerPlayerEntity player = (ServerPlayerEntity) ev.getPlayer();
+ 
+         if (!player.getPersistentData().getBoolean(FIRST_JOIN_INIT_TAG)) {
+             player.getPersistentData().putBoolean(FIRST_JOIN_INIT_TAG, true);
+             player.getFoodData().setFoodLevel(0);
+             player.getFoodData().setSaturation(0.0F);
+-            player.getFoodData().setExhaustion(0.0F);
++            // In 1.16.5 FoodStats exposes addExhaustion(...) but no direct setter,
++            // so we only initialize food and saturation here.
+             player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+                 stats.setThirst(0);
+                 stats.setFatigue(0);
+             });
+         }
+ 
+         player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
+             // ОПТИМИЗАЦИЯ: один пакет вместо 5 отдельных (80% меньше трафика при логине)
+             ModNetworkHandler.CHANNEL.send(
+                     PacketDistributor.PLAYER.with(() -> player),
+                     new SyncAllStatsPacket(stats)
+             );
          });
      }
  
      @SubscribeEvent
-     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) return;
-         if (event.player.level.isClientSide) return;
- 
-         PlayerEntity player = event.player;
- 
-         // Проверяем горячие предметы в курсоре и инвентаре,
-         // чтобы урон шёл даже при перетаскивании.
-         if (applyHotItemDamage(player, player.inventory.getCarried())) {
-             return;
-         }
- 
-         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-             ItemStack stack = player.inventory.getItem(i);
-             if (applyHotItemDamage(player, stack)) {
-                 break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
-             }
-         }
-     }
- 
-+    @SubscribeEvent
-+    public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
-+        if (event.getPlayer().getMainHandItem().isEmpty() && event.getState().is(BlockTags.LOGS)) {
-+            event.setNewSpeed(0.0F);
-+        }
-+    }
-+
-     private static boolean applyHotItemDamage(PlayerEntity player, ItemStack stack) {
-         if (stack.isEmpty()) {
-             return false;
-         }
-         if (stack.getItem() instanceof SpongeMetalItem) {
-             if (SpongeMetalItem.getState(stack) == SpongeMetalItem.STATE_HOT) {
-                 player.hurt(DamageSource.HOT_FLOOR, 1.0F);
-                 return true;
-             }
-             return false;
-         }
-         if (stack.getItem() instanceof RoastedOreItem) {
-             if (RoastedOreItem.getState(stack) == RoastedOreItem.STATE_HOT) {
-                 player.hurt(DamageSource.ON_FIRE, 2.0F);
-                 return true;
-             }
-             return false;
-         }
-         if (stack.getItem() instanceof HotRoastedOreItem) {
-             if (HotRoastedOreItem.getState(stack) == HotRoastedOreItem.STATE_HOT) {
-                 player.hurt(DamageSource.ON_FIRE, 2.0F);
-                 return true;
-             }
-             return false;
-         }
+     public static void onPlayerClone(PlayerEvent.Clone ev) {
+         ev.getOriginal().getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(oldStats ->
+                 ev.getPlayer().getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(newStats -> {
+                     newStats.setThirst(oldStats.getThirst());
+                     newStats.setFatigue(oldStats.getFatigue());
+                     newStats.setPoison(oldStats.getPoison());
+                     newStats.setVirus(oldStats.getVirus());
+                     newStats.setHypothermia(oldStats.getHypothermia());
+                     newStats.setBlood(oldStats.getBlood());
  
 EOF
 )
