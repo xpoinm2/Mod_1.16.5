@@ -202,12 +202,12 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
 
     private boolean processCookingCycle() {
         boolean changed = false;
-        int speedMultiplier = getCookSpeedMultiplier();
+        float cookSpeedMultiplier = getCookSpeedMultiplier();
         for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
             ItemStack stack = items.get(i);
             if (isSmeltable(stack)) {
-                slotCookTimes[i] += speedMultiplier;
-                int requiredTime = getRequiredCookTime(stack, slotCookingStages[i]);
+                slotCookTimes[i] += 1;
+                int requiredTime = getAdjustedCookTime(getRequiredCookTime(stack, slotCookingStages[i]), cookSpeedMultiplier);
                 if (slotCookTimes[i] >= requiredTime) {
                     ItemStack result = getCookingResult(stack, slotCookingStages[i]);
                     items.set(i, result);
@@ -234,8 +234,22 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
         return changed;
     }
 
-    private int getCookSpeedMultiplier() {
-        return shouldDoubleCookSpeed() ? 2 : 1;
+    private float getCookSpeedMultiplier() {
+        float speed = shouldDoubleCookSpeed() ? 2.0F : 1.0F;
+        if (getEstimatedWindSpeed() > 6) {
+            speed *= 1.5F;
+        }
+        if (hasObstructionAboveCore()) {
+            speed /= 1.5F;
+        }
+        return speed;
+    }
+
+    private int getAdjustedCookTime(int baseCookTime, float speedMultiplier) {
+        if (speedMultiplier <= 0.0F) {
+            return Math.max(1, baseCookTime);
+        }
+        return Math.max(1, Math.round(baseCookTime / speedMultiplier));
     }
 
     private boolean shouldDoubleCookSpeed() {
@@ -254,6 +268,49 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
 
     private boolean isRainingOnBlock() {
         return level != null && level.isRainingAt(worldPosition.above());
+    }
+
+    private int getEstimatedWindSpeed() {
+        if (!(level instanceof ServerWorld)) {
+            return 0;
+        }
+
+        ServerWorld serverWorld = (ServerWorld) level;
+        int wind = 5;
+        if (HurricaneWeatherMechanic.isHurricaneActive(serverWorld)) {
+            wind = 20;
+        } else if (serverWorld.isThundering() && serverWorld.isRainingAt(worldPosition.above())) {
+            wind = 12;
+        } else if (serverWorld.isRainingAt(worldPosition.above())) {
+            wind = 8;
+        }
+
+        Biome.Category category = serverWorld.getBiome(worldPosition).getBiomeCategory();
+        if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
+            wind += 2;
+        }
+        if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
+            wind += 2;
+        }
+        return wind;
+    }
+
+    private boolean hasObstructionAboveCore() {
+        if (level == null) {
+            return false;
+        }
+
+        BlockPos coreStart = worldPosition.offset(-1, 0, -1);
+        int checkY = worldPosition.getY() + 1;
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                BlockPos pos = new BlockPos(coreStart.getX() + x, checkY, coreStart.getZ() + z);
+                if (!level.isEmptyBlock(pos)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void warnWetPlayers() {
