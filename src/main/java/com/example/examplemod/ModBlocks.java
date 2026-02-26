@@ -224,6 +224,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> BRICK_BLOCK_WITH_LINING = ModRegistries.BLOCKS.register("brick_block_with_lining",
             BrickBlockWithLining::new);
 
+    // Мех: простой размещаемый блок
+    public static final RegistryObject<Block> FUR = ModRegistries.BLOCKS.register("fur",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.OAK_PLANKS)));
+
     // Наковальня из булыжника
     public static final RegistryObject<Block> COBBLESTONE_ANVIL = ModRegistries.BLOCKS.register("cobblestone_anvil",
             CobblestoneAnvilBlock::new);

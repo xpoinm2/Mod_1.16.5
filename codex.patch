@@ -1,91 +1,29 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java
-index 239cc257eaba7b97485976048a418fed46be6ba8..0c62b34aac0364fc695007a10a3f1f12c44ca8fc 100644
---- a/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java
-+++ b/src/main/java/com/example/examplemod/server/mechanics/modules/BlockBreakMechanic.java
-@@ -46,65 +46,77 @@ public class BlockBreakMechanic implements IMechanicModule {
-         ores.add(Blocks.NETHER_QUARTZ_ORE);
-         ores.add(Blocks.NETHER_GOLD_ORE);
-         ores.add(Blocks.ANCIENT_DEBRIS);
-         VANILLA_ORES = Collections.unmodifiableSet(ores);
-     }
- 
-     private final Object2IntOpenHashMap<UUID> bareHandBreaks = new Object2IntOpenHashMap<>();
- 
-     @Override
-     public String id() {
-         return "block_break";
-     }
- 
-     @Override
-     public boolean enableBlockBreak() {
-         return true;
-     }
- 
-     @Override
-     public boolean enablePlayerInteract() {
-         return true;
-     }
- 
-     @Override
-     public void onPlayerInteract(PlayerInteractEvent event) {
--        if (!(event instanceof PlayerInteractEvent.RightClickBlock)) {
-+        World world = event.getWorld();
-+        PlayerEntity player = event.getPlayer();
-+        if (player == null) {
-+            return;
+diff --git a/src/main/resources/data/examplemod/loot_tables/blocks/fur.json b/src/main/resources/data/examplemod/loot_tables/blocks/fur.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..21ddf25116315e48e6cd4989898472d5a2cf7411
+--- /dev/null
++++ b/src/main/resources/data/examplemod/loot_tables/blocks/fur.json
+@@ -0,0 +1,19 @@
++{
++  "type": "minecraft:block",
++  "pools": [
++    {
++      "rolls": 1,
++      "entries": [
++        {
++          "type": "minecraft:item",
++          "name": "examplemod:fur"
 +        }
-+
-+        if (event instanceof PlayerInteractEvent.LeftClickBlock) {
-+            PlayerInteractEvent.LeftClickBlock leftClickEvent = (PlayerInteractEvent.LeftClickBlock) event;
-+            BlockState state = world.getBlockState(leftClickEvent.getPos());
-+            ItemStack held = player.getMainHandItem();
-+
-+            if (state.is(BlockTags.LOGS) && !isHoldingAxe(player) && !held.isEmpty()) {
-+                leftClickEvent.setCanceled(true);
-+            }
-             return;
-         }
- 
--        PlayerInteractEvent.RightClickBlock rightClickEvent = (PlayerInteractEvent.RightClickBlock) event;
--        World world = rightClickEvent.getWorld();
-         if (world.isClientSide()) {
-             return;
-         }
- 
--        PlayerEntity player = rightClickEvent.getPlayer();
--        if (player == null) {
-+        if (!(event instanceof PlayerInteractEvent.RightClickBlock)) {
-             return;
-         }
- 
-+        PlayerInteractEvent.RightClickBlock rightClickEvent = (PlayerInteractEvent.RightClickBlock) event;
-+
-         BlockState state = world.getBlockState(rightClickEvent.getPos());
- 
-         // Check if player is right-clicking cobblestone with a hammer
-         if (state.getBlock() == Blocks.COBBLESTONE && isHoldingHammer(player)) {
-             event.setCanceled(true);
-             openCobblestoneDialog((ServerPlayerEntity) player, rightClickEvent.getPos());
-         }
-     }
- 
-     @Override
-     public void onPlayerLogout(ServerPlayerEntity player) {
-         bareHandBreaks.removeInt(player.getUUID());
-     }
- 
-     @Override
-     public void onBlockBreak(BlockEvent.BreakEvent event) {
-         World world = (World) event.getWorld();
-         if (world.isClientSide()) {
-             return;
-         }
- 
-         PlayerEntity player = (PlayerEntity) event.getPlayer();
-         if (player == null) {
-             return;
-         }
++      ],
++      "conditions": [
++        {
++          "condition": "minecraft:survives_explosion"
++        }
++      ]
++    }
++  ]
++}
  
 EOF
 )
