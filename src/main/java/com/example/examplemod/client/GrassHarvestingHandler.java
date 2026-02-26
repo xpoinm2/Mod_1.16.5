@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class GrassHarvestingHandler extends AbstractGui {
     private static final int BASE_HARVEST_TICKS_REQUIRED = 20 * 4; // 4 seconds
-    private static final int KNIFE_HARVEST_TICKS_REQUIRED = 20 * 3; // 3 seconds
+    private static final int KNIFE_HARVEST_TICKS_REQUIRED = 20 * 2; // 2 seconds
 
     private static BlockPos trackedPos;
     private static int progressTicks;

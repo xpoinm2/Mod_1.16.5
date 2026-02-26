@@ -1,3 +1,6 @@
 {
-  "parent": "examplemod:block/fur"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "examplemod:item/fur"
+  }
 }
