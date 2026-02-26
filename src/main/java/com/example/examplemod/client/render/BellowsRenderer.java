@@ -39,7 +39,7 @@ public class BellowsRenderer extends TileEntityRenderer<BellowsTileEntity> {
         }
 
         float offsetPixels = tile.getProgress() * 4.0F;
-        float yOffset = -offsetPixels / 16.0F;
+        float yOffset = (-offsetPixels / 16.0F) + 0.001F;
 
         matrix.pushPose();
         matrix.translate(0.5D, 0.0D, 0.5D);

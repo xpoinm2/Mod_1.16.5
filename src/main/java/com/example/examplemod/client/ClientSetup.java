@@ -11,6 +11,8 @@ import com.example.examplemod.client.render.SlabTileEntityRenderer;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -18,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientSetup {
@@ -54,5 +57,10 @@ public final class ClientSetup {
                 return 0x3F76E4;
             }, ModBlocks.CLAY_POT.get());
         });
+    }
+
+    @SubscribeEvent
+    public static void onModelRegistry(ModelRegistryEvent event) {
+        ModelLoader.addSpecialModel(new ResourceLocation(ExampleMod.MODID, "block/bellows_top"));
     }
 }
