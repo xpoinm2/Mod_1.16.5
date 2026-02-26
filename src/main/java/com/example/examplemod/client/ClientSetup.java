@@ -5,6 +5,7 @@ import com.example.examplemod.ModBlocks;
 import com.example.examplemod.ModFluids;
 import com.example.examplemod.ModTileEntities;
 import com.example.examplemod.client.render.CobblestoneAnvilTileEntityRenderer;
+import com.example.examplemod.client.render.BellowsRenderer;
 import com.example.examplemod.client.render.FirepitRenderer;
 import com.example.examplemod.client.render.SlabTileEntityRenderer;
 import com.example.examplemod.tileentity.ClayPotTileEntity;
@@ -33,6 +34,7 @@ public final class ClientSetup {
         // Register slab item renderer
         ClientRegistry.bindTileEntityRenderer(ModTileEntities.SLAB.get(), SlabTileEntityRenderer::new);
         ClientRegistry.bindTileEntityRenderer(ModTileEntities.COBBLESTONE_ANVIL.get(), CobblestoneAnvilTileEntityRenderer::new);
+        ClientRegistry.bindTileEntityRenderer(ModTileEntities.BELLOWS.get(), BellowsRenderer::new);
         event.enqueueWork(() -> {
             BlockColors blockColors = Minecraft.getInstance().getBlockColors();
             blockColors.register((state, world, pos, tintIndex) -> {

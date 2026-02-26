@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "examplemod:block/bellows_base" },
+    "facing=south": { "model": "examplemod:block/bellows_base", "y": 180 },
+    "facing=west": { "model": "examplemod:block/bellows_base", "y": 270 },
+    "facing=east": { "model": "examplemod:block/bellows_base", "y": 90 }
+  }
+}

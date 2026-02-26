@@ -9,6 +9,7 @@ import com.example.examplemod.block.RawClayPotBlock;
 import com.example.examplemod.block.DirtyWaterBlock;
 import com.example.examplemod.block.BaseSlabBlock;
 import com.example.examplemod.block.CobblestoneAnvilBlock;
+import com.example.examplemod.block.BellowsBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.block.SweetBerryBushBlock;
 import net.minecraft.block.SlabBlock;
@@ -227,6 +228,10 @@ public class ModBlocks {
     // Мех: простой размещаемый блок
     public static final RegistryObject<Block> FUR = ModRegistries.BLOCKS.register("fur",
             () -> new Block(AbstractBlock.Properties.copy(Blocks.OAK_PLANKS)));
+
+    // Меха (Bellows): анимируемый блок с TileEntity
+    public static final RegistryObject<Block> BELLOWS = ModRegistries.BLOCKS.register("bellows",
+            BellowsBlock::new);
 
     // Наковальня из булыжника
     public static final RegistryObject<Block> COBBLESTONE_ANVIL = ModRegistries.BLOCKS.register("cobblestone_anvil",

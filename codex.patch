@@ -1,16 +1,29 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/resources/assets/examplemod/models/item/fur.json b/src/main/resources/assets/examplemod/models/item/fur.json
-index fa9490d06b31adaf91ad1dca2bafcc0c08efc689..a7e96e4d323bd2053c8c74abc46f9fa6eaab1bda 100644
---- a/src/main/resources/assets/examplemod/models/item/fur.json
-+++ b/src/main/resources/assets/examplemod/models/item/fur.json
-@@ -1,3 +1,6 @@
- {
--  "parent": "examplemod:block/fur"
-+  "parent": "item/generated",
-+  "textures": {
-+    "layer0": "examplemod:item/fur"
-+  }
- }
+diff --git a/src/main/resources/data/examplemod/loot_tables/blocks/bellows.json b/src/main/resources/data/examplemod/loot_tables/blocks/bellows.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..a6e82e36f422f81287a6237058992e6b5c26eebf
+--- /dev/null
++++ b/src/main/resources/data/examplemod/loot_tables/blocks/bellows.json
+@@ -0,0 +1,19 @@
++{
++  "type": "minecraft:block",
++  "pools": [
++    {
++      "rolls": 1,
++      "entries": [
++        {
++          "type": "minecraft:item",
++          "name": "examplemod:bellows"
++        }
++      ],
++      "conditions": [
++        {
++          "condition": "minecraft:survives_explosion"
++        }
++      ]
++    }
++  ]
++}
  
 EOF
 )

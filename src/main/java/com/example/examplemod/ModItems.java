@@ -167,6 +167,11 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.FUR.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Меха (Bellows): размещаемый блок-предмет
+    public static final RegistryObject<Item> BELLOWS = ModRegistries.ITEMS.register("bellows",
+            () -> new BlockItem(ModBlocks.BELLOWS.get(),
+                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Глиняная масса: сырьё для создания глиняных изделий
     public static final RegistryObject<Item> CLAY_MASS = ModRegistries.ITEMS.register("clay_mass",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));

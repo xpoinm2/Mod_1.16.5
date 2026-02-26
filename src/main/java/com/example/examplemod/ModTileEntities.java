@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import com.example.examplemod.tileentity.ClayPotTileEntity;
 import com.example.examplemod.tileentity.CobblestoneAnvilTileEntity;
+import com.example.examplemod.tileentity.BellowsTileEntity;
 import com.example.examplemod.tileentity.FirepitTileEntity;
 import com.example.examplemod.tileentity.PechugaTileEntity;
 import com.example.examplemod.tileentity.SlabTileEntity;
@@ -41,6 +42,10 @@ public class ModTileEntities {
     public static final RegistryObject<TileEntityType<CobblestoneAnvilTileEntity>> COBBLESTONE_ANVIL =
             ModRegistries.TILE_ENTITIES.register("cobblestone_anvil",
                     () -> TileEntityType.Builder.of(CobblestoneAnvilTileEntity::new, ModBlocks.COBBLESTONE_ANVIL.get()).build(null));
+
+    public static final RegistryObject<TileEntityType<BellowsTileEntity>> BELLOWS =
+            ModRegistries.TILE_ENTITIES.register("bellows",
+                    () -> TileEntityType.Builder.of(BellowsTileEntity::new, ModBlocks.BELLOWS.get()).build(null));
 
     /**
      * Форсирует загрузку класса (и, как следствие, добавление записей в DeferredRegister)
