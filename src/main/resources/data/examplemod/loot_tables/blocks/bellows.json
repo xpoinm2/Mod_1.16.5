@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "examplemod:bellows"
+          "name": "examplemod:fur"
         }
       ],
       "conditions": [

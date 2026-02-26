@@ -162,13 +162,8 @@ public class ModItems {
     public static final RegistryObject<Item> SCRAPED_HIDE = ModRegistries.ITEMS.register("scraped_hide",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
-    // Меха: швейное сырьё
+    // Меха: предмет с текстурой блока меха, ставит анимируемый блок мехов
     public static final RegistryObject<Item> FUR = ModRegistries.ITEMS.register("fur",
-            () -> new BlockItem(ModBlocks.FUR.get(),
-                    new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
-
-    // Меха (Bellows): размещаемый блок-предмет
-    public static final RegistryObject<Item> BELLOWS = ModRegistries.ITEMS.register("bellows",
             () -> new BlockItem(ModBlocks.BELLOWS.get(),
                     new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 

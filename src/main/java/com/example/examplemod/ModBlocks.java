@@ -225,10 +225,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> BRICK_BLOCK_WITH_LINING = ModRegistries.BLOCKS.register("brick_block_with_lining",
             BrickBlockWithLining::new);
 
-    // Мех: простой размещаемый блок
-    public static final RegistryObject<Block> FUR = ModRegistries.BLOCKS.register("fur",
-            () -> new Block(AbstractBlock.Properties.copy(Blocks.OAK_PLANKS)));
-
     // Меха (Bellows): анимируемый блок с TileEntity
     public static final RegistryObject<Block> BELLOWS = ModRegistries.BLOCKS.register("bellows",
             BellowsBlock::new);

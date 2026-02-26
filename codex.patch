@@ -1,101 +1,24 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-index 74bca73298d4626ab17c09da11d54692e65b5369..b669cab1d2aa4a3808b1d1ed0d0833559092e6f6 100644
---- a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-+++ b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-@@ -1,80 +1,90 @@
- package com.example.examplemod.client.render;
- 
- import com.example.examplemod.ExampleMod;
- import com.example.examplemod.block.BellowsBlock;
- import com.example.examplemod.tileentity.BellowsTileEntity;
- import com.mojang.blaze3d.matrix.MatrixStack;
- import com.mojang.blaze3d.vertex.IVertexBuilder;
- import net.minecraft.client.Minecraft;
- import net.minecraft.client.renderer.IRenderTypeBuffer;
- import net.minecraft.client.renderer.RenderType;
-+import net.minecraft.client.renderer.WorldRenderer;
- import net.minecraft.client.renderer.model.BakedQuad;
- import net.minecraft.client.renderer.model.IBakedModel;
- import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
- import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
- import net.minecraft.util.Direction;
- import net.minecraft.util.ResourceLocation;
-+import net.minecraft.util.math.BlockPos;
- import net.minecraft.util.math.vector.Vector3f;
- import net.minecraftforge.client.model.data.EmptyModelData;
- 
- import java.util.List;
- import java.util.Random;
- 
- public class BellowsRenderer extends TileEntityRenderer<BellowsTileEntity> {
-     private static final ResourceLocation TOP_MODEL = new ResourceLocation(ExampleMod.MODID, "block/bellows_top");
- 
-     public BellowsRenderer(TileEntityRendererDispatcher dispatcher) {
-         super(dispatcher);
-     }
- 
-     @Override
-     public void render(BellowsTileEntity tile, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int light, int overlay) {
-         if (tile.getLevel() == null) {
-             return;
-         }
- 
-         IBakedModel model = Minecraft.getInstance().getModelManager().getModel(TOP_MODEL);
-         if (model == null) {
-             return;
-         }
- 
-         float offsetPixels = tile.getProgress() * 4.0F;
-         float yOffset = (-offsetPixels / 16.0F) + 0.001F;
- 
-         matrix.pushPose();
-         matrix.translate(0.5D, 0.0D, 0.5D);
-         matrix.mulPose(Vector3f.YP.rotationDegrees(getRotationDegrees(tile.getBlockState().getValue(BellowsBlock.FACING))));
-         matrix.translate(-0.5D, yOffset, -0.5D);
- 
-+        int modelLight = getModelLight(tile, light);
-+
-         IVertexBuilder builder = buffer.getBuffer(RenderType.cutout());
-         Random random = new Random(42L);
--        renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), light, overlay);
-+        renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), modelLight, overlay);
- 
-         for (Direction direction : Direction.values()) {
-             random.setSeed(42L + direction.ordinal());
--            renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), light, overlay);
-+            renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), modelLight, overlay);
-         }
- 
-         matrix.popPose();
-     }
- 
-     private void renderQuads(MatrixStack matrix, IVertexBuilder builder, List<BakedQuad> quads, int light, int overlay) {
-         for (BakedQuad quad : quads) {
-             builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay);
-         }
-     }
- 
-+    private int getModelLight(BellowsTileEntity tile, int fallbackLight) {
-+        BlockPos lightPos = tile.getBlockPos().above();
-+        int sampledLight = WorldRenderer.getLightColor(tile.getLevel(), lightPos);
-+        return Math.max(fallbackLight, sampledLight);
-+    }
-+
-     private float getRotationDegrees(Direction facing) {
-         switch (facing) {
-             case SOUTH:
-                 return 180.0F;
-             case WEST:
-                 return 270.0F;
-             case EAST:
-                 return 90.0F;
-             case NORTH:
-             default:
-                 return 0.0F;
-         }
-     }
- }
+diff --git a/src/main/resources/data/examplemod/recipes/fur.json b/src/main/resources/data/examplemod/recipes/fur.json
+deleted file mode 100644
+index c60a9069784a7a0e4a005def0cf38dfdf6181cf3..0000000000000000000000000000000000000000
+--- a/src/main/resources/data/examplemod/recipes/fur.json
++++ /dev/null
+@@ -1,14 +0,0 @@
+-{
+-  "type": "minecraft:crafting_shaped",
+-  "pattern": [
+-    "SSS",
+-    "B B",
+-    "SFS"
+-  ],
+-  "key": {
+-    "S": { "item": "examplemod:scraped_hide" },
+-    "B": { "item": "examplemod:branch" },
+-    "F": { "item": "examplemod:flax_fibers" }
+-  },
+-  "result": { "item": "examplemod:fur" }
+-}
  
 EOF
 )
