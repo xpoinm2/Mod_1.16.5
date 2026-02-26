@@ -60,7 +60,7 @@ public class BellowsRenderer extends TileEntityRenderer<BellowsTileEntity> {
 
     private void renderQuads(MatrixStack matrix, IVertexBuilder builder, List<BakedQuad> quads, int light, int overlay) {
         for (BakedQuad quad : quads) {
-            builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay, true);
+            builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay);
         }
     }
 

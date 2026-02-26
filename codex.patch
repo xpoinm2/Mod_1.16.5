@@ -1,29 +1,53 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/resources/data/examplemod/loot_tables/blocks/bellows.json b/src/main/resources/data/examplemod/loot_tables/blocks/bellows.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..a6e82e36f422f81287a6237058992e6b5c26eebf
---- /dev/null
-+++ b/src/main/resources/data/examplemod/loot_tables/blocks/bellows.json
-@@ -0,0 +1,19 @@
-+{
-+  "type": "minecraft:block",
-+  "pools": [
-+    {
-+      "rolls": 1,
-+      "entries": [
-+        {
-+          "type": "minecraft:item",
-+          "name": "examplemod:bellows"
-+        }
-+      ],
-+      "conditions": [
-+        {
-+          "condition": "minecraft:survives_explosion"
-+        }
-+      ]
-+    }
-+  ]
-+}
+diff --git a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
+index 32d56581ba326da7e62a20bfbbcb376003c9d43e..988a94ef090c088da46b2f5636411575389f5892 100644
+--- a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
++++ b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
+@@ -38,43 +38,43 @@ public class BellowsRenderer extends TileEntityRenderer<BellowsTileEntity> {
+             return;
+         }
+ 
+         float offsetPixels = tile.getProgress() * 4.0F;
+         float yOffset = -offsetPixels / 16.0F;
+ 
+         matrix.pushPose();
+         matrix.translate(0.5D, 0.0D, 0.5D);
+         matrix.mulPose(Vector3f.YP.rotationDegrees(getRotationDegrees(tile.getBlockState().getValue(BellowsBlock.FACING))));
+         matrix.translate(-0.5D, yOffset, -0.5D);
+ 
+         IVertexBuilder builder = buffer.getBuffer(RenderType.cutout());
+         Random random = new Random(42L);
+         renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), light, overlay);
+ 
+         for (Direction direction : Direction.values()) {
+             random.setSeed(42L + direction.ordinal());
+             renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), light, overlay);
+         }
+ 
+         matrix.popPose();
+     }
+ 
+     private void renderQuads(MatrixStack matrix, IVertexBuilder builder, List<BakedQuad> quads, int light, int overlay) {
+         for (BakedQuad quad : quads) {
+-            builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay, true);
++            builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay);
+         }
+     }
+ 
+     private float getRotationDegrees(Direction facing) {
+         switch (facing) {
+             case SOUTH:
+                 return 180.0F;
+             case WEST:
+                 return 270.0F;
+             case EAST:
+                 return 90.0F;
+             case NORTH:
+             default:
+                 return 0.0F;
+         }
+     }
+ }
  
 EOF
 )
