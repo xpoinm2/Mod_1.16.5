@@ -9,7 +9,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class HurricaneLoopSound extends TickableSound {
     private static final float MAX_VOLUME = 0.9F;
-    private static final float MIN_ACTIVE_VOLUME = 0.2F;
+    private static final float MIN_ACTIVE_VOLUME = 0.01F;
     private static final float STOP_VOLUME_THRESHOLD = 0.001F;
 
     private final Minecraft minecraft;
@@ -25,9 +25,9 @@ public class HurricaneLoopSound extends TickableSound {
         this.relative = true;
         this.attenuation = AttenuationType.NONE;
         // Важно: в 1.16.5 звук может не стартовать, если первая громкость равна 0.
-        // Это давало "тихий" баг, когда событие активируется, но луп фактически не
-        // запускается SoundManager'ом. Стартуем с минимальной слышимой громкости,
-        // а дальше tick() уже плавно ведёт уровень по intensity.
+        // Поэтому задаём очень тихую стартовую громкость и дальше плавно ведём
+        // уровень по intensity. Это убирает резкий старт, когда ураган включился
+        // не командой, а естественным образом.
         this.volume = MIN_ACTIVE_VOLUME;
         this.pitch = 1.0F;
     }
