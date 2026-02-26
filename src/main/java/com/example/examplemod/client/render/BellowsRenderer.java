@@ -8,12 +8,14 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
@@ -46,13 +48,15 @@ public class BellowsRenderer extends TileEntityRenderer<BellowsTileEntity> {
         matrix.mulPose(Vector3f.YP.rotationDegrees(getRotationDegrees(tile.getBlockState().getValue(BellowsBlock.FACING))));
         matrix.translate(-0.5D, yOffset, -0.5D);
 
+        int modelLight = getModelLight(tile, light);
+
         IVertexBuilder builder = buffer.getBuffer(RenderType.cutout());
         Random random = new Random(42L);
-        renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), light, overlay);
+        renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), modelLight, overlay);
 
         for (Direction direction : Direction.values()) {
             random.setSeed(42L + direction.ordinal());
-            renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), light, overlay);
+            renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), modelLight, overlay);
         }
 
         matrix.popPose();
@@ -62,6 +66,12 @@ public class BellowsRenderer extends TileEntityRenderer<BellowsTileEntity> {
         for (BakedQuad quad : quads) {
             builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay);
         }
+    }
+
+    private int getModelLight(BellowsTileEntity tile, int fallbackLight) {
+        BlockPos lightPos = tile.getBlockPos().above();
+        int sampledLight = WorldRenderer.getLightColor(tile.getLevel(), lightPos);
+        return Math.max(fallbackLight, sampledLight);
     }
 
     private float getRotationDegrees(Direction facing) {

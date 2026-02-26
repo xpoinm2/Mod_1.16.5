@@ -1,9 +1,27 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-index 988a94ef090c088da46b2f5636411575389f5892..74bca73298d4626ab17c09da11d54692e65b5369 100644
+index 74bca73298d4626ab17c09da11d54692e65b5369..b669cab1d2aa4a3808b1d1ed0d0833559092e6f6 100644
 --- a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
 +++ b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-@@ -17,51 +17,51 @@ import net.minecraft.util.ResourceLocation;
+@@ -1,80 +1,90 @@
+ package com.example.examplemod.client.render;
+ 
+ import com.example.examplemod.ExampleMod;
+ import com.example.examplemod.block.BellowsBlock;
+ import com.example.examplemod.tileentity.BellowsTileEntity;
+ import com.mojang.blaze3d.matrix.MatrixStack;
+ import com.mojang.blaze3d.vertex.IVertexBuilder;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.renderer.IRenderTypeBuffer;
+ import net.minecraft.client.renderer.RenderType;
++import net.minecraft.client.renderer.WorldRenderer;
+ import net.minecraft.client.renderer.model.BakedQuad;
+ import net.minecraft.client.renderer.model.IBakedModel;
+ import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+ import net.minecraft.util.Direction;
+ import net.minecraft.util.ResourceLocation;
++import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.vector.Vector3f;
  import net.minecraftforge.client.model.data.EmptyModelData;
  
@@ -29,21 +47,24 @@ index 988a94ef090c088da46b2f5636411575389f5892..74bca73298d4626ab17c09da11d54692
          }
  
          float offsetPixels = tile.getProgress() * 4.0F;
--        float yOffset = -offsetPixels / 16.0F;
-+        float yOffset = (-offsetPixels / 16.0F) + 0.001F;
+         float yOffset = (-offsetPixels / 16.0F) + 0.001F;
  
          matrix.pushPose();
          matrix.translate(0.5D, 0.0D, 0.5D);
          matrix.mulPose(Vector3f.YP.rotationDegrees(getRotationDegrees(tile.getBlockState().getValue(BellowsBlock.FACING))));
          matrix.translate(-0.5D, yOffset, -0.5D);
  
++        int modelLight = getModelLight(tile, light);
++
          IVertexBuilder builder = buffer.getBuffer(RenderType.cutout());
          Random random = new Random(42L);
-         renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), light, overlay);
+-        renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), light, overlay);
++        renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), modelLight, overlay);
  
          for (Direction direction : Direction.values()) {
              random.setSeed(42L + direction.ordinal());
-             renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), light, overlay);
+-            renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), light, overlay);
++            renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), modelLight, overlay);
          }
  
          matrix.popPose();
@@ -55,7 +76,26 @@ index 988a94ef090c088da46b2f5636411575389f5892..74bca73298d4626ab17c09da11d54692
          }
      }
  
++    private int getModelLight(BellowsTileEntity tile, int fallbackLight) {
++        BlockPos lightPos = tile.getBlockPos().above();
++        int sampledLight = WorldRenderer.getLightColor(tile.getLevel(), lightPos);
++        return Math.max(fallbackLight, sampledLight);
++    }
++
      private float getRotationDegrees(Direction facing) {
+         switch (facing) {
+             case SOUTH:
+                 return 180.0F;
+             case WEST:
+                 return 270.0F;
+             case EAST:
+                 return 90.0F;
+             case NORTH:
+             default:
+                 return 0.0F;
+         }
+     }
+ }
  
 EOF
 )
