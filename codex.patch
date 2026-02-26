@@ -1,53 +1,56 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-index 32d56581ba326da7e62a20bfbbcb376003c9d43e..988a94ef090c088da46b2f5636411575389f5892 100644
---- a/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-+++ b/src/main/java/com/example/examplemod/client/render/BellowsRenderer.java
-@@ -38,43 +38,43 @@ public class BellowsRenderer extends TileEntityRenderer<BellowsTileEntity> {
-             return;
-         }
- 
-         float offsetPixels = tile.getProgress() * 4.0F;
-         float yOffset = -offsetPixels / 16.0F;
- 
-         matrix.pushPose();
-         matrix.translate(0.5D, 0.0D, 0.5D);
-         matrix.mulPose(Vector3f.YP.rotationDegrees(getRotationDegrees(tile.getBlockState().getValue(BellowsBlock.FACING))));
-         matrix.translate(-0.5D, yOffset, -0.5D);
- 
-         IVertexBuilder builder = buffer.getBuffer(RenderType.cutout());
-         Random random = new Random(42L);
-         renderQuads(matrix, builder, model.getQuads(null, null, random, EmptyModelData.INSTANCE), light, overlay);
- 
-         for (Direction direction : Direction.values()) {
-             random.setSeed(42L + direction.ordinal());
-             renderQuads(matrix, builder, model.getQuads(null, direction, random, EmptyModelData.INSTANCE), light, overlay);
-         }
- 
-         matrix.popPose();
-     }
- 
-     private void renderQuads(MatrixStack matrix, IVertexBuilder builder, List<BakedQuad> quads, int light, int overlay) {
-         for (BakedQuad quad : quads) {
--            builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay, true);
-+            builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, light, overlay);
-         }
-     }
- 
-     private float getRotationDegrees(Direction facing) {
-         switch (facing) {
-             case SOUTH:
-                 return 180.0F;
-             case WEST:
-                 return 270.0F;
-             case EAST:
-                 return 90.0F;
-             case NORTH:
-             default:
-                 return 0.0F;
-         }
-     }
- }
+diff --git a/src/main/resources/assets/examplemod/models/block/bellows_base.json b/src/main/resources/assets/examplemod/models/block/bellows_base.json
+index d2b69ec8085a432c268c16ba6fff263ce2783f0f..8e9a0c03c9f8455cf4b63cdce0c6bfe980eee3dd 100644
+--- a/src/main/resources/assets/examplemod/models/block/bellows_base.json
++++ b/src/main/resources/assets/examplemod/models/block/bellows_base.json
+@@ -1,43 +1,43 @@
+ {
+ 	"format_version": "1.9.0",
+ 	"credit": "Made with Blockbench",
+ 	"texture_size": [64, 64],
+ 	"textures": {
+-		"0": "bellows",
+-		"particle": "bellows"
++		"0": "examplemod:block/bellows",
++		"particle": "examplemod:block/bellows"
+ 	},
+ 	"elements": [
+ 		{
+ 			"from": [0, 0, 0],
+ 			"to": [16, 2, 16],
+ 			"faces": {
+ 				"north": {"uv": [0.25, 2.75, 7.5, 5.5], "texture": "#0"},
+ 				"east": {"uv": [0.25, 2.75, 7.5, 5.5], "texture": "#0"},
+ 				"south": {"uv": [0.25, 1.5, 7.5, 4.25], "texture": "#0"},
+ 				"west": {"uv": [0.25, 1.75, 7.5, 4.5], "texture": "#0"},
+ 				"up": {"uv": [0, 0, 8, 8], "texture": "#0"},
+ 				"down": {"uv": [0, 0, 8, 8], "texture": "#0"}
+ 			}
+ 		},
+ 		{
+ 			"from": [6, 2, 0],
+ 			"to": [10, 6, 4],
+ 			"faces": {
+ 				"north": {"uv": [11.5, 4.5, 16, 8], "texture": "#0"},
+ 				"east": {"uv": [10, 3.5, 14.5, 7], "texture": "#0"},
+ 				"south": {"uv": [10.25, 0.25, 14.75, 3.75], "texture": "#0"},
+ 				"west": {"uv": [8.25, 4.25, 12.75, 7.75], "texture": "#0"},
+ 				"up": {"uv": [1.5, 10.75, 6, 14.25], "texture": "#0"},
+ 				"down": {"uv": [1.75, 10.5, 6.25, 14], "texture": "#0"}
+ 			}
+ 		}
+ 	],
+ 	"groups": [
+ 		{
+ 			"name": "base",
+ 			"origin": [8, 8, 8],
+ 			"color": 0,
+ 			"children": [0, 1]
+ 		}
+ 	]
+-}
+\ No newline at end of file
++}
  
 EOF
 )
