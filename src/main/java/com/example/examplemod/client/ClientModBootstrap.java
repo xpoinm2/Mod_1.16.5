@@ -1,0 +1,107 @@
+package com.example.examplemod.client;
+
+import com.example.examplemod.ExampleMod;
+import com.example.examplemod.ModBlocks;
+import com.example.examplemod.ModContainers;
+import com.example.examplemod.ModFluids;
+import com.example.examplemod.ModItems;
+import com.example.examplemod.client.render.HeavenDimensionRenderInfo;
+import com.example.examplemod.client.screen.container.BoneTongsScreen;
+import com.example.examplemod.client.screen.container.ClayPotScreen;
+import com.example.examplemod.client.screen.container.CobblestoneAnvilScreen;
+import com.example.examplemod.client.screen.container.EnhancedDualScreen;
+import com.example.examplemod.client.screen.container.FirepitScreen;
+import com.example.examplemod.client.screen.container.PechugaScreen;
+import com.example.examplemod.client.screen.container.SlabScreen;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.ItemModelsProperties;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Map;
+
+@Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
+public final class ClientModBootstrap {
+    private static final Logger LOGGER = LogManager.getLogger();
+
+    private ClientModBootstrap() {
+    }
+
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        LOGGER.info("ExampleMod client setup");
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.FIREPIT.get(), FirepitScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.PECHUGA.get(), PechugaScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.CLAY_POT.get(), ClayPotScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.BONE_TONGS.get(), BoneTongsScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.ENHANCED_DUAL_CONTAINER.get(), EnhancedDualScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.SLAB.get(), SlabScreen::new);
+        net.minecraft.client.gui.ScreenManager.register(ModContainers.COBBLESTONE_ANVIL.get(), CobblestoneAnvilScreen::new);
+
+        registerDimensionRenderInfo(new ResourceLocation(ExampleMod.MODID, "heaven_sky"),
+                new HeavenDimensionRenderInfo());
+
+        RenderTypeLookup.setRenderLayer(ModBlocks.RASPBERRY_BUSH.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.ELDERBERRY_BUSH.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.CRANBERRY_BUSH.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.ANGELICA.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.HORSERADISH_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.GINGER_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.FLAX_PLANT.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.BUNCH_OF_GRASS.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.HANGING_FLAX.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.PARADISE_DOOR.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModBlocks.RAW_CLAY_POT.get(), RenderType.cutout());
+
+        event.enqueueWork(() -> ItemModelsProperties.register(ModItems.CLAY_CUP.get(),
+                new ResourceLocation(ExampleMod.MODID, "fluid_state"),
+                (stack, world, entity) -> stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+                        .map(handler -> {
+                            FluidStack fluidStack = handler.getFluidInTank(0);
+                            if (fluidStack.isEmpty()) {
+                                return 0.0F;
+                            }
+
+                            Fluid fluid = fluidStack.getFluid();
+                            if (fluid.isSame(ModFluids.DIRTY_WATER.get())
+                                    || fluid.isSame(ModFluids.DIRTY_WATER_FLOWING.get())) {
+                                return 2.0F;
+                            }
+
+                            if (fluid.isSame(Fluids.WATER)) {
+                                return 1.0F;
+                            }
+
+                            return 0.0F;
+                        })
+                        .orElse(0.0F)));
+    }
+
+    private static void registerDimensionRenderInfo(ResourceLocation key, DimensionRenderInfo info) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<ResourceLocation, DimensionRenderInfo> effects =
+                    ObfuscationReflectionHelper.getPrivateValue(DimensionRenderInfo.class, null, "field_239208_a_");
+
+            if (effects == null) {
+                LOGGER.error("Failed to access DimensionRenderInfo effects map when registering {}", key);
+                return;
+            }
+
+            effects.put(key, info);
+        } catch (RuntimeException exception) {
+            LOGGER.error("Failed to register dimension render info for {}", key, exception);
+        }
+    }
+}
