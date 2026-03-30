@@ -4,8 +4,6 @@ import com.example.examplemod.client.screen.CobblestoneDialogScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -27,7 +25,6 @@ public class OpenCobblestoneDialogPacket {
         return new OpenCobblestoneDialogPacket(buf.readBlockPos());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void handle(OpenCobblestoneDialogPacket pkt, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             // Сохраняем позицию для использования в диалоге
