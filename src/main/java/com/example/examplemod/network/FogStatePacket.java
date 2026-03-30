@@ -1,7 +1,9 @@
 package com.example.examplemod.network;
 
-import com.example.examplemod.client.FogClientState;
+import com.example.examplemod.client.network.ClientPacketHandlers;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -23,9 +25,7 @@ public class FogStatePacket {
 
     public static void handle(FogStatePacket pkt, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            if (ctx.get().getDirection().getReceptionSide().isClient()) {
-                FogClientState.setActive(pkt.active);
-            }
+            DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.setFogActive(pkt.active));
         });
         ctx.get().setPacketHandled(true);
     }

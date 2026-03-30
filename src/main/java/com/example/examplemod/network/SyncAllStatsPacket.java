@@ -1,9 +1,10 @@
 package com.example.examplemod.network;
 
 import com.example.examplemod.capability.IPlayerStats;
-import com.example.examplemod.capability.PlayerStatsProvider;
-import net.minecraft.client.Minecraft;
+import com.example.examplemod.client.network.ClientPacketHandlers;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -76,22 +77,9 @@ public class SyncAllStatsPacket {
     }
 
     public static void handle(SyncAllStatsPacket pkt, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            if (Minecraft.getInstance().player == null) return;
-            
-            Minecraft.getInstance().player
-                    .getCapability(PlayerStatsProvider.PLAYER_STATS_CAP)
-                    .ifPresent(stats -> {
-                        stats.setThirst(pkt.thirst);
-                        stats.setFatigue(pkt.fatigue);
-                        stats.setCold(pkt.cold);
-                        stats.setHypothermia(pkt.hypothermia);
-                        stats.setVirus(pkt.virus);
-                        stats.setPoison(pkt.poison);
-                        stats.setBlood(pkt.blood);
-                        stats.setWindSpeed(pkt.windSpeed);
-                    });
-        });
+        ctx.get().enqueueWork(() ->
+                DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.syncAllStats(pkt))
+        );
         ctx.get().setPacketHandled(true);
     }
 

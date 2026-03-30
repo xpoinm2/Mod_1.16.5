@@ -1,9 +1,10 @@
 package com.example.examplemod.network;
 
-import com.example.examplemod.client.screen.CobblestoneDialogScreen;
-import net.minecraft.client.Minecraft;
+import com.example.examplemod.client.network.ClientPacketHandlers;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -26,11 +27,9 @@ public class OpenCobblestoneDialogPacket {
     }
 
     public static void handle(OpenCobblestoneDialogPacket pkt, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            // Сохраняем позицию для использования в диалоге
-            CobblestoneDialogScreen.targetPos = pkt.pos;
-            Minecraft.getInstance().setScreen(new CobblestoneDialogScreen());
-        });
+        ctx.get().enqueueWork(() ->
+                DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.openCobblestoneDialog(pkt.pos))
+        );
         ctx.get().setPacketHandled(true);
     }
 }

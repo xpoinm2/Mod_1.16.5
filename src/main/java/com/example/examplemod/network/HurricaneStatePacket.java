@@ -1,7 +1,9 @@
 package com.example.examplemod.network;
 
-import com.example.examplemod.client.HurricaneClientState;
+import com.example.examplemod.client.network.ClientPacketHandlers;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -23,9 +25,7 @@ public class HurricaneStatePacket {
 
     public static void handle(HurricaneStatePacket pkt, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            if (ctx.get().getDirection().getReceptionSide().isClient()) {
-                HurricaneClientState.setActive(pkt.active);
-            }
+            DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.setHurricaneActive(pkt.active));
         });
         ctx.get().setPacketHandled(true);
     }
