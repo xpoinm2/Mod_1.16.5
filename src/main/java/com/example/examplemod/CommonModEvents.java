@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
+import net.minecraft.world.Difficulty;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -47,12 +48,32 @@ public final class CommonModEvents {
                 break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
             }
         }
+
+        applyLowHealthStarvationDamage(player);
     }
 
     @SubscribeEvent
     public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
         if (event.getPlayer().getMainHandItem().isEmpty() && event.getState().is(BlockTags.LOGS)) {
             event.setNewSpeed(0.0F);
+        }
+    }
+
+    private static void applyLowHealthStarvationDamage(PlayerEntity player) {
+        if (player.isCreative() || player.isSpectator()) {
+            return;
+        }
+        if (player.level.getDifficulty() == Difficulty.PEACEFUL) {
+            return;
+        }
+        if (player.getFoodData().getFoodLevel() > 0) {
+            return;
+        }
+
+        // В обычном Minecraft на NORMAL starvation-урон останавливается на 5 сердцах (10 HP).
+        // Доприменяем starvation-урон ниже этого порога, чтобы голод продолжал наносить урон.
+        if (player.getHealth() <= 10.0F && player.tickCount % 80 == 0) {
+            player.hurt(DamageSource.STARVE, 1.0F);
         }
     }
 

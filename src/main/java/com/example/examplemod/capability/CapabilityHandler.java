@@ -34,8 +34,8 @@ public class CapabilityHandler {
 
         if (!player.getPersistentData().getBoolean(FIRST_JOIN_INIT_TAG)) {
             player.getPersistentData().putBoolean(FIRST_JOIN_INIT_TAG, true);
-            player.getFoodData().setFoodLevel(0);
-            player.getFoodData().setSaturation(0.0F);
+            player.getFoodData().setFoodLevel(20);
+            player.getFoodData().setSaturation(5.0F);
             // In 1.16.5 FoodStats exposes addExhaustion(...) but no direct setter,
             // so we only initialize food and saturation here.
             player.getCapability(PlayerStatsProvider.PLAYER_STATS_CAP).ifPresent(stats -> {
