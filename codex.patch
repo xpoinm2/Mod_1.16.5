@@ -1,143 +1,180 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java b/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java
-index b2321de78ada46b1c0c237d3ce94e4f5199930ca..807ec17176b23054b62d20c32082f7d067e8b3c6 100644
---- a/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java
-+++ b/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java
-@@ -22,94 +22,108 @@ public final class WetItemRenderEffects {
+diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
+index 786c3a1f436260b1a0ae3883dd744e0238d1b50d..a86b1a5d467423dd0e550b6cb6d9c76d15d2f05c 100644
+--- a/src/main/java/com/example/examplemod/CommonModEvents.java
++++ b/src/main/java/com/example/examplemod/CommonModEvents.java
+@@ -1,82 +1,83 @@
+ package com.example.examplemod;
  
-     @SubscribeEvent
-     public static void onHotbarRender(RenderGameOverlayEvent.Post event) {
-         if (event.getType() != RenderGameOverlayEvent.ElementType.HOTBAR) {
-             return;
-         }
+ import com.example.examplemod.item.HotRoastedOreItem;
+ import com.example.examplemod.item.MetalChunkItem;
+ import com.example.examplemod.item.RoastedOreItem;
+ import com.example.examplemod.item.SpongeMetalItem;
+ import com.example.examplemod.item.WetItemData;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockState;
+-import net.minecraft.block.Blocks;
+ import net.minecraft.entity.player.PlayerEntity;
+ import net.minecraft.item.BlockItem;
+ import net.minecraft.item.ItemStack;
+-import net.minecraft.particles.BlockParticleData;
+-import net.minecraft.particles.ParticleTypes;
++import net.minecraft.particles.RedstoneParticleData;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.Hand;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.Direction;
+ import net.minecraft.world.Difficulty;
+ import net.minecraft.world.World;
+ import net.minecraft.world.server.ServerWorld;
+ import net.minecraftforge.event.entity.player.PlayerEvent;
+ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraft.tags.FluidTags;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.BlockRayTraceResult;
+ import net.minecraft.util.math.RayTraceResult;
+ import net.minecraft.world.gen.Heightmap;
+ import net.minecraftforge.common.ForgeMod;
+ import net.minecraftforge.event.world.BlockEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
+ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
  
-         Minecraft mc = Minecraft.getInstance();
-         PlayerEntity player = mc.player;
-         if (player == null) {
-             return;
-         }
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
  
-         MatrixStack matrixStack = event.getMatrixStack();
-         int centerX = event.getWindow().getGuiScaledWidth() / 2;
-         int y = event.getWindow().getGuiScaledHeight() - 22;
-         long gameTime = player.level.getGameTime();
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class CommonModEvents {
+     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
+     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
+     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
+     private static final int WATER_SCAN_INTERVAL_TICKS = 5;
+     private static final int WATER_SCAN_HORIZONTAL_RADIUS = 6;
+     private static final int WATER_SCAN_VERTICAL_RADIUS = 4;
+     private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
+     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
+     private static final int RAIN_SCAN_RADIUS = 24;
+     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
+-    private static final BlockParticleData WET_WATER_FACE_PARTICLE =
+-            new BlockParticleData(ParticleTypes.BLOCK, Blocks.WATER.defaultBlockState());
++    private static final float WET_DROP_COLOR_R = 0.43F;
++    private static final float WET_DROP_COLOR_G = 0.66F;
++    private static final float WET_DROP_COLOR_B = 1.00F;
++    private static final float WET_DROP_MIN_SIZE = 0.32F;
++    private static final float WET_DROP_MAX_SIZE = 0.88F;
  
-         for (int slot = 0; slot < 9; slot++) {
-             ItemStack stack = player.inventory.getItem(slot);
-             if (!WetItemData.isWet(stack, gameTime)) {
-                 continue;
-             }
- 
-             int x = centerX - 90 + slot * 20;
--            drawWetOverlay(matrixStack, x, y, gameTime, slot);
-+            drawWetOverlay(matrixStack, x, y, slot);
-         }
+     private CommonModEvents() {
      }
  
      @SubscribeEvent
-     public static void onContainerRender(GuiScreenEvent.DrawScreenEvent.Post event) {
-         if (!(event.getGui() instanceof ContainerScreen<?>)) {
+     public static void commonSetup(FMLCommonSetupEvent event) {
+         // Временно убрали регистрацию генерации мира для диагностики
+         event.enqueueWork(() -> {
+             // WorldGenRegistry.register();
+             // ModBiomes.setupBiomes();
+         });
+     }
+ 
+     @SubscribeEvent
+     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) return;
+         if (event.player.level.isClientSide) return;
+ 
+         PlayerEntity player = event.player;
+ 
+         // Проверяем горячие предметы в курсоре и инвентаре,
+         // чтобы урон шёл даже при перетаскивании.
+         if (applyHotItemDamage(player, player.inventory.getCarried())) {
+             return;
+         }
+@@ -421,32 +422,80 @@ public final class CommonModEvents {
+         offsets.add(BlockPos.ZERO);
+         offsets.add(new BlockPos(1, 0, 0));
+         offsets.add(new BlockPos(-1, 0, 0));
+         offsets.add(new BlockPos(0, 0, 1));
+         offsets.add(new BlockPos(0, 0, -1));
+         offsets.add(new BlockPos(0, 1, 0));
+         offsets.add(new BlockPos(0, -1, 0));
+         return offsets;
+     }
+ 
+     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
+         BlockState state = world.getBlockState(pos);
+         if (state.isAir(world, pos)) {
              return;
          }
  
-         Minecraft mc = Minecraft.getInstance();
-         PlayerEntity player = mc.player;
-         if (player == null) {
-             return;
-         }
- 
-         ContainerScreen<?> screen = (ContainerScreen<?>) event.getGui();
-         MatrixStack matrixStack = event.getMatrixStack();
-         long gameTime = player.level.getGameTime();
-         int index = 0;
- 
-         for (Slot slot : screen.getMenu().slots) {
-             if (slot == null || !slot.hasItem()) {
-                 index++;
+         double centerX = pos.getX() + 0.5D;
+         double centerY = pos.getY() + 0.5D;
+         double centerZ = pos.getZ() + 0.5D;
+         for (Direction side : Direction.values()) {
+             BlockPos sidePos = pos.relative(side);
+             if (!world.getBlockState(sidePos).isAir(world, sidePos)) {
                  continue;
              }
  
-             if (WetItemData.isWet(slot.getItem(), gameTime)) {
--                drawWetOverlay(matrixStack, slot.x, slot.y, gameTime, index);
-+                drawWetOverlay(matrixStack, slot.x, slot.y, index);
-             }
-             index++;
-         }
-     }
- 
--    private static void drawWetOverlay(MatrixStack matrixStack, int x, int y, long gameTime, int seed) {
--        float pulse = 0.55F + 0.35F * (float) Math.sin((gameTime + seed * 7L) * 0.17F);
--        int alpha = Math.min(230, Math.max(90, (int) (pulse * 255.0F)));
-+    private static void drawWetOverlay(MatrixStack matrixStack, int x, int y, int seed) {
-+        int baseAlpha = 165;
-+        int edgeColor = (baseAlpha << 24) | 0x57B8FF;
-+        int innerColor = (Math.min(255, baseAlpha + 35) << 24) | 0xA5DCFF;
- 
--        drawBubble(matrixStack, x + 4, y + 12, 3, alpha);
--        drawBubble(matrixStack, x + 9, y + 11, 4, Math.min(255, alpha + 20));
--        drawBubble(matrixStack, x + 12, y + 7, 2, Math.max(80, alpha - 30));
-+        // Небольшие "квадраты воды" с каждой стороны слота.
-+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 3, 0, edgeColor, innerColor);   // top
-+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 11, 1, edgeColor, innerColor);  // bottom
-+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 19, 2, edgeColor, innerColor);  // left
-+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 29, 3, edgeColor, innerColor);  // right
-     }
- 
--    private static void drawBubble(MatrixStack matrixStack, int centerX, int centerY, int radius, int alpha) {
--        int body = (alpha << 24) | 0x57B8FF;
--        int glow = (Math.min(255, alpha + 30) << 24) | 0xA5DCFF;
--        int sparkle = (Math.min(255, alpha + 70) << 24) | 0xDDF4FF;
--
--        for (int dx = -radius; dx <= radius; dx++) {
--            for (int dy = -radius; dy <= radius; dy++) {
--                if (dx * dx + dy * dy > radius * radius) {
--                    continue;
--                }
--                AbstractGui.fill(matrixStack, centerX + dx, centerY + dy, centerX + dx + 1, centerY + dy + 1, body);
--            }
-+    private static void drawPatchOnSide(MatrixStack matrixStack, int x, int y, int seed, int side, int edgeColor, int innerColor) {
-+        int size = 3 + positiveMod(seed, 4); // 3..6
-+        int inset = 1 + positiveMod(seed / 3, 2); // 1..2
+-            double faceX = centerX + side.getStepX() * 0.51D;
+-            double faceY = centerY + side.getStepY() * 0.51D;
+-            double faceZ = centerZ + side.getStepZ() * 0.51D;
+-            world.sendParticles(WET_WATER_FACE_PARTICLE, faceX, faceY, faceZ, 1, 0.11D, 0.11D, 0.11D, 0.0D);
++            int dropsPerFace = 2 + world.random.nextInt(4);
++            for (int i = 0; i < dropsPerFace; i++) {
++                double tangentA = (world.random.nextDouble() - 0.5D) * 0.84D;
++                double tangentB = (world.random.nextDouble() - 0.5D) * 0.84D;
 +
-+        int startX;
-+        int startY;
++                double faceX = centerX + side.getStepX() * 0.503D;
++                double faceY = centerY + side.getStepY() * 0.503D;
++                double faceZ = centerZ + side.getStepZ() * 0.503D;
 +
-+        switch (side) {
-+            case 0: // top
-+                startX = x + 1 + positiveMod(seed, 18 - size);
-+                startY = y + inset;
-+                break;
-+            case 1: // bottom
-+                startX = x + 1 + positiveMod(seed / 5, 18 - size);
-+                startY = y + 17 - inset - size;
-+                break;
-+            case 2: // left
-+                startX = x + inset;
-+                startY = y + 1 + positiveMod(seed / 7, 18 - size);
-+                break;
-+            default: // right
-+                startX = x + 17 - inset - size;
-+                startY = y + 1 + positiveMod(seed / 11, 18 - size);
-+                break;
++                switch (side.getAxis()) {
++                    case X:
++                        faceY += tangentA;
++                        faceZ += tangentB;
++                        break;
++                    case Y:
++                        faceX += tangentA;
++                        faceZ += tangentB;
++                        break;
++                    case Z:
++                        faceX += tangentA;
++                        faceY += tangentB;
++                        break;
++                }
++
++                double velocityX = 0.0D;
++                double velocityY = 0.0D;
++                double velocityZ = 0.0D;
++                double randomSlideA = (world.random.nextDouble() - 0.5D) * 0.018D;
++                double randomSlideB = (world.random.nextDouble() - 0.5D) * 0.018D;
++
++                switch (side.getAxis()) {
++                    case X:
++                        velocityY = randomSlideA - 0.018D;
++                        velocityZ = randomSlideB;
++                        break;
++                    case Y:
++                        velocityX = randomSlideA;
++                        velocityZ = randomSlideB;
++                        break;
++                    case Z:
++                        velocityX = randomSlideA;
++                        velocityY = randomSlideB - 0.018D;
++                        break;
++                }
++
++                float dropSize = WET_DROP_MIN_SIZE
++                        + world.random.nextFloat() * (WET_DROP_MAX_SIZE - WET_DROP_MIN_SIZE);
++                RedstoneParticleData wetDrop =
++                        new RedstoneParticleData(WET_DROP_COLOR_R, WET_DROP_COLOR_G, WET_DROP_COLOR_B, dropSize);
++
++                world.sendParticles(wetDrop, faceX, faceY, faceZ, 0, velocityX, velocityY, velocityZ, 1.0D);
++            }
          }
- 
--        for (int dx = -radius + 1; dx <= radius - 1; dx++) {
--            for (int dy = -radius + 1; dy <= radius - 1; dy++) {
--                if (dx * dx + dy * dy > (radius - 1) * (radius - 1)) {
--                    continue;
--                }
--                AbstractGui.fill(matrixStack, centerX + dx, centerY + dy, centerX + dx + 1, centerY + dy + 1, glow);
--            }
-+        AbstractGui.fill(matrixStack, startX, startY, startX + size, startY + size, edgeColor);
-+        if (size >= 4) {
-+            AbstractGui.fill(matrixStack, startX + 1, startY + 1, startX + size - 1, startY + size - 1, innerColor);
-         }
-+    }
- 
--        AbstractGui.fill(matrixStack, centerX - radius / 2, centerY - radius / 2, centerX - radius / 2 + 1, centerY - radius / 2 + 1, sparkle);
-+    private static int positiveMod(int value, int mod) {
-+        int result = value % mod;
-+        return result < 0 ? result + mod : result;
      }
  }
  

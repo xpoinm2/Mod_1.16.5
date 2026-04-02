@@ -7,12 +7,10 @@ import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.item.WetItemData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particles.BlockParticleData;
-import net.minecraft.particles.ParticleTypes;
+import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
 import net.minecraft.tags.BlockTags;
@@ -53,8 +51,11 @@ public final class CommonModEvents {
     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
     private static final int RAIN_SCAN_RADIUS = 24;
     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
-    private static final BlockParticleData WET_WATER_FACE_PARTICLE =
-            new BlockParticleData(ParticleTypes.BLOCK, Blocks.WATER.defaultBlockState());
+    private static final float WET_DROP_COLOR_R = 0.43F;
+    private static final float WET_DROP_COLOR_G = 0.66F;
+    private static final float WET_DROP_COLOR_B = 1.00F;
+    private static final float WET_DROP_MIN_SIZE = 0.32F;
+    private static final float WET_DROP_MAX_SIZE = 0.88F;
 
     private CommonModEvents() {
     }
@@ -443,10 +444,58 @@ public final class CommonModEvents {
                 continue;
             }
 
-            double faceX = centerX + side.getStepX() * 0.51D;
-            double faceY = centerY + side.getStepY() * 0.51D;
-            double faceZ = centerZ + side.getStepZ() * 0.51D;
-            world.sendParticles(WET_WATER_FACE_PARTICLE, faceX, faceY, faceZ, 1, 0.11D, 0.11D, 0.11D, 0.0D);
+            int dropsPerFace = 2 + world.random.nextInt(4);
+            for (int i = 0; i < dropsPerFace; i++) {
+                double tangentA = (world.random.nextDouble() - 0.5D) * 0.84D;
+                double tangentB = (world.random.nextDouble() - 0.5D) * 0.84D;
+
+                double faceX = centerX + side.getStepX() * 0.503D;
+                double faceY = centerY + side.getStepY() * 0.503D;
+                double faceZ = centerZ + side.getStepZ() * 0.503D;
+
+                switch (side.getAxis()) {
+                    case X:
+                        faceY += tangentA;
+                        faceZ += tangentB;
+                        break;
+                    case Y:
+                        faceX += tangentA;
+                        faceZ += tangentB;
+                        break;
+                    case Z:
+                        faceX += tangentA;
+                        faceY += tangentB;
+                        break;
+                }
+
+                double velocityX = 0.0D;
+                double velocityY = 0.0D;
+                double velocityZ = 0.0D;
+                double randomSlideA = (world.random.nextDouble() - 0.5D) * 0.018D;
+                double randomSlideB = (world.random.nextDouble() - 0.5D) * 0.018D;
+
+                switch (side.getAxis()) {
+                    case X:
+                        velocityY = randomSlideA - 0.018D;
+                        velocityZ = randomSlideB;
+                        break;
+                    case Y:
+                        velocityX = randomSlideA;
+                        velocityZ = randomSlideB;
+                        break;
+                    case Z:
+                        velocityX = randomSlideA;
+                        velocityY = randomSlideB - 0.018D;
+                        break;
+                }
+
+                float dropSize = WET_DROP_MIN_SIZE
+                        + world.random.nextFloat() * (WET_DROP_MAX_SIZE - WET_DROP_MIN_SIZE);
+                RedstoneParticleData wetDrop =
+                        new RedstoneParticleData(WET_DROP_COLOR_R, WET_DROP_COLOR_G, WET_DROP_COLOR_B, dropSize);
+
+                world.sendParticles(wetDrop, faceX, faceY, faceZ, 0, velocityX, velocityY, velocityZ, 1.0D);
+            }
         }
     }
 }
