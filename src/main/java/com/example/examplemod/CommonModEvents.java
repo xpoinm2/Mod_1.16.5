@@ -384,8 +384,10 @@ public final class CommonModEvents {
         double y = pos.getY() + Math.max(0.98D, shapeTop + 0.03D);
         double z = pos.getZ() + 0.5D;
 
-        // Avoid dark/black-looking drops by spawning them clearly above the block surface.
-        world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.2D, 0.02D, 0.2D, 0.0D);
-        world.sendParticles(ParticleTypes.RAIN, x, y, z, 2, 0.3D, 0.03D, 0.3D, 0.0D);
+        // Softer near-camera look: fewer particles and lighter spread.
+        if (world.random.nextFloat() < 0.6F) {
+            world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.14D, 0.015D, 0.14D, 0.0D);
+        }
+        world.sendParticles(ParticleTypes.RAIN, x, y, z, 1, 0.20D, 0.02D, 0.20D, 0.0D);
     }
 }

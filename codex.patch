@@ -1,15 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
-index 9b647626d2f6055893e689c8d923a20d2e9d83e2..89dab1269ce043c146c5c18cba1f3b220943754a 100644
+index 89dab1269ce043c146c5c18cba1f3b220943754a..794490dd6314b01495ad76181cb3db17e566d3f6 100644
 --- a/src/main/java/com/example/examplemod/CommonModEvents.java
 +++ b/src/main/java/com/example/examplemod/CommonModEvents.java
-@@ -356,33 +356,36 @@ public final class CommonModEvents {
-                 }
- 
-                 BlockPos targetPos = rainCheckPos.below();
-                 if (world.isEmptyBlock(targetPos)) {
-                     continue;
-                 }
+@@ -362,30 +362,32 @@ public final class CommonModEvents {
  
                  markPlacedBlockWet(world, targetPos, wetUntil);
              }
@@ -29,18 +23,20 @@ index 9b647626d2f6055893e689c8d923a20d2e9d83e2..89dab1269ce043c146c5c18cba1f3b22
      }
  
      private static void spawnWetDrips(ServerWorld world, BlockPos pos) {
-+        BlockState state = world.getBlockState(pos);
-+        double shapeTop = state.getCollisionShape(world, pos).max(net.minecraft.util.Direction.Axis.Y);
+         BlockState state = world.getBlockState(pos);
+         double shapeTop = state.getCollisionShape(world, pos).max(net.minecraft.util.Direction.Axis.Y);
          double x = pos.getX() + 0.5D;
--        double y = pos.getY() + 0.98D;
-+        double y = pos.getY() + Math.max(0.98D, shapeTop + 0.03D);
+         double y = pos.getY() + Math.max(0.98D, shapeTop + 0.03D);
          double z = pos.getZ() + 0.5D;
  
--        world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.25D, 0.05D, 0.25D, 0.0D);
--        world.sendParticles(ParticleTypes.DRIPPING_WATER, x, y, z, 2, 0.35D, 0.0D, 0.35D, 0.0D);
-+        // Avoid dark/black-looking drops by spawning them clearly above the block surface.
-+        world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.2D, 0.02D, 0.2D, 0.0D);
-+        world.sendParticles(ParticleTypes.RAIN, x, y, z, 2, 0.3D, 0.03D, 0.3D, 0.0D);
+-        // Avoid dark/black-looking drops by spawning them clearly above the block surface.
+-        world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.2D, 0.02D, 0.2D, 0.0D);
+-        world.sendParticles(ParticleTypes.RAIN, x, y, z, 2, 0.3D, 0.03D, 0.3D, 0.0D);
++        // Softer near-camera look: fewer particles and lighter spread.
++        if (world.random.nextFloat() < 0.6F) {
++            world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.14D, 0.015D, 0.14D, 0.0D);
++        }
++        world.sendParticles(ParticleTypes.RAIN, x, y, z, 1, 0.20D, 0.02D, 0.20D, 0.0D);
      }
  }
  
