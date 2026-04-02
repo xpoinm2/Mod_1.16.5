@@ -4,13 +4,20 @@ import com.example.examplemod.item.HotRoastedOreItem;
 import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
+import com.example.examplemod.item.WetItemData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.Difficulty;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -49,7 +56,53 @@ public final class CommonModEvents {
             }
         }
 
+        applyWetState(player);
         applyLowHealthStarvationDamage(player);
+    }
+
+    @SubscribeEvent
+    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        if (event.getWorld().isClientSide) {
+            return;
+        }
+
+        PlayerEntity player = event.getPlayer();
+        ItemStack stack = event.getItemStack();
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        double reach = player.getAttribute(ForgeMod.REACH_DISTANCE.get()) != null
+                ? player.getAttributeValue(ForgeMod.REACH_DISTANCE.get())
+                : 5.0D;
+
+        RayTraceResult rayTraceResult = player.pick(reach, 0.0F, true);
+        if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK) {
+            return;
+        }
+
+        BlockPos pos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
+        if (!event.getWorld().getFluidState(pos).is(FluidTags.WATER)) {
+            return;
+        }
+
+        WetItemData.markWet(stack, event.getWorld().getGameTime());
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getWorld().isClientSide) {
+            return;
+        }
+
+        ItemStack stack = event.getItemStack();
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        if (event.getWorld().getFluidState(event.getPos()).is(FluidTags.WATER)) {
+            WetItemData.markWet(stack, event.getWorld().getGameTime());
+        }
     }
 
     @SubscribeEvent
@@ -57,6 +110,21 @@ public final class CommonModEvents {
         if (event.getPlayer().getMainHandItem().isEmpty() && event.getState().is(BlockTags.LOGS)) {
             event.setNewSpeed(0.0F);
         }
+    }
+
+    private static void applyWetState(PlayerEntity player) {
+        long gameTime = player.level.getGameTime();
+
+        if (gameTime % 20 == 0 && (player.isInWaterRainOrBubble() || player.isInWater())) {
+            WetItemData.markWet(player.getMainHandItem(), gameTime);
+            WetItemData.markWet(player.getOffhandItem(), gameTime);
+        }
+
+        for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+            WetItemData.isWet(player.inventory.getItem(i), gameTime);
+        }
+
+        WetItemData.isWet(player.inventory.getCarried(), gameTime);
     }
 
     private static void applyLowHealthStarvationDamage(PlayerEntity player) {
