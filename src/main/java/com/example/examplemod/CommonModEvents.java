@@ -7,14 +7,17 @@ import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.item.WetItemData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Direction;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -43,10 +46,15 @@ public final class CommonModEvents {
     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
+    private static final int WATER_SCAN_INTERVAL_TICKS = 5;
+    private static final int WATER_SCAN_HORIZONTAL_RADIUS = 6;
+    private static final int WATER_SCAN_VERTICAL_RADIUS = 4;
     private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
     private static final int RAIN_SCAN_RADIUS = 24;
     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
+    private static final BlockParticleData WET_WATER_FACE_PARTICLE =
+            new BlockParticleData(ParticleTypes.BLOCK, Blocks.WATER.defaultBlockState());
 
     private CommonModEvents() {
     }
@@ -208,6 +216,9 @@ public final class CommonModEvents {
 
         ServerWorld world = (ServerWorld) event.world;
         long gameTime = world.getGameTime();
+        if (gameTime % WATER_SCAN_INTERVAL_TICKS == 0L) {
+            applyNearbyWaterWetState(world, gameTime);
+        }
         if (gameTime % RAIN_SCAN_INTERVAL_TICKS == 0L) {
             applyRainWetState(world, gameTime);
         }
@@ -234,7 +245,7 @@ public final class CommonModEvents {
             }
 
             if (world.random.nextFloat() < 0.65F) {
-                spawnWetDrips(world, pos);
+                spawnWetFaceParticles(world, pos);
             }
         }
 
@@ -326,7 +337,47 @@ public final class CommonModEvents {
     private static void markPlacedBlockWet(ServerWorld world, BlockPos pos, long wetUntil) {
         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.computeIfAbsent(world, ignored -> new HashMap<>());
         wetBlocks.put(pos.immutable(), wetUntil);
-        spawnWetDrips(world, pos);
+        spawnWetFaceParticles(world, pos);
+    }
+
+    private static void applyNearbyWaterWetState(ServerWorld world, long gameTime) {
+        if (world.players().isEmpty()) {
+            return;
+        }
+
+        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
+        for (PlayerEntity player : world.players()) {
+            if (player.isSpectator()) {
+                continue;
+            }
+
+            BlockPos playerPos = player.blockPosition();
+            int minX = playerPos.getX() - WATER_SCAN_HORIZONTAL_RADIUS;
+            int maxX = playerPos.getX() + WATER_SCAN_HORIZONTAL_RADIUS;
+            int minY = Math.max(0, playerPos.getY() - WATER_SCAN_VERTICAL_RADIUS);
+            int maxY = Math.min(world.getMaxBuildHeight() - 1, playerPos.getY() + WATER_SCAN_VERTICAL_RADIUS);
+            int minZ = playerPos.getZ() - WATER_SCAN_HORIZONTAL_RADIUS;
+            int maxZ = playerPos.getZ() + WATER_SCAN_HORIZONTAL_RADIUS;
+
+            for (int x = minX; x <= maxX; x++) {
+                for (int y = minY; y <= maxY; y++) {
+                    for (int z = minZ; z <= maxZ; z++) {
+                        BlockPos waterPos = new BlockPos(x, y, z);
+                        if (!world.getFluidState(waterPos).is(FluidTags.WATER)) {
+                            continue;
+                        }
+
+                        for (BlockPos offset : WATER_TOUCH_OFFSETS) {
+                            BlockPos targetPos = waterPos.offset(offset);
+                            if (world.isEmptyBlock(targetPos)) {
+                                continue;
+                            }
+                            markPlacedBlockWet(world, targetPos, wetUntil);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static void applyRainWetState(ServerWorld world, long gameTime) {
@@ -377,17 +428,25 @@ public final class CommonModEvents {
         return offsets;
     }
 
-    private static void spawnWetDrips(ServerWorld world, BlockPos pos) {
+    private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        double shapeTop = state.getCollisionShape(world, pos).max(net.minecraft.util.Direction.Axis.Y);
-        double x = pos.getX() + 0.5D;
-        double y = pos.getY() + Math.max(0.98D, shapeTop + 0.03D);
-        double z = pos.getZ() + 0.5D;
-
-        // Softer near-camera look: fewer particles and lighter spread.
-        if (world.random.nextFloat() < 0.6F) {
-            world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.14D, 0.015D, 0.14D, 0.0D);
+        if (state.isAir(world, pos)) {
+            return;
         }
-        world.sendParticles(ParticleTypes.RAIN, x, y, z, 1, 0.20D, 0.02D, 0.20D, 0.0D);
+
+        double centerX = pos.getX() + 0.5D;
+        double centerY = pos.getY() + 0.5D;
+        double centerZ = pos.getZ() + 0.5D;
+        for (Direction side : Direction.values()) {
+            BlockPos sidePos = pos.relative(side);
+            if (!world.getBlockState(sidePos).isAir(world, sidePos)) {
+                continue;
+            }
+
+            double faceX = centerX + side.getStepX() * 0.51D;
+            double faceY = centerY + side.getStepY() * 0.51D;
+            double faceZ = centerZ + side.getStepZ() * 0.51D;
+            world.sendParticles(WET_WATER_FACE_PARTICLE, faceX, faceY, faceZ, 1, 0.11D, 0.11D, 0.11D, 0.0D);
+        }
     }
 }
