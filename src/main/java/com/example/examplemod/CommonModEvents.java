@@ -10,7 +10,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
 import net.minecraft.tags.BlockTags;
@@ -51,15 +50,6 @@ public final class CommonModEvents {
     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
     private static final int RAIN_SCAN_RADIUS = 24;
     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
-    private static final float WET_DROP_COLOR_R = 0.43F;
-    private static final float WET_DROP_COLOR_G = 0.66F;
-    private static final float WET_DROP_COLOR_B = 1.00F;
-    /**
-     * Большие плоские "пятна воды" на гранях блока.
-     * Не делаем разброс размера/скорости, чтобы визуал был как у плоской текстуры,
-     * а не как у объемных разлетающихся частиц.
-     */
-    private static final float WET_FACE_PATCH_SIZE = 1.85F;
 
     private CommonModEvents() {
     }
@@ -434,29 +424,6 @@ public final class CommonModEvents {
     }
 
     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
-        BlockState state = world.getBlockState(pos);
-        if (state.isAir(world, pos)) {
-            return;
-        }
-
-        double centerX = pos.getX() + 0.5D;
-        double centerY = pos.getY() + 0.5D;
-        double centerZ = pos.getZ() + 0.5D;
-        for (Direction side : Direction.values()) {
-            BlockPos sidePos = pos.relative(side);
-            if (!world.getBlockState(sidePos).isAir(world, sidePos)) {
-                continue;
-            }
-
-            double faceX = centerX + side.getStepX() * 0.503D;
-            double faceY = centerY + side.getStepY() * 0.503D;
-            double faceZ = centerZ + side.getStepZ() * 0.503D;
-
-            RedstoneParticleData wetPatch =
-                    new RedstoneParticleData(WET_DROP_COLOR_R, WET_DROP_COLOR_G, WET_DROP_COLOR_B, WET_FACE_PATCH_SIZE);
-
-            // Нулевая скорость: пятна не "улетают", а держатся на грани.
-            world.sendParticles(wetPatch, faceX, faceY, faceZ, 0, 0.0D, 0.0D, 0.0D, 1.0D);
-        }
+        // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
     }
-}
+}
