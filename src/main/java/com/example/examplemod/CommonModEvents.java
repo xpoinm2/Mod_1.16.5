@@ -378,11 +378,14 @@ public final class CommonModEvents {
     }
 
     private static void spawnWetDrips(ServerWorld world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+        double shapeTop = state.getCollisionShape(world, pos).max(net.minecraft.util.Direction.Axis.Y);
         double x = pos.getX() + 0.5D;
-        double y = pos.getY() + 0.98D;
+        double y = pos.getY() + Math.max(0.98D, shapeTop + 0.03D);
         double z = pos.getZ() + 0.5D;
 
-        world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.25D, 0.05D, 0.25D, 0.0D);
-        world.sendParticles(ParticleTypes.DRIPPING_WATER, x, y, z, 2, 0.35D, 0.0D, 0.35D, 0.0D);
+        // Avoid dark/black-looking drops by spawning them clearly above the block surface.
+        world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.2D, 0.02D, 0.2D, 0.0D);
+        world.sendParticles(ParticleTypes.RAIN, x, y, z, 2, 0.3D, 0.03D, 0.3D, 0.0D);
     }
 }
