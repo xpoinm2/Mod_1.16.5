@@ -64,6 +64,8 @@ public final class WetItemRenderEffects {
         MatrixStack matrixStack = event.getMatrixStack();
         long gameTime = player.level.getGameTime();
         int index = 0;
+        int guiLeft = screen.getGuiLeft();
+        int guiTop = screen.getGuiTop();
 
         for (Slot slot : screen.getMenu().slots) {
             if (slot == null || !slot.hasItem()) {
@@ -72,7 +74,7 @@ public final class WetItemRenderEffects {
             }
 
             if (WetItemData.isWet(slot.getItem(), gameTime)) {
-                drawWetOverlay(matrixStack, slot.x, slot.y, index);
+                drawWetOverlay(matrixStack, guiLeft + slot.x, guiTop + slot.y, index);
             }
             index++;
         }
