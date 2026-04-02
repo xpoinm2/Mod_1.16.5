@@ -1,180 +1,136 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
-index 786c3a1f436260b1a0ae3883dd744e0238d1b50d..a86b1a5d467423dd0e550b6cb6d9c76d15d2f05c 100644
---- a/src/main/java/com/example/examplemod/CommonModEvents.java
-+++ b/src/main/java/com/example/examplemod/CommonModEvents.java
-@@ -1,82 +1,83 @@
- package com.example.examplemod;
+diff --git a/src/main/java/com/example/examplemod/block/DirtyWaterBlock.java b/src/main/java/com/example/examplemod/block/DirtyWaterBlock.java
+index b960b76e9a3cd5565e71a8a11b302341224b1f1b..78512e71743874e93bd52f729ec8c1d376ba9547 100644
+--- a/src/main/java/com/example/examplemod/block/DirtyWaterBlock.java
++++ b/src/main/java/com/example/examplemod/block/DirtyWaterBlock.java
+@@ -1,41 +1,129 @@
+ package com.example.examplemod.block;
  
- import com.example.examplemod.item.HotRoastedOreItem;
- import com.example.examplemod.item.MetalChunkItem;
- import com.example.examplemod.item.RoastedOreItem;
- import com.example.examplemod.item.SpongeMetalItem;
- import com.example.examplemod.item.WetItemData;
- import net.minecraft.block.Block;
+ import com.example.examplemod.ModFluids;
+ import net.minecraft.block.AbstractBlock;
  import net.minecraft.block.BlockState;
--import net.minecraft.block.Blocks;
- import net.minecraft.entity.player.PlayerEntity;
- import net.minecraft.item.BlockItem;
- import net.minecraft.item.ItemStack;
--import net.minecraft.particles.BlockParticleData;
--import net.minecraft.particles.ParticleTypes;
-+import net.minecraft.particles.RedstoneParticleData;
- import net.minecraft.server.MinecraftServer;
- import net.minecraft.util.Hand;
- import net.minecraft.tags.BlockTags;
- import net.minecraft.util.DamageSource;
- import net.minecraft.util.Direction;
- import net.minecraft.world.Difficulty;
- import net.minecraft.world.World;
- import net.minecraft.world.server.ServerWorld;
- import net.minecraftforge.event.entity.player.PlayerEvent;
- import net.minecraftforge.event.entity.player.PlayerInteractEvent;
- import net.minecraftforge.event.TickEvent;
- import net.minecraft.tags.FluidTags;
+ import net.minecraft.block.FlowingFluidBlock;
+ import net.minecraft.particles.RedstoneParticleData;
++import net.minecraft.util.Direction;
  import net.minecraft.util.math.BlockPos;
- import net.minecraft.util.math.BlockRayTraceResult;
- import net.minecraft.util.math.RayTraceResult;
- import net.minecraft.world.gen.Heightmap;
- import net.minecraftforge.common.ForgeMod;
- import net.minecraftforge.event.world.BlockEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
- import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+ import net.minecraft.world.World;
+ import net.minecraftforge.fluids.ForgeFlowingFluid;
  
- import java.util.ArrayList;
- import java.util.HashMap;
- import java.util.Iterator;
- import java.util.List;
- import java.util.Map;
+ import java.util.Random;
  
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class CommonModEvents {
-     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
-     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
-     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
-     private static final int WATER_SCAN_INTERVAL_TICKS = 5;
-     private static final int WATER_SCAN_HORIZONTAL_RADIUS = 6;
-     private static final int WATER_SCAN_VERTICAL_RADIUS = 4;
-     private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
-     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
-     private static final int RAIN_SCAN_RADIUS = 24;
-     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
--    private static final BlockParticleData WET_WATER_FACE_PARTICLE =
--            new BlockParticleData(ParticleTypes.BLOCK, Blocks.WATER.defaultBlockState());
-+    private static final float WET_DROP_COLOR_R = 0.43F;
-+    private static final float WET_DROP_COLOR_G = 0.66F;
-+    private static final float WET_DROP_COLOR_B = 1.00F;
-+    private static final float WET_DROP_MIN_SIZE = 0.32F;
-+    private static final float WET_DROP_MAX_SIZE = 0.88F;
+ public class DirtyWaterBlock extends FlowingFluidBlock {
+     private static final RedstoneParticleData BLACK_DOT = new RedstoneParticleData(0.02F, 0.02F, 0.02F, 0.16F);
++    private static final RedstoneParticleData BLUE_PIXEL = new RedstoneParticleData(0.12F, 0.55F, 1.0F, 0.28F);
  
-     private CommonModEvents() {
+     public DirtyWaterBlock() {
+         super(() -> (ForgeFlowingFluid) ModFluids.DIRTY_WATER.get(),
+                 AbstractBlock.Properties.copy(net.minecraft.block.Blocks.WATER));
      }
  
-     @SubscribeEvent
-     public static void commonSetup(FMLCommonSetupEvent event) {
-         // Временно убрали регистрацию генерации мира для диагностики
-         event.enqueueWork(() -> {
-             // WorldGenRegistry.register();
-             // ModBiomes.setupBiomes();
-         });
-     }
+     @Override
+     public void animateTick(BlockState state, World world, BlockPos pos, Random random) {
+         super.animateTick(state, world, pos, random);
  
-     @SubscribeEvent
-     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) return;
-         if (event.player.level.isClientSide) return;
- 
-         PlayerEntity player = event.player;
- 
-         // Проверяем горячие предметы в курсоре и инвентаре,
-         // чтобы урон шёл даже при перетаскивании.
-         if (applyHotItemDamage(player, player.inventory.getCarried())) {
-             return;
-         }
-@@ -421,32 +422,80 @@ public final class CommonModEvents {
-         offsets.add(BlockPos.ZERO);
-         offsets.add(new BlockPos(1, 0, 0));
-         offsets.add(new BlockPos(-1, 0, 0));
-         offsets.add(new BlockPos(0, 0, 1));
-         offsets.add(new BlockPos(0, 0, -1));
-         offsets.add(new BlockPos(0, 1, 0));
-         offsets.add(new BlockPos(0, -1, 0));
-         return offsets;
-     }
- 
-     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
-         BlockState state = world.getBlockState(pos);
-         if (state.isAir(world, pos)) {
-             return;
-         }
- 
-         double centerX = pos.getX() + 0.5D;
-         double centerY = pos.getY() + 0.5D;
-         double centerZ = pos.getZ() + 0.5D;
-         for (Direction side : Direction.values()) {
-             BlockPos sidePos = pos.relative(side);
-             if (!world.getBlockState(sidePos).isAir(world, sidePos)) {
-                 continue;
+         if (random.nextFloat() < 0.8F) {
+             int particles = 2 + random.nextInt(3); // 2-4 dots to keep them dense
+             for (int i = 0; i < particles; i++) {
+                 double offsetX = random.nextDouble();
+                 double offsetY = random.nextDouble() * 0.25D + 0.2D;
+                 double offsetZ = random.nextDouble();
+                 // keep dots mostly still so they appear longer
+                 world.addParticle(BLACK_DOT,
+                         pos.getX() + offsetX,
+                         pos.getY() + offsetY,
+                         pos.getZ() + offsetZ,
+                         0, 0.002, 0);
              }
- 
--            double faceX = centerX + side.getStepX() * 0.51D;
--            double faceY = centerY + side.getStepY() * 0.51D;
--            double faceZ = centerZ + side.getStepZ() * 0.51D;
--            world.sendParticles(WET_WATER_FACE_PARTICLE, faceX, faceY, faceZ, 1, 0.11D, 0.11D, 0.11D, 0.0D);
-+            int dropsPerFace = 2 + world.random.nextInt(4);
-+            for (int i = 0; i < dropsPerFace; i++) {
-+                double tangentA = (world.random.nextDouble() - 0.5D) * 0.84D;
-+                double tangentB = (world.random.nextDouble() - 0.5D) * 0.84D;
-+
-+                double faceX = centerX + side.getStepX() * 0.503D;
-+                double faceY = centerY + side.getStepY() * 0.503D;
-+                double faceZ = centerZ + side.getStepZ() * 0.503D;
-+
-+                switch (side.getAxis()) {
-+                    case X:
-+                        faceY += tangentA;
-+                        faceZ += tangentB;
-+                        break;
-+                    case Y:
-+                        faceX += tangentA;
-+                        faceZ += tangentB;
-+                        break;
-+                    case Z:
-+                        faceX += tangentA;
-+                        faceY += tangentB;
-+                        break;
-+                }
-+
-+                double velocityX = 0.0D;
-+                double velocityY = 0.0D;
-+                double velocityZ = 0.0D;
-+                double randomSlideA = (world.random.nextDouble() - 0.5D) * 0.018D;
-+                double randomSlideB = (world.random.nextDouble() - 0.5D) * 0.018D;
-+
-+                switch (side.getAxis()) {
-+                    case X:
-+                        velocityY = randomSlideA - 0.018D;
-+                        velocityZ = randomSlideB;
-+                        break;
-+                    case Y:
-+                        velocityX = randomSlideA;
-+                        velocityZ = randomSlideB;
-+                        break;
-+                    case Z:
-+                        velocityX = randomSlideA;
-+                        velocityY = randomSlideB - 0.018D;
-+                        break;
-+                }
-+
-+                float dropSize = WET_DROP_MIN_SIZE
-+                        + world.random.nextFloat() * (WET_DROP_MAX_SIZE - WET_DROP_MIN_SIZE);
-+                RedstoneParticleData wetDrop =
-+                        new RedstoneParticleData(WET_DROP_COLOR_R, WET_DROP_COLOR_G, WET_DROP_COLOR_B, dropSize);
-+
-+                world.sendParticles(wetDrop, faceX, faceY, faceZ, 0, velocityX, velocityY, velocityZ, 1.0D);
-+            }
          }
++
++        spawnFlowOnNeighborFaces(world, pos, random);
++    }
++
++    private static void spawnFlowOnNeighborFaces(World world, BlockPos fluidPos, Random random) {
++        for (Direction direction : Direction.values()) {
++            BlockPos neighborPos = fluidPos.relative(direction);
++            BlockState neighborState = world.getBlockState(neighborPos);
++            if (!neighborState.getMaterial().isSolidBlocking()) {
++                continue;
++            }
++
++            if (random.nextFloat() > 0.6F) {
++                continue;
++            }
++
++            int droplets = 1 + random.nextInt(2);
++            for (int i = 0; i < droplets; i++) {
++                spawnFaceDroplet(world, neighborPos, direction.getOpposite(), random);
++            }
++        }
++    }
++
++    private static void spawnFaceDroplet(World world, BlockPos blockPos, Direction face, Random random) {
++        double inset = 0.003D;
++        double u = random.nextDouble();
++        double v = random.nextDouble();
++
++        double x = blockPos.getX() + 0.5D;
++        double y = blockPos.getY() + 0.5D;
++        double z = blockPos.getZ() + 0.5D;
++
++        double dx = 0.0D;
++        double dy = 0.0D;
++        double dz = 0.0D;
++
++        long t = world.getGameTime() + (blockPos.asLong() & 31L);
++        double phase = (t % 40L) / 40.0D;
++
++        switch (face) {
++            case UP:
++                x = blockPos.getX() + u;
++                y = blockPos.getY() + 1.0D - inset;
++                z = blockPos.getZ() + v;
++                dx = (phase - 0.5D) * 0.01D;
++                dz = (0.5D - phase) * 0.01D;
++                break;
++            case DOWN:
++                x = blockPos.getX() + u;
++                y = blockPos.getY() + inset;
++                z = blockPos.getZ() + v;
++                dx = (0.5D - phase) * 0.01D;
++                dz = (phase - 0.5D) * 0.01D;
++                break;
++            case NORTH:
++                x = blockPos.getX() + u;
++                y = blockPos.getY() + v;
++                z = blockPos.getZ() + inset;
++                dx = (phase - 0.5D) * 0.008D;
++                dy = -0.012D;
++                break;
++            case SOUTH:
++                x = blockPos.getX() + u;
++                y = blockPos.getY() + v;
++                z = blockPos.getZ() + 1.0D - inset;
++                dx = (0.5D - phase) * 0.008D;
++                dy = -0.012D;
++                break;
++            case WEST:
++                x = blockPos.getX() + inset;
++                y = blockPos.getY() + v;
++                z = blockPos.getZ() + u;
++                dz = (phase - 0.5D) * 0.008D;
++                dy = -0.012D;
++                break;
++            case EAST:
++            default:
++                x = blockPos.getX() + 1.0D - inset;
++                y = blockPos.getY() + v;
++                z = blockPos.getZ() + u;
++                dz = (0.5D - phase) * 0.008D;
++                dy = -0.012D;
++                break;
++        }
++
++        world.addParticle(BLUE_PIXEL, x, y, z, dx, dy, dz);
      }
  }
  
