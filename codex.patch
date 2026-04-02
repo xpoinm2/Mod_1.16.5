@@ -1,55 +1,278 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/item/WetItemData.java b/src/main/java/com/example/examplemod/item/WetItemData.java
-index 0f2309c48bf160da71af0dc740bbf57ab66bc229..37abd9220e61226e6d121eb40955c511417d99cc 100644
---- a/src/main/java/com/example/examplemod/item/WetItemData.java
-+++ b/src/main/java/com/example/examplemod/item/WetItemData.java
-@@ -41,26 +41,47 @@ public final class WetItemData {
-         if (wetUntil > gameTime) {
-             return true;
+diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
+index 08db23a804dc9735df8ad70b03144b43dcc679c0..9b647626d2f6055893e689c8d923a20d2e9d83e2 100644
+--- a/src/main/java/com/example/examplemod/CommonModEvents.java
++++ b/src/main/java/com/example/examplemod/CommonModEvents.java
+@@ -3,63 +3,72 @@ package com.example.examplemod;
+ import com.example.examplemod.item.HotRoastedOreItem;
+ import com.example.examplemod.item.MetalChunkItem;
+ import com.example.examplemod.item.RoastedOreItem;
+ import com.example.examplemod.item.SpongeMetalItem;
+ import com.example.examplemod.item.WetItemData;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockState;
+ import net.minecraft.entity.player.PlayerEntity;
+ import net.minecraft.item.BlockItem;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.particles.ParticleTypes;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.Hand;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.world.Difficulty;
+ import net.minecraft.world.World;
+ import net.minecraft.world.server.ServerWorld;
+ import net.minecraftforge.event.entity.player.PlayerEvent;
+ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraft.tags.FluidTags;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.BlockRayTraceResult;
+ import net.minecraft.util.math.RayTraceResult;
++import net.minecraft.world.gen.Heightmap;
+ import net.minecraftforge.common.ForgeMod;
+ import net.minecraftforge.event.world.BlockEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
+ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+ 
++import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.Iterator;
++import java.util.List;
+ import java.util.Map;
+ 
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class CommonModEvents {
+     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
++    private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
++    private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
++    private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
++    private static final int RAIN_SAMPLES_PER_PLAYER = 20;
++    private static final int RAIN_SCAN_RADIUS = 24;
++    private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
+ 
+     private CommonModEvents() {
+     }
+ 
+     @SubscribeEvent
+     public static void commonSetup(FMLCommonSetupEvent event) {
+         // Временно убрали регистрацию генерации мира для диагностики
+         event.enqueueWork(() -> {
+             // WorldGenRegistry.register();
+             // ModBiomes.setupBiomes();
+         });
+     }
+ 
+     @SubscribeEvent
+     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) return;
+         if (event.player.level.isClientSide) return;
+ 
+         PlayerEntity player = event.player;
+ 
+         // Проверяем горячие предметы в курсоре и инвентаре,
+         // чтобы урон шёл даже при перетаскивании.
+         if (applyHotItemDamage(player, player.inventory.getCarried())) {
+             return;
+         }
+@@ -141,79 +150,112 @@ public final class CommonModEvents {
+ 
+         PlayerEntity player = (PlayerEntity) event.getEntity();
+         BlockState placedState = event.getPlacedBlock();
+         Block placedBlock = placedState.getBlock();
+         long gameTime = player.level.getGameTime();
+ 
+         for (Hand hand : Hand.values()) {
+             ItemStack stackInHand = player.getItemInHand(hand);
+             if (stackInHand.isEmpty() || !(stackInHand.getItem() instanceof BlockItem)) {
+                 continue;
+             }
+ 
+             BlockItem blockItem = (BlockItem) stackInHand.getItem();
+             if (blockItem.getBlock() != placedBlock) {
+                 continue;
+             }
+ 
+             long wetUntil = WetItemData.getWetUntil(stackInHand);
+             if (wetUntil > gameTime) {
+                 markPlacedBlockWet((ServerWorld) event.getWorld(), event.getPos(), wetUntil);
+             }
+             return;
+         }
+     }
+ 
++    @SubscribeEvent
++    public static void onFluidPlaced(BlockEvent.FluidPlaceBlockEvent event) {
++        if (event.getWorld().isClientSide()) {
++            return;
++        }
++        if (!(event.getWorld() instanceof ServerWorld)) {
++            return;
++        }
++
++        ServerWorld world = (ServerWorld) event.getWorld();
++        BlockPos waterPos = event.getPos();
++        if (!world.getFluidState(waterPos).is(FluidTags.WATER) && !event.getNewState().getFluidState().is(FluidTags.WATER)) {
++            return;
++        }
++
++        long wetUntil = world.getGameTime() + BLOCK_WET_DURATION_TICKS;
++        for (BlockPos offset : WATER_TOUCH_OFFSETS) {
++            BlockPos targetPos = waterPos.offset(offset);
++            if (world.isEmptyBlock(targetPos)) {
++                continue;
++            }
++            markPlacedBlockWet(world, targetPos, wetUntil);
++        }
++    }
++
+     @SubscribeEvent
+     public static void onWorldTick(TickEvent.WorldTickEvent event) {
+         if (event.phase != TickEvent.Phase.END || event.world.isClientSide()) {
+             return;
+         }
+         if (!(event.world instanceof ServerWorld)) {
+             return;
          }
  
-         clearWet(stack);
+         ServerWorld world = (ServerWorld) event.world;
++        long gameTime = world.getGameTime();
++        if (gameTime % RAIN_SCAN_INTERVAL_TICKS == 0L) {
++            applyRainWetState(world, gameTime);
++        }
++
+         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
+         if (wetBlocks == null || wetBlocks.isEmpty()) {
+             return;
+         }
+ 
+-        long gameTime = world.getGameTime();
++        if (gameTime % WORLD_WET_PROCESS_INTERVAL_TICKS != 0L) {
++            return;
++        }
++
+         Iterator<Map.Entry<BlockPos, Long>> iterator = wetBlocks.entrySet().iterator();
+ 
+         while (iterator.hasNext()) {
+             Map.Entry<BlockPos, Long> entry = iterator.next();
+             BlockPos pos = entry.getKey();
+             long wetUntil = entry.getValue();
+ 
+             if (wetUntil <= gameTime || world.isEmptyBlock(pos)) {
+                 iterator.remove();
+                 continue;
+             }
+ 
+-            if (gameTime % 5L == 0L && world.random.nextFloat() < 0.65F) {
++            if (world.random.nextFloat() < 0.65F) {
+                 spawnWetDrips(world, pos);
+             }
+         }
+ 
+         if (wetBlocks.isEmpty()) {
+             WET_PLACED_BLOCKS.remove(world);
+         }
+     }
+ 
+     @SubscribeEvent
+     public static void onServerStopping(TickEvent.ServerTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) {
+             return;
+         }
+ 
+         MinecraftServer server = net.minecraftforge.fml.server.ServerLifecycleHooks.getCurrentServer();
+         if (server != null && !server.isRunning()) {
+             WET_PLACED_BLOCKS.clear();
+         }
+     }
+ 
+     private static void applyWetState(PlayerEntity player) {
+         long gameTime = player.level.getGameTime();
+ 
+         if (gameTime % 20 == 0 && (player.isInWaterRainOrBubble() || player.isInWater())) {
+@@ -265,34 +307,82 @@ public final class CommonModEvents {
+             return false;
+         }
+         if (stack.getItem() instanceof HotRoastedOreItem) {
+             if (HotRoastedOreItem.getState(stack) == HotRoastedOreItem.STATE_HOT) {
+                 player.hurt(DamageSource.ON_FIRE, 2.0F);
+                 return true;
+             }
+             return false;
+         }
+         if (stack.getItem() instanceof MetalChunkItem) {
+             if (MetalChunkItem.getTemperature(stack) == MetalChunkItem.TEMP_HOT) {
+                 player.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                 return true;
+             }
+             return false;
+         }
          return false;
      }
  
-     public static void clearWet(ItemStack stack) {
-         if (stack.isEmpty() || !stack.hasTag()) {
-             return;
-         }
- 
-         CompoundNBT tag = stack.getTag();
-         if (tag == null) {
-             return;
-         }
- 
-         tag.remove(WET_TAG);
-         tag.remove(WET_UNTIL_TAG);
- 
-         if (tag.isEmpty()) {
-             stack.setTag(null);
-         }
+     private static void markPlacedBlockWet(ServerWorld world, BlockPos pos, long wetUntil) {
+         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.computeIfAbsent(world, ignored -> new HashMap<>());
+         wetBlocks.put(pos.immutable(), wetUntil);
+         spawnWetDrips(world, pos);
      }
-+
-+    public static long getWetUntil(ItemStack stack) {
-+        if (stack.isEmpty() || !stack.hasTag()) {
-+            return 0L;
+ 
++    private static void applyRainWetState(ServerWorld world, long gameTime) {
++        if (!world.isRaining()) {
++            return;
 +        }
 +
-+        CompoundNBT tag = stack.getTag();
-+        if (tag == null || !tag.getBoolean(WET_TAG)) {
-+            return 0L;
++        int playerCount = world.players().size();
++        if (playerCount == 0) {
++            return;
 +        }
 +
-+        return tag.getLong(WET_UNTIL_TAG);
++        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
++        for (PlayerEntity player : world.players()) {
++            if (player.isSpectator()) {
++                continue;
++            }
++
++            BlockPos playerPos = player.blockPosition();
++            for (int i = 0; i < RAIN_SAMPLES_PER_PLAYER; i++) {
++                int x = playerPos.getX() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
++                int z = playerPos.getZ() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
++                int surfaceY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
++                BlockPos rainCheckPos = new BlockPos(x, surfaceY, z);
++                if (!world.isRainingAt(rainCheckPos)) {
++                    continue;
++                }
++
++                BlockPos targetPos = rainCheckPos.below();
++                if (world.isEmptyBlock(targetPos)) {
++                    continue;
++                }
++
++                markPlacedBlockWet(world, targetPos, wetUntil);
++            }
++        }
 +    }
 +
-+    public static int getRemainingWetTicks(ItemStack stack, long gameTime) {
-+        long wetUntil = getWetUntil(stack);
-+        if (wetUntil <= gameTime) {
-+            return 0;
-+        }
-+        return (int) Math.min(Integer.MAX_VALUE, wetUntil - gameTime);
++    private static List<BlockPos> createWaterTouchOffsets() {
++        List<BlockPos> offsets = new ArrayList<>();
++        offsets.add(BlockPos.ZERO);
++        offsets.add(new BlockPos(1, 0, 0));
++        offsets.add(new BlockPos(-1, 0, 0));
++        offsets.add(new BlockPos(0, 0, 1));
++        offsets.add(new BlockPos(0, 0, -1));
++        offsets.add(new BlockPos(0, 1, 0));
++        offsets.add(new BlockPos(0, -1, 0));
++        return offsets;
 +    }
++
+     private static void spawnWetDrips(ServerWorld world, BlockPos pos) {
+         double x = pos.getX() + 0.5D;
+         double y = pos.getY() + 0.98D;
+         double z = pos.getZ() + 0.5D;
+ 
+         world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.25D, 0.05D, 0.25D, 0.0D);
+         world.sendParticles(ParticleTypes.DRIPPING_WATER, x, y, z, 2, 0.35D, 0.0D, 0.35D, 0.0D);
+     }
  }
  
 EOF

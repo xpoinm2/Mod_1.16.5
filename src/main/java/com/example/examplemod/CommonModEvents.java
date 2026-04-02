@@ -25,19 +25,28 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class CommonModEvents {
     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
+    private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
+    private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
+    private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
+    private static final int RAIN_SAMPLES_PER_PLAYER = 20;
+    private static final int RAIN_SCAN_RADIUS = 24;
+    private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
 
     private CommonModEvents() {
     }
@@ -164,6 +173,31 @@ public final class CommonModEvents {
     }
 
     @SubscribeEvent
+    public static void onFluidPlaced(BlockEvent.FluidPlaceBlockEvent event) {
+        if (event.getWorld().isClientSide()) {
+            return;
+        }
+        if (!(event.getWorld() instanceof ServerWorld)) {
+            return;
+        }
+
+        ServerWorld world = (ServerWorld) event.getWorld();
+        BlockPos waterPos = event.getPos();
+        if (!world.getFluidState(waterPos).is(FluidTags.WATER) && !event.getNewState().getFluidState().is(FluidTags.WATER)) {
+            return;
+        }
+
+        long wetUntil = world.getGameTime() + BLOCK_WET_DURATION_TICKS;
+        for (BlockPos offset : WATER_TOUCH_OFFSETS) {
+            BlockPos targetPos = waterPos.offset(offset);
+            if (world.isEmptyBlock(targetPos)) {
+                continue;
+            }
+            markPlacedBlockWet(world, targetPos, wetUntil);
+        }
+    }
+
+    @SubscribeEvent
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
         if (event.phase != TickEvent.Phase.END || event.world.isClientSide()) {
             return;
@@ -173,12 +207,20 @@ public final class CommonModEvents {
         }
 
         ServerWorld world = (ServerWorld) event.world;
+        long gameTime = world.getGameTime();
+        if (gameTime % RAIN_SCAN_INTERVAL_TICKS == 0L) {
+            applyRainWetState(world, gameTime);
+        }
+
         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
         if (wetBlocks == null || wetBlocks.isEmpty()) {
             return;
         }
 
-        long gameTime = world.getGameTime();
+        if (gameTime % WORLD_WET_PROCESS_INTERVAL_TICKS != 0L) {
+            return;
+        }
+
         Iterator<Map.Entry<BlockPos, Long>> iterator = wetBlocks.entrySet().iterator();
 
         while (iterator.hasNext()) {
@@ -191,7 +233,7 @@ public final class CommonModEvents {
                 continue;
             }
 
-            if (gameTime % 5L == 0L && world.random.nextFloat() < 0.65F) {
+            if (world.random.nextFloat() < 0.65F) {
                 spawnWetDrips(world, pos);
             }
         }
@@ -285,6 +327,54 @@ public final class CommonModEvents {
         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.computeIfAbsent(world, ignored -> new HashMap<>());
         wetBlocks.put(pos.immutable(), wetUntil);
         spawnWetDrips(world, pos);
+    }
+
+    private static void applyRainWetState(ServerWorld world, long gameTime) {
+        if (!world.isRaining()) {
+            return;
+        }
+
+        int playerCount = world.players().size();
+        if (playerCount == 0) {
+            return;
+        }
+
+        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
+        for (PlayerEntity player : world.players()) {
+            if (player.isSpectator()) {
+                continue;
+            }
+
+            BlockPos playerPos = player.blockPosition();
+            for (int i = 0; i < RAIN_SAMPLES_PER_PLAYER; i++) {
+                int x = playerPos.getX() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
+                int z = playerPos.getZ() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
+                int surfaceY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
+                BlockPos rainCheckPos = new BlockPos(x, surfaceY, z);
+                if (!world.isRainingAt(rainCheckPos)) {
+                    continue;
+                }
+
+                BlockPos targetPos = rainCheckPos.below();
+                if (world.isEmptyBlock(targetPos)) {
+                    continue;
+                }
+
+                markPlacedBlockWet(world, targetPos, wetUntil);
+            }
+        }
+    }
+
+    private static List<BlockPos> createWaterTouchOffsets() {
+        List<BlockPos> offsets = new ArrayList<>();
+        offsets.add(BlockPos.ZERO);
+        offsets.add(new BlockPos(1, 0, 0));
+        offsets.add(new BlockPos(-1, 0, 0));
+        offsets.add(new BlockPos(0, 0, 1));
+        offsets.add(new BlockPos(0, 0, -1));
+        offsets.add(new BlockPos(0, 1, 0));
+        offsets.add(new BlockPos(0, -1, 0));
+        return offsets;
     }
 
     private static void spawnWetDrips(ServerWorld world, BlockPos pos) {
