@@ -5,11 +5,19 @@ import com.example.examplemod.item.MetalChunkItem;
 import com.example.examplemod.item.RoastedOreItem;
 import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.item.WetItemData;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particles.ParticleTypes;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Hand;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.TickEvent;
@@ -18,12 +26,19 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class CommonModEvents {
+    private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
+
     private CommonModEvents() {
     }
 
@@ -112,6 +127,92 @@ public final class CommonModEvents {
         }
     }
 
+    @SubscribeEvent
+    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        if (event.getWorld().isClientSide()) {
+            return;
+        }
+        if (!(event.getWorld() instanceof ServerWorld)) {
+            return;
+        }
+        if (!(event.getEntity() instanceof PlayerEntity)) {
+            return;
+        }
+
+        PlayerEntity player = (PlayerEntity) event.getEntity();
+        BlockState placedState = event.getPlacedBlock();
+        Block placedBlock = placedState.getBlock();
+        long gameTime = player.level.getGameTime();
+
+        for (Hand hand : Hand.values()) {
+            ItemStack stackInHand = player.getItemInHand(hand);
+            if (stackInHand.isEmpty() || !(stackInHand.getItem() instanceof BlockItem)) {
+                continue;
+            }
+
+            BlockItem blockItem = (BlockItem) stackInHand.getItem();
+            if (blockItem.getBlock() != placedBlock) {
+                continue;
+            }
+
+            long wetUntil = WetItemData.getWetUntil(stackInHand);
+            if (wetUntil > gameTime) {
+                markPlacedBlockWet((ServerWorld) event.getWorld(), event.getPos(), wetUntil);
+            }
+            return;
+        }
+    }
+
+    @SubscribeEvent
+    public static void onWorldTick(TickEvent.WorldTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || event.world.isClientSide()) {
+            return;
+        }
+        if (!(event.world instanceof ServerWorld)) {
+            return;
+        }
+
+        ServerWorld world = (ServerWorld) event.world;
+        Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
+        if (wetBlocks == null || wetBlocks.isEmpty()) {
+            return;
+        }
+
+        long gameTime = world.getGameTime();
+        Iterator<Map.Entry<BlockPos, Long>> iterator = wetBlocks.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<BlockPos, Long> entry = iterator.next();
+            BlockPos pos = entry.getKey();
+            long wetUntil = entry.getValue();
+
+            if (wetUntil <= gameTime || world.isEmptyBlock(pos)) {
+                iterator.remove();
+                continue;
+            }
+
+            if (gameTime % 5L == 0L && world.random.nextFloat() < 0.65F) {
+                spawnWetDrips(world, pos);
+            }
+        }
+
+        if (wetBlocks.isEmpty()) {
+            WET_PLACED_BLOCKS.remove(world);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerStopping(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+
+        MinecraftServer server = net.minecraftforge.fml.server.ServerLifecycleHooks.getCurrentServer();
+        if (server != null && !server.isRunning()) {
+            WET_PLACED_BLOCKS.clear();
+        }
+    }
+
     private static void applyWetState(PlayerEntity player) {
         long gameTime = player.level.getGameTime();
 
@@ -178,5 +279,20 @@ public final class CommonModEvents {
             return false;
         }
         return false;
+    }
+
+    private static void markPlacedBlockWet(ServerWorld world, BlockPos pos, long wetUntil) {
+        Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.computeIfAbsent(world, ignored -> new HashMap<>());
+        wetBlocks.put(pos.immutable(), wetUntil);
+        spawnWetDrips(world, pos);
+    }
+
+    private static void spawnWetDrips(ServerWorld world, BlockPos pos) {
+        double x = pos.getX() + 0.5D;
+        double y = pos.getY() + 0.98D;
+        double z = pos.getZ() + 0.5D;
+
+        world.sendParticles(ParticleTypes.FALLING_WATER, x, y, z, 1, 0.25D, 0.05D, 0.25D, 0.0D);
+        world.sendParticles(ParticleTypes.DRIPPING_WATER, x, y, z, 2, 0.35D, 0.0D, 0.35D, 0.0D);
     }
 }

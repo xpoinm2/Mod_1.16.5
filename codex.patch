@@ -1,76 +1,56 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/item/WetItemData.java b/src/main/java/com/example/examplemod/item/WetItemData.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..0f2309c48bf160da71af0dc740bbf57ab66bc229
---- /dev/null
+index 0f2309c48bf160da71af0dc740bbf57ab66bc229..37abd9220e61226e6d121eb40955c511417d99cc 100644
+--- a/src/main/java/com/example/examplemod/item/WetItemData.java
 +++ b/src/main/java/com/example/examplemod/item/WetItemData.java
-@@ -0,0 +1,66 @@
-+package com.example.examplemod.item;
+@@ -41,26 +41,47 @@ public final class WetItemData {
+         if (wetUntil > gameTime) {
+             return true;
+         }
+ 
+         clearWet(stack);
+         return false;
+     }
+ 
+     public static void clearWet(ItemStack stack) {
+         if (stack.isEmpty() || !stack.hasTag()) {
+             return;
+         }
+ 
+         CompoundNBT tag = stack.getTag();
+         if (tag == null) {
+             return;
+         }
+ 
+         tag.remove(WET_TAG);
+         tag.remove(WET_UNTIL_TAG);
+ 
+         if (tag.isEmpty()) {
+             stack.setTag(null);
+         }
+     }
 +
-+import net.minecraft.item.ItemStack;
-+import net.minecraft.nbt.CompoundNBT;
-+
-+public final class WetItemData {
-+    private static final String WET_TAG = "examplemod_wet";
-+    private static final String WET_UNTIL_TAG = "examplemod_wet_until";
-+
-+    // Предмет остается мокрым 45 секунд после последнего намокания.
-+    public static final int DEFAULT_WET_DURATION_TICKS = 20 * 45;
-+
-+    private WetItemData() {
-+    }
-+
-+    public static void markWet(ItemStack stack, long gameTime) {
-+        markWet(stack, gameTime, DEFAULT_WET_DURATION_TICKS);
-+    }
-+
-+    public static void markWet(ItemStack stack, long gameTime, int durationTicks) {
-+        if (stack.isEmpty()) {
-+            return;
-+        }
-+
-+        CompoundNBT tag = stack.getOrCreateTag();
-+        tag.putBoolean(WET_TAG, true);
-+        tag.putLong(WET_UNTIL_TAG, gameTime + Math.max(1, durationTicks));
-+    }
-+
-+    public static boolean isWet(ItemStack stack, long gameTime) {
++    public static long getWetUntil(ItemStack stack) {
 +        if (stack.isEmpty() || !stack.hasTag()) {
-+            return false;
++            return 0L;
 +        }
 +
 +        CompoundNBT tag = stack.getTag();
 +        if (tag == null || !tag.getBoolean(WET_TAG)) {
-+            return false;
++            return 0L;
 +        }
 +
-+        long wetUntil = tag.getLong(WET_UNTIL_TAG);
-+        if (wetUntil > gameTime) {
-+            return true;
-+        }
-+
-+        clearWet(stack);
-+        return false;
++        return tag.getLong(WET_UNTIL_TAG);
 +    }
 +
-+    public static void clearWet(ItemStack stack) {
-+        if (stack.isEmpty() || !stack.hasTag()) {
-+            return;
++    public static int getRemainingWetTicks(ItemStack stack, long gameTime) {
++        long wetUntil = getWetUntil(stack);
++        if (wetUntil <= gameTime) {
++            return 0;
 +        }
-+
-+        CompoundNBT tag = stack.getTag();
-+        if (tag == null) {
-+            return;
-+        }
-+
-+        tag.remove(WET_TAG);
-+        tag.remove(WET_UNTIL_TAG);
-+
-+        if (tag.isEmpty()) {
-+            stack.setTag(null);
-+        }
++        return (int) Math.min(Integer.MAX_VALUE, wetUntil - gameTime);
 +    }
-+}
+ }
  
 EOF
 )

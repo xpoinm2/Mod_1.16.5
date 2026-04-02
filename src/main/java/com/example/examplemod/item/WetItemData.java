@@ -63,4 +63,25 @@ public final class WetItemData {
             stack.setTag(null);
         }
     }
+
+    public static long getWetUntil(ItemStack stack) {
+        if (stack.isEmpty() || !stack.hasTag()) {
+            return 0L;
+        }
+
+        CompoundNBT tag = stack.getTag();
+        if (tag == null || !tag.getBoolean(WET_TAG)) {
+            return 0L;
+        }
+
+        return tag.getLong(WET_UNTIL_TAG);
+    }
+
+    public static int getRemainingWetTicks(ItemStack stack, long gameTime) {
+        long wetUntil = getWetUntil(stack);
+        if (wetUntil <= gameTime) {
+            return 0;
+        }
+        return (int) Math.min(Integer.MAX_VALUE, wetUntil - gameTime);
+    }
 }
