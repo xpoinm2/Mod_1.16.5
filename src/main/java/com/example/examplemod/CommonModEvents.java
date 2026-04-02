@@ -54,8 +54,12 @@ public final class CommonModEvents {
     private static final float WET_DROP_COLOR_R = 0.43F;
     private static final float WET_DROP_COLOR_G = 0.66F;
     private static final float WET_DROP_COLOR_B = 1.00F;
-    private static final float WET_DROP_MIN_SIZE = 0.32F;
-    private static final float WET_DROP_MAX_SIZE = 0.88F;
+    /**
+     * Большие плоские "пятна воды" на гранях блока.
+     * Не делаем разброс размера/скорости, чтобы визуал был как у плоской текстуры,
+     * а не как у объемных разлетающихся частиц.
+     */
+    private static final float WET_FACE_PATCH_SIZE = 1.85F;
 
     private CommonModEvents() {
     }
@@ -444,58 +448,15 @@ public final class CommonModEvents {
                 continue;
             }
 
-            int dropsPerFace = 2 + world.random.nextInt(4);
-            for (int i = 0; i < dropsPerFace; i++) {
-                double tangentA = (world.random.nextDouble() - 0.5D) * 0.84D;
-                double tangentB = (world.random.nextDouble() - 0.5D) * 0.84D;
+            double faceX = centerX + side.getStepX() * 0.503D;
+            double faceY = centerY + side.getStepY() * 0.503D;
+            double faceZ = centerZ + side.getStepZ() * 0.503D;
 
-                double faceX = centerX + side.getStepX() * 0.503D;
-                double faceY = centerY + side.getStepY() * 0.503D;
-                double faceZ = centerZ + side.getStepZ() * 0.503D;
+            RedstoneParticleData wetPatch =
+                    new RedstoneParticleData(WET_DROP_COLOR_R, WET_DROP_COLOR_G, WET_DROP_COLOR_B, WET_FACE_PATCH_SIZE);
 
-                switch (side.getAxis()) {
-                    case X:
-                        faceY += tangentA;
-                        faceZ += tangentB;
-                        break;
-                    case Y:
-                        faceX += tangentA;
-                        faceZ += tangentB;
-                        break;
-                    case Z:
-                        faceX += tangentA;
-                        faceY += tangentB;
-                        break;
-                }
-
-                double velocityX = 0.0D;
-                double velocityY = 0.0D;
-                double velocityZ = 0.0D;
-                double randomSlideA = (world.random.nextDouble() - 0.5D) * 0.018D;
-                double randomSlideB = (world.random.nextDouble() - 0.5D) * 0.018D;
-
-                switch (side.getAxis()) {
-                    case X:
-                        velocityY = randomSlideA - 0.018D;
-                        velocityZ = randomSlideB;
-                        break;
-                    case Y:
-                        velocityX = randomSlideA;
-                        velocityZ = randomSlideB;
-                        break;
-                    case Z:
-                        velocityX = randomSlideA;
-                        velocityY = randomSlideB - 0.018D;
-                        break;
-                }
-
-                float dropSize = WET_DROP_MIN_SIZE
-                        + world.random.nextFloat() * (WET_DROP_MAX_SIZE - WET_DROP_MIN_SIZE);
-                RedstoneParticleData wetDrop =
-                        new RedstoneParticleData(WET_DROP_COLOR_R, WET_DROP_COLOR_G, WET_DROP_COLOR_B, dropSize);
-
-                world.sendParticles(wetDrop, faceX, faceY, faceZ, 0, velocityX, velocityY, velocityZ, 1.0D);
-            }
+            // Нулевая скорость: пятна не "улетают", а держатся на грани.
+            world.sendParticles(wetPatch, faceX, faceY, faceZ, 0, 0.0D, 0.0D, 0.0D, 1.0D);
         }
     }
 }
