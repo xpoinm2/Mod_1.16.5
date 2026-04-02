@@ -44,7 +44,7 @@ public final class WetItemRenderEffects {
             }
 
             int x = centerX - 90 + slot * 20;
-            drawWetOverlay(matrixStack, x, y, gameTime, slot);
+            drawWetOverlay(matrixStack, x, y, slot);
         }
     }
 
@@ -72,44 +72,58 @@ public final class WetItemRenderEffects {
             }
 
             if (WetItemData.isWet(slot.getItem(), gameTime)) {
-                drawWetOverlay(matrixStack, slot.x, slot.y, gameTime, index);
+                drawWetOverlay(matrixStack, slot.x, slot.y, index);
             }
             index++;
         }
     }
 
-    private static void drawWetOverlay(MatrixStack matrixStack, int x, int y, long gameTime, int seed) {
-        float pulse = 0.55F + 0.35F * (float) Math.sin((gameTime + seed * 7L) * 0.17F);
-        int alpha = Math.min(230, Math.max(90, (int) (pulse * 255.0F)));
+    private static void drawWetOverlay(MatrixStack matrixStack, int x, int y, int seed) {
+        int baseAlpha = 165;
+        int edgeColor = (baseAlpha << 24) | 0x57B8FF;
+        int innerColor = (Math.min(255, baseAlpha + 35) << 24) | 0xA5DCFF;
 
-        drawBubble(matrixStack, x + 4, y + 12, 3, alpha);
-        drawBubble(matrixStack, x + 9, y + 11, 4, Math.min(255, alpha + 20));
-        drawBubble(matrixStack, x + 12, y + 7, 2, Math.max(80, alpha - 30));
+        // Небольшие "квадраты воды" с каждой стороны слота.
+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 3, 0, edgeColor, innerColor);   // top
+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 11, 1, edgeColor, innerColor);  // bottom
+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 19, 2, edgeColor, innerColor);  // left
+        drawPatchOnSide(matrixStack, x, y, seed * 37 + 29, 3, edgeColor, innerColor);  // right
     }
 
-    private static void drawBubble(MatrixStack matrixStack, int centerX, int centerY, int radius, int alpha) {
-        int body = (alpha << 24) | 0x57B8FF;
-        int glow = (Math.min(255, alpha + 30) << 24) | 0xA5DCFF;
-        int sparkle = (Math.min(255, alpha + 70) << 24) | 0xDDF4FF;
+    private static void drawPatchOnSide(MatrixStack matrixStack, int x, int y, int seed, int side, int edgeColor, int innerColor) {
+        int size = 3 + positiveMod(seed, 4); // 3..6
+        int inset = 1 + positiveMod(seed / 3, 2); // 1..2
 
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dy = -radius; dy <= radius; dy++) {
-                if (dx * dx + dy * dy > radius * radius) {
-                    continue;
-                }
-                AbstractGui.fill(matrixStack, centerX + dx, centerY + dy, centerX + dx + 1, centerY + dy + 1, body);
-            }
+        int startX;
+        int startY;
+
+        switch (side) {
+            case 0: // top
+                startX = x + 1 + positiveMod(seed, 18 - size);
+                startY = y + inset;
+                break;
+            case 1: // bottom
+                startX = x + 1 + positiveMod(seed / 5, 18 - size);
+                startY = y + 17 - inset - size;
+                break;
+            case 2: // left
+                startX = x + inset;
+                startY = y + 1 + positiveMod(seed / 7, 18 - size);
+                break;
+            default: // right
+                startX = x + 17 - inset - size;
+                startY = y + 1 + positiveMod(seed / 11, 18 - size);
+                break;
         }
 
-        for (int dx = -radius + 1; dx <= radius - 1; dx++) {
-            for (int dy = -radius + 1; dy <= radius - 1; dy++) {
-                if (dx * dx + dy * dy > (radius - 1) * (radius - 1)) {
-                    continue;
-                }
-                AbstractGui.fill(matrixStack, centerX + dx, centerY + dy, centerX + dx + 1, centerY + dy + 1, glow);
-            }
+        AbstractGui.fill(matrixStack, startX, startY, startX + size, startY + size, edgeColor);
+        if (size >= 4) {
+            AbstractGui.fill(matrixStack, startX + 1, startY + 1, startX + size - 1, startY + size - 1, innerColor);
         }
+    }
 
-        AbstractGui.fill(matrixStack, centerX - radius / 2, centerY - radius / 2, centerX - radius / 2 + 1, centerY - radius / 2 + 1, sparkle);
+    private static int positiveMod(int value, int mod) {
+        int result = value % mod;
+        return result < 0 ? result + mod : result;
     }
 }
