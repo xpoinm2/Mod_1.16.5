@@ -189,5 +189,6 @@
   "tooltip.examplemod.hot_ore.temperature": "Температура: %s",
   "block.examplemod.cobblestone_anvil": "Булыжниковая наковальня",
   "item.examplemod.cobblestone_anvil": "Булыжниковая наковальня",
-  "block.examplemod.bellows": "Меха"
+  "block.examplemod.bellows": "Меха",
+  "item.examplemod.handful_of_dirt": "Кучка земли"
 }

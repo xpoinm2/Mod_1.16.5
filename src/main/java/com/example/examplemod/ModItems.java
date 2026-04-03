@@ -75,6 +75,10 @@ public class ModItems {
     public static final RegistryObject<Item> HANDFUL_OF_SAND = ModRegistries.ITEMS.register("handful_of_sand",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
 
+    // Кучка земли: выпадает вместо обычной земли из ванильных блоков
+    public static final RegistryObject<Item> HANDFUL_OF_DIRT = ModRegistries.ITEMS.register("handful_of_dirt",
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));
+
     // Большая кость: трофей, который можно получить с некоторых животных
     public static final RegistryObject<Item> BIG_BONE = ModRegistries.ITEMS.register("big_bone",
             () -> new Item(new Item.Properties().tab(ModCreativeTabs.EXAMPLE_TAB)));

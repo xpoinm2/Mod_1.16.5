@@ -191,5 +191,6 @@
   "tooltip.examplemod.hot_ore.temperature": "Temperature: %s",
   "block.examplemod.cobblestone_anvil": "Cobblestone Anvil",
   "item.examplemod.cobblestone_anvil": "Cobblestone Anvil",
-  "block.examplemod.bellows": "Bellows"
+  "block.examplemod.bellows": "Bellows",
+  "item.examplemod.handful_of_dirt": "Handful of Dirt"
 }
