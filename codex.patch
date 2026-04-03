@@ -1,9 +1,26 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
-index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9fe9d6d332 100644
+index dc39e1f31f217ac2b32198117dcceb9fe9d6d332..c3d6684ff3d839432d833b6c9a4fb031f894f13c 100644
 --- a/src/main/java/com/example/examplemod/CommonModEvents.java
 +++ b/src/main/java/com/example/examplemod/CommonModEvents.java
-@@ -16,250 +16,311 @@ import net.minecraft.util.DamageSource;
+@@ -1,70 +1,74 @@
+ package com.example.examplemod;
+ 
+ import com.example.examplemod.item.HotRoastedOreItem;
+ import com.example.examplemod.item.MetalChunkItem;
+ import com.example.examplemod.item.RoastedOreItem;
+ import com.example.examplemod.item.SpongeMetalItem;
+ import com.example.examplemod.item.WetItemData;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockState;
++import net.minecraft.entity.item.ItemEntity;
+ import net.minecraft.entity.player.PlayerEntity;
++import net.minecraft.entity.Entity;
+ import net.minecraft.item.BlockItem;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.Hand;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.DamageSource;
  import net.minecraft.util.Direction;
  import net.minecraft.world.Difficulty;
  import net.minecraft.world.World;
@@ -12,6 +29,7 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
  import net.minecraftforge.event.entity.player.PlayerInteractEvent;
  import net.minecraftforge.event.TickEvent;
  import net.minecraft.tags.FluidTags;
++import net.minecraft.util.math.AxisAlignedBB;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.BlockRayTraceResult;
  import net.minecraft.util.math.RayTraceResult;
@@ -29,12 +47,13 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
  import java.util.Iterator;
  import java.util.List;
  import java.util.Map;
-+import java.util.UUID;
+ import java.util.UUID;
  
  @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
  public final class CommonModEvents {
      private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
-+    private static final Map<UUID, PendingWetPlacement> PENDING_WET_PLACEMENTS = new HashMap<>();
++    private static final Map<World, List<PendingWetHarvestDrop>> PENDING_WET_HARVEST_DROPS = new HashMap<>();
+     private static final Map<UUID, PendingWetPlacement> PENDING_WET_PLACEMENTS = new HashMap<>();
      private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
      private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
      private static final int WATER_SCAN_INTERVAL_TICKS = 100;
@@ -59,118 +78,10 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
  
      @SubscribeEvent
      public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) return;
-         if (event.player.level.isClientSide) return;
+@@ -178,113 +182,110 @@ public final class CommonModEvents {
  
-         PlayerEntity player = event.player;
- 
-         // Проверяем горячие предметы в курсоре и инвентаре,
-         // чтобы урон шёл даже при перетаскивании.
-         if (applyHotItemDamage(player, player.inventory.getCarried())) {
-             return;
-         }
- 
-         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-             ItemStack stack = player.inventory.getItem(i);
-             if (applyHotItemDamage(player, stack)) {
-                 break; // Наносим урон только один раз за тик, даже если несколько горячих предметов
-             }
-         }
- 
-         applyWetState(player);
-+        cleanupExpiredPendingPlacement(player, player.level.getGameTime());
-         applyLowHealthStarvationDamage(player);
-     }
- 
-     @SubscribeEvent
-     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-         if (event.getWorld().isClientSide) {
-             return;
-         }
- 
-         PlayerEntity player = event.getPlayer();
-         ItemStack stack = event.getItemStack();
-         if (stack.isEmpty()) {
-             return;
-         }
- 
-         double reach = player.getAttribute(ForgeMod.REACH_DISTANCE.get()) != null
-                 ? player.getAttributeValue(ForgeMod.REACH_DISTANCE.get())
-                 : 5.0D;
- 
-         RayTraceResult rayTraceResult = player.pick(reach, 0.0F, true);
-         if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK) {
-             return;
-         }
- 
-         BlockPos pos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
-         if (!event.getWorld().getFluidState(pos).is(FluidTags.WATER)) {
-             return;
-         }
- 
-         WetItemData.markSoaked(stack);
-     }
- 
-     @SubscribeEvent
-     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-         if (event.getWorld().isClientSide) {
-             return;
-         }
- 
-+        PlayerEntity player = event.getPlayer();
-         ItemStack stack = event.getItemStack();
-         if (stack.isEmpty()) {
-+            PENDING_WET_PLACEMENTS.remove(player.getUUID());
-             return;
-         }
- 
-         if (event.getWorld().getFluidState(event.getPos()).is(FluidTags.WATER)) {
-             WetItemData.markSoaked(stack);
-         }
-+
-+        long gameTime = player.level.getGameTime();
-+        if (stack.getItem() instanceof BlockItem && WetItemData.isWet(stack, gameTime)) {
-+            long wetUntil = WetItemData.isSoaked(stack) ? Long.MAX_VALUE : WetItemData.getWetUntil(stack);
-+            PENDING_WET_PLACEMENTS.put(player.getUUID(), new PendingWetPlacement(wetUntil, gameTime + 2L));
-+        } else {
-+            PENDING_WET_PLACEMENTS.remove(player.getUUID());
-+        }
-     }
- 
-     @SubscribeEvent
-     public static void onBreakSpeed(PlayerEvent.BreakSpeed event) {
-         if (event.getPlayer().getMainHandItem().isEmpty() && event.getState().is(BlockTags.LOGS)) {
-             event.setNewSpeed(0.0F);
-         }
-     }
- 
-     @SubscribeEvent
-     public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
-         if (event.getWorld().isClientSide()) {
-             return;
-         }
-         if (!(event.getWorld() instanceof ServerWorld)) {
-             return;
-         }
-         if (!(event.getEntity() instanceof PlayerEntity)) {
-             return;
-         }
- 
-         PlayerEntity player = (PlayerEntity) event.getEntity();
--        BlockState placedState = event.getPlacedBlock();
--        Block placedBlock = placedState.getBlock();
-         long gameTime = player.level.getGameTime();
-+        PendingWetPlacement pendingPlacement = PENDING_WET_PLACEMENTS.remove(player.getUUID());
-+        if (pendingPlacement != null && pendingPlacement.expiresAtTick >= gameTime) {
-+            long wetUntil = pendingPlacement.wetUntil == Long.MAX_VALUE
-+                    ? Long.MAX_VALUE
-+                    : Math.max(gameTime + 1L, pendingPlacement.wetUntil);
-+            markPlacedBlockWet((ServerWorld) event.getWorld(), event.getPos(), wetUntil);
-+            return;
-+        }
- 
-+        BlockState placedState = event.getPlacedBlock();
-+        Block placedBlock = placedState.getBlock();
+         BlockState placedState = event.getPlacedBlock();
+         Block placedBlock = placedState.getBlock();
          for (Hand hand : Hand.values()) {
              ItemStack stackInHand = player.getItemInHand(hand);
              if (stackInHand.isEmpty() || !(stackInHand.getItem() instanceof BlockItem)) {
@@ -184,8 +95,7 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
  
              if (WetItemData.isWet(stackInHand, gameTime)) {
                  long wetUntil = WetItemData.isSoaked(stackInHand)
--                        ? gameTime + WetItemData.DEFAULT_WET_DURATION_TICKS
-+                        ? Long.MAX_VALUE
+                         ? Long.MAX_VALUE
                          : WetItemData.getWetUntil(stackInHand);
                  markPlacedBlockWet((ServerWorld) event.getWorld(), event.getPos(), wetUntil);
              }
@@ -193,35 +103,43 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
          }
      }
  
-+    @SubscribeEvent
-+    public static void onHarvestDrops(BlockEvent.HarvestDropsEvent event) {
-+        if (event.getWorld().isClientSide()) {
-+            return;
-+        }
-+        if (!(event.getWorld() instanceof ServerWorld)) {
-+            return;
-+        }
-+
-+        ServerWorld world = (ServerWorld) event.getWorld();
-+        long gameTime = world.getGameTime();
-+        Long wetUntil = getCurrentWetUntil(world, event.getPos(), gameTime);
-+        if (wetUntil == null) {
-+            return;
-+        }
-+
-+        for (ItemStack drop : event.getDrops()) {
-+            if (drop.isEmpty()) {
-+                continue;
-+            }
-+
-+            if (wetUntil == Long.MAX_VALUE) {
-+                WetItemData.markSoaked(drop);
-+            } else {
-+                WetItemData.setWetUntil(drop, wetUntil);
-+            }
-+        }
-+    }
-+
+     @SubscribeEvent
+-    public static void onHarvestDrops(BlockEvent.HarvestDropsEvent event) {
++    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+         if (event.getWorld().isClientSide()) {
+             return;
+         }
+         if (!(event.getWorld() instanceof ServerWorld)) {
+             return;
+         }
+ 
+         ServerWorld world = (ServerWorld) event.getWorld();
+         long gameTime = world.getGameTime();
+         Long wetUntil = getCurrentWetUntil(world, event.getPos(), gameTime);
+         if (wetUntil == null) {
+             return;
+         }
+ 
+-        for (ItemStack drop : event.getDrops()) {
+-            if (drop.isEmpty()) {
+-                continue;
+-            }
+-
+-            if (wetUntil == Long.MAX_VALUE) {
+-                WetItemData.markSoaked(drop);
+-            } else {
+-                WetItemData.setWetUntil(drop, wetUntil);
+-            }
+-        }
++        List<PendingWetHarvestDrop> pendingDrops = PENDING_WET_HARVEST_DROPS.computeIfAbsent(world, ignored -> new ArrayList<>());
++        pendingDrops.add(new PendingWetHarvestDrop(
++                event.getPos().immutable(),
++                wetUntil,
++                gameTime + 1L,
++                gameTime + 20L
++        ));
+     }
+ 
      @SubscribeEvent
      public static void onFluidPlaced(BlockEvent.FluidPlaceBlockEvent event) {
          if (event.getWorld().isClientSide()) {
@@ -237,14 +155,12 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
              return;
          }
  
--        long wetUntil = world.getGameTime() + BLOCK_WET_DURATION_TICKS;
          for (BlockPos offset : WATER_TOUCH_OFFSETS) {
              BlockPos targetPos = waterPos.offset(offset);
              if (world.isEmptyBlock(targetPos)) {
                  continue;
              }
--            markPlacedBlockWet(world, targetPos, wetUntil);
-+            markPlacedBlockWet(world, targetPos, Long.MAX_VALUE);
+             markPlacedBlockWet(world, targetPos, Long.MAX_VALUE);
          }
      }
  
@@ -259,6 +175,7 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
  
          ServerWorld world = (ServerWorld) event.world;
          long gameTime = world.getGameTime();
++        processPendingWetHarvestDrops(world, gameTime);
          if (gameTime % WATER_SCAN_INTERVAL_TICKS == 0L) {
              applyNearbyWaterWetState(world, gameTime);
          }
@@ -282,20 +199,15 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
              BlockPos pos = entry.getKey();
              long wetUntil = entry.getValue();
  
--            if (wetUntil <= gameTime || world.isEmptyBlock(pos)) {
-+            if (world.isEmptyBlock(pos)) {
-+                iterator.remove();
-+                continue;
-+            }
-+
-+            if (isBlockInContinuousWetSource(world, pos)) {
-+                if (wetUntil != Long.MAX_VALUE) {
-+                    entry.setValue(Long.MAX_VALUE);
-+                }
-+            } else if (wetUntil == Long.MAX_VALUE) {
-+                wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
-+                entry.setValue(wetUntil);
-+            } else if (wetUntil <= gameTime) {
+             if (world.isEmptyBlock(pos)) {
+                 iterator.remove();
+@@ -296,56 +297,59 @@ public final class CommonModEvents {
+                     entry.setValue(Long.MAX_VALUE);
+                 }
+             } else if (wetUntil == Long.MAX_VALUE) {
+                 wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
+                 entry.setValue(wetUntil);
+             } else if (wetUntil <= gameTime) {
                  iterator.remove();
                  continue;
              }
@@ -315,107 +227,47 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
          if (!(event.getWorld() instanceof ServerWorld)) {
              return;
          }
-         WET_PLACED_BLOCKS.remove((ServerWorld) event.getWorld());
+-        WET_PLACED_BLOCKS.remove((ServerWorld) event.getWorld());
++        ServerWorld world = (ServerWorld) event.getWorld();
++        WET_PLACED_BLOCKS.remove(world);
++        PENDING_WET_HARVEST_DROPS.remove(world);
      }
  
      @SubscribeEvent
      public static void onServerStopping(FMLServerStoppingEvent event) {
          WET_PLACED_BLOCKS.clear();
-@@ -384,112 +445,170 @@ public final class CommonModEvents {
++        PENDING_WET_HARVEST_DROPS.clear();
      }
  
-     private static void markPlacedBlockWet(ServerWorld world, BlockPos pos, long wetUntil) {
-         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.computeIfAbsent(world, ignored -> new HashMap<>());
-         wetBlocks.put(pos.immutable(), wetUntil);
-         spawnWetFaceParticles(world, pos);
-     }
+     private static void applyWetState(PlayerEntity player) {
+         long gameTime = player.level.getGameTime();
  
-     private static void markPlacedBlockWetIfDry(ServerWorld world, BlockPos pos, long wetUntil, long gameTime) {
-         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
-         if (wetBlocks != null) {
-             Long currentWetUntil = wetBlocks.get(pos);
-             if (currentWetUntil != null && currentWetUntil > gameTime) {
-                 return;
-             }
+         boolean inWetArea = player.isInWaterRainOrBubble() || player.isInWater();
+ 
+         WetItemData.updateWetState(player.getMainHandItem(), gameTime, inWetArea);
+         WetItemData.updateWetState(player.getOffhandItem(), gameTime, inWetArea);
+ 
+         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+             WetItemData.updateWetState(player.inventory.getItem(i), gameTime, inWetArea);
          }
  
-         markPlacedBlockWet(world, pos, wetUntil);
+         WetItemData.updateWetState(player.inventory.getCarried(), gameTime, inWetArea);
      }
  
-     private static void applyNearbyWaterWetState(ServerWorld world, long gameTime) {
-         if (world.players().isEmpty()) {
+     private static void applyLowHealthStarvationDamage(PlayerEntity player) {
+         if (player.isCreative() || player.isSpectator()) {
              return;
          }
- 
--        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
-         for (PlayerEntity player : world.players()) {
-             if (player.isSpectator()) {
-                 continue;
-             }
- 
-             BlockPos playerPos = player.blockPosition();
-             int minX = playerPos.getX() - WATER_SCAN_HORIZONTAL_RADIUS;
-             int maxX = playerPos.getX() + WATER_SCAN_HORIZONTAL_RADIUS;
-             int minY = Math.max(0, playerPos.getY() - WATER_SCAN_VERTICAL_RADIUS);
-             int maxY = Math.min(world.getMaxBuildHeight() - 1, playerPos.getY() + WATER_SCAN_VERTICAL_RADIUS);
-             int minZ = playerPos.getZ() - WATER_SCAN_HORIZONTAL_RADIUS;
-             int maxZ = playerPos.getZ() + WATER_SCAN_HORIZONTAL_RADIUS;
- 
-             for (int x = minX; x <= maxX; x++) {
-                 for (int y = minY; y <= maxY; y++) {
-                     for (int z = minZ; z <= maxZ; z++) {
-                         BlockPos waterPos = new BlockPos(x, y, z);
-                         if (!world.getFluidState(waterPos).is(FluidTags.WATER)) {
-                             continue;
-                         }
- 
-                         for (BlockPos offset : WATER_TOUCH_OFFSETS) {
-                             BlockPos targetPos = waterPos.offset(offset);
-                             if (world.isEmptyBlock(targetPos)) {
-                                 continue;
-                             }
--                            markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
-+                            markPlacedBlockWetIfDry(world, targetPos, Long.MAX_VALUE, gameTime);
-                         }
-                     }
-                 }
-             }
-         }
-     }
- 
-     private static void applyRainWetState(ServerWorld world, long gameTime) {
-         if (!world.isRaining()) {
+         if (player.level.getDifficulty() == Difficulty.PEACEFUL) {
              return;
          }
- 
-         int playerCount = world.players().size();
-         if (playerCount == 0) {
-             return;
-         }
- 
--        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
-         for (PlayerEntity player : world.players()) {
-             if (player.isSpectator()) {
-                 continue;
-             }
- 
-             BlockPos playerPos = player.blockPosition();
-             for (int i = 0; i < RAIN_SAMPLES_PER_PLAYER; i++) {
-                 int x = playerPos.getX() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
-                 int z = playerPos.getZ() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
-                 int surfaceY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
-                 BlockPos rainCheckPos = new BlockPos(x, surfaceY, z);
-                 if (!world.isRainingAt(rainCheckPos)) {
-                     continue;
-                 }
- 
-                 BlockPos targetPos = rainCheckPos.below();
+         if (player.getFoodData().getFoodLevel() > 0) {
+@@ -530,50 +534,91 @@ public final class CommonModEvents {
                  if (world.isEmptyBlock(targetPos)) {
                      continue;
                  }
  
--                markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
-+                markPlacedBlockWetIfDry(world, targetPos, Long.MAX_VALUE, gameTime);
+                 markPlacedBlockWetIfDry(world, targetPos, Long.MAX_VALUE, gameTime);
              }
          }
      }
@@ -435,63 +287,110 @@ index ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394..dc39e1f31f217ac2b32198117dcceb9f
      private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
          // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
      }
-+
-+    private static Long getCurrentWetUntil(ServerWorld world, BlockPos pos, long gameTime) {
-+        if (isBlockInContinuousWetSource(world, pos)) {
-+            return Long.MAX_VALUE;
+ 
++    private static void processPendingWetHarvestDrops(ServerWorld world, long gameTime) {
++        List<PendingWetHarvestDrop> pendingDrops = PENDING_WET_HARVEST_DROPS.get(world);
++        if (pendingDrops == null || pendingDrops.isEmpty()) {
++            return;
 +        }
 +
-+        Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
-+        if (wetBlocks == null) {
-+            return null;
-+        }
-+
-+        Long wetUntil = wetBlocks.get(pos);
-+        if (wetUntil == null) {
-+            return null;
-+        }
-+
-+        if (wetUntil <= gameTime) {
-+            wetBlocks.remove(pos);
-+            if (wetBlocks.isEmpty()) {
-+                WET_PLACED_BLOCKS.remove(world);
-+            }
-+            return null;
-+        }
-+
-+        return wetUntil;
-+    }
-+
-+    private static boolean isBlockInContinuousWetSource(ServerWorld world, BlockPos pos) {
-+        if (world.getFluidState(pos).is(FluidTags.WATER)) {
-+            return true;
-+        }
-+
-+        for (BlockPos offset : WATER_TOUCH_OFFSETS) {
-+            if (offset.equals(BlockPos.ZERO)) {
++        Iterator<PendingWetHarvestDrop> iterator = pendingDrops.iterator();
++        while (iterator.hasNext()) {
++            PendingWetHarvestDrop pendingDrop = iterator.next();
++            if (pendingDrop.expiresAtTick < gameTime) {
++                iterator.remove();
 +                continue;
 +            }
-+            if (world.getFluidState(pos.offset(offset)).is(FluidTags.WATER)) {
-+                return true;
++            if (pendingDrop.applyAtTick > gameTime) {
++                continue;
 +            }
++
++            AxisAlignedBB area = new AxisAlignedBB(pendingDrop.pos).inflate(1.25D);
++            List<ItemEntity> itemEntities = world.getEntitiesOfClass(ItemEntity.class, area, Entity::isAlive);
++            for (ItemEntity itemEntity : itemEntities) {
++                ItemStack drop = itemEntity.getItem();
++                if (drop.isEmpty()) {
++                    continue;
++                }
++
++                if (pendingDrop.wetUntil == Long.MAX_VALUE) {
++                    WetItemData.markSoaked(drop);
++                } else {
++                    WetItemData.setWetUntil(drop, pendingDrop.wetUntil);
++                }
++                itemEntity.setItem(drop);
++            }
++
++            iterator.remove();
 +        }
 +
-+        return world.isRaining() && world.isRainingAt(pos.above());
-+    }
-+
-+    private static void cleanupExpiredPendingPlacement(PlayerEntity player, long gameTime) {
-+        PendingWetPlacement pending = PENDING_WET_PLACEMENTS.get(player.getUUID());
-+        if (pending != null && pending.expiresAtTick < gameTime) {
-+            PENDING_WET_PLACEMENTS.remove(player.getUUID());
++        if (pendingDrops.isEmpty()) {
++            PENDING_WET_HARVEST_DROPS.remove(world);
 +        }
 +    }
 +
-+    private static final class PendingWetPlacement {
+     private static Long getCurrentWetUntil(ServerWorld world, BlockPos pos, long gameTime) {
+         if (isBlockInContinuousWetSource(world, pos)) {
+             return Long.MAX_VALUE;
+         }
+ 
+         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
+         if (wetBlocks == null) {
+             return null;
+         }
+ 
+         Long wetUntil = wetBlocks.get(pos);
+         if (wetUntil == null) {
+             return null;
+         }
+ 
+         if (wetUntil <= gameTime) {
+             wetBlocks.remove(pos);
+             if (wetBlocks.isEmpty()) {
+                 WET_PLACED_BLOCKS.remove(world);
+             }
+             return null;
+         }
+ 
+         return wetUntil;
+     }
+@@ -589,26 +634,40 @@ public final class CommonModEvents {
+             }
+             if (world.getFluidState(pos.offset(offset)).is(FluidTags.WATER)) {
+                 return true;
+             }
+         }
+ 
+         return world.isRaining() && world.isRainingAt(pos.above());
+     }
+ 
+     private static void cleanupExpiredPendingPlacement(PlayerEntity player, long gameTime) {
+         PendingWetPlacement pending = PENDING_WET_PLACEMENTS.get(player.getUUID());
+         if (pending != null && pending.expiresAtTick < gameTime) {
+             PENDING_WET_PLACEMENTS.remove(player.getUUID());
+         }
+     }
+ 
+     private static final class PendingWetPlacement {
+         private final long wetUntil;
+         private final long expiresAtTick;
+ 
+         private PendingWetPlacement(long wetUntil, long expiresAtTick) {
+             this.wetUntil = wetUntil;
+             this.expiresAtTick = expiresAtTick;
+         }
+     }
++
++    private static final class PendingWetHarvestDrop {
++        private final BlockPos pos;
 +        private final long wetUntil;
++        private final long applyAtTick;
 +        private final long expiresAtTick;
 +
-+        private PendingWetPlacement(long wetUntil, long expiresAtTick) {
++        private PendingWetHarvestDrop(BlockPos pos, long wetUntil, long applyAtTick, long expiresAtTick) {
++            this.pos = pos;
 +            this.wetUntil = wetUntil;
++            this.applyAtTick = applyAtTick;
 +            this.expiresAtTick = expiresAtTick;
 +        }
 +    }

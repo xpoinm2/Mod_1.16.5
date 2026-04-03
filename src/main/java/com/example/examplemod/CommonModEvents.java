@@ -7,7 +7,9 @@ import com.example.examplemod.item.SpongeMetalItem;
 import com.example.examplemod.item.WetItemData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -21,6 +23,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -43,6 +46,7 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class CommonModEvents {
     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
+    private static final Map<World, List<PendingWetHarvestDrop>> PENDING_WET_HARVEST_DROPS = new HashMap<>();
     private static final Map<UUID, PendingWetPlacement> PENDING_WET_PLACEMENTS = new HashMap<>();
     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
@@ -200,7 +204,7 @@ public final class CommonModEvents {
     }
 
     @SubscribeEvent
-    public static void onHarvestDrops(BlockEvent.HarvestDropsEvent event) {
+    public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (event.getWorld().isClientSide()) {
             return;
         }
@@ -215,17 +219,13 @@ public final class CommonModEvents {
             return;
         }
 
-        for (ItemStack drop : event.getDrops()) {
-            if (drop.isEmpty()) {
-                continue;
-            }
-
-            if (wetUntil == Long.MAX_VALUE) {
-                WetItemData.markSoaked(drop);
-            } else {
-                WetItemData.setWetUntil(drop, wetUntil);
-            }
-        }
+        List<PendingWetHarvestDrop> pendingDrops = PENDING_WET_HARVEST_DROPS.computeIfAbsent(world, ignored -> new ArrayList<>());
+        pendingDrops.add(new PendingWetHarvestDrop(
+                event.getPos().immutable(),
+                wetUntil,
+                gameTime + 1L,
+                gameTime + 20L
+        ));
     }
 
     @SubscribeEvent
@@ -263,6 +263,7 @@ public final class CommonModEvents {
 
         ServerWorld world = (ServerWorld) event.world;
         long gameTime = world.getGameTime();
+        processPendingWetHarvestDrops(world, gameTime);
         if (gameTime % WATER_SCAN_INTERVAL_TICKS == 0L) {
             applyNearbyWaterWetState(world, gameTime);
         }
@@ -318,12 +319,15 @@ public final class CommonModEvents {
         if (!(event.getWorld() instanceof ServerWorld)) {
             return;
         }
-        WET_PLACED_BLOCKS.remove((ServerWorld) event.getWorld());
+        ServerWorld world = (ServerWorld) event.getWorld();
+        WET_PLACED_BLOCKS.remove(world);
+        PENDING_WET_HARVEST_DROPS.remove(world);
     }
 
     @SubscribeEvent
     public static void onServerStopping(FMLServerStoppingEvent event) {
         WET_PLACED_BLOCKS.clear();
+        PENDING_WET_HARVEST_DROPS.clear();
     }
 
     private static void applyWetState(PlayerEntity player) {
@@ -552,6 +556,47 @@ public final class CommonModEvents {
         // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
     }
 
+    private static void processPendingWetHarvestDrops(ServerWorld world, long gameTime) {
+        List<PendingWetHarvestDrop> pendingDrops = PENDING_WET_HARVEST_DROPS.get(world);
+        if (pendingDrops == null || pendingDrops.isEmpty()) {
+            return;
+        }
+
+        Iterator<PendingWetHarvestDrop> iterator = pendingDrops.iterator();
+        while (iterator.hasNext()) {
+            PendingWetHarvestDrop pendingDrop = iterator.next();
+            if (pendingDrop.expiresAtTick < gameTime) {
+                iterator.remove();
+                continue;
+            }
+            if (pendingDrop.applyAtTick > gameTime) {
+                continue;
+            }
+
+            AxisAlignedBB area = new AxisAlignedBB(pendingDrop.pos).inflate(1.25D);
+            List<ItemEntity> itemEntities = world.getEntitiesOfClass(ItemEntity.class, area, Entity::isAlive);
+            for (ItemEntity itemEntity : itemEntities) {
+                ItemStack drop = itemEntity.getItem();
+                if (drop.isEmpty()) {
+                    continue;
+                }
+
+                if (pendingDrop.wetUntil == Long.MAX_VALUE) {
+                    WetItemData.markSoaked(drop);
+                } else {
+                    WetItemData.setWetUntil(drop, pendingDrop.wetUntil);
+                }
+                itemEntity.setItem(drop);
+            }
+
+            iterator.remove();
+        }
+
+        if (pendingDrops.isEmpty()) {
+            PENDING_WET_HARVEST_DROPS.remove(world);
+        }
+    }
+
     private static Long getCurrentWetUntil(ServerWorld world, BlockPos pos, long gameTime) {
         if (isBlockInContinuousWetSource(world, pos)) {
             return Long.MAX_VALUE;
@@ -608,6 +653,20 @@ public final class CommonModEvents {
 
         private PendingWetPlacement(long wetUntil, long expiresAtTick) {
             this.wetUntil = wetUntil;
+            this.expiresAtTick = expiresAtTick;
+        }
+    }
+
+    private static final class PendingWetHarvestDrop {
+        private final BlockPos pos;
+        private final long wetUntil;
+        private final long applyAtTick;
+        private final long expiresAtTick;
+
+        private PendingWetHarvestDrop(BlockPos pos, long wetUntil, long applyAtTick, long expiresAtTick) {
+            this.pos = pos;
+            this.wetUntil = wetUntil;
+            this.applyAtTick = applyAtTick;
             this.expiresAtTick = expiresAtTick;
         }
     }
