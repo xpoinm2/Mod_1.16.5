@@ -177,12 +177,16 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
             changed = true;
         }
 
-        boolean isWet = isRainingOnBlock();
-        if (isWet && hasInput) {
+        boolean anyWetBlock = hasAnyWetCoreBlock();
+        boolean centralWet = hasWetCentralBlock();
+        if (anyWetBlock && hasInput) {
             warnWetPlayers();
         }
 
-        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput && !isWet) {
+        if (centralWet && hasInput) {
+            resetCookingProgress();
+            changed = true;
+        } else if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
             // When heated, process all smeltable items
             if (processCookingCycle()) {
                 changed = true;
@@ -274,6 +278,9 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         if (hasObstructionAboveCore()) {
             speed /= 1.5F;
         }
+        if (hasAnyWetCoreBlock()) {
+            speed /= 2.0F;
+        }
         return speed;
     }
 
@@ -298,8 +305,36 @@ public class FirepitTileEntity extends LockableTileEntity implements ITickableTi
         return level instanceof ServerWorld && HurricaneWeatherMechanic.isHurricaneActive((ServerWorld) level);
     }
 
-    private boolean isRainingOnBlock() {
-        return level != null && level.isRainingAt(worldPosition.above());
+    private boolean hasAnyWetCoreBlock() {
+        if (level == null) {
+            return false;
+        }
+
+        BlockPos coreStart = worldPosition.offset(-1, 0, -1);
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                if (isRainingOnBlock(coreStart.offset(x, 0, z))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean hasWetCentralBlock() {
+        if (level == null) {
+            return false;
+        }
+
+        BlockPos coreStart = worldPosition.offset(-1, 0, -1);
+        return isRainingOnBlock(coreStart.offset(1, 0, 1))
+                || isRainingOnBlock(coreStart.offset(1, 0, 2))
+                || isRainingOnBlock(coreStart.offset(2, 0, 1))
+                || isRainingOnBlock(coreStart.offset(2, 0, 2));
+    }
+
+    private boolean isRainingOnBlock(BlockPos pos) {
+        return level != null && level.isRainingAt(pos.above());
     }
 
     private int getEstimatedWindSpeed() {

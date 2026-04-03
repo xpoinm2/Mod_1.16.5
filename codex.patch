@@ -1,197 +1,182 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
-index 4d72bcf3dcefb422e3f27475698cf6112adfc234..ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394 100644
---- a/src/main/java/com/example/examplemod/CommonModEvents.java
-+++ b/src/main/java/com/example/examplemod/CommonModEvents.java
-@@ -22,54 +22,54 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
- import net.minecraftforge.event.TickEvent;
- import net.minecraft.tags.FluidTags;
- import net.minecraft.util.math.BlockPos;
- import net.minecraft.util.math.BlockRayTraceResult;
- import net.minecraft.util.math.RayTraceResult;
- import net.minecraft.world.gen.Heightmap;
- import net.minecraftforge.common.ForgeMod;
- import net.minecraftforge.event.world.BlockEvent;
- import net.minecraftforge.event.world.WorldEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
- import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
- import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+diff --git a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
+index 41bb14e41820345b12ed474ebb1e05082e267c17..3818d043e49b4dc2a94d208e5262a4c0c65cb41b 100644
+--- a/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
++++ b/src/main/java/com/example/examplemod/tileentity/PechugaTileEntity.java
+@@ -135,56 +135,60 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
  
- import java.util.ArrayList;
- import java.util.HashMap;
- import java.util.Iterator;
- import java.util.List;
- import java.util.Map;
- 
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class CommonModEvents {
-     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
-     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
-     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
--    private static final int WATER_SCAN_INTERVAL_TICKS = 20;
-+    private static final int WATER_SCAN_INTERVAL_TICKS = 100;
-     private static final int WATER_SCAN_HORIZONTAL_RADIUS = 4;
-     private static final int WATER_SCAN_VERTICAL_RADIUS = 3;
--    private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
-+    private static final int RAIN_SCAN_INTERVAL_TICKS = 60;
-     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
-     private static final int RAIN_SCAN_RADIUS = 24;
-     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
- 
-     private CommonModEvents() {
-     }
- 
-     @SubscribeEvent
-     public static void commonSetup(FMLCommonSetupEvent event) {
-         // Временно убрали регистрацию генерации мира для диагностики
-         event.enqueueWork(() -> {
-             // WorldGenRegistry.register();
-             // ModBiomes.setupBiomes();
-         });
-     }
- 
-     @SubscribeEvent
-     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-         if (event.phase != TickEvent.Phase.END) return;
-         if (event.player.level.isClientSide) return;
- 
-         PlayerEntity player = event.player;
- 
-         // Проверяем горячие предметы в курсоре и инвентаре,
-         // чтобы урон шёл даже при перетаскивании.
-@@ -367,117 +367,129 @@ public final class CommonModEvents {
-             return false;
-         }
-         if (stack.getItem() instanceof HotRoastedOreItem) {
-             if (HotRoastedOreItem.getState(stack) == HotRoastedOreItem.STATE_HOT) {
-                 player.hurt(DamageSource.ON_FIRE, 2.0F);
-                 return true;
+         if (heat < MAX_HEAT && specificHeat > 0) {
+             if (heatingTicks < heatingInterval) {
+                 heatingTicks++;
              }
-             return false;
-         }
-         if (stack.getItem() instanceof MetalChunkItem) {
-             if (MetalChunkItem.getTemperature(stack) == MetalChunkItem.TEMP_HOT) {
-                 player.hurt(DamageSource.HOT_FLOOR, 1.0F);
-                 return true;
+             if (heatingTicks >= heatingInterval) {
+                 heatingTicks = 0;
+                 ItemStack containerItem = fuelStack.getContainerItem();
+                 fuelStack.shrink(1);
+                 if (fuelStack.isEmpty()) {
+                     items.set(FUEL_SLOT, containerItem);
+                 }
+                 int heatGain = Math.max(1, specificHeat / SPECIFIC_HEAT_PER_HEAT_UNIT);
+                 int newHeat = Math.min(MAX_HEAT, heat + heatGain);
+                 if (newHeat != heat) {
+                     heat = newHeat;
+                     changed = true;
+                 }
+                 changed = true;
              }
-             return false;
-         }
-         return false;
-     }
- 
-     private static void markPlacedBlockWet(ServerWorld world, BlockPos pos, long wetUntil) {
-         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.computeIfAbsent(world, ignored -> new HashMap<>());
-         wetBlocks.put(pos.immutable(), wetUntil);
-         spawnWetFaceParticles(world, pos);
-     }
- 
-+    private static void markPlacedBlockWetIfDry(ServerWorld world, BlockPos pos, long wetUntil, long gameTime) {
-+        Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
-+        if (wetBlocks != null) {
-+            Long currentWetUntil = wetBlocks.get(pos);
-+            if (currentWetUntil != null && currentWetUntil > gameTime) {
-+                return;
-+            }
-+        }
-+
-+        markPlacedBlockWet(world, pos, wetUntil);
-+    }
-+
-     private static void applyNearbyWaterWetState(ServerWorld world, long gameTime) {
-         if (world.players().isEmpty()) {
-             return;
+         } else if (heatingTicks != 0) {
+             heatingTicks = 0;
+             changed = true;
          }
  
-         long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
-         for (PlayerEntity player : world.players()) {
-             if (player.isSpectator()) {
-                 continue;
+-        boolean isWet = isRainingOnBlock();
+-        if (isWet && hasInput) {
++        boolean anyWetBlock = hasAnyWetCoreBlock();
++        boolean centralWet = hasWetCentralBlock();
++        if (anyWetBlock && hasInput) {
+             warnWetPlayers();
+         }
+ 
+-        if (heat >= MIN_HEAT_FOR_SMELTING && hasInput && !isWet) {
++        if (centralWet && hasInput) {
++            resetCookingProgress();
++            changed = true;
++        } else if (heat >= MIN_HEAT_FOR_SMELTING && hasInput) {
+             if (processCookingCycle()) {
+                 changed = true;
              }
- 
-             BlockPos playerPos = player.blockPosition();
-             int minX = playerPos.getX() - WATER_SCAN_HORIZONTAL_RADIUS;
-             int maxX = playerPos.getX() + WATER_SCAN_HORIZONTAL_RADIUS;
-             int minY = Math.max(0, playerPos.getY() - WATER_SCAN_VERTICAL_RADIUS);
-             int maxY = Math.min(world.getMaxBuildHeight() - 1, playerPos.getY() + WATER_SCAN_VERTICAL_RADIUS);
-             int minZ = playerPos.getZ() - WATER_SCAN_HORIZONTAL_RADIUS;
-             int maxZ = playerPos.getZ() + WATER_SCAN_HORIZONTAL_RADIUS;
- 
-             for (int x = minX; x <= maxX; x++) {
-                 for (int y = minY; y <= maxY; y++) {
-                     for (int z = minZ; z <= maxZ; z++) {
-                         BlockPos waterPos = new BlockPos(x, y, z);
-                         if (!world.getFluidState(waterPos).is(FluidTags.WATER)) {
-                             continue;
-                         }
- 
-                         for (BlockPos offset : WATER_TOUCH_OFFSETS) {
-                             BlockPos targetPos = waterPos.offset(offset);
-                             if (world.isEmptyBlock(targetPos)) {
-                                 continue;
-                             }
--                            markPlacedBlockWet(world, targetPos, wetUntil);
-+                            markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
+         } else {
+             if (!hasInput) {
+                 resetCookingProgress();
+             } else if (heat < MIN_HEAT_FOR_SMELTING) {
+                 for (int i = 0; i < GRID_SLOT_COUNT; ++i) {
+                     if (slotCookTimes[i] != 0) {
+                         slotCookTimes[i] = 0;
+                         if (!isOreItem(items.get(i))) {
+                             // Keep stage for clay items and bricks
+                         } else {
+                             slotCookingStages[i] = 0;
                          }
                      }
                  }
              }
          }
-     }
  
-     private static void applyRainWetState(ServerWorld world, long gameTime) {
-         if (!world.isRaining()) {
-             return;
-         }
+         updateCookProgress();
  
-         int playerCount = world.players().size();
-         if (playerCount == 0) {
-             return;
-         }
+         if (changed) {
+             setChanged();
+             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+@@ -220,76 +224,107 @@ public class PechugaTileEntity extends LockableTileEntity implements ITickableTi
+                         slotCookingStages[i] = 1;
+                         storeCookingStage(result, 1);
+                     } else {
+                         slotCookingStages[i] = 0;
+                         storeCookingStage(result, 0);
+                     }
  
-         long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
-         for (PlayerEntity player : world.players()) {
-             if (player.isSpectator()) {
-                 continue;
-             }
- 
-             BlockPos playerPos = player.blockPosition();
-             for (int i = 0; i < RAIN_SAMPLES_PER_PLAYER; i++) {
-                 int x = playerPos.getX() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
-                 int z = playerPos.getZ() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
-                 int surfaceY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
-                 BlockPos rainCheckPos = new BlockPos(x, surfaceY, z);
-                 if (!world.isRainingAt(rainCheckPos)) {
-                     continue;
+                     changed = true;
                  }
- 
-                 BlockPos targetPos = rainCheckPos.below();
-                 if (world.isEmptyBlock(targetPos)) {
-                     continue;
-                 }
- 
--                markPlacedBlockWet(world, targetPos, wetUntil);
-+                markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
+             } else if (slotCookTimes[i] != 0) {
+                 slotCookTimes[i] = 0;
+                 slotCookingStages[i] = 0;
              }
          }
+         return changed;
      }
  
-     private static List<BlockPos> createWaterTouchOffsets() {
-         List<BlockPos> offsets = new ArrayList<>();
-         offsets.add(BlockPos.ZERO);
-         offsets.add(new BlockPos(1, 0, 0));
-         offsets.add(new BlockPos(-1, 0, 0));
-         offsets.add(new BlockPos(0, 0, 1));
-         offsets.add(new BlockPos(0, 0, -1));
-         offsets.add(new BlockPos(0, 1, 0));
-         offsets.add(new BlockPos(0, -1, 0));
-         return offsets;
+     private float getCookSpeedMultiplier() {
+         float speed = shouldDoubleCookSpeed() ? 2.0F : 1.0F;
+         if (getEstimatedWindSpeed() > 6) {
+             speed *= 1.5F;
+         }
+         if (hasObstructionAboveCore()) {
+             speed /= 1.5F;
+         }
++        if (hasAnyWetCoreBlock()) {
++            speed /= 2.0F;
++        }
+         return speed;
      }
  
-     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
-         // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
+     private int getAdjustedCookTime(int baseCookTime, float speedMultiplier) {
+         if (speedMultiplier <= 0.0F) {
+             return Math.max(1, baseCookTime);
+         }
+         return Math.max(1, Math.round(baseCookTime / speedMultiplier));
      }
- }
+ 
+     private boolean shouldDoubleCookSpeed() {
+         if (level == null) {
+             return false;
+         }
+         if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
+             return true;
+         }
+         Biome.Category category = level.getBiome(worldPosition).getBiomeCategory();
+         if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
+             return true;
+         }
+         return level instanceof ServerWorld && HurricaneWeatherMechanic.isHurricaneActive((ServerWorld) level);
+     }
+ 
+-    private boolean isRainingOnBlock() {
+-        return level != null && level.isRainingAt(worldPosition.above());
++    private boolean hasAnyWetCoreBlock() {
++        if (level == null) {
++            return false;
++        }
++
++        BlockPos coreStart = worldPosition.offset(-1, 0, -1);
++        for (int x = 0; x < 4; x++) {
++            for (int z = 0; z < 4; z++) {
++                if (isRainingOnBlock(coreStart.offset(x, 0, z))) {
++                    return true;
++                }
++            }
++        }
++        return false;
++    }
++
++    private boolean hasWetCentralBlock() {
++        if (level == null) {
++            return false;
++        }
++
++        BlockPos coreStart = worldPosition.offset(-1, 0, -1);
++        return isRainingOnBlock(coreStart.offset(1, 0, 1))
++                || isRainingOnBlock(coreStart.offset(1, 0, 2))
++                || isRainingOnBlock(coreStart.offset(2, 0, 1))
++                || isRainingOnBlock(coreStart.offset(2, 0, 2));
++    }
++
++    private boolean isRainingOnBlock(BlockPos pos) {
++        return level != null && level.isRainingAt(pos.above());
+     }
+ 
+     private int getEstimatedWindSpeed() {
+         if (!(level instanceof ServerWorld)) {
+             return 0;
+         }
+ 
+         ServerWorld serverWorld = (ServerWorld) level;
+         int wind = 5;
+         if (HurricaneWeatherMechanic.isHurricaneActive(serverWorld)) {
+             wind = 20;
+         } else if (serverWorld.isThundering() && serverWorld.isRainingAt(worldPosition.above())) {
+             wind = 12;
+         } else if (serverWorld.isRainingAt(worldPosition.above())) {
+             wind = 8;
+         }
+ 
+         Biome.Category category = serverWorld.getBiome(worldPosition).getBiomeCategory();
+         if (category == Biome.Category.EXTREME_HILLS || category == Biome.Category.TAIGA) {
+             wind += 2;
+         }
+         if (worldPosition.getY() > HIGH_ALTITUDE_Y) {
+             wind += 2;
+         }
+         return wind;
  
 EOF
 )
