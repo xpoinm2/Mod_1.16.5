@@ -1,178 +1,197 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/render/WetBlockDropletRenderer.java b/src/main/java/com/example/examplemod/client/render/WetBlockDropletRenderer.java
-index 8a13f4bc2a14979128f3bca38345de504e1378e3..f8d46c09afe271b9eac0898e517d493a01d401d5 100644
---- a/src/main/java/com/example/examplemod/client/render/WetBlockDropletRenderer.java
-+++ b/src/main/java/com/example/examplemod/client/render/WetBlockDropletRenderer.java
-@@ -1,116 +1,168 @@
- package com.example.examplemod.client.render;
- 
- import com.example.examplemod.ExampleMod;
- import com.mojang.blaze3d.matrix.MatrixStack;
- import com.mojang.blaze3d.systems.RenderSystem;
- import net.minecraft.block.BlockState;
- import net.minecraft.client.Minecraft;
- import net.minecraft.client.renderer.BufferBuilder;
- import net.minecraft.client.renderer.Tessellator;
- import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+diff --git a/src/main/java/com/example/examplemod/CommonModEvents.java b/src/main/java/com/example/examplemod/CommonModEvents.java
+index 4d72bcf3dcefb422e3f27475698cf6112adfc234..ccaf539f8b862d5c6955b19ea18ec6c9c9bb9394 100644
+--- a/src/main/java/com/example/examplemod/CommonModEvents.java
++++ b/src/main/java/com/example/examplemod/CommonModEvents.java
+@@ -22,54 +22,54 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+ import net.minecraftforge.event.TickEvent;
  import net.minecraft.tags.FluidTags;
- import net.minecraft.util.Direction;
- import net.minecraft.util.ResourceLocation;
  import net.minecraft.util.math.BlockPos;
- import net.minecraft.util.math.vector.Matrix4f;
- import net.minecraft.util.math.vector.Vector3d;
- import net.minecraft.world.World;
- import net.minecraftforge.api.distmarker.Dist;
- import net.minecraftforge.client.event.RenderWorldLastEvent;
+ import net.minecraft.util.math.BlockRayTraceResult;
+ import net.minecraft.util.math.RayTraceResult;
+ import net.minecraft.world.gen.Heightmap;
+ import net.minecraftforge.common.ForgeMod;
+ import net.minecraftforge.event.world.BlockEvent;
+ import net.minecraftforge.event.world.WorldEvent;
  import net.minecraftforge.eventbus.api.SubscribeEvent;
  import net.minecraftforge.fml.common.Mod;
- import org.lwjgl.opengl.GL11;
+ import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
  
-+import java.util.HashMap;
-+import java.util.Iterator;
-+import java.util.Map;
-+
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class WetBlockDropletRenderer {
-     private static final ResourceLocation DROPLET_TEXTURE =
-             new ResourceLocation(ExampleMod.MODID, "textures/environment/wet_drops_overlay.png");
-     private static final int RENDER_RADIUS = 6;
-+    private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
-     private static final double FACE_OFFSET = 0.002D;
-+    private static final Map<BlockPos, Long> WET_BLOCK_UNTIL = new HashMap<>();
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
  
-     private WetBlockDropletRenderer() {
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class CommonModEvents {
+     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
+     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
+     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
+-    private static final int WATER_SCAN_INTERVAL_TICKS = 20;
++    private static final int WATER_SCAN_INTERVAL_TICKS = 100;
+     private static final int WATER_SCAN_HORIZONTAL_RADIUS = 4;
+     private static final int WATER_SCAN_VERTICAL_RADIUS = 3;
+-    private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
++    private static final int RAIN_SCAN_INTERVAL_TICKS = 60;
+     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
+     private static final int RAIN_SCAN_RADIUS = 24;
+     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
+ 
+     private CommonModEvents() {
      }
  
      @SubscribeEvent
-     public static void onRenderWorldLast(RenderWorldLastEvent event) {
-         Minecraft mc = Minecraft.getInstance();
-         if (mc.level == null || mc.player == null) {
-+            WET_BLOCK_UNTIL.clear();
+     public static void commonSetup(FMLCommonSetupEvent event) {
+         // Временно убрали регистрацию генерации мира для диагностики
+         event.enqueueWork(() -> {
+             // WorldGenRegistry.register();
+             // ModBiomes.setupBiomes();
+         });
+     }
+ 
+     @SubscribeEvent
+     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+         if (event.phase != TickEvent.Phase.END) return;
+         if (event.player.level.isClientSide) return;
+ 
+         PlayerEntity player = event.player;
+ 
+         // Проверяем горячие предметы в курсоре и инвентаре,
+         // чтобы урон шёл даже при перетаскивании.
+@@ -367,117 +367,129 @@ public final class CommonModEvents {
+             return false;
+         }
+         if (stack.getItem() instanceof HotRoastedOreItem) {
+             if (HotRoastedOreItem.getState(stack) == HotRoastedOreItem.STATE_HOT) {
+                 player.hurt(DamageSource.ON_FIRE, 2.0F);
+                 return true;
+             }
+             return false;
+         }
+         if (stack.getItem() instanceof MetalChunkItem) {
+             if (MetalChunkItem.getTemperature(stack) == MetalChunkItem.TEMP_HOT) {
+                 player.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                 return true;
+             }
+             return false;
+         }
+         return false;
+     }
+ 
+     private static void markPlacedBlockWet(ServerWorld world, BlockPos pos, long wetUntil) {
+         Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.computeIfAbsent(world, ignored -> new HashMap<>());
+         wetBlocks.put(pos.immutable(), wetUntil);
+         spawnWetFaceParticles(world, pos);
+     }
+ 
++    private static void markPlacedBlockWetIfDry(ServerWorld world, BlockPos pos, long wetUntil, long gameTime) {
++        Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
++        if (wetBlocks != null) {
++            Long currentWetUntil = wetBlocks.get(pos);
++            if (currentWetUntil != null && currentWetUntil > gameTime) {
++                return;
++            }
++        }
++
++        markPlacedBlockWet(world, pos, wetUntil);
++    }
++
+     private static void applyNearbyWaterWetState(ServerWorld world, long gameTime) {
+         if (world.players().isEmpty()) {
              return;
          }
  
-         MatrixStack stack = event.getMatrixStack();
-         Vector3d camPos = mc.gameRenderer.getMainCamera().getPosition();
-         World world = mc.level;
-         BlockPos center = mc.player.blockPosition();
-+        long gameTime = world.getGameTime();
-+
-+        updateWetStateCache(world, center, gameTime);
+         long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
+         for (PlayerEntity player : world.players()) {
+             if (player.isSpectator()) {
+                 continue;
+             }
  
-         RenderSystem.enableBlend();
-         RenderSystem.defaultBlendFunc();
-         RenderSystem.disableCull();
-         mc.getTextureManager().bind(DROPLET_TEXTURE);
+             BlockPos playerPos = player.blockPosition();
+             int minX = playerPos.getX() - WATER_SCAN_HORIZONTAL_RADIUS;
+             int maxX = playerPos.getX() + WATER_SCAN_HORIZONTAL_RADIUS;
+             int minY = Math.max(0, playerPos.getY() - WATER_SCAN_VERTICAL_RADIUS);
+             int maxY = Math.min(world.getMaxBuildHeight() - 1, playerPos.getY() + WATER_SCAN_VERTICAL_RADIUS);
+             int minZ = playerPos.getZ() - WATER_SCAN_HORIZONTAL_RADIUS;
+             int maxZ = playerPos.getZ() + WATER_SCAN_HORIZONTAL_RADIUS;
  
-         stack.pushPose();
-         stack.translate(-camPos.x, -camPos.y, -camPos.z);
- 
-         Matrix4f matrix = stack.last().pose();
-         Tessellator tessellator = Tessellator.getInstance();
-         BufferBuilder buffer = tessellator.getBuilder();
-         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
- 
-         BlockPos.Mutable mutable = new BlockPos.Mutable();
-         for (int x = -RENDER_RADIUS; x <= RENDER_RADIUS; x++) {
-             for (int y = -RENDER_RADIUS; y <= RENDER_RADIUS; y++) {
-                 for (int z = -RENDER_RADIUS; z <= RENDER_RADIUS; z++) {
-                     mutable.set(center.getX() + x, center.getY() + y, center.getZ() + z);
-                     BlockState state = world.getBlockState(mutable);
-                     if (state.isAir(world, mutable) || !state.getMaterial().isSolid()) {
-                         continue;
-                     }
- 
--                    if (!isWetByEnvironment(world, mutable)) {
-+                    if (!isBlockWet(world, mutable, gameTime)) {
-                         continue;
-                     }
- 
-                     for (Direction dir : Direction.values()) {
-                         BlockPos neighbor = mutable.relative(dir);
-                         BlockState neighborState = world.getBlockState(neighbor);
-                         if (neighborState.getMaterial().isSolid()) {
+             for (int x = minX; x <= maxX; x++) {
+                 for (int y = minY; y <= maxY; y++) {
+                     for (int z = minZ; z <= maxZ; z++) {
+                         BlockPos waterPos = new BlockPos(x, y, z);
+                         if (!world.getFluidState(waterPos).is(FluidTags.WATER)) {
                              continue;
                          }
-                         addFace(buffer, matrix, mutable, dir);
+ 
+                         for (BlockPos offset : WATER_TOUCH_OFFSETS) {
+                             BlockPos targetPos = waterPos.offset(offset);
+                             if (world.isEmptyBlock(targetPos)) {
+                                 continue;
+                             }
+-                            markPlacedBlockWet(world, targetPos, wetUntil);
++                            markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
+                         }
                      }
                  }
              }
          }
- 
-         tessellator.end();
-         stack.popPose();
- 
-         RenderSystem.enableCull();
-         RenderSystem.disableBlend();
      }
  
-+    private static void updateWetStateCache(World world, BlockPos center, long gameTime) {
-+        Iterator<Map.Entry<BlockPos, Long>> iterator = WET_BLOCK_UNTIL.entrySet().iterator();
-+        while (iterator.hasNext()) {
-+            Map.Entry<BlockPos, Long> entry = iterator.next();
-+            BlockPos pos = entry.getKey();
-+            long wetUntil = entry.getValue();
-+            if (wetUntil <= gameTime || world.isEmptyBlock(pos)
-+                    || Math.abs(pos.getX() - center.getX()) > RENDER_RADIUS + 2
-+                    || Math.abs(pos.getY() - center.getY()) > RENDER_RADIUS + 2
-+                    || Math.abs(pos.getZ() - center.getZ()) > RENDER_RADIUS + 2) {
-+                iterator.remove();
-+            }
-+        }
-+
-+        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
-+        BlockPos.Mutable mutable = new BlockPos.Mutable();
-+        for (int x = -RENDER_RADIUS; x <= RENDER_RADIUS; x++) {
-+            for (int y = -RENDER_RADIUS; y <= RENDER_RADIUS; y++) {
-+                for (int z = -RENDER_RADIUS; z <= RENDER_RADIUS; z++) {
-+                    mutable.set(center.getX() + x, center.getY() + y, center.getZ() + z);
-+                    BlockState state = world.getBlockState(mutable);
-+                    if (state.isAir(world, mutable) || !state.getMaterial().isSolid()) {
-+                        continue;
-+                    }
-+
-+                    if (isWetByEnvironment(world, mutable)) {
-+                        WET_BLOCK_UNTIL.put(mutable.immutable(), wetUntil);
-+                    }
-+                }
-+            }
-+        }
-+    }
-+
-+    private static boolean isBlockWet(World world, BlockPos pos, long gameTime) {
-+        if (world.getFluidState(pos).is(FluidTags.WATER)) {
-+            return false;
-+        }
-+
-+        Long wetUntil = WET_BLOCK_UNTIL.get(pos);
-+        return wetUntil != null && wetUntil > gameTime;
-+    }
-+
-     private static boolean isWetByEnvironment(World world, BlockPos pos) {
-         if (world.getFluidState(pos).is(FluidTags.WATER)) {
-             return false;
+     private static void applyRainWetState(ServerWorld world, long gameTime) {
+         if (!world.isRaining()) {
+             return;
          }
  
-         if (world.isRainingAt(pos.above())) {
-             return true;
+         int playerCount = world.players().size();
+         if (playerCount == 0) {
+             return;
          }
  
-         for (Direction direction : Direction.values()) {
-             if (world.getFluidState(pos.relative(direction)).is(FluidTags.WATER)) {
-                 return true;
+         long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
+         for (PlayerEntity player : world.players()) {
+             if (player.isSpectator()) {
+                 continue;
+             }
+ 
+             BlockPos playerPos = player.blockPosition();
+             for (int i = 0; i < RAIN_SAMPLES_PER_PLAYER; i++) {
+                 int x = playerPos.getX() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
+                 int z = playerPos.getZ() + world.random.nextInt(RAIN_SCAN_RADIUS * 2 + 1) - RAIN_SCAN_RADIUS;
+                 int surfaceY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
+                 BlockPos rainCheckPos = new BlockPos(x, surfaceY, z);
+                 if (!world.isRainingAt(rainCheckPos)) {
+                     continue;
+                 }
+ 
+                 BlockPos targetPos = rainCheckPos.below();
+                 if (world.isEmptyBlock(targetPos)) {
+                     continue;
+                 }
+ 
+-                markPlacedBlockWet(world, targetPos, wetUntil);
++                markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
              }
          }
- 
-         return false;
      }
  
-     private static void addFace(BufferBuilder buffer, Matrix4f matrix, BlockPos pos, Direction side) {
-         float x0 = pos.getX();
-         float y0 = pos.getY();
-         float z0 = pos.getZ();
-         float x1 = x0 + 1.0F;
-         float y1 = y0 + 1.0F;
-         float z1 = z0 + 1.0F;
+     private static List<BlockPos> createWaterTouchOffsets() {
+         List<BlockPos> offsets = new ArrayList<>();
+         offsets.add(BlockPos.ZERO);
+         offsets.add(new BlockPos(1, 0, 0));
+         offsets.add(new BlockPos(-1, 0, 0));
+         offsets.add(new BlockPos(0, 0, 1));
+         offsets.add(new BlockPos(0, 0, -1));
+         offsets.add(new BlockPos(0, 1, 0));
+         offsets.add(new BlockPos(0, -1, 0));
+         return offsets;
+     }
+ 
+     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
+         // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
+     }
+ }
  
 EOF
 )

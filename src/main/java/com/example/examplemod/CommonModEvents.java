@@ -44,10 +44,10 @@ public final class CommonModEvents {
     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
-    private static final int WATER_SCAN_INTERVAL_TICKS = 20;
+    private static final int WATER_SCAN_INTERVAL_TICKS = 100;
     private static final int WATER_SCAN_HORIZONTAL_RADIUS = 4;
     private static final int WATER_SCAN_VERTICAL_RADIUS = 3;
-    private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
+    private static final int RAIN_SCAN_INTERVAL_TICKS = 60;
     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
     private static final int RAIN_SCAN_RADIUS = 24;
     private static final List<BlockPos> WATER_TOUCH_OFFSETS = createWaterTouchOffsets();
@@ -389,6 +389,18 @@ public final class CommonModEvents {
         spawnWetFaceParticles(world, pos);
     }
 
+    private static void markPlacedBlockWetIfDry(ServerWorld world, BlockPos pos, long wetUntil, long gameTime) {
+        Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
+        if (wetBlocks != null) {
+            Long currentWetUntil = wetBlocks.get(pos);
+            if (currentWetUntil != null && currentWetUntil > gameTime) {
+                return;
+            }
+        }
+
+        markPlacedBlockWet(world, pos, wetUntil);
+    }
+
     private static void applyNearbyWaterWetState(ServerWorld world, long gameTime) {
         if (world.players().isEmpty()) {
             return;
@@ -421,7 +433,7 @@ public final class CommonModEvents {
                             if (world.isEmptyBlock(targetPos)) {
                                 continue;
                             }
-                            markPlacedBlockWet(world, targetPos, wetUntil);
+                            markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
                         }
                     }
                 }
@@ -460,7 +472,7 @@ public final class CommonModEvents {
                     continue;
                 }
 
-                markPlacedBlockWet(world, targetPos, wetUntil);
+                markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
             }
         }
     }
