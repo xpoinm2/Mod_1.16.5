@@ -1,128 +1,30 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/item/WetItemData.java b/src/main/java/com/example/examplemod/item/WetItemData.java
-index 37abd9220e61226e6d121eb40955c511417d99cc..910f48f8ed0b1b6696e3c9bca8fc557f08c10c58 100644
---- a/src/main/java/com/example/examplemod/item/WetItemData.java
-+++ b/src/main/java/com/example/examplemod/item/WetItemData.java
-@@ -1,29 +1,32 @@
- package com.example.examplemod.item;
- 
- import net.minecraft.item.ItemStack;
- import net.minecraft.nbt.CompoundNBT;
-+import net.minecraft.nbt.INBT;
-+
-+import javax.annotation.Nullable;
- 
- public final class WetItemData {
-     private static final String WET_TAG = "examplemod_wet";
-     private static final String WET_UNTIL_TAG = "examplemod_wet_until";
- 
-     // Предмет остается мокрым 45 секунд после последнего намокания.
-     public static final int DEFAULT_WET_DURATION_TICKS = 20 * 45;
- 
-     private WetItemData() {
-     }
- 
-     public static void markWet(ItemStack stack, long gameTime) {
-         markWet(stack, gameTime, DEFAULT_WET_DURATION_TICKS);
-     }
- 
-     public static void markWet(ItemStack stack, long gameTime, int durationTicks) {
-         if (stack.isEmpty()) {
-             return;
-         }
- 
-         CompoundNBT tag = stack.getOrCreateTag();
-         tag.putBoolean(WET_TAG, true);
-         tag.putLong(WET_UNTIL_TAG, gameTime + Math.max(1, durationTicks));
-     }
- 
-@@ -55,33 +58,86 @@ public final class WetItemData {
-         if (tag == null) {
-             return;
-         }
- 
-         tag.remove(WET_TAG);
-         tag.remove(WET_UNTIL_TAG);
- 
-         if (tag.isEmpty()) {
-             stack.setTag(null);
-         }
-     }
- 
-     public static long getWetUntil(ItemStack stack) {
-         if (stack.isEmpty() || !stack.hasTag()) {
-             return 0L;
-         }
- 
-         CompoundNBT tag = stack.getTag();
-         if (tag == null || !tag.getBoolean(WET_TAG)) {
-             return 0L;
-         }
- 
-         return tag.getLong(WET_UNTIL_TAG);
-     }
- 
-+    public static void setWetUntil(ItemStack stack, long wetUntil) {
-+        if (stack.isEmpty()) {
-+            return;
-+        }
-+
-+        CompoundNBT tag = stack.getOrCreateTag();
-+        tag.putBoolean(WET_TAG, true);
-+        tag.putLong(WET_UNTIL_TAG, wetUntil);
+diff --git a/src/main/resources/data/minecraft/recipes/wooden_sword.json b/src/main/resources/data/minecraft/recipes/wooden_sword.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..13283040425ef3ecb373d435c6684dc530a8d731
+--- /dev/null
++++ b/src/main/resources/data/minecraft/recipes/wooden_sword.json
+@@ -0,0 +1,20 @@
++{
++  "type": "forge:conditional",
++  "recipes": [
++    {
++      "conditions": [
++        { "type": "forge:false" }
++      ],
++      "recipe": {
++        "type": "minecraft:crafting_shaped",
++        "pattern": [
++          "###"
++        ],
++        "key": {
++          "#": { "item": "minecraft:barrier" }
++        },
++        "result": { "item": "minecraft:barrier" }
++      }
 +    }
-+
-+    public static boolean canMergeIgnoringWetness(ItemStack first, ItemStack second) {
-+        if (first.isEmpty() || second.isEmpty()) {
-+            return false;
-+        }
-+
-+        if (!first.sameItem(second)) {
-+            return false;
-+        }
-+
-+        if (first.getDamageValue() != second.getDamageValue()) {
-+            return false;
-+        }
-+
-+        if (first.getCount() >= first.getMaxStackSize()) {
-+            return false;
-+        }
-+
-+        return sameTagExceptWetData(first.getTag(), second.getTag());
-+    }
-+
-+    private static boolean sameTagExceptWetData(@Nullable CompoundNBT first, @Nullable CompoundNBT second) {
-+        CompoundNBT firstCopy = copyWithoutWetData(first);
-+        CompoundNBT secondCopy = copyWithoutWetData(second);
-+        return firstCopy.equals(secondCopy);
-+    }
-+
-+    private static CompoundNBT copyWithoutWetData(@Nullable CompoundNBT tag) {
-+        if (tag == null) {
-+            return new CompoundNBT();
-+        }
-+
-+        CompoundNBT copy = tag.copy();
-+        INBT wet = copy.get(WET_TAG);
-+        if (wet != null) {
-+            copy.remove(WET_TAG);
-+        }
-+        INBT wetUntil = copy.get(WET_UNTIL_TAG);
-+        if (wetUntil != null) {
-+            copy.remove(WET_UNTIL_TAG);
-+        }
-+        return copy;
-+    }
-+
-     public static int getRemainingWetTicks(ItemStack stack, long gameTime) {
-         long wetUntil = getWetUntil(stack);
-         if (wetUntil <= gameTime) {
-             return 0;
-         }
-         return (int) Math.min(Integer.MAX_VALUE, wetUntil - gameTime);
-     }
- }
++  ]
++}
  
 EOF
 )
