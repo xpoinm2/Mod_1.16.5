@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11;
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class WetBlockDropletRenderer {
     private static final ResourceLocation DROPLET_TEXTURE =
-            new ResourceLocation(ExampleMod.MODID, "textures/particle/hurricane_wind_0.png");
+            new ResourceLocation(ExampleMod.MODID, "textures/environment/wet_drops_overlay.png");
     private static final int RENDER_RADIUS = 6;
     private static final double FACE_OFFSET = 0.002D;
 

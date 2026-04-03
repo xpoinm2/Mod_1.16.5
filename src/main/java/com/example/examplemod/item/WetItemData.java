@@ -2,6 +2,9 @@ package com.example.examplemod.item;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+
+import javax.annotation.Nullable;
 
 public final class WetItemData {
     private static final String WET_TAG = "examplemod_wet";
@@ -75,6 +78,59 @@ public final class WetItemData {
         }
 
         return tag.getLong(WET_UNTIL_TAG);
+    }
+
+    public static void setWetUntil(ItemStack stack, long wetUntil) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putBoolean(WET_TAG, true);
+        tag.putLong(WET_UNTIL_TAG, wetUntil);
+    }
+
+    public static boolean canMergeIgnoringWetness(ItemStack first, ItemStack second) {
+        if (first.isEmpty() || second.isEmpty()) {
+            return false;
+        }
+
+        if (!first.sameItem(second)) {
+            return false;
+        }
+
+        if (first.getDamageValue() != second.getDamageValue()) {
+            return false;
+        }
+
+        if (first.getCount() >= first.getMaxStackSize()) {
+            return false;
+        }
+
+        return sameTagExceptWetData(first.getTag(), second.getTag());
+    }
+
+    private static boolean sameTagExceptWetData(@Nullable CompoundNBT first, @Nullable CompoundNBT second) {
+        CompoundNBT firstCopy = copyWithoutWetData(first);
+        CompoundNBT secondCopy = copyWithoutWetData(second);
+        return firstCopy.equals(secondCopy);
+    }
+
+    private static CompoundNBT copyWithoutWetData(@Nullable CompoundNBT tag) {
+        if (tag == null) {
+            return new CompoundNBT();
+        }
+
+        CompoundNBT copy = tag.copy();
+        INBT wet = copy.get(WET_TAG);
+        if (wet != null) {
+            copy.remove(WET_TAG);
+        }
+        INBT wetUntil = copy.get(WET_UNTIL_TAG);
+        if (wetUntil != null) {
+            copy.remove(WET_UNTIL_TAG);
+        }
+        return copy;
     }
 
     public static int getRemainingWetTicks(ItemStack stack, long gameTime) {

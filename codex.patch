@@ -1,146 +1,126 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java b/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java
-index 240422ef2183709e0823259a9641b04d4663d4c9..cf6b7dd330c8adb15021a305ca016900bd5ad125 100644
---- a/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java
-+++ b/src/main/java/com/example/examplemod/client/render/WetItemRenderEffects.java
-@@ -1,131 +1,87 @@
- package com.example.examplemod.client.render;
+diff --git a/src/main/java/com/example/examplemod/item/WetItemData.java b/src/main/java/com/example/examplemod/item/WetItemData.java
+index 37abd9220e61226e6d121eb40955c511417d99cc..910f48f8ed0b1b6696e3c9bca8fc557f08c10c58 100644
+--- a/src/main/java/com/example/examplemod/item/WetItemData.java
++++ b/src/main/java/com/example/examplemod/item/WetItemData.java
+@@ -1,29 +1,32 @@
+ package com.example.examplemod.item;
  
- import com.example.examplemod.ExampleMod;
- import com.example.examplemod.item.WetItemData;
- import com.mojang.blaze3d.matrix.MatrixStack;
- import net.minecraft.client.Minecraft;
- import net.minecraft.client.gui.AbstractGui;
- import net.minecraft.client.gui.screen.inventory.ContainerScreen;
- import net.minecraft.entity.player.PlayerEntity;
-+import net.minecraft.util.ResourceLocation;
- import net.minecraft.inventory.container.Slot;
  import net.minecraft.item.ItemStack;
- import net.minecraftforge.api.distmarker.Dist;
- import net.minecraftforge.client.event.GuiScreenEvent;
- import net.minecraftforge.client.event.RenderGameOverlayEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
+ import net.minecraft.nbt.CompoundNBT;
++import net.minecraft.nbt.INBT;
++
++import javax.annotation.Nullable;
  
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class WetItemRenderEffects {
-+    private static final ResourceLocation WET_DROPS_OVERLAY =
-+            new ResourceLocation(ExampleMod.MODID, "textures/environment/wet_drops_overlay.png");
-     private WetItemRenderEffects() {
+ public final class WetItemData {
+     private static final String WET_TAG = "examplemod_wet";
+     private static final String WET_UNTIL_TAG = "examplemod_wet_until";
+ 
+     // Предмет остается мокрым 45 секунд после последнего намокания.
+     public static final int DEFAULT_WET_DURATION_TICKS = 20 * 45;
+ 
+     private WetItemData() {
      }
  
-     @SubscribeEvent
-     public static void onHotbarRender(RenderGameOverlayEvent.Post event) {
-         if (event.getType() != RenderGameOverlayEvent.ElementType.HOTBAR) {
-             return;
-         }
- 
-         Minecraft mc = Minecraft.getInstance();
-         PlayerEntity player = mc.player;
-         if (player == null) {
-             return;
-         }
- 
-         MatrixStack matrixStack = event.getMatrixStack();
-         int centerX = event.getWindow().getGuiScaledWidth() / 2;
-         int y = event.getWindow().getGuiScaledHeight() - 22;
-         long gameTime = player.level.getGameTime();
- 
-         for (int slot = 0; slot < 9; slot++) {
-             ItemStack stack = player.inventory.getItem(slot);
-             if (!WetItemData.isWet(stack, gameTime)) {
-                 continue;
-             }
- 
-             int x = centerX - 90 + slot * 20;
--            drawWetOverlay(matrixStack, x, y, slot);
-+            drawWetOverlay(matrixStack, x, y);
-         }
+     public static void markWet(ItemStack stack, long gameTime) {
+         markWet(stack, gameTime, DEFAULT_WET_DURATION_TICKS);
      }
  
-     @SubscribeEvent
-     public static void onContainerRender(GuiScreenEvent.DrawScreenEvent.Post event) {
-         if (!(event.getGui() instanceof ContainerScreen<?>)) {
+     public static void markWet(ItemStack stack, long gameTime, int durationTicks) {
+         if (stack.isEmpty()) {
              return;
          }
  
-         Minecraft mc = Minecraft.getInstance();
-         PlayerEntity player = mc.player;
-         if (player == null) {
+         CompoundNBT tag = stack.getOrCreateTag();
+         tag.putBoolean(WET_TAG, true);
+         tag.putLong(WET_UNTIL_TAG, gameTime + Math.max(1, durationTicks));
+     }
+ 
+@@ -55,33 +58,86 @@ public final class WetItemData {
+         if (tag == null) {
              return;
          }
  
-         ContainerScreen<?> screen = (ContainerScreen<?>) event.getGui();
-         MatrixStack matrixStack = event.getMatrixStack();
-         long gameTime = player.level.getGameTime();
--        int index = 0;
-         int guiLeft = screen.getGuiLeft();
-         int guiTop = screen.getGuiTop();
+         tag.remove(WET_TAG);
+         tag.remove(WET_UNTIL_TAG);
  
-         for (Slot slot : screen.getMenu().slots) {
-             if (slot == null || !slot.hasItem()) {
--                index++;
-                 continue;
-             }
- 
-             if (WetItemData.isWet(slot.getItem(), gameTime)) {
--                drawWetOverlay(matrixStack, guiLeft + slot.x, guiTop + slot.y, index);
-+                drawWetOverlay(matrixStack, guiLeft + slot.x, guiTop + slot.y);
-             }
--            index++;
+         if (tag.isEmpty()) {
+             stack.setTag(null);
          }
      }
  
--    private static void drawWetOverlay(MatrixStack matrixStack, int x, int y, int seed) {
--        int baseAlpha = 165;
--        int edgeColor = (baseAlpha << 24) | 0x57B8FF;
--        int innerColor = (Math.min(255, baseAlpha + 35) << 24) | 0xA5DCFF;
--
--        // Небольшие "квадраты воды" с каждой стороны слота.
--        drawPatchOnSide(matrixStack, x, y, seed * 37 + 3, 0, edgeColor, innerColor);   // top
--        drawPatchOnSide(matrixStack, x, y, seed * 37 + 11, 1, edgeColor, innerColor);  // bottom
--        drawPatchOnSide(matrixStack, x, y, seed * 37 + 19, 2, edgeColor, innerColor);  // left
--        drawPatchOnSide(matrixStack, x, y, seed * 37 + 29, 3, edgeColor, innerColor);  // right
--    }
--
--    private static void drawPatchOnSide(MatrixStack matrixStack, int x, int y, int seed, int side, int edgeColor, int innerColor) {
--        int size = 3 + positiveMod(seed, 4); // 3..6
--        int inset = 1 + positiveMod(seed / 3, 2); // 1..2
--
--        int startX;
--        int startY;
--
--        switch (side) {
--            case 0: // top
--                startX = x + 1 + positiveMod(seed, 18 - size);
--                startY = y + inset;
--                break;
--            case 1: // bottom
--                startX = x + 1 + positiveMod(seed / 5, 18 - size);
--                startY = y + 17 - inset - size;
--                break;
--            case 2: // left
--                startX = x + inset;
--                startY = y + 1 + positiveMod(seed / 7, 18 - size);
--                break;
--            default: // right
--                startX = x + 17 - inset - size;
--                startY = y + 1 + positiveMod(seed / 11, 18 - size);
--                break;
--        }
--
--        AbstractGui.fill(matrixStack, startX, startY, startX + size, startY + size, edgeColor);
--        if (size >= 4) {
--            AbstractGui.fill(matrixStack, startX + 1, startY + 1, startX + size - 1, startY + size - 1, innerColor);
--        }
--    }
--
--    private static int positiveMod(int value, int mod) {
--        int result = value % mod;
--        return result < 0 ? result + mod : result;
-+    private static void drawWetOverlay(MatrixStack matrixStack, int x, int y) {
-+        Minecraft.getInstance().getTextureManager().bind(WET_DROPS_OVERLAY);
-+        AbstractGui.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+     public static long getWetUntil(ItemStack stack) {
+         if (stack.isEmpty() || !stack.hasTag()) {
+             return 0L;
+         }
+ 
+         CompoundNBT tag = stack.getTag();
+         if (tag == null || !tag.getBoolean(WET_TAG)) {
+             return 0L;
+         }
+ 
+         return tag.getLong(WET_UNTIL_TAG);
+     }
+ 
++    public static void setWetUntil(ItemStack stack, long wetUntil) {
++        if (stack.isEmpty()) {
++            return;
++        }
++
++        CompoundNBT tag = stack.getOrCreateTag();
++        tag.putBoolean(WET_TAG, true);
++        tag.putLong(WET_UNTIL_TAG, wetUntil);
++    }
++
++    public static boolean canMergeIgnoringWetness(ItemStack first, ItemStack second) {
++        if (first.isEmpty() || second.isEmpty()) {
++            return false;
++        }
++
++        if (!first.sameItem(second)) {
++            return false;
++        }
++
++        if (first.getDamageValue() != second.getDamageValue()) {
++            return false;
++        }
++
++        if (first.getCount() >= first.getMaxStackSize()) {
++            return false;
++        }
++
++        return sameTagExceptWetData(first.getTag(), second.getTag());
++    }
++
++    private static boolean sameTagExceptWetData(@Nullable CompoundNBT first, @Nullable CompoundNBT second) {
++        CompoundNBT firstCopy = copyWithoutWetData(first);
++        CompoundNBT secondCopy = copyWithoutWetData(second);
++        return firstCopy.equals(secondCopy);
++    }
++
++    private static CompoundNBT copyWithoutWetData(@Nullable CompoundNBT tag) {
++        if (tag == null) {
++            return new CompoundNBT();
++        }
++
++        CompoundNBT copy = tag.copy();
++        INBT wet = copy.get(WET_TAG);
++        if (wet != null) {
++            copy.remove(WET_TAG);
++        }
++        INBT wetUntil = copy.get(WET_UNTIL_TAG);
++        if (wetUntil != null) {
++            copy.remove(WET_UNTIL_TAG);
++        }
++        return copy;
++    }
++
+     public static int getRemainingWetTicks(ItemStack stack, long gameTime) {
+         long wetUntil = getWetUntil(stack);
+         if (wetUntil <= gameTime) {
+             return 0;
+         }
+         return (int) Math.min(Integer.MAX_VALUE, wetUntil - gameTime);
      }
  }
  

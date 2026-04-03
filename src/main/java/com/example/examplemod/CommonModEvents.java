@@ -84,6 +84,7 @@ public final class CommonModEvents {
         }
 
         applyWetState(player);
+        mergeInventoryStacksByWetState(player, player.level.getGameTime());
         applyLowHealthStarvationDamage(player);
     }
 
@@ -294,6 +295,56 @@ public final class CommonModEvents {
         }
     }
 
+    private static void mergeInventoryStacksByWetState(PlayerEntity player, long gameTime) {
+        int size = player.inventory.getContainerSize();
+        for (int i = 0; i < size; i++) {
+            ItemStack target = player.inventory.getItem(i);
+            if (target.isEmpty()) {
+                continue;
+            }
+
+            int maxStack = target.getMaxStackSize();
+            if (target.getCount() >= maxStack) {
+                continue;
+            }
+
+            for (int j = i + 1; j < size; j++) {
+                ItemStack source = player.inventory.getItem(j);
+                if (source.isEmpty()) {
+                    continue;
+                }
+
+                if (!WetItemData.canMergeIgnoringWetness(target, source)) {
+                    continue;
+                }
+
+                long wetUntil = Math.max(WetItemData.getWetUntil(target), WetItemData.getWetUntil(source));
+
+                int transferable = Math.min(maxStack - target.getCount(), source.getCount());
+                if (transferable <= 0) {
+                    continue;
+                }
+
+                target.grow(transferable);
+                source.shrink(transferable);
+
+                if (wetUntil > gameTime) {
+                    WetItemData.setWetUntil(target, wetUntil);
+                } else {
+                    WetItemData.clearWet(target);
+                }
+
+                if (source.isEmpty()) {
+                    player.inventory.setItem(j, ItemStack.EMPTY);
+                }
+
+                if (target.getCount() >= maxStack) {
+                    break;
+                }
+            }
+        }
+    }
+
     private static boolean applyHotItemDamage(PlayerEntity player, ItemStack stack) {
         if (stack.isEmpty()) {
             return false;
@@ -426,4 +477,4 @@ public final class CommonModEvents {
     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
         // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
     }
-}
+}
