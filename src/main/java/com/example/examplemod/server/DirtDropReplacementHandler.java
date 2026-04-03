@@ -37,7 +37,7 @@ public final class DirtDropReplacementHandler {
             return;
         }
 
-        if (state.getBlock() == Blocks.DIRT) {
+        if (state.getBlock() == Blocks.DIRT || state.getBlock() == Blocks.GRASS_BLOCK) {
             world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             Block.popResource(world, pos, new ItemStack(ModItems.HANDFUL_OF_DIRT.get()));
             world.levelEvent(2001, pos, Block.getId(state));

@@ -553,7 +553,34 @@ public final class CommonModEvents {
     }
 
     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
-        // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
+        BlockState state = world.getBlockState(pos);
+        if (state.isAir(world, pos) || !state.getMaterial().isSolid()) {
+            return;
+        }
+
+        for (Direction direction : Direction.values()) {
+            BlockPos neighborPos = pos.relative(direction);
+            if (world.getBlockState(neighborPos).getMaterial().isSolid()) {
+                continue;
+            }
+
+            int droplets = direction == Direction.UP ? 1 : 2;
+            for (int i = 0; i < droplets; i++) {
+                double x = pos.getX() + 0.5D + direction.getStepX() * 0.51D + (world.random.nextDouble() - 0.5D) * 0.35D;
+                double y = pos.getY() + 0.5D + direction.getStepY() * 0.51D + (world.random.nextDouble() - 0.5D) * 0.35D;
+                double z = pos.getZ() + 0.5D + direction.getStepZ() * 0.51D + (world.random.nextDouble() - 0.5D) * 0.35D;
+
+                if (direction == Direction.DOWN) {
+                    y = pos.getY() + 0.03D;
+                }
+
+                world.sendParticles(net.minecraft.particles.ParticleTypes.DRIPPING_WATER,
+                        x, y, z,
+                        1,
+                        0.0D, 0.0D, 0.0D,
+                        0.0D);
+            }
+        }
     }
 
     private static void processPendingWetHarvestDrops(ServerWorld world, long gameTime) {

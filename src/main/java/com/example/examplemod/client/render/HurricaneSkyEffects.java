@@ -37,7 +37,6 @@ public final class HurricaneSkyEffects {
         }
 
         Minecraft minecraft = Minecraft.getInstance();
-        HurricaneClientState.tickFade();
         ClientWorld world = minecraft.level;
         if (world == null) {
             clearHandlers();

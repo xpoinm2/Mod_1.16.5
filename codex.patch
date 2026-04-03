@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/resources/data/minecraft/loot_tables/blocks/dirt.json b/src/main/resources/data/minecraft/loot_tables/blocks/dirt.json
+diff --git a/src/main/resources/data/minecraft/loot_tables/blocks/grass_block.json b/src/main/resources/data/minecraft/loot_tables/blocks/grass_block.json
 new file mode 100644
 index 0000000000000000000000000000000000000000..a15a6d3aa6f32030896a6050e5bc9745253dab1a
 --- /dev/null
-+++ b/src/main/resources/data/minecraft/loot_tables/blocks/dirt.json
++++ b/src/main/resources/data/minecraft/loot_tables/blocks/grass_block.json
 @@ -0,0 +1,14 @@
 +{
 +  "type": "minecraft:block",

@@ -3,6 +3,7 @@ package com.example.examplemod.client;
 import com.example.examplemod.ExampleMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -31,6 +32,14 @@ public final class HurricaneClientState {
 
     public static void setActive(boolean active) {
         HurricaneClientState.active = active;
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+        tickFade();
     }
 
     public static void tickFade() {
