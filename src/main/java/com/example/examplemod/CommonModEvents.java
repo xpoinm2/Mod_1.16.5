@@ -10,7 +10,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Hand;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.DamageSource;
@@ -28,8 +27,10 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.ArrayList;
@@ -43,9 +44,9 @@ public final class CommonModEvents {
     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
-    private static final int WATER_SCAN_INTERVAL_TICKS = 5;
-    private static final int WATER_SCAN_HORIZONTAL_RADIUS = 6;
-    private static final int WATER_SCAN_VERTICAL_RADIUS = 4;
+    private static final int WATER_SCAN_INTERVAL_TICKS = 20;
+    private static final int WATER_SCAN_HORIZONTAL_RADIUS = 4;
+    private static final int WATER_SCAN_VERTICAL_RADIUS = 3;
     private static final int RAIN_SCAN_INTERVAL_TICKS = 20;
     private static final int RAIN_SAMPLES_PER_PLAYER = 20;
     private static final int RAIN_SCAN_RADIUS = 24;
@@ -84,7 +85,6 @@ public final class CommonModEvents {
         }
 
         applyWetState(player);
-        mergeInventoryStacksByWetState(player, player.level.getGameTime());
         applyLowHealthStarvationDamage(player);
     }
 
@@ -251,15 +251,16 @@ public final class CommonModEvents {
     }
 
     @SubscribeEvent
-    public static void onServerStopping(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
+    public static void onWorldUnload(WorldEvent.Unload event) {
+        if (!(event.getWorld() instanceof ServerWorld)) {
             return;
         }
+        WET_PLACED_BLOCKS.remove((ServerWorld) event.getWorld());
+    }
 
-        MinecraftServer server = net.minecraftforge.fml.server.ServerLifecycleHooks.getCurrentServer();
-        if (server != null && !server.isRunning()) {
-            WET_PLACED_BLOCKS.clear();
-        }
+    @SubscribeEvent
+    public static void onServerStopping(FMLServerStoppingEvent event) {
+        WET_PLACED_BLOCKS.clear();
     }
 
     private static void applyWetState(PlayerEntity player) {

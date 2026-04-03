@@ -18,22 +18,20 @@ import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 public final class HurricaneWeatherMechanic implements IMechanicModule {
-    private static final int MIN_TREES_PER_HURRICANE = 5;
-    private static final int MAX_TREES_PER_HURRICANE = 10;
+    private static final int HURRICANE_PHASES = 6;
     private static final int MIN_HURRICANE_DURATION = 3600;
     private static final int MAX_HURRICANE_DURATION = 15600;
     private static final int MIN_CLEAR_DURATION = 12000;
     private static final int MAX_CLEAR_DURATION = 48000;
     private static final int CHUNK_RADIUS = 6;
     private static final int BLOCK_RADIUS = CHUNK_RADIUS * 16;
-    private static final int TREE_SCAN_ATTEMPTS = 20;
     private static final int TREE_SCAN_DEPTH = 40;
     private static final int MAX_TREE_BLOCKS = 512;
     private static final int TREE_RADIUS_XZ = 8;
@@ -124,10 +122,8 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
             return;
         }
 
-        int destroyed = destroyTreesNearPlayers(world, state.breaksRemaining);
-        if (destroyed > 0) {
-            state.breaksRemaining -= destroyed;
-        }
+        destroyNearestTreesForPlayers(world);
+        state.breaksRemaining = Math.max(0, state.breaksRemaining - 1);
         state.scheduleNextBreak(tick);
         data.updateProgress(state.breaksRemaining, state.nextBreakTick);
     }
@@ -142,7 +138,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         }
         Random random = world.getRandom();
         int duration = rollHurricaneDuration(random);
-        HurricaneState state = new HurricaneState(world.getGameTime(), duration, random);
+        HurricaneState state = new HurricaneState(world.getGameTime(), duration);
         HURRICANE_STATES.put(world, state);
         data.start(state.endTick, state.totalBreaks, state.breaksRemaining, state.nextBreakTick);
         data.scheduleNextStart(0L);
@@ -211,40 +207,40 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         }
     }
 
-    private int destroyTreesNearPlayers(ServerWorld world, int remainingBreaks) {
-        List<ServerPlayerEntity> players = world.getServer().getPlayerList().getPlayers();
-        if (players.isEmpty()) {
-            return 0;
-        }
-
-        int destroyed = 0;
-        for (ServerPlayerEntity player : players) {
-            if (destroyed >= remainingBreaks) {
-                break;
+    private void destroyNearestTreesForPlayers(ServerWorld world) {
+        for (ServerPlayerEntity player : world.getPlayers(p -> !p.isSpectator())) {
+            BlockPos nearestTree = findNearestTreeBase(world, player.blockPosition(), BLOCK_RADIUS);
+            if (nearestTree != null) {
+                destroyTreeAt(world, nearestTree);
             }
-            BlockPos origin = player.blockPosition();
+        }
+    }
 
-            for (int attempt = 0; attempt < TREE_SCAN_ATTEMPTS; attempt++) {
-                int x = origin.getX() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
-                int z = origin.getZ() + world.random.nextInt(BLOCK_RADIUS * 2 + 1) - BLOCK_RADIUS;
+    private BlockPos findNearestTreeBase(ServerWorld world, BlockPos origin, int radius) {
+        BlockPos best = null;
+        long bestDistSq = Long.MAX_VALUE;
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                int x = origin.getX() + dx;
+                int z = origin.getZ() + dz;
                 int topY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
                 int minY = Math.max(0, topY - TREE_SCAN_DEPTH);
-
                 BlockPos.Mutable pos = new BlockPos.Mutable(x, topY, z);
                 for (int y = topY; y >= minY; y--) {
                     pos.set(x, y, z);
-                    if (world.getBlockState(pos).is(BlockTags.LOGS)) {
-                        if (destroyTreeAt(world, pos.immutable())) {
-                            destroyed++;
-                        }
-                        attempt = TREE_SCAN_ATTEMPTS;
-                        break;
+                    if (!world.getBlockState(pos).is(BlockTags.LOGS)) {
+                        continue;
                     }
+                    long distSq = pos.distSqr(origin);
+                    if (distSq < bestDistSq) {
+                        bestDistSq = distSq;
+                        best = pos.immutable();
+                    }
+                    break;
                 }
             }
         }
-
-        return destroyed;
+        return best;
     }
 
     private boolean destroyTreeAt(ServerWorld world, BlockPos start) {
@@ -288,23 +284,29 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
     }
 
     private static class HurricaneState {
+        private final long startTick;
         private final long endTick;
         private final int totalBreaks;
+        private final long phaseLength;
         private int breaksRemaining;
         private long nextBreakTick;
 
-        private HurricaneState(long startTick, int duration, Random random) {
+        private HurricaneState(long startTick, int duration) {
+            this.startTick = startTick;
             this.endTick = startTick + duration;
-            this.totalBreaks = random.nextInt((MAX_TREES_PER_HURRICANE - MIN_TREES_PER_HURRICANE) + 1)
-                    + MIN_TREES_PER_HURRICANE;
+            this.totalBreaks = HURRICANE_PHASES;
             this.breaksRemaining = totalBreaks;
+            this.phaseLength = Math.max(1, duration / HURRICANE_PHASES);
             scheduleNextBreak(startTick);
         }
 
         private HurricaneState(long endTick, int totalBreaks, int breaksRemaining, long nextBreakTick) {
+            long fallbackPhaseLength = Math.max(1, (endTick - nextBreakTick) / Math.max(1, breaksRemaining));
+            this.startTick = nextBreakTick - fallbackPhaseLength;
             this.endTick = endTick;
-            this.totalBreaks = totalBreaks;
-            this.breaksRemaining = breaksRemaining;
+            this.totalBreaks = Math.max(1, totalBreaks);
+            this.breaksRemaining = Math.max(0, breaksRemaining);
+            this.phaseLength = fallbackPhaseLength;
             this.nextBreakTick = nextBreakTick;
         }
 
@@ -318,9 +320,9 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
                 nextBreakTick = endTick;
                 return;
             }
-            long remainingTicks = Math.max(1, endTick - currentTick);
-            long interval = Math.max(1, remainingTicks / breaksRemaining);
-            nextBreakTick = currentTick + interval;
+            long completedPhases = Math.max(0L, totalBreaks - breaksRemaining + 1L);
+            long phaseTick = startTick + completedPhases * phaseLength;
+            nextBreakTick = Math.max(currentTick + 1L, Math.min(endTick, phaseTick));
         }
     }
 
@@ -350,7 +352,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
         }
         Random random = world.getRandom();
         int duration = rollHurricaneDuration(random);
-        HurricaneState state = new HurricaneState(world.getGameTime(), duration, random);
+        HurricaneState state = new HurricaneState(world.getGameTime(), duration);
         HURRICANE_STATES.put(world, state);
         data.start(state.endTick, state.totalBreaks, state.breaksRemaining, state.nextBreakTick);
         data.scheduleNextStart(0L);
@@ -367,5 +369,15 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
 
     private void clearVanillaWeather(ServerWorld world) {
         world.setWeatherParameters(6000, 0, false, false);
+    }
+
+    @Override
+    public boolean enableServerStopping() {
+        return true;
+    }
+
+    @Override
+    public void onServerStopping(FMLServerStoppingEvent event) {
+        HURRICANE_STATES.clear();
     }
 }

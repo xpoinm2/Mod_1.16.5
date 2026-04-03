@@ -46,7 +46,7 @@ public final class HeavenManager {
     public static final RegistryKey<World> HEAVEN_WORLD_KEY = RegistryKey.create(Registry.DIMENSION_REGISTRY, HEAVEN_ID);
 
     private static final BlockPos ARRIVAL_CENTER = new BlockPos(0, 3, 0);
-    private static final int FENCE_HALF_SIZE = 200; // Creates a 400x400 square perimeter
+    private static final int FENCE_HALF_SIZE = 50; // Creates a 100x100 square perimeter
 
     private static final Map<UUID, ReturnLocation> RETURN_LOCATIONS = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> PENDING_HEAVEN_RESPAWN = new ConcurrentHashMap<>();

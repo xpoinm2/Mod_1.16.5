@@ -12,6 +12,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.Map;
@@ -235,5 +236,15 @@ public final class WindMechanic implements IMechanicModule {
         RAIN,
         THUNDER,
         HURRICANE
+    }
+
+    @Override
+    public boolean enableServerStopping() {
+        return true;
+    }
+
+    @Override
+    public void onServerStopping(FMLServerStoppingEvent event) {
+        worldStates.clear();
     }
 }

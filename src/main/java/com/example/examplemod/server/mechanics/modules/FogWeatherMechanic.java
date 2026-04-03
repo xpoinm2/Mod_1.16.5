@@ -12,6 +12,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import java.util.Map;
 
@@ -170,5 +171,15 @@ public final class FogWeatherMechanic implements IMechanicModule {
         ModNetworkHandler.CHANNEL.sendTo(new FogStatePacket(active),
                 player.connection.connection,
                 net.minecraftforge.fml.network.NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    @Override
+    public boolean enableServerStopping() {
+        return true;
+    }
+
+    @Override
+    public void onServerStopping(FMLServerStoppingEvent event) {
+        LAST_STATES.clear();
     }
 }
