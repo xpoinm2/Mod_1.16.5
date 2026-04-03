@@ -1,16 +1,67 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/resources/assets/examplemod/models/item/handful_of_dirt.json b/src/main/resources/assets/examplemod/models/item/handful_of_dirt.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..042fd6837d61217cf3d0d69b7c11be2bf8c3016e
---- /dev/null
-+++ b/src/main/resources/assets/examplemod/models/item/handful_of_dirt.json
-@@ -0,0 +1,6 @@
-+{
-+  "parent": "item/generated",
-+  "textures": {
-+    "layer0": "examplemod:item/handful_of_dirt"
-+  }
-+}
+diff --git a/src/main/java/com/example/examplemod/server/DirtDropReplacementHandler.java b/src/main/java/com/example/examplemod/server/DirtDropReplacementHandler.java
+index 55f7a5fcb947db104a8e90227f81447b1b6f40cd..c48bd3676190764dba6c960f4f4820e7b99669c2 100644
+--- a/src/main/java/com/example/examplemod/server/DirtDropReplacementHandler.java
++++ b/src/main/java/com/example/examplemod/server/DirtDropReplacementHandler.java
+@@ -1,33 +1,47 @@
+ package com.example.examplemod.server;
+ 
+ import com.example.examplemod.ExampleMod;
+ import com.example.examplemod.ModItems;
++import net.minecraft.block.Block;
++import net.minecraft.block.BlockState;
++import net.minecraft.block.Blocks;
++import net.minecraft.entity.player.PlayerEntity;
+ import net.minecraft.item.ItemStack;
+-import net.minecraft.item.Items;
++import net.minecraft.util.math.BlockPos;
++import net.minecraft.world.World;
+ import net.minecraftforge.event.world.BlockEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+ import net.minecraftforge.fml.common.Mod;
+ 
+-import java.util.ListIterator;
+-
+ @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+ public final class DirtDropReplacementHandler {
+ 
+     private DirtDropReplacementHandler() {
+     }
+ 
+     @SubscribeEvent
+-    public static void onHarvestDrops(BlockEvent.HarvestDropsEvent event) {
+-        if (event.getWorld().isClientSide()) {
++    public static void onBlockBreak(BlockEvent.BreakEvent event) {
++        if (!(event.getWorld() instanceof World)) {
++            return;
++        }
++
++        World world = (World) event.getWorld();
++        if (world.isClientSide()) {
++            return;
++        }
++
++        BlockPos pos = event.getPos();
++        BlockState state = event.getState();
++        PlayerEntity player = event.getPlayer();
++        if (player == null || player.isCreative()) {
+             return;
+         }
+ 
+-        ListIterator<ItemStack> iterator = event.getDrops().listIterator();
+-        while (iterator.hasNext()) {
+-            ItemStack drop = iterator.next();
+-            if (drop.getItem() == Items.DIRT) {
+-                iterator.set(new ItemStack(ModItems.HANDFUL_OF_DIRT.get(), drop.getCount()));
+-            }
++        if (state.getBlock() == Blocks.DIRT) {
++            world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
++            Block.popResource(world, pos, new ItemStack(ModItems.HANDFUL_OF_DIRT.get()));
++            world.levelEvent(2001, pos, Block.getId(state));
++            event.setCanceled(true);
+         }
+     }
+ }
  
 EOF
 )
