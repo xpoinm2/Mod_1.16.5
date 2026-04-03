@@ -38,10 +38,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class CommonModEvents {
     private static final Map<World, Map<BlockPos, Long>> WET_PLACED_BLOCKS = new HashMap<>();
+    private static final Map<UUID, PendingWetPlacement> PENDING_WET_PLACEMENTS = new HashMap<>();
     private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
     private static final int WORLD_WET_PROCESS_INTERVAL_TICKS = 5;
     private static final int WATER_SCAN_INTERVAL_TICKS = 100;
@@ -85,6 +87,7 @@ public final class CommonModEvents {
         }
 
         applyWetState(player);
+        cleanupExpiredPendingPlacement(player, player.level.getGameTime());
         applyLowHealthStarvationDamage(player);
     }
 
@@ -123,13 +126,23 @@ public final class CommonModEvents {
             return;
         }
 
+        PlayerEntity player = event.getPlayer();
         ItemStack stack = event.getItemStack();
         if (stack.isEmpty()) {
+            PENDING_WET_PLACEMENTS.remove(player.getUUID());
             return;
         }
 
         if (event.getWorld().getFluidState(event.getPos()).is(FluidTags.WATER)) {
             WetItemData.markSoaked(stack);
+        }
+
+        long gameTime = player.level.getGameTime();
+        if (stack.getItem() instanceof BlockItem && WetItemData.isWet(stack, gameTime)) {
+            long wetUntil = WetItemData.isSoaked(stack) ? Long.MAX_VALUE : WetItemData.getWetUntil(stack);
+            PENDING_WET_PLACEMENTS.put(player.getUUID(), new PendingWetPlacement(wetUntil, gameTime + 2L));
+        } else {
+            PENDING_WET_PLACEMENTS.remove(player.getUUID());
         }
     }
 
@@ -153,10 +166,18 @@ public final class CommonModEvents {
         }
 
         PlayerEntity player = (PlayerEntity) event.getEntity();
+        long gameTime = player.level.getGameTime();
+        PendingWetPlacement pendingPlacement = PENDING_WET_PLACEMENTS.remove(player.getUUID());
+        if (pendingPlacement != null && pendingPlacement.expiresAtTick >= gameTime) {
+            long wetUntil = pendingPlacement.wetUntil == Long.MAX_VALUE
+                    ? Long.MAX_VALUE
+                    : Math.max(gameTime + 1L, pendingPlacement.wetUntil);
+            markPlacedBlockWet((ServerWorld) event.getWorld(), event.getPos(), wetUntil);
+            return;
+        }
+
         BlockState placedState = event.getPlacedBlock();
         Block placedBlock = placedState.getBlock();
-        long gameTime = player.level.getGameTime();
-
         for (Hand hand : Hand.values()) {
             ItemStack stackInHand = player.getItemInHand(hand);
             if (stackInHand.isEmpty() || !(stackInHand.getItem() instanceof BlockItem)) {
@@ -170,11 +191,40 @@ public final class CommonModEvents {
 
             if (WetItemData.isWet(stackInHand, gameTime)) {
                 long wetUntil = WetItemData.isSoaked(stackInHand)
-                        ? gameTime + WetItemData.DEFAULT_WET_DURATION_TICKS
+                        ? Long.MAX_VALUE
                         : WetItemData.getWetUntil(stackInHand);
                 markPlacedBlockWet((ServerWorld) event.getWorld(), event.getPos(), wetUntil);
             }
             return;
+        }
+    }
+
+    @SubscribeEvent
+    public static void onHarvestDrops(BlockEvent.HarvestDropsEvent event) {
+        if (event.getWorld().isClientSide()) {
+            return;
+        }
+        if (!(event.getWorld() instanceof ServerWorld)) {
+            return;
+        }
+
+        ServerWorld world = (ServerWorld) event.getWorld();
+        long gameTime = world.getGameTime();
+        Long wetUntil = getCurrentWetUntil(world, event.getPos(), gameTime);
+        if (wetUntil == null) {
+            return;
+        }
+
+        for (ItemStack drop : event.getDrops()) {
+            if (drop.isEmpty()) {
+                continue;
+            }
+
+            if (wetUntil == Long.MAX_VALUE) {
+                WetItemData.markSoaked(drop);
+            } else {
+                WetItemData.setWetUntil(drop, wetUntil);
+            }
         }
     }
 
@@ -193,13 +243,12 @@ public final class CommonModEvents {
             return;
         }
 
-        long wetUntil = world.getGameTime() + BLOCK_WET_DURATION_TICKS;
         for (BlockPos offset : WATER_TOUCH_OFFSETS) {
             BlockPos targetPos = waterPos.offset(offset);
             if (world.isEmptyBlock(targetPos)) {
                 continue;
             }
-            markPlacedBlockWet(world, targetPos, wetUntil);
+            markPlacedBlockWet(world, targetPos, Long.MAX_VALUE);
         }
     }
 
@@ -237,7 +286,19 @@ public final class CommonModEvents {
             BlockPos pos = entry.getKey();
             long wetUntil = entry.getValue();
 
-            if (wetUntil <= gameTime || world.isEmptyBlock(pos)) {
+            if (world.isEmptyBlock(pos)) {
+                iterator.remove();
+                continue;
+            }
+
+            if (isBlockInContinuousWetSource(world, pos)) {
+                if (wetUntil != Long.MAX_VALUE) {
+                    entry.setValue(Long.MAX_VALUE);
+                }
+            } else if (wetUntil == Long.MAX_VALUE) {
+                wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
+                entry.setValue(wetUntil);
+            } else if (wetUntil <= gameTime) {
                 iterator.remove();
                 continue;
             }
@@ -406,7 +467,6 @@ public final class CommonModEvents {
             return;
         }
 
-        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
         for (PlayerEntity player : world.players()) {
             if (player.isSpectator()) {
                 continue;
@@ -433,7 +493,7 @@ public final class CommonModEvents {
                             if (world.isEmptyBlock(targetPos)) {
                                 continue;
                             }
-                            markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
+                            markPlacedBlockWetIfDry(world, targetPos, Long.MAX_VALUE, gameTime);
                         }
                     }
                 }
@@ -451,7 +511,6 @@ public final class CommonModEvents {
             return;
         }
 
-        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
         for (PlayerEntity player : world.players()) {
             if (player.isSpectator()) {
                 continue;
@@ -472,7 +531,7 @@ public final class CommonModEvents {
                     continue;
                 }
 
-                markPlacedBlockWetIfDry(world, targetPos, wetUntil, gameTime);
+                markPlacedBlockWetIfDry(world, targetPos, Long.MAX_VALUE, gameTime);
             }
         }
     }
@@ -491,5 +550,65 @@ public final class CommonModEvents {
 
     private static void spawnWetFaceParticles(ServerWorld world, BlockPos pos) {
         // Визуал мокрости для блоков перенесен на клиентский текстурный рендер.
+    }
+
+    private static Long getCurrentWetUntil(ServerWorld world, BlockPos pos, long gameTime) {
+        if (isBlockInContinuousWetSource(world, pos)) {
+            return Long.MAX_VALUE;
+        }
+
+        Map<BlockPos, Long> wetBlocks = WET_PLACED_BLOCKS.get(world);
+        if (wetBlocks == null) {
+            return null;
+        }
+
+        Long wetUntil = wetBlocks.get(pos);
+        if (wetUntil == null) {
+            return null;
+        }
+
+        if (wetUntil <= gameTime) {
+            wetBlocks.remove(pos);
+            if (wetBlocks.isEmpty()) {
+                WET_PLACED_BLOCKS.remove(world);
+            }
+            return null;
+        }
+
+        return wetUntil;
+    }
+
+    private static boolean isBlockInContinuousWetSource(ServerWorld world, BlockPos pos) {
+        if (world.getFluidState(pos).is(FluidTags.WATER)) {
+            return true;
+        }
+
+        for (BlockPos offset : WATER_TOUCH_OFFSETS) {
+            if (offset.equals(BlockPos.ZERO)) {
+                continue;
+            }
+            if (world.getFluidState(pos.offset(offset)).is(FluidTags.WATER)) {
+                return true;
+            }
+        }
+
+        return world.isRaining() && world.isRainingAt(pos.above());
+    }
+
+    private static void cleanupExpiredPendingPlacement(PlayerEntity player, long gameTime) {
+        PendingWetPlacement pending = PENDING_WET_PLACEMENTS.get(player.getUUID());
+        if (pending != null && pending.expiresAtTick < gameTime) {
+            PENDING_WET_PLACEMENTS.remove(player.getUUID());
+        }
+    }
+
+    private static final class PendingWetPlacement {
+        private final long wetUntil;
+        private final long expiresAtTick;
+
+        private PendingWetPlacement(long wetUntil, long expiresAtTick) {
+            this.wetUntil = wetUntil;
+            this.expiresAtTick = expiresAtTick;
+        }
     }
 }
