@@ -1,61 +1,75 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/src/main/java/com/example/examplemod/world/heaven/HeavenManager.java b/src/main/java/com/example/examplemod/world/heaven/HeavenManager.java
-index e7a1fa4a59caa08108d36be5b6a321db3c8a8e52..f63c2fdb1498792aa3343bc306c8a6ca1ac991a6 100644
---- a/src/main/java/com/example/examplemod/world/heaven/HeavenManager.java
-+++ b/src/main/java/com/example/examplemod/world/heaven/HeavenManager.java
-@@ -24,51 +24,51 @@ import net.minecraft.world.server.ServerWorld;
- import net.minecraftforge.event.entity.living.LivingDeathEvent;
- import net.minecraftforge.event.entity.living.LivingEvent;
- import net.minecraftforge.event.entity.player.PlayerEvent;
- import net.minecraftforge.event.world.BlockEvent;
- import net.minecraftforge.eventbus.api.SubscribeEvent;
- import net.minecraftforge.fml.common.Mod;
- 
- import java.util.Map;
- import java.util.Random;
- import java.util.UUID;
- import java.util.concurrent.ConcurrentHashMap;
- 
- /**
-  * Centralised manager for all logic related to the Heaven dimension.
-  */
- @Mod.EventBusSubscriber(modid = ExampleMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
- public final class HeavenManager {
- 
-     private HeavenManager() {
+diff --git a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
+index a5bdd3fc1e0d0b01a9151389a94ac74508aad4ab..9a771ddfaa90b89286e12aaa8889963080c4cbdc 100644
+--- a/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
++++ b/src/main/java/com/example/examplemod/server/mechanics/modules/HurricaneWeatherMechanic.java
+@@ -196,64 +196,64 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
      }
  
-     public static final ResourceLocation HEAVEN_ID = new ResourceLocation(ExampleMod.MODID, "heaven");
-     public static final RegistryKey<World> HEAVEN_WORLD_KEY = RegistryKey.create(Registry.DIMENSION_REGISTRY, HEAVEN_ID);
- 
-     private static final BlockPos ARRIVAL_CENTER = new BlockPos(0, 3, 0);
--    private static final int FENCE_HALF_SIZE = 200; // Creates a 400x400 square perimeter
-+    private static final int FENCE_HALF_SIZE = 50; // Creates a 100x100 square perimeter
- 
-     private static final Map<UUID, ReturnLocation> RETURN_LOCATIONS = new ConcurrentHashMap<>();
-     private static final Map<UUID, Boolean> PENDING_HEAVEN_RESPAWN = new ConcurrentHashMap<>();
-     private static final Map<UUID, ArrivalReason> ARRIVAL_REASONS = new ConcurrentHashMap<>();
- 
-     public static void storeReturnLocation(ServerPlayerEntity player, Vector3d pos, RegistryKey<World> dimension) {
-         RETURN_LOCATIONS.put(player.getUUID(), new ReturnLocation(pos, player.yRot, player.xRot, dimension));
+     public static boolean isHurricaneActive(ServerWorld world) {
+         return HURRICANE_STATES.containsKey(world);
      }
  
-     public static void markForHeavenRespawn(ServerPlayerEntity player) {
-         PENDING_HEAVEN_RESPAWN.put(player.getUUID(), Boolean.TRUE);
-         ARRIVAL_REASONS.put(player.getUUID(), ArrivalReason.DEATH);
-     }
- 
-     public static void teleportToHeaven(ServerPlayerEntity player) {
-         ServerWorld heaven = player.server.getLevel(HEAVEN_WORLD_KEY);
-         if (heaven == null) {
-             player.sendMessage(new StringTextComponent("Heaven dimension is not available."), player.getUUID());
-             return;
+     @Override
+     public void onPlayerLogin(ServerPlayerEntity player) {
+         ServerWorld world = player.getLevel();
+         if (isHurricaneActive(world) || HurricaneWeatherData.get(world).isActive()) {
+             sendHurricaneState(player, true);
          }
+     }
  
-         prepareArrivalArea(heaven, ARRIVAL_CENTER);
+     private void destroyNearestTreesForPlayers(ServerWorld world) {
+         for (ServerPlayerEntity player : world.getPlayers(p -> !p.isSpectator())) {
+             BlockPos nearestTree = findNearestTreeBase(world, player.blockPosition(), BLOCK_RADIUS);
+             if (nearestTree != null) {
+                 destroyTreeAt(world, nearestTree);
+             }
+         }
+     }
  
-         player.fallDistance = 0.0f;
-         player.teleportTo(heaven, ARRIVAL_CENTER.getX() + 0.5, ARRIVAL_CENTER.getY(), ARRIVAL_CENTER.getZ() + 0.5,
+     private BlockPos findNearestTreeBase(ServerWorld world, BlockPos origin, int radius) {
+         BlockPos best = null;
+-        long bestDistSq = Long.MAX_VALUE;
++        double bestDistSq = Double.MAX_VALUE;
+         for (int dx = -radius; dx <= radius; dx++) {
+             for (int dz = -radius; dz <= radius; dz++) {
+                 int x = origin.getX() + dx;
+                 int z = origin.getZ() + dz;
+                 int topY = world.getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
+                 int minY = Math.max(0, topY - TREE_SCAN_DEPTH);
+                 BlockPos.Mutable pos = new BlockPos.Mutable(x, topY, z);
+                 for (int y = topY; y >= minY; y--) {
+                     pos.set(x, y, z);
+                     if (!world.getBlockState(pos).is(BlockTags.LOGS)) {
+                         continue;
+                     }
+-                    long distSq = pos.distSqr(origin);
++                    double distSq = pos.distSqr(origin);
+                     if (distSq < bestDistSq) {
+                         bestDistSq = distSq;
+                         best = pos.immutable();
+                     }
+                     break;
+                 }
+             }
+         }
+         return best;
+     }
+ 
+     private boolean destroyTreeAt(ServerWorld world, BlockPos start) {
+         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+         ObjectOpenHashSet<BlockPos> visited = new ObjectOpenHashSet<>();
+         queue.add(start);
+         visited.add(start);
+ 
+         int destroyed = 0;
+         while (!queue.isEmpty() && destroyed < MAX_TREE_BLOCKS) {
+             BlockPos current = queue.poll();
+             BlockState state = world.getBlockState(current);
+             if (!isTreeBlock(state)) {
+                 continue;
+             }
+ 
  
 EOF
 )

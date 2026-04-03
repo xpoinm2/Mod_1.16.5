@@ -218,7 +218,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
 
     private BlockPos findNearestTreeBase(ServerWorld world, BlockPos origin, int radius) {
         BlockPos best = null;
-        long bestDistSq = Long.MAX_VALUE;
+        double bestDistSq = Double.MAX_VALUE;
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 int x = origin.getX() + dx;
@@ -231,7 +231,7 @@ public final class HurricaneWeatherMechanic implements IMechanicModule {
                     if (!world.getBlockState(pos).is(BlockTags.LOGS)) {
                         continue;
                     }
-                    long distSq = pos.distSqr(origin);
+                    double distSq = pos.distSqr(origin);
                     if (distSq < bestDistSq) {
                         bestDistSq = distSq;
                         best = pos.immutable();
