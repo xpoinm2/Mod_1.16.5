@@ -21,12 +21,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 @Mod.EventBusSubscriber(modid = ExampleMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class WetBlockDropletRenderer {
     private static final ResourceLocation DROPLET_TEXTURE =
             new ResourceLocation(ExampleMod.MODID, "textures/environment/wet_drops_overlay.png");
     private static final int RENDER_RADIUS = 6;
+    private static final int BLOCK_WET_DURATION_TICKS = 20 * 45;
     private static final double FACE_OFFSET = 0.002D;
+    private static final Map<BlockPos, Long> WET_BLOCK_UNTIL = new HashMap<>();
 
     private WetBlockDropletRenderer() {
     }
@@ -35,6 +41,7 @@ public final class WetBlockDropletRenderer {
     public static void onRenderWorldLast(RenderWorldLastEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
+            WET_BLOCK_UNTIL.clear();
             return;
         }
 
@@ -42,6 +49,9 @@ public final class WetBlockDropletRenderer {
         Vector3d camPos = mc.gameRenderer.getMainCamera().getPosition();
         World world = mc.level;
         BlockPos center = mc.player.blockPosition();
+        long gameTime = world.getGameTime();
+
+        updateWetStateCache(world, center, gameTime);
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -66,7 +76,7 @@ public final class WetBlockDropletRenderer {
                         continue;
                     }
 
-                    if (!isWetByEnvironment(world, mutable)) {
+                    if (!isBlockWet(world, mutable, gameTime)) {
                         continue;
                     }
 
@@ -87,6 +97,48 @@ public final class WetBlockDropletRenderer {
 
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
+    }
+
+    private static void updateWetStateCache(World world, BlockPos center, long gameTime) {
+        Iterator<Map.Entry<BlockPos, Long>> iterator = WET_BLOCK_UNTIL.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<BlockPos, Long> entry = iterator.next();
+            BlockPos pos = entry.getKey();
+            long wetUntil = entry.getValue();
+            if (wetUntil <= gameTime || world.isEmptyBlock(pos)
+                    || Math.abs(pos.getX() - center.getX()) > RENDER_RADIUS + 2
+                    || Math.abs(pos.getY() - center.getY()) > RENDER_RADIUS + 2
+                    || Math.abs(pos.getZ() - center.getZ()) > RENDER_RADIUS + 2) {
+                iterator.remove();
+            }
+        }
+
+        long wetUntil = gameTime + BLOCK_WET_DURATION_TICKS;
+        BlockPos.Mutable mutable = new BlockPos.Mutable();
+        for (int x = -RENDER_RADIUS; x <= RENDER_RADIUS; x++) {
+            for (int y = -RENDER_RADIUS; y <= RENDER_RADIUS; y++) {
+                for (int z = -RENDER_RADIUS; z <= RENDER_RADIUS; z++) {
+                    mutable.set(center.getX() + x, center.getY() + y, center.getZ() + z);
+                    BlockState state = world.getBlockState(mutable);
+                    if (state.isAir(world, mutable) || !state.getMaterial().isSolid()) {
+                        continue;
+                    }
+
+                    if (isWetByEnvironment(world, mutable)) {
+                        WET_BLOCK_UNTIL.put(mutable.immutable(), wetUntil);
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean isBlockWet(World world, BlockPos pos, long gameTime) {
+        if (world.getFluidState(pos).is(FluidTags.WATER)) {
+            return false;
+        }
+
+        Long wetUntil = WET_BLOCK_UNTIL.get(pos);
+        return wetUntil != null && wetUntil > gameTime;
     }
 
     private static boolean isWetByEnvironment(World world, BlockPos pos) {
