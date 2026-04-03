@@ -114,7 +114,7 @@ public final class CommonModEvents {
             return;
         }
 
-        WetItemData.markWet(stack, event.getWorld().getGameTime());
+        WetItemData.markSoaked(stack);
     }
 
     @SubscribeEvent
@@ -129,7 +129,7 @@ public final class CommonModEvents {
         }
 
         if (event.getWorld().getFluidState(event.getPos()).is(FluidTags.WATER)) {
-            WetItemData.markWet(stack, event.getWorld().getGameTime());
+            WetItemData.markSoaked(stack);
         }
     }
 
@@ -168,8 +168,10 @@ public final class CommonModEvents {
                 continue;
             }
 
-            long wetUntil = WetItemData.getWetUntil(stackInHand);
-            if (wetUntil > gameTime) {
+            if (WetItemData.isWet(stackInHand, gameTime)) {
+                long wetUntil = WetItemData.isSoaked(stackInHand)
+                        ? gameTime + WetItemData.DEFAULT_WET_DURATION_TICKS
+                        : WetItemData.getWetUntil(stackInHand);
                 markPlacedBlockWet((ServerWorld) event.getWorld(), event.getPos(), wetUntil);
             }
             return;
@@ -266,16 +268,16 @@ public final class CommonModEvents {
     private static void applyWetState(PlayerEntity player) {
         long gameTime = player.level.getGameTime();
 
-        if (gameTime % 20 == 0 && (player.isInWaterRainOrBubble() || player.isInWater())) {
-            WetItemData.markWet(player.getMainHandItem(), gameTime);
-            WetItemData.markWet(player.getOffhandItem(), gameTime);
-        }
+        boolean inWetArea = player.isInWaterRainOrBubble() || player.isInWater();
+
+        WetItemData.updateWetState(player.getMainHandItem(), gameTime, inWetArea);
+        WetItemData.updateWetState(player.getOffhandItem(), gameTime, inWetArea);
 
         for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-            WetItemData.isWet(player.inventory.getItem(i), gameTime);
+            WetItemData.updateWetState(player.inventory.getItem(i), gameTime, inWetArea);
         }
 
-        WetItemData.isWet(player.inventory.getCarried(), gameTime);
+        WetItemData.updateWetState(player.inventory.getCarried(), gameTime, inWetArea);
     }
 
     private static void applyLowHealthStarvationDamage(PlayerEntity player) {

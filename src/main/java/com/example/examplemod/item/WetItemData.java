@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 public final class WetItemData {
     private static final String WET_TAG = "examplemod_wet";
     private static final String WET_UNTIL_TAG = "examplemod_wet_until";
+    private static final String WET_SOAKED_TAG = "examplemod_wet_soaked";
 
     // Предмет остается мокрым 45 секунд после последнего намокания.
     public static final int DEFAULT_WET_DURATION_TICKS = 20 * 45;
@@ -27,7 +28,46 @@ public final class WetItemData {
 
         CompoundNBT tag = stack.getOrCreateTag();
         tag.putBoolean(WET_TAG, true);
+        tag.remove(WET_SOAKED_TAG);
         tag.putLong(WET_UNTIL_TAG, gameTime + Math.max(1, durationTicks));
+    }
+
+    public static void markSoaked(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        CompoundNBT tag = stack.getOrCreateTag();
+        tag.putBoolean(WET_TAG, true);
+        tag.putBoolean(WET_SOAKED_TAG, true);
+        tag.remove(WET_UNTIL_TAG);
+    }
+
+    public static boolean isSoaked(ItemStack stack) {
+        if (stack.isEmpty() || !stack.hasTag()) {
+            return false;
+        }
+
+        CompoundNBT tag = stack.getTag();
+        return tag != null && tag.getBoolean(WET_TAG) && tag.getBoolean(WET_SOAKED_TAG);
+    }
+
+    public static void updateWetState(ItemStack stack, long gameTime, boolean inWetArea) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        if (inWetArea) {
+            markSoaked(stack);
+            return;
+        }
+
+        if (isSoaked(stack)) {
+            markWet(stack, gameTime);
+            return;
+        }
+
+        isWet(stack, gameTime);
     }
 
     public static boolean isWet(ItemStack stack, long gameTime) {
@@ -61,6 +101,7 @@ public final class WetItemData {
 
         tag.remove(WET_TAG);
         tag.remove(WET_UNTIL_TAG);
+        tag.remove(WET_SOAKED_TAG);
 
         if (tag.isEmpty()) {
             stack.setTag(null);
@@ -77,6 +118,10 @@ public final class WetItemData {
             return 0L;
         }
 
+        if (tag.getBoolean(WET_SOAKED_TAG)) {
+            return Long.MAX_VALUE;
+        }
+
         return tag.getLong(WET_UNTIL_TAG);
     }
 
@@ -87,6 +132,7 @@ public final class WetItemData {
 
         CompoundNBT tag = stack.getOrCreateTag();
         tag.putBoolean(WET_TAG, true);
+        tag.remove(WET_SOAKED_TAG);
         tag.putLong(WET_UNTIL_TAG, wetUntil);
     }
 
@@ -130,10 +176,18 @@ public final class WetItemData {
         if (wetUntil != null) {
             copy.remove(WET_UNTIL_TAG);
         }
+        INBT soaked = copy.get(WET_SOAKED_TAG);
+        if (soaked != null) {
+            copy.remove(WET_SOAKED_TAG);
+        }
         return copy;
     }
 
     public static int getRemainingWetTicks(ItemStack stack, long gameTime) {
+        if (isSoaked(stack)) {
+            return Integer.MAX_VALUE;
+        }
+
         long wetUntil = getWetUntil(stack);
         if (wetUntil <= gameTime) {
             return 0;
